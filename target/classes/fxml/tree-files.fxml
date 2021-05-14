@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.geometry.Insets?>
+<fx:root xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         type="VBox">
+    <HBox fx:id="tfmenu" minHeight="50" prefHeight="80" minWidth="400">
+        <HBox fx:id="r1" spacing="20">
+            <padding><Insets right="5" left="5" bottom="10" top="10" /></padding>
+            <TextField fx:id="searchInput" minWidth="40" minHeight="25"/>
+            <Button fx:id="search" minWidth="30" minHeight="25"/>
+        </HBox>
+    </HBox>
+    <TreeView fx:id="tree"/>
+</fx:root>

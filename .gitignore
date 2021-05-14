@@ -1,0 +1,15 @@
+.idea/
+.idea/**
+copy/
+copy/**
+NiftyJSONCompilerGenerator.iml
+target/generated-sources/
+target/generated-sources/**
+target/generated-test-sources/
+target/generated-test-sources/**
+target/maven-status/
+target/maven-status/**
+target/surefire-reports/
+target/surefire-reports/**
+target/maven-archiver/
+target/maven-archiver/**
