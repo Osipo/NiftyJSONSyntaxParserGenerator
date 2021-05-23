@@ -27,6 +27,7 @@ public class TextFieldTreeCell extends TreeCell<FileEntryItem> {
 
 
         super.setOnMouseClicked(event -> {
+
             //IF IS DIRECTORY AND IT IS SELECTED.
             if(event.getClickCount() == 1  && getItem() != null && getItem() instanceof DirectoryEntryItem){
                 System.out.println(getItem().getFullFileName());
@@ -39,6 +40,11 @@ public class TextFieldTreeCell extends TreeCell<FileEntryItem> {
                     );
                 }
             }
+//            //ELSE IF FILE SELECTED
+//            else if(event.getClickCount() == 1 && getItem() != null){
+//                System.out.println(getItem().getFullFileName());
+//            }
+            getTreeView().getSelectionModel().select(getTreeItem());
         });
     }
 

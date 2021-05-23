@@ -9,7 +9,7 @@
 <?import bmstu.iu7m.osipov.ui.controllers.TreeFilesController?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            prefHeight="400" prefWidth="400"
+            prefHeight="600" prefWidth="800"
             fx:id="root"
 >
         <top>

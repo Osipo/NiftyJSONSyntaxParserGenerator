@@ -18,11 +18,11 @@ public class TextFieldTreeCellCallback implements Callback<TreeView<FileEntryIte
     private FileLocatorService flocator;
 
     @PostConstruct
-    public void post(){
+    public void init(){
         if(flocator == null)
             System.out.println("no wiring at Callback");
         else
-            System.out.println("WIRED at TextFieldTreeCellCallback");
+            System.out.println("FileLocator WIRED  at TextFieldTreeCellCallback");
     }
 
     public TextFieldTreeCellCallback(){

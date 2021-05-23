@@ -9,33 +9,64 @@ import javafx.scene.paint.Color;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class TreeFilesView extends VBox {
+
+    //root container
     @FXML
-    private HBox tfmenu;
+    private VBox tfmenu;
+
+    //Section menu
     @FXML
-    private HBox r1;
+    private HBox menu;
     @FXML
-    private TextField searchInput;
+    protected TextField searchInput;
     @FXML
-    private Button search;
+    protected Button search;
+
+    //Section menu options
+    @FXML
+    private HBox tfmenu_bottom;
+    @FXML
+    private HBox menu_options;
+    @FXML
+    private RadioButton o_all;
+    @FXML
+    private RadioButton o_dirs;
+    @FXML
+    private RadioButton o_files;
 
     @Autowired
     private TextFieldTreeCellCallback tc_callback;
 
     @FXML
-    private TreeView<FileEntryItem> tree;
+    protected TreeView<FileEntryItem> tree;
+
+    //Group for radio buttons from menu options
+    protected ToggleGroup o_group;
 
     public TreeFilesView(){
+        o_group = new ToggleGroup();
         System.out.println("Parent TreeFilesView");
     }
 
     /* JavaFX components are loaded. Layout them */
     protected void initView(){
-        r1.prefWidthProperty().bind(tfmenu.widthProperty());
-        r1.prefHeightProperty().bind(tfmenu.heightProperty().multiply(0.75));
-        BackgroundFill bF = new BackgroundFill(Color.BLACK, new CornerRadii(1), null);
-        r1.setBackground(new Background(bF));
-
         System.out.println("Parent TreeFilesView > initView()");
+
+        menu.prefWidthProperty().bind(tfmenu.widthProperty());
+        menu.prefHeightProperty().bind(tfmenu.heightProperty().multiply(0.5));
+        BackgroundFill bF = new BackgroundFill(Color.BLACK, new CornerRadii(1), null);
+        menu.setBackground(new Background(bF));
+        menu.setTranslateY(tfmenu.getTranslateY());
+
+        tfmenu_bottom.setTranslateY(tfmenu_bottom.getTranslateY() + menu.getHeight());
+        tfmenu_bottom.prefWidthProperty().bind(tfmenu.prefWidthProperty());
+        menu_options.translateYProperty().bind(tfmenu_bottom.translateYProperty());
+        menu_options.prefWidthProperty().bind(tfmenu_bottom.prefWidthProperty());
+        menu_options.prefHeightProperty().bind(tfmenu_bottom.prefHeightProperty());
+
+        o_all.setToggleGroup(o_group);
+        o_dirs.setToggleGroup(o_group);
+        o_files.setToggleGroup(o_group);
         tree.setTranslateY(tfmenu.getTranslateY() + tfmenu.getHeight());
     }
 

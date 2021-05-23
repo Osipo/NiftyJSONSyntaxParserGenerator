@@ -30,5 +30,6 @@ public class RootWindowView {
         System.out.println("Parent RootWindowView > initView()");
         if(root != null)
             System.out.println("Parent type is: "+root.getClass().getName());
+        left.prefWidthProperty().bind(top.prefWidthProperty().divide(4));
     }
 }
