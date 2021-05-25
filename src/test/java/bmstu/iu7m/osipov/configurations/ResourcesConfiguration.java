@@ -1,8 +1,10 @@
 package bmstu.iu7m.osipov.configurations;
 
 import javafx.scene.image.Image;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -18,6 +20,7 @@ public class ResourcesConfiguration {
     }
 
     @Bean(name = "imgMap")
+    @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
     public HashMap<String, Image> getImages() {
         System.out.println("load collection of images");
         HashMap<String, Image> imgs = new HashMap<>();

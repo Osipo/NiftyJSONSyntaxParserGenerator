@@ -3,6 +3,7 @@ package bmstu.iu7m.osipov.ui_tests;
 import bmstu.iu7m.osipov.configurations.ControllerBeanNames;
 import bmstu.iu7m.osipov.configurations.ControllerConfiguration;
 import bmstu.iu7m.osipov.configurations.ResourcesConfiguration;
+import bmstu.iu7m.osipov.configurations.UIComponentStylesConfiguration;
 import bmstu.iu7m.osipov.services.files.FileLocatorService;
 import bmstu.iu7m.osipov.ui.controllers.RootWindowController;
 import org.junit.Test;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(
         loader = AnnotationConfigContextLoader.class,
-        classes = {ResourcesConfiguration.class, ControllerConfiguration.class}
+        classes = {ResourcesConfiguration.class, ControllerConfiguration.class, UIComponentStylesConfiguration.class}
 )
 public class RootWindowIntegrationTest {
 

@@ -16,21 +16,21 @@
             <VBox spacing="10" fx:id="top">
                 <!-- Top level Menu -->
                 <MenuBar fx:id="fMenu" minHeight="20" prefHeight="25">
-                    <Menu text="_File" mnemonicParsing="true">
-                        <Menu text="New">
-                            <MenuItem text="Text File"/>
+                    <Menu fx:id="m_file" text="_File" mnemonicParsing="true">
+                        <Menu fx:id="m_file_new" text="New">
+                            <MenuItem fx:id="m_file_new_tfile" text="Text File"/>
                         </Menu>
                         <SeparatorMenuItem/>
-                        <MenuItem text="Exit"/>
+                        <MenuItem fx:id="m_file_exit" text="Exit"/>
                     </Menu>
-                    <Menu text="_Preferences" mnemonicParsing="true">
-                        <Menu text="Languages">
-                            <MenuItem fx:id="eng_lang" text="English"/>
-                            <MenuItem fx:id="rus_lang" text="Russian"/>
+                    <Menu fx:id="m_prefs" text="_Preferences" mnemonicParsing="true">
+                        <Menu fx:id="m_prefs_lang" text="Languages">
+                            <MenuItem fx:id="m_prefs_lang_eng" text="English"/>
+                            <MenuItem fx:id="m_prefs_lang_rus" text="Russian"/>
                         </Menu>
                     </Menu>
-                    <Menu text="_Help" mnemonicParsing="true">
-                        <MenuItem text="About"/>
+                    <Menu fx:id="m_help" text="_Help" mnemonicParsing="true">
+                        <MenuItem fx:id="m_help_about" text="About"/>
                     </Menu>
                 </MenuBar>
 <!--                <Rectangle fill="green" width="100" height="100" fx:id="r1"/>-->

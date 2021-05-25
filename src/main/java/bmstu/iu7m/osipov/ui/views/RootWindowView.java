@@ -1,13 +1,15 @@
 package bmstu.iu7m.osipov.ui.views;
 
+import bmstu.iu7m.osipov.ui.models.entities.UIComponent;
+import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
+import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
+import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class RootWindowView {
 
@@ -16,7 +18,7 @@ public class RootWindowView {
     @FXML
     private VBox top;
 
-    //low panel section
+    //bottom panel section
     @FXML
     private HBox bottom;
     @FXML
@@ -31,13 +33,33 @@ public class RootWindowView {
     @FXML
     private MenuBar fMenu;
     @FXML
-    protected MenuItem eng_lang;
+    private Menu m_file;
     @FXML
-    protected MenuItem rus_lang;
+    private Menu m_file_new;
+    @FXML
+    protected MenuItem m_file_new_tfile;
+    @FXML
+    protected MenuItem m_file_exit;
+
+    @FXML
+    private Menu m_prefs;
+    @FXML
+    private Menu m_prefs_lang;
+    @FXML
+    protected MenuItem m_prefs_lang_eng;
+    @FXML
+    protected MenuItem m_prefs_lang_rus;
+    @FXML
+    private Menu m_help;
+    @FXML
+    protected MenuItem m_help_about;
 
     //left panel
     @FXML
     private VBox left;
+
+    @Autowired
+    protected UIComponentStore uiStore;
 
     public RootWindowView(){
         System.out.println("Parent RootWindowView constructor");
@@ -56,5 +78,29 @@ public class RootWindowView {
         bottom.prefWidthProperty().bind(top.prefWidthProperty());
         bottom_term.setToggleGroup(b_group);
         bottom_out.setToggleGroup(b_group);
+    }
+
+    protected void saveUIComponents(){
+
+        uiStore.getComponents().add(new UIComponent(root));
+        uiStore.getComponents().add(new UIComponent(top));
+        uiStore.getComponents().add(new UIComponent(fMenu));
+
+        uiStore.getComponents().add(new UIMenuItemComponent(m_file));
+        uiStore.getComponents().add(new UIMenuItemComponent(m_file_new));
+        uiStore.getComponents().add(new UIMenuItemComponent(m_file_new_tfile));
+        uiStore.getComponents().add(new UIMenuItemComponent(m_file_exit));
+        uiStore.getComponents().add(new UIMenuItemComponent(m_prefs));
+        uiStore.getComponents().add(new UIMenuItemComponent(m_prefs_lang));
+        uiStore.getComponents().add(new UIMenuItemComponent(m_prefs_lang_eng));
+        uiStore.getComponents().add(new UIMenuItemComponent(m_prefs_lang_rus));
+        uiStore.getComponents().add(new UIMenuItemComponent(m_help));
+        uiStore.getComponents().add(new UIMenuItemComponent(m_help_about));
+
+        uiStore.getComponents().add(new UITextComponent(bottom_term));
+        uiStore.getComponents().add(new UITextComponent(bottom_out));
+
+        //15 + 5
+        System.out.println(uiStore.getComponents().size());
     }
 }

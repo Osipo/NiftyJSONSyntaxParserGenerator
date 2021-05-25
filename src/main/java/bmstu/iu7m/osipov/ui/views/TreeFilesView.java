@@ -1,6 +1,8 @@
 package bmstu.iu7m.osipov.ui.views;
 
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
+import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
+import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
 import bmstu.iu7m.osipov.ui.views.callbacks.TextFieldTreeCellCallback;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -26,6 +28,8 @@ public class TreeFilesView extends VBox {
     @FXML
     private HBox tfmenu_bottom;
     @FXML
+    private Label menu_options_label;
+    @FXML
     private HBox menu_options;
     @FXML
     private RadioButton o_all;
@@ -42,6 +46,9 @@ public class TreeFilesView extends VBox {
 
     //Group for radio buttons from menu options
     protected ToggleGroup o_group;
+
+    @Autowired
+    protected UIComponentStore uiStore;
 
     public TreeFilesView(){
         o_group = new ToggleGroup();
@@ -78,5 +85,13 @@ public class TreeFilesView extends VBox {
         this.tree.setRoot(root);
         this.tree.setCellFactory(tc_callback);//creates TreeCells ONLY AFTER scene.show() method!
         this.tree.setEditable(true);
+    }
+
+    protected void saveUIComponents(){
+        uiStore.getComponents().add(new UITextComponent(o_all));
+        uiStore.getComponents().add(new UITextComponent(o_dirs));
+        uiStore.getComponents().add(new UITextComponent(o_files));
+        uiStore.getComponents().add(new UITextComponent(search));
+        uiStore.getComponents().add(new UITextComponent(menu_options_label));
     }
 }

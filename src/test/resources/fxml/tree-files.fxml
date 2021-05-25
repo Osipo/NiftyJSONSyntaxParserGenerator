@@ -19,7 +19,7 @@
             <Button fx:id="search" minWidth="50" minHeight="25" text="Search"/>
         </HBox>
         <HBox fx:id="tfmenu_bottom" spacing="50" minHeight="20" prefHeight="20">
-            <Label text="Search only: "/>
+            <Label fx:id="menu_options_label" text="Search only: "/>
             <HBox fx:id="menu_options" spacing="20">
                 <RadioButton fx:id="o_all" text="All"/>
                 <RadioButton fx:id="o_dirs" text="Directories"/>

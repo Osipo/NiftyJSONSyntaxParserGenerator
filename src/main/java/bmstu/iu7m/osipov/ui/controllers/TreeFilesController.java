@@ -37,6 +37,7 @@ public class TreeFilesController extends TreeFilesView {
     @PostConstruct
     public void init(){
         System.out.println("Post Construct of TreeFilesController bean");
+        super.saveUIComponents();
         if(fservice != null) {
             System.out.println(fservice.getClass().getName());
             loadFiles(this.fservice.getFileEntriesIn(System.getProperty("user.dir")));
