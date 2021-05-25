@@ -19,6 +19,11 @@ import java.util.HashMap;
 @Component("StackFileLocator")
 public class StackFileLocator implements FileLocatorService {
 
+    /**
+     * Recursively finds all entries starting in parentDir location
+     * @param parentDir A absolute path to the directory, from there we add content of that (all content of parentDir)
+     * @return A root of the tree of file entires for specified pdir.
+     */
     @Override
     public TreeItem<FileEntryItem> getAllFileEntriesFrom(String parentDir) {
         if(parentDir == null)
@@ -67,7 +72,7 @@ public class StackFileLocator implements FileLocatorService {
 
     /**
      * Non-recursive version of method getAllFileEntriesFrom(String pdir)
-     * @param pdir - Absolute path to directory, from where we add fileEntries (content of dir and its sub dirs)
+     * @param pdir - Absolute path to directory, from where we add fileEntries (content of pdir only but not sub_dirs)
      * @return A root of the tree of file entires for specified pdir.
      */
     @Override
@@ -105,6 +110,37 @@ public class StackFileLocator implements FileLocatorService {
         return root;
     }
 
+    @Override
+    public void addEntriesTo(TreeItem<FileEntryItem> pdir){
+        if(pdir == null || pdir.getValue() == null || pdir.getValue() instanceof RegularFileEntryItem)
+            return;
+
+        HashMap<String, Image> resImgs = ResourcesConfiguration.getImgs();
+        String cpath = pdir.getValue().getFullFileName();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(pdir.getValue().getFullFileName()))) {
+            for (Path p : stream) {
+                cpath = p.toAbsolutePath().toString();
+                if (Files.isDirectory(p)) {
+                    DirectoryEntryItem dentry = new DirectoryEntryItem(p.getFileName().toString());
+                    dentry.setFullFileName(p.toAbsolutePath().toString());
+
+                    TreeItem<FileEntryItem> ndir = new TreeItem<>(dentry);
+                    ndir.setGraphic(new ImageView(ImageNames.IMG_DIR));
+                    pdir.getChildren().add(ndir);
+                }
+                else {
+                    RegularFileEntryItem fentry = new RegularFileEntryItem(p.getFileName().toString());
+                    fentry.setFullFileName(p.toAbsolutePath().toString());
+
+                    TreeItem<FileEntryItem> nfile = new TreeItem<>(fentry);
+                    nfile.setGraphic(new ImageView(ImageNames.IMG_FILE));
+                    pdir.getChildren().add(nfile);
+                }
+            }
+        } catch (IOException e){
+            System.out.println("Cannot open path: "+cpath);
+        }
+    }
 
 
     //Example: a/b/c. until c, add content of each dir (do not apply to sub_dirs).

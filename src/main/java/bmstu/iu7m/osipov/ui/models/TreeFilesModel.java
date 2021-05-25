@@ -1,7 +1,6 @@
 package bmstu.iu7m.osipov.ui.models;
 
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
-import bmstu.iu7m.osipov.ui.views.IView;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -10,7 +9,7 @@ import javafx.scene.control.RadioButton;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.TreeItem;
 
-public class TreeFilesModel implements IModel {
+public class TreeFilesModel {
     private ObjectProperty<Toggle> selected_option;
     private ObjectProperty<TreeItem<FileEntryItem>> selected_item;
     private StringProperty text;

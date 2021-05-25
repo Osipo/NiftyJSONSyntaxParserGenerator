@@ -4,5 +4,5 @@ public interface ControllerBeanNames {
     String ROOT = "rootWindow";
     String ROOT_CTRL = "RootWindowController";
     String TREE_FILES_CTRL = "TreeFilesController";
-    String TAB_CTRL = "TabController";
+    String TAB_CONSOLE_CTRL = "ConsoleTabController";
 }

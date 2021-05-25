@@ -8,5 +8,7 @@ import org.springframework.stereotype.Service;
 public interface FileLocatorService {
     public TreeItem<FileEntryItem> getAllFileEntriesFrom(String pdir);
     public TreeItem<FileEntryItem> getFileEntriesIn(String pdir);
+    public void addEntriesTo(TreeItem<FileEntryItem> pdir);
+
     public TreeItem<FileEntryItem> getFileEntriesTo(String dest);
 }

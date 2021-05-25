@@ -1,4 +1,5 @@
 package bmstu.iu7m.osipov.configurations;
+import bmstu.iu7m.osipov.ui.controllers.ConsoleTabController;
 import bmstu.iu7m.osipov.ui.controllers.RootWindowController;
 import bmstu.iu7m.osipov.ui.controllers.TreeFilesController;
 import bmstu.iu7m.osipov.ui.factories.SpringBeanBuilderFactory;
@@ -30,7 +31,7 @@ public class ControllerConfiguration {
     }
 
     @Bean(name = ControllerBeanNames.ROOT_CTRL)
-    @DependsOn({ControllerBeanNames.TREE_FILES_CTRL})
+    @DependsOn({ControllerBeanNames.TREE_FILES_CTRL, ControllerBeanNames.TAB_CONSOLE_CTRL})
     public RootWindowController getRootController() throws IOException {
         System.out.println("Load root window...");
         return loadRootView(ControllerBeanFXML.ROOT_FXML);
@@ -44,6 +45,10 @@ public class ControllerConfiguration {
     }
 
 
+    @Bean(name = ControllerBeanNames.TAB_CONSOLE_CTRL)
+    public ConsoleTabController consoleController() throws IOException {
+        return (ConsoleTabController) loadController(ControllerBeanFXML.TAB_CONSOLE_FXML, ConsoleTabController.class);
+    }
 
     /* Parse FXML file indicated with url, and create instance of specified Controller's type and its Parent View */
     protected Object loadController(String url, Class<?> type) throws IOException {

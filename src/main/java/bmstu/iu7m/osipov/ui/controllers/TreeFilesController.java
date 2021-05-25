@@ -3,9 +3,11 @@ package bmstu.iu7m.osipov.ui.controllers;
 import bmstu.iu7m.osipov.services.files.FileLocatorService;
 import bmstu.iu7m.osipov.services.files.FileRetrievalService;
 import bmstu.iu7m.osipov.ui.models.TreeFilesModel;
+import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
 import bmstu.iu7m.osipov.ui.views.TreeFilesView;
 import javafx.fxml.FXML;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TreeItem;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
@@ -37,20 +39,27 @@ public class TreeFilesController extends TreeFilesView {
         System.out.println("Post Construct of TreeFilesController bean");
         if(fservice != null) {
             System.out.println(fservice.getClass().getName());
-            //loadFiles(this.fservice.getFileEntriesTo(System.getProperty("user.dir")));
-            //loadFiles(this.fservice.getAllFileEntriesFrom(System.getProperty("user.dir")));
             loadFiles(this.fservice.getFileEntriesIn(System.getProperty("user.dir")));
         }
         model.selectedItemProperty().bind(tree.getSelectionModel().selectedItemProperty());
         model.selectedOptionProperty().bind(o_group.selectedToggleProperty());
         model.textProperty().bind(searchInput.textProperty());
 
+        //set action for search button
         search.setOnAction((event -> {
-            //String type = ((RadioButton) model.getSelectedOption()).getText();
-            //String pdir = model.getSelectedItem().getValue().getFullFileName();
-            //String f = searchService.findEntry(pdir, type, searchInput.getText());
-            //f = DirUtils.getIntersection(pdir, f);
-
+            if(model.getSelectedOption() == null){
+                System.out.println("Select type of entries to search!");
+                return;
+            }
+            String type = ((RadioButton) model.getSelectedOption()).getText();
+            TreeItem<FileEntryItem> pdir = model.getSelectedItem();
+            if(pdir == null){
+                System.out.println("Select directory where to search (or file) from TreeView!");
+                return;
+            }
+            pdir = searchService.findEntry(pdir, type, searchInput.getText());
+            if(pdir !=  null)
+                tree.getSelectionModel().select(pdir);
         }));
     }
 
