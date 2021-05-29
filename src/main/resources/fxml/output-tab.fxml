@@ -8,6 +8,7 @@
 <?import javafx.scene.text.TextFlow?>
 <fx:root xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
+         fx:id="output_tab"
          type="VBox" prefHeight="200" minHeight="200">
     <TextArea fx:id="output_text">
 

@@ -24,11 +24,12 @@ public class OutputTabView extends VBox {
 
     protected void initView(){
         System.out.println("OutputTabView > initView()");
-        BackgroundFill bF = new BackgroundFill(Color.RED, new CornerRadii(1), null);
-        this.setBackground(new Background(bF));
+        //BackgroundFill bF = new BackgroundFill(Color.RED, new CornerRadii(1), null);
+        //this.setBackground(new Background(bF));
         this.output_text.prefHeightProperty().bind(this.prefHeightProperty());
         this.output_text.prefWidthProperty().bind(this.prefWidthProperty());
-        this.output_text.setVisible(false);
+        this.output_text.setEditable(false);
+        //this.output_text.setVisible(false);
     }
 
     protected void saveUIComponents() {

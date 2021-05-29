@@ -3,12 +3,11 @@ package bmstu.iu7m.osipov.ui.controllers;
 
 import bmstu.iu7m.osipov.configurations.ControllerBeanNames;
 import bmstu.iu7m.osipov.services.langs.LanguageName;
-import bmstu.iu7m.osipov.ui.controllers.handlers.ShowAndHideEventHandler;
+import bmstu.iu7m.osipov.ui.controllers.handlers.BottomTabsSelectionHandler;
 import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
 import bmstu.iu7m.osipov.ui.views.RootWindowView;
 import javafx.event.ActionEvent;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +67,7 @@ public class RootWindowController extends RootWindowView {
 
         Node tab = (Node) appContext.getBean(ControllerBeanNames.TAB_CONSOLE_CTRL);
         Node otab = (Node) appContext.getBean(ControllerBeanNames.TAB_OUTPUT_CTRL);
-        bottom_term.addEventHandler(ActionEvent.ACTION, new ShowAndHideEventHandler(bottom, tab));
-        bottom_out.addEventHandler(ActionEvent.ACTION, new ShowAndHideEventHandler(bottom, otab));
+        bottom_term.addEventHandler(ActionEvent.ACTION, new BottomTabsSelectionHandler(bottom, tab));
+        bottom_out.addEventHandler(ActionEvent.ACTION, new BottomTabsSelectionHandler(bottom, otab));
     }
 }

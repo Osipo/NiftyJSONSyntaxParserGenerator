@@ -1,6 +1,8 @@
 package bmstu.iu7m.osipov;
 import bmstu.iu7m.osipov.configurations.ControllerBeanNames;
+import bmstu.iu7m.osipov.ui.controllers.OutputTabController;
 import bmstu.iu7m.osipov.ui.controllers.RootWindowController;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -22,6 +24,10 @@ public class Main extends AbstractJavaFxApplication{
     @Qualifier(ControllerBeanNames.ROOT_CTRL)
     private RootWindowController rctrl;
 
+    @Autowired
+    @Qualifier(ControllerBeanNames.TAB_OUTPUT_CTRL)
+    private OutputTabController outputTabCtrl;
+
     public static void main(String[] args){
         launchApp(Main.class, args);
     }
@@ -30,11 +36,19 @@ public class Main extends AbstractJavaFxApplication{
     public void start(Stage primaryStage) throws Exception {
         primaryStage.setScene(new Scene(rctrl.getView()));
         primaryStage.setTitle(mTitle);
+        if(outputTabCtrl != null){
+            System.out.println("All controllers are loaded.");
+        }
         if(rctrl.getView() instanceof BorderPane){ /*check that root was correctly initialized */
             System.out.println("Root container is BorderPane");
         }
         primaryStage.setResizable(true);
         primaryStage.centerOnScreen();
+        primaryStage.setOnCloseRequest(e ->{
+            outputTabCtrl.closeThread();
+            Platform.exit();
+            System.exit(0);
+        });
         primaryStage.show();
     }
 }
