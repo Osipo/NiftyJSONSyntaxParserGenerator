@@ -5,7 +5,11 @@
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.TextFlow?>
 <fx:root xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
-         type="VBox" prefHeight="100" minHeight="100">
+         type="VBox" prefHeight="200" minHeight="200">
+    <TextArea fx:id="console_text">
+
+    </TextArea>
 </fx:root>

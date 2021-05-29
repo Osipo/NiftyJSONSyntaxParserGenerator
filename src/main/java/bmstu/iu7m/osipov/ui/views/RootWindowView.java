@@ -20,7 +20,9 @@ public class RootWindowView {
 
     //bottom panel section
     @FXML
-    private HBox bottom;
+    protected VBox bottom;
+    @FXML
+    protected HBox bottom_btns;
     @FXML
     protected ToggleButton bottom_term;
     @FXML
@@ -97,6 +99,8 @@ public class RootWindowView {
         uiStore.getComponents().add(new UIMenuItemComponent(m_help));
         uiStore.getComponents().add(new UIMenuItemComponent(m_help_about));
 
+        uiStore.getComponents().add(new UIComponent(bottom));
+        uiStore.getComponents().add(new UIComponent(bottom_btns));
         uiStore.getComponents().add(new UITextComponent(bottom_term));
         uiStore.getComponents().add(new UITextComponent(bottom_out));
 

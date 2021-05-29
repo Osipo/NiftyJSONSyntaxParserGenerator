@@ -22,33 +22,55 @@ public class UIComponentStylesConfiguration {
         return new HashSet<UIComponent>();
     }
 
-    @Bean(name = "engToRus")
+    @Bean(name = "rusLang")
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-    public HashMap<String, String> translateEngToRus(){
+    public HashMap<String, String> russianMap(){
         HashMap<String, String> t = new HashMap<>();
-        t.put("Search", "Поиск");
-        t.put("Search only: ", "Искать только: ");
-        t.put("Files", "Файлы");
-        t.put("Directories", "Папки");
-        t.put("All", "Всё");
+        t.put(UIComponentIds.FileMenu, "Файл");
+        t.put(UIComponentIds.FileNewMenu, "Новый");
+        t.put(UIComponentIds.FileNewTextFileMenu, "Текстовый файл (txt)");
+        t.put(UIComponentIds.FileExitMenu, "Выход");
+        t.put(UIComponentIds.PreferencesMenu, "Настройки");
+        t.put(UIComponentIds.PreferencesLanguagesMenu, "Языки");
+        t.put(UIComponentIds.PreferencesLanguagesEngMenu, "Английский");
+        t.put(UIComponentIds.PreferencesLanguagesRusMenu, "Русский");
+        t.put(UIComponentIds.HelpMenu, "Помощь");
+        t.put(UIComponentIds.HelpAboutMenu,"О программе");
+        t.put(UIComponentIds.BottomTerminal, "Терминал");
+        t.put(UIComponentIds.BottomOutput, "Окно вывода");
 
-        //----RootWindowController > Application menu
-        t.put("_File", "Файл");
-        t.put("New", "Новый");
-        t.put("Open", "Открыть");
-        t.put("Text File", "Текстовый файл (txt)");
-        t.put("Exit", "Выход");
-        t.put("_Preferences", "Настройки");
-        t.put("Languages", "Языки");
-        t.put("English", "Английский");
-        t.put("Russian", "Русский");
-        t.put("About", "О программе");
-        t.put("_Help", "Помощь");
+        t.put(UIComponentIds.SearchButton, "Поиск");
+        t.put(UIComponentIds.TreeFileMenuOptionsLabel, "Искать только: ");
+        t.put(UIComponentIds.TreeFileMenuOptionAll, "Всё");
+        t.put(UIComponentIds.TreeFileMenuOptionFiles, "Файлы");
+        t.put(UIComponentIds.TreeFileMenuOptionDirs, "Папки");
 
-        //----RootWindowController > bottom panel buttons.
-        t.put("Output", "Окно Вывода");
-        t.put("Terminal", "Терминал");
-        System.out.println("engToRus bean is created.");
+        return t;
+    }
+
+    @Bean(name = "engLang")
+    @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+    public HashMap<String, String> englishMap(){
+        HashMap<String, String> t = new HashMap<>();
+        t.put(UIComponentIds.FileMenu, "_File");
+        t.put(UIComponentIds.FileNewMenu, "New");
+        t.put(UIComponentIds.FileNewTextFileMenu, "Text File");
+        t.put(UIComponentIds.FileExitMenu, "Exit");
+        t.put(UIComponentIds.PreferencesMenu, "_Preferences");
+        t.put(UIComponentIds.PreferencesLanguagesMenu, "Languages");
+        t.put(UIComponentIds.PreferencesLanguagesEngMenu, "English");
+        t.put(UIComponentIds.PreferencesLanguagesRusMenu, "Russian");
+        t.put(UIComponentIds.HelpMenu, "_Help");
+        t.put(UIComponentIds.HelpAboutMenu,"About");
+        t.put(UIComponentIds.BottomTerminal, "Terminal");
+        t.put(UIComponentIds.BottomOutput, "Output");
+
+        t.put(UIComponentIds.SearchButton, "Search");
+        t.put(UIComponentIds.TreeFileMenuOptionsLabel, "Search only: ");
+        t.put(UIComponentIds.TreeFileMenuOptionAll, "All");
+        t.put(UIComponentIds.TreeFileMenuOptionFiles, "Files");
+        t.put(UIComponentIds.TreeFileMenuOptionDirs, "Directories");
+
         return t;
     }
 }

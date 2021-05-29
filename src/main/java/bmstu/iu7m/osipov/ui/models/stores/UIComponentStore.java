@@ -14,31 +14,30 @@ import java.util.Set;
 
 @Component(value = "uiStore")
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-@DependsOn({"uiComponents", "engToRus"})
+@DependsOn({"uiComponents", "rusLang", "engLang"})
 public class UIComponentStore {
     private Set<UIComponent> components;
 
-    private Map<String, String> eng_to_rus;
+    private Map<String, String> eng;
 
-    private Map<String, String> rus_to_eng;
+    private Map<String, String> rus;
 
     @Autowired
-    public UIComponentStore(@Qualifier("uiComponents") Set<UIComponent> components, @Qualifier("engToRus") Map<String, String> eng_to_rus){
+    public UIComponentStore(@Qualifier("uiComponents") Set<UIComponent> components, @Qualifier("rusLang") Map<String, String> rus, @Qualifier("engLang") Map<String, String> eng ){
         this.components = components;
-        this.eng_to_rus = eng_to_rus;
-        this.rus_to_eng = MapStream.of(eng_to_rus).inverseMapping().collect();
-        System.out.println("ui_Store is created");
+        this.eng = eng;
+        this.rus = rus;
     }
 
     public Set<UIComponent> getComponents(){
         return this.components;
     }
 
-    public Map<String, String> englishToRussian(){
-        return this.eng_to_rus;
+    public Map<String, String> toRussian(){
+        return this.rus;
     }
 
-    public Map<String, String> russianToEnglish(){
-        return this.rus_to_eng;
+    public Map<String, String> toEnglish(){
+        return this.eng;
     }
 }

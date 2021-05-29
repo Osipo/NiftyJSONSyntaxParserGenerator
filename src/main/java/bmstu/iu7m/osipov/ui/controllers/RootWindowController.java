@@ -1,29 +1,28 @@
 package bmstu.iu7m.osipov.ui.controllers;
 
 
-import bmstu.iu7m.osipov.services.files.FileLocatorService;
+import bmstu.iu7m.osipov.configurations.ControllerBeanNames;
 import bmstu.iu7m.osipov.services.langs.LanguageName;
-import bmstu.iu7m.osipov.ui.models.entities.UIComponent;
+import bmstu.iu7m.osipov.ui.controllers.handlers.ShowAndHideEventHandler;
 import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
 import bmstu.iu7m.osipov.ui.views.RootWindowView;
+import javafx.event.ActionEvent;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
-import javafx.scene.Parent;
-import javafx.scene.control.MenuBar;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.VBox;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.Node;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.context.ApplicationContext;
 
 import javax.annotation.PostConstruct;
-import java.util.Iterator;
 
 public class RootWindowController extends RootWindowView {
 
     private LanguageName selectedLang;
+
+    @Autowired
+    private ApplicationContext appContext;
+
     public RootWindowController(){
         System.out.println("RootWindowController: Constructor");
         selectedLang = LanguageName.ENG;
@@ -46,50 +45,30 @@ public class RootWindowController extends RootWindowView {
                 return;
 
             uiStore.getComponents().stream().filter(x -> x instanceof UITextComponent)
-                    .map(x -> ((UITextComponent)x).getTextNode()).forEach(x -> x.setText(uiStore.russianToEnglish().get(x.getText())));
+                    .map(x -> ((UITextComponent)x).getTextNode()).forEach(x -> x.setText(uiStore.toEnglish().get(x.getId())));
 
             uiStore.getComponents().stream().filter(x -> x instanceof UIMenuItemComponent)
-                    .map(x -> ((UIMenuItemComponent)x).getItem()).forEach(x -> x.setText(uiStore.russianToEnglish().get(x.getText())));
+                    .map(x -> ((UIMenuItemComponent)x).getItem()).forEach(x -> x.setText(uiStore.toEnglish().get(x.getId())));
 
             selectedLang = LanguageName.ENG;
-            /*
-            Iterator<UIComponent> elems = uiStore.getComponents().iterator();
-            UIComponent elem = null;
-            String k = null;
-            while(elems.hasNext()){
-                elem = elems.next();
-                if(elem instanceof UITextComponent){
-                    k = ((UITextComponent) elem).getTextNode().getText();
-                    ((UITextComponent) elem).getTextNode().setText(uiStore.englishToRussian().get(k));
-                }
-                else if(elem instanceof UIMenuItemComponent){
 
-                }
-            }*/
         });
+
         m_prefs_lang_rus.setOnAction(event -> {
             if(selectedLang == LanguageName.RU)
                 return;
             uiStore.getComponents().stream().filter(x -> x instanceof UITextComponent)
-                    .map(x -> ((UITextComponent)x).getTextNode()).forEach(x -> x.setText(uiStore.englishToRussian().get(x.getText())));
+                    .map(x -> ((UITextComponent)x).getTextNode()).forEach(x -> x.setText(uiStore.toRussian().get(x.getId())));
 
             uiStore.getComponents().stream().filter(x -> x instanceof UIMenuItemComponent)
-                    .map(x -> ((UIMenuItemComponent)x).getItem()).forEach(x -> x.setText(uiStore.englishToRussian().get(x.getText())));
+                    .map(x -> ((UIMenuItemComponent)x).getItem()).forEach(x -> x.setText(uiStore.toRussian().get(x.getId())));
 
             selectedLang = LanguageName.RU;
-            /*
-            Iterator<UIComponent> elems = uiStore.getComponents().iterator();
-            UIComponent elem = null;
-            while(elems.hasNext()){
-                elem = elems.next();
-                if(elem instanceof UITextComponent){
-
-                }
-                else if(elem instanceof UIMenuItemComponent){
-
-                }
-            }*/
         });
-        //fMenu.prefWidthProperty().bind(top.widthProperty());
+
+        Node tab = (Node) appContext.getBean(ControllerBeanNames.TAB_CONSOLE_CTRL);
+        Node otab = (Node) appContext.getBean(ControllerBeanNames.TAB_OUTPUT_CTRL);
+        bottom_term.addEventHandler(ActionEvent.ACTION, new ShowAndHideEventHandler(bottom, tab));
+        bottom_out.addEventHandler(ActionEvent.ACTION, new ShowAndHideEventHandler(bottom, otab));
     }
 }

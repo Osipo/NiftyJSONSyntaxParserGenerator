@@ -43,11 +43,13 @@
             </VBox>
         </left>
         <bottom>
-            <HBox fx:id="bottom">
-                <ToggleButton fx:id="bottom_term" text="Terminal" minHeight="30" minWidth="60"
-                prefWidth="100" prefHeight="30"/>
-                <ToggleButton fx:id="bottom_out" text="Output" minHeight="30" minWidth="60"
-                prefWidth="100" prefHeight="30"/>
-            </HBox>
+            <VBox fx:id="bottom" spacing="10">
+                <HBox fx:id="bottom_btns">
+                    <ToggleButton fx:id="bottom_term" text="Terminal" minHeight="30" minWidth="60"
+                    prefWidth="100" prefHeight="30"/>
+                    <ToggleButton fx:id="bottom_out" text="Output" minHeight="30" minWidth="60"
+                    prefWidth="100" prefHeight="30"/>
+                </HBox>
+            </VBox>
         </bottom>
 </BorderPane>
