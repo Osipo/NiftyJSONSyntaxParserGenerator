@@ -2,7 +2,7 @@ package bmstu.iu7m.osipov.ui.controllers;
 
 
 import bmstu.iu7m.osipov.configurations.ControllerBeanNames;
-import bmstu.iu7m.osipov.services.langs.LanguageName;
+import bmstu.iu7m.osipov.services.LanguageName;
 import bmstu.iu7m.osipov.ui.controllers.handlers.BottomTabsSelectionHandler;
 import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;

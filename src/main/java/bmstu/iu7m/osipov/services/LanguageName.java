@@ -1,4 +1,4 @@
-package bmstu.iu7m.osipov.services.langs;
+package bmstu.iu7m.osipov.services;
 
 public enum LanguageName {
     RU, ENG;
