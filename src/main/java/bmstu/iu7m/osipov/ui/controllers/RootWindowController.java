@@ -4,12 +4,14 @@ package bmstu.iu7m.osipov.ui.controllers;
 import bmstu.iu7m.osipov.configurations.ControllerBeanNames;
 import bmstu.iu7m.osipov.services.LanguageName;
 import bmstu.iu7m.osipov.ui.controllers.handlers.BottomTabsSelectionHandler;
+import bmstu.iu7m.osipov.ui.controllers.handlers.OpenFileHandler;
 import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
 import bmstu.iu7m.osipov.ui.views.RootWindowView;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
@@ -22,9 +24,24 @@ public class RootWindowController extends RootWindowView {
     @Autowired
     private ApplicationContext appContext;
 
+    @FXML
+    private TreeFilesController tree_ctrl;
+
+    private OpenFileHandler ophdlr;
+
     public RootWindowController(){
         System.out.println("RootWindowController: Constructor");
         selectedLang = LanguageName.ENG;
+    }
+
+    /* This method starts after @PostConstruct init() method */
+    /* Called from Main(). */
+    /* Initialize all Window dialogs. */
+    public void initDialogs(Stage s){
+        //set openDialog handler
+        this.ophdlr = new OpenFileHandler(s);
+        this.ophdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
+        m_file_open.addEventHandler(ActionEvent.ACTION, ophdlr);
     }
 
     /* All JavaFX Components are loaded but beans are not wired yet.*/

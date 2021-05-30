@@ -41,6 +41,8 @@ public class RootWindowView {
     @FXML
     protected MenuItem m_file_new_tfile;
     @FXML
+    protected MenuItem m_file_open;
+    @FXML
     protected MenuItem m_file_exit;
 
     @FXML
@@ -91,6 +93,7 @@ public class RootWindowView {
         uiStore.getComponents().add(new UIMenuItemComponent(m_file));
         uiStore.getComponents().add(new UIMenuItemComponent(m_file_new));
         uiStore.getComponents().add(new UIMenuItemComponent(m_file_new_tfile));
+        uiStore.getComponents().add(new UIMenuItemComponent(m_file_open));
         uiStore.getComponents().add(new UIMenuItemComponent(m_file_exit));
         uiStore.getComponents().add(new UIMenuItemComponent(m_prefs));
         uiStore.getComponents().add(new UIMenuItemComponent(m_prefs_lang));

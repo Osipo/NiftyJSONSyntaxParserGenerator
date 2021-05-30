@@ -7,8 +7,6 @@ import javafx.event.EventHandler;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.io.*;
 
@@ -19,6 +17,8 @@ public class CommandShellHandler implements EventHandler<KeyEvent>, Runnable {
     private BufferedReader cmd_reader;
 
     private BufferedWriter cmd_writer;
+
+    private boolean exit = false;
 
     public CommandShellHandler(Process cmd, TextArea cmd_text){
         this.cmd_text = cmd_text;
@@ -42,23 +42,29 @@ public class CommandShellHandler implements EventHandler<KeyEvent>, Runnable {
         String i_line = null;
         String o_line = null;
 
-        try{
-            while((i_line = cmd_reader.readLine()) != null){
-                System.out.println(i_line);
-                setText(i_line, ConsoleTextDirection.FROM_CMD);
+        while(!exit) {
+            try {
+                while ((i_line = cmd_reader.readLine()) != null) {
+                    System.out.println(i_line);
+                    setText(i_line, ConsoleTextDirection.FROM_CMD);
+                }
+                setText(System.getProperty("user.dir")+">", ConsoleTextDirection.FROM_CMD);
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
             }
-        } catch (IOException e){
-            System.out.println(e.getMessage());
         }
+
     }
 
     private void setText(String txt, ConsoleTextDirection dir){
         Platform.runLater(() ->{
             if(dir == ConsoleTextDirection.FROM_CMD)
-                cmd_text.setText(cmd_text.getText() + txt + "\n");
+                cmd_text.appendText(txt+"\n");
             else{
                 try {
                     cmd_writer.write(txt, 0, txt.length());
+                    cmd_text.appendText(txt);
+
                 } catch (IOException e) {
                     System.out.println(e.getMessage());
                 }

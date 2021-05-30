@@ -30,8 +30,9 @@ public class ConsoleTabView extends VBox {
         System.out.println("ConsoleTabView > initView()");
         BackgroundFill bF = new BackgroundFill(Color.BLUE, new CornerRadii(1), null);
         this.setBackground(new Background(bF));
-        this.console_text.prefHeightProperty().bind(this.prefHeightProperty());
-        this.console_text.prefWidthProperty().bind(this.prefWidthProperty());
+        //this.console_text.prefHeightProperty().bind(this.prefHeightProperty());
+        //this.console_text.prefWidthProperty().bind(this.prefWidthProperty());
+        //this.console_text.setEditable(false);
         this.console_text.setVisible(false);
     }
 

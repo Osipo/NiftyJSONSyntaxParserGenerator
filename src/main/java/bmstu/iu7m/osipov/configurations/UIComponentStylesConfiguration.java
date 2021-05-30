@@ -29,6 +29,7 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.FileMenu, "Файл");
         t.put(UIComponentIds.FileNewMenu, "Новый");
         t.put(UIComponentIds.FileNewTextFileMenu, "Текстовый файл (txt)");
+        t.put(UIComponentIds.FileOpenMenu, "Открыть");
         t.put(UIComponentIds.FileExitMenu, "Выход");
         t.put(UIComponentIds.PreferencesMenu, "Настройки");
         t.put(UIComponentIds.PreferencesLanguagesMenu, "Языки");
@@ -55,6 +56,7 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.FileMenu, "_File");
         t.put(UIComponentIds.FileNewMenu, "New");
         t.put(UIComponentIds.FileNewTextFileMenu, "Text File");
+        t.put(UIComponentIds.FileOpenMenu, "Open");
         t.put(UIComponentIds.FileExitMenu, "Exit");
         t.put(UIComponentIds.PreferencesMenu, "_Preferences");
         t.put(UIComponentIds.PreferencesLanguagesMenu, "Languages");

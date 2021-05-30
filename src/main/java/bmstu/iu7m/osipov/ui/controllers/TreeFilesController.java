@@ -34,6 +34,10 @@ public class TreeFilesController extends TreeFilesView {
         super.initView();
     }
 
+    public TreeFilesModel getModel(){
+        return this.model;
+    }
+
     @PostConstruct
     public void init(){
         System.out.println("Post Construct of TreeFilesController bean");
@@ -52,7 +56,9 @@ public class TreeFilesController extends TreeFilesView {
                 System.out.println("Select type of entries to search!");
                 return;
             }
-            String type = ((RadioButton) model.getSelectedOption()).getText();
+            RadioButton radioitem = ((RadioButton) model.getSelectedOption());
+            String type = uiStore.toEnglish().get(radioitem.getId());
+
             TreeItem<FileEntryItem> pdir = model.getSelectedItem();
             if(pdir == null){
                 System.out.println("Select directory where to search (or file) from TreeView!");

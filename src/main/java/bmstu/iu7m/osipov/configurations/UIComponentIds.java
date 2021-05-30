@@ -4,6 +4,7 @@ public interface UIComponentIds {
     public static final String FileMenu = "m_file";
     public static final String FileNewMenu = "m_file_new";
     public static final String FileNewTextFileMenu = "m_file_new_tfile";
+    public static final String FileOpenMenu = "m_file_open";
     public static final String FileExitMenu = "m_file_exit";
     public static final String PreferencesMenu = "m_prefs";
     public static final String PreferencesLanguagesMenu = "m_prefs_lang";

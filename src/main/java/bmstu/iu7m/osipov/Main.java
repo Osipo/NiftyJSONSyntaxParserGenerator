@@ -49,6 +49,8 @@ public class Main extends AbstractJavaFxApplication{
             Platform.exit();
             System.exit(0);
         });
+
+        rctrl.initDialogs(primaryStage);
         primaryStage.show();
     }
 }

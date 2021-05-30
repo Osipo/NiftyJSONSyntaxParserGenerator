@@ -24,6 +24,7 @@ public class ConsoleTabController extends ConsoleTabView {
     public void init(){
         System.out.println("Post construct of bean ConsoleTabController");
         super.saveUIComponents();
+
         /*
         Process childShell = null;
         try{
@@ -35,6 +36,6 @@ public class ConsoleTabController extends ConsoleTabView {
         catch (IOException e){
             System.out.println("Cannot create process for command shell.");
         }
-         */
+        */
     }
 }
