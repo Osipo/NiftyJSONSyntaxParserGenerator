@@ -6,6 +6,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import javafx.embed.swing.SwingNode?>
 <fx:root xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          type="VBox" prefHeight="600" minHeight="300" prefWidth="200" minWidth="200">
@@ -15,5 +16,6 @@
             <Button fx:id="close_btn" text="X"/>
         </HBox>
     </VBox>
-    <TextArea fx:id="editor" prefHeight="500"/>
+<!--    <TextArea fx:id="editor" prefHeight="500"/>-->
+    <SwingNode fx:id="swi_editor_wrapper"/>
 </fx:root>

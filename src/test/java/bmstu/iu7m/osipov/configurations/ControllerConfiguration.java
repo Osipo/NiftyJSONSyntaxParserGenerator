@@ -39,9 +39,10 @@ public class ControllerConfiguration {
         final CountDownLatch latch = new CountDownLatch(1);
 
         /* wait until JavaFX will be initialized */
+
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                new JFXPanel(); // initializes JavaFX environment
+                new JFXPanel(); // initializes JavaFX environment for tests.
                 latch.countDown();
             }
         });

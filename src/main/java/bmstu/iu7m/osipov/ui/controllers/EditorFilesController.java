@@ -28,6 +28,12 @@ public class EditorFilesController extends EditorView {
     @PostConstruct
     public void init(){
         System.out.println("Post construct of bean: EditorFilesController");
+        //wait for JTextPane initialization.
+        try {
+            swi_awaiter.await();
+        }catch (InterruptedException ex){
+            System.out.println("Cannot interrupt GUI_FX_Thread: cannot wait Swing GUI AWT Thread (to init JTextPane)");
+        }
         super.saveUIComponents();
         if(model != null) {
             model.setOutput(editor);

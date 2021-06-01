@@ -16,6 +16,9 @@ public abstract class AbstractJavaFxApplication extends Application {
     public void init() throws Exception {
         SpringApplication app = new SpringApplication(getClass());
         app.setBannerMode(Banner.Mode.OFF);
+        app.setHeadless(false);/* we should instantiate AWT. (true = do not init AWT). */
+        //System.setProperty("java.awt.headless", "false"); alternative way to init AWT kit.
+        
         context = app.run(savedArgs);/* load all beans */
         context.getAutowireCapableBeanFactory().autowireBean(this);
     }

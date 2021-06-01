@@ -6,6 +6,7 @@ import bmstu.iu7m.osipov.configurations.ResourcesConfiguration;
 import bmstu.iu7m.osipov.configurations.UIComponentStylesConfiguration;
 import bmstu.iu7m.osipov.services.files.FileLocatorService;
 import bmstu.iu7m.osipov.ui.controllers.RootWindowController;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
@@ -30,6 +31,12 @@ public class RootWindowIntegrationTest {
     @Autowired
     @Qualifier(ControllerBeanNames.ROOT_CTRL)
     private RootWindowController rootWindow;
+
+    @BeforeClass
+    public static void initAWT(){
+        System.setProperty("java.awt.headless", "false");
+        System.out.println("Headless of AWT set to false");
+    }
 
     @Test
     public void when_started_then_rootWindow_is_initialized(){

@@ -43,7 +43,7 @@ public class OpenFileHandler implements EventHandler<ActionEvent> {
             Alert mbox = new Alert(Alert.AlertType.INFORMATION);
             mbox.setContentText("Selected: "+f.getAbsolutePath());
             mbox.show();
-            editorModel.getFileContent();
+            editorModel.getFileContent(f);
         }
     }
 }
