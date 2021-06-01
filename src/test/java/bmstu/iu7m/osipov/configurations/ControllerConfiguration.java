@@ -2,10 +2,7 @@ package bmstu.iu7m.osipov.configurations;
 
 import bmstu.iu7m.osipov.services.files.FileLocatorService;
 import bmstu.iu7m.osipov.services.files.FileRetrievalService;
-import bmstu.iu7m.osipov.ui.controllers.ConsoleTabController;
-import bmstu.iu7m.osipov.ui.controllers.OutputTabController;
-import bmstu.iu7m.osipov.ui.controllers.RootWindowController;
-import bmstu.iu7m.osipov.ui.controllers.TreeFilesController;
+import bmstu.iu7m.osipov.ui.controllers.*;
 import bmstu.iu7m.osipov.ui.factories.SpringBeanBuilderFactory;
 import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
 import bmstu.iu7m.osipov.ui.views.callbacks.TextFieldTreeCellCallback;
@@ -27,6 +24,8 @@ import java.util.concurrent.CountDownLatch;
 
 @Configuration
 @ComponentScan(basePackages = {"bmstu.iu7m.osipov.ui.stores", "bmstu.iu7m.osipov.ui"})
+@Import({ServicesConfiguration.class, ModelsConfiguration.class})
+@DependsOn({"uiStore", "imgMap", "hdlrsStore", "TextFieldCellCallback"})
 public class ControllerConfiguration {
     private SpringBeanBuilderFactory fxFactory;
 
@@ -52,23 +51,30 @@ public class ControllerConfiguration {
     }
 
     @Bean(name = ControllerBeanNames.ROOT_CTRL)
-    @DependsOn({ControllerBeanNames.TREE_FILES_CTRL, ControllerBeanNames.TAB_CONSOLE_CTRL, ControllerBeanNames.TAB_OUTPUT_CTRL})
+    @DependsOn({
+            ControllerBeanNames.TREE_FILES_CTRL,
+            ControllerBeanNames.TAB_CONSOLE_CTRL,
+            ControllerBeanNames.TAB_OUTPUT_CTRL,
+            ControllerBeanNames.EDITOR_CTRL
+    })
     public RootWindowController getRootController() throws IOException {
         System.out.println("Load root window...");
         return loadRootView(ControllerBeanFXML.ROOT_FXML);
     }
 
     /* Mocking injected services */
+    /*
     @MockBean
     FileLocatorService service;
     @MockBean
     FileRetrievalService frservice;
+     */
 
     @MockBean(name = "TextFieldCellCallback")
     private TextFieldTreeCellCallback tc_callback;
 
     @Bean(name = ControllerBeanNames.TREE_FILES_CTRL)
-    @DependsOn({"imgMap", "TextFieldCellCallback", "uiStore"})
+    //@DependsOn({"imgMap", "TextFieldCellCallback", "uiStore"})
     @ConditionalOnMissingBean(TreeFilesController.class)
     public TreeFilesController treeFilesController() throws IOException {
         return (TreeFilesController) loadController(ControllerBeanFXML.TREE_FILES_FXML, TreeFilesController.class);
@@ -76,15 +82,21 @@ public class ControllerConfiguration {
 
 
     @Bean(name = ControllerBeanNames.TAB_CONSOLE_CTRL)
-    @DependsOn({"uiStore"})
+    //@DependsOn({"uiStore"})
     public ConsoleTabController consoleController() throws IOException {
         return (ConsoleTabController) loadController(ControllerBeanFXML.TAB_CONSOLE_FXML, ConsoleTabController.class);
     }
 
     @Bean(name = ControllerBeanNames.TAB_OUTPUT_CTRL)
-    @DependsOn({"uiStore"})
+    //@DependsOn({"uiStore"})
     public OutputTabController outputController() throws IOException {
         return (OutputTabController) loadController(ControllerBeanFXML.TAB_OUTPUT_FXML, OutputTabController.class);
+    }
+
+    @Bean(name = ControllerBeanNames.EDITOR_CTRL)
+    //@DependsOn({"uiStore"})
+    public EditorFilesController editorController() throws IOException {
+        return (EditorFilesController) loadController(ControllerBeanFXML.EDITOR_FXML, EditorFilesController.class);
     }
 
 

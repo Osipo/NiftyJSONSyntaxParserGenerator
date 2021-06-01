@@ -17,16 +17,16 @@ public class TextFieldTreeCellCallback implements Callback<TreeView<FileEntryIte
     @Autowired
     private FileLocatorService flocator;
 
+    public TextFieldTreeCellCallback(){
+        System.out.println("TextFieldCellCallback bean created");
+    }
+
     @PostConstruct
     public void init(){
         if(flocator == null)
             System.out.println("no wiring at Callback");
         else
             System.out.println("FileLocator WIRED  at TextFieldTreeCellCallback");
-    }
-
-    public TextFieldTreeCellCallback(){
-        System.out.println("TextFieldCellCallback bean created");
     }
 
     @Override

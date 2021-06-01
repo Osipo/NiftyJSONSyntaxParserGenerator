@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<fx:root xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml"
+         type="VBox" prefHeight="600" minHeight="300" prefWidth="200" minWidth="200">
+    <VBox fx:id="editor_menu" prefHeight="50" minHeight="50">
+        <HBox fx:id="editor_menu_btns" prefHeight="30" minHeight="30">
+            <Button fx:id="save_btn" text="Save"/>
+            <Button fx:id="close_btn" text="X"/>
+        </HBox>
+    </VBox>
+    <TextArea fx:id="editor" prefHeight="500"/>
+</fx:root>

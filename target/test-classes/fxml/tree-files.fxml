@@ -27,5 +27,5 @@
             </HBox>
         </HBox>
     </VBox>
-    <TreeView fx:id="tree"/>
+    <TreeView fx:id="tree" prefHeight="500"/>
 </fx:root>

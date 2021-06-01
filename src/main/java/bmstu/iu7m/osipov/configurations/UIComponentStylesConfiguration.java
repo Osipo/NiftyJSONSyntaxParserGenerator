@@ -2,6 +2,8 @@ package bmstu.iu7m.osipov.configurations;
 
 import bmstu.iu7m.osipov.ui.models.entities.UIComponent;
 import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,10 +18,16 @@ public class UIComponentStylesConfiguration {
 
     @Bean(name = "uiComponents")
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-    public HashSet<UIComponent> getUIComponents(){
-        HashSet<UIComponent> comps = new HashSet<>();
+    public HashMap<String, UIComponent> getUIComponents(){
         System.out.println("uiComponents bean is created.");
-        return new HashSet<UIComponent>();
+        return new HashMap<>();
+    }
+
+    @Bean(name = "hdlrsMap")
+    @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+    public HashMap<String, EventHandler> getEventHandlersStore(){
+        System.out.println("structure for event handlers is created");
+        return new HashMap<>();
     }
 
     @Bean(name = "rusLang")

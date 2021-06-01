@@ -16,20 +16,20 @@ import java.util.Set;
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 @DependsOn({"uiComponents", "rusLang", "engLang"})
 public class UIComponentStore {
-    private Set<UIComponent> components;
+    private Map<String, UIComponent> components;
 
     private Map<String, String> eng;
 
     private Map<String, String> rus;
 
     @Autowired
-    public UIComponentStore(@Qualifier("uiComponents") Set<UIComponent> components, @Qualifier("rusLang") Map<String, String> rus, @Qualifier("engLang") Map<String, String> eng ){
+    public UIComponentStore(@Qualifier("uiComponents") Map<String, UIComponent> components, @Qualifier("rusLang") Map<String, String> rus, @Qualifier("engLang") Map<String, String> eng ){
         this.components = components;
         this.eng = eng;
         this.rus = rus;
     }
 
-    public Set<UIComponent> getComponents(){
+    public Map<String, UIComponent> getComponents(){
         return this.components;
     }
 

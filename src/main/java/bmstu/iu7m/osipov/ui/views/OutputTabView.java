@@ -33,6 +33,6 @@ public class OutputTabView extends VBox {
     }
 
     protected void saveUIComponents() {
-        uiStore.getComponents().add(new UIComponent(output_text));
+        uiStore.getComponents().put("output_text", new UIComponent(output_text));
     }
 }

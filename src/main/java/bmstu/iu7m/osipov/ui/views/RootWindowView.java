@@ -86,26 +86,26 @@ public class RootWindowView {
 
     protected void saveUIComponents(){
 
-        uiStore.getComponents().add(new UIComponent(root));
-        uiStore.getComponents().add(new UIComponent(top));
-        uiStore.getComponents().add(new UIComponent(fMenu));
+        uiStore.getComponents().put("root", new UIComponent(root));
+        uiStore.getComponents().put("top", new UIComponent(top));
+        uiStore.getComponents().put("fMenu", new UIComponent(fMenu));
 
-        uiStore.getComponents().add(new UIMenuItemComponent(m_file));
-        uiStore.getComponents().add(new UIMenuItemComponent(m_file_new));
-        uiStore.getComponents().add(new UIMenuItemComponent(m_file_new_tfile));
-        uiStore.getComponents().add(new UIMenuItemComponent(m_file_open));
-        uiStore.getComponents().add(new UIMenuItemComponent(m_file_exit));
-        uiStore.getComponents().add(new UIMenuItemComponent(m_prefs));
-        uiStore.getComponents().add(new UIMenuItemComponent(m_prefs_lang));
-        uiStore.getComponents().add(new UIMenuItemComponent(m_prefs_lang_eng));
-        uiStore.getComponents().add(new UIMenuItemComponent(m_prefs_lang_rus));
-        uiStore.getComponents().add(new UIMenuItemComponent(m_help));
-        uiStore.getComponents().add(new UIMenuItemComponent(m_help_about));
+        uiStore.getComponents().put("m_file", new UIMenuItemComponent(m_file));
+        uiStore.getComponents().put("m_file_new", new UIMenuItemComponent(m_file_new));
+        uiStore.getComponents().put("m_file_new_tfile", new UIMenuItemComponent(m_file_new_tfile));
+        uiStore.getComponents().put("m_file_open", new UIMenuItemComponent(m_file_open));
+        uiStore.getComponents().put("m_file_exit", new UIMenuItemComponent(m_file_exit));
+        uiStore.getComponents().put("m_prefs", new UIMenuItemComponent(m_prefs));
+        uiStore.getComponents().put("m_prefs_lang", new UIMenuItemComponent(m_prefs_lang));
+        uiStore.getComponents().put("m_prefs_lang_eng", new UIMenuItemComponent(m_prefs_lang_eng));
+        uiStore.getComponents().put("m_prefs_lang_rus", new UIMenuItemComponent(m_prefs_lang_rus));
+        uiStore.getComponents().put("m_help", new UIMenuItemComponent(m_help));
+        uiStore.getComponents().put("m_help_about", new UIMenuItemComponent(m_help_about));
 
-        uiStore.getComponents().add(new UIComponent(bottom));
-        uiStore.getComponents().add(new UIComponent(bottom_btns));
-        uiStore.getComponents().add(new UITextComponent(bottom_term));
-        uiStore.getComponents().add(new UITextComponent(bottom_out));
+        uiStore.getComponents().put("bottom", new UIComponent(bottom));
+        uiStore.getComponents().put("bottom_btns", new UIComponent(bottom_btns));
+        uiStore.getComponents().put("bottom_term", new UITextComponent(bottom_term));
+        uiStore.getComponents().put("bottom_out", new UITextComponent(bottom_out));
 
         //15 + 5
         System.out.println(uiStore.getComponents().size());

@@ -37,6 +37,6 @@ public class ConsoleTabView extends VBox {
     }
 
     protected void saveUIComponents() {
-        uiStore.getComponents().add(new UIComponent(console_text));
+        uiStore.getComponents().put("console_text", new UIComponent(console_text));
     }
 }

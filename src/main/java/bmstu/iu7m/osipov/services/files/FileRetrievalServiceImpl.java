@@ -14,8 +14,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-@Component
 public class FileRetrievalServiceImpl implements FileRetrievalService {
+
+    public FileRetrievalServiceImpl(){
+        System.out.println("FileRetrievalServiceImpl constructor call");
+    }
 
     @Autowired
     private FileLocatorService flocator;

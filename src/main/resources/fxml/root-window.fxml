@@ -7,6 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.Rectangle?>
 <?import bmstu.iu7m.osipov.ui.controllers.TreeFilesController?>
+<?import bmstu.iu7m.osipov.ui.controllers.EditorFilesController?>
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             prefHeight="600" prefWidth="800"
@@ -43,6 +44,9 @@
                 <TreeFilesController fx:id="tree_ctrl"/>
             </VBox>
         </left>
+        <center>
+            <EditorFilesController fx:id="editor_ctrl"/>
+        </center>
         <bottom>
             <VBox fx:id="bottom" spacing="10">
                 <HBox fx:id="bottom_btns">

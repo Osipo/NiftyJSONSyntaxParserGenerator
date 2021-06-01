@@ -88,10 +88,10 @@ public class TreeFilesView extends VBox {
     }
 
     protected void saveUIComponents(){
-        uiStore.getComponents().add(new UITextComponent(o_all));
-        uiStore.getComponents().add(new UITextComponent(o_dirs));
-        uiStore.getComponents().add(new UITextComponent(o_files));
-        uiStore.getComponents().add(new UITextComponent(search));
-        uiStore.getComponents().add(new UITextComponent(menu_options_label));
+        uiStore.getComponents().put("o_all",new UITextComponent(o_all));
+        uiStore.getComponents().put("o_dirs",new UITextComponent(o_dirs));
+        uiStore.getComponents().put("o_files",new UITextComponent(o_files));
+        uiStore.getComponents().put("search",new UITextComponent(search));
+        uiStore.getComponents().put("menu_options_label",new UITextComponent(menu_options_label));
     }
 }

@@ -16,8 +16,12 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.util.HashMap;
 
-@Component("StackFileLocator")
 public class StackFileLocator implements FileLocatorService {
+
+    public StackFileLocator(){
+        System.out.println("StackFileLocator bean created.");
+    }
+
 
     /**
      * Recursively finds all entries starting in parentDir location

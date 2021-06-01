@@ -6,4 +6,5 @@ public interface ControllerBeanNames {
     String TREE_FILES_CTRL = "TreeFilesController";
     String TAB_CONSOLE_CTRL = "ConsoleTabController";
     String TAB_OUTPUT_CTRL = "OutputTabController";
+    String EDITOR_CTRL = "EditorFilesController";
 }

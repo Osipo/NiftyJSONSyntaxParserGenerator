@@ -1,8 +1,5 @@
 package bmstu.iu7m.osipov.configurations;
-import bmstu.iu7m.osipov.ui.controllers.ConsoleTabController;
-import bmstu.iu7m.osipov.ui.controllers.OutputTabController;
-import bmstu.iu7m.osipov.ui.controllers.RootWindowController;
-import bmstu.iu7m.osipov.ui.controllers.TreeFilesController;
+import bmstu.iu7m.osipov.ui.controllers.*;
 import bmstu.iu7m.osipov.ui.factories.SpringBeanBuilderFactory;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
@@ -13,10 +10,13 @@ import org.springframework.context.annotation.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 @Configuration
+@Import({ServicesConfiguration.class, ModelsConfiguration.class})
+@DependsOn({"uiStore", "imgMap", "hdlrsStore", "TextFieldCellCallback"})
 public class ControllerConfiguration {
 
 
@@ -32,14 +32,19 @@ public class ControllerConfiguration {
     }
 
     @Bean(name = ControllerBeanNames.ROOT_CTRL)
-    @DependsOn({ControllerBeanNames.TREE_FILES_CTRL, ControllerBeanNames.TAB_CONSOLE_CTRL, ControllerBeanNames.TAB_OUTPUT_CTRL})
+    @DependsOn({
+            ControllerBeanNames.TREE_FILES_CTRL,
+            ControllerBeanNames.TAB_CONSOLE_CTRL,
+            ControllerBeanNames.TAB_OUTPUT_CTRL,
+            ControllerBeanNames.EDITOR_CTRL
+    })
     public RootWindowController getRootController() throws IOException {
         System.out.println("Load root window...");
         return loadRootView(ControllerBeanFXML.ROOT_FXML);
     }
 
     @Bean(name = ControllerBeanNames.TREE_FILES_CTRL)
-    @DependsOn({"imgMap", "TextFieldCellCallback", "uiStore"})
+    //@DependsOn({"imgMap", "TextFieldCellCallback", "uiStore"})
     @ConditionalOnMissingBean(TreeFilesController.class)
     public TreeFilesController treeFilesController() throws IOException {
         return (TreeFilesController) loadController(ControllerBeanFXML.TREE_FILES_FXML, TreeFilesController.class);
@@ -47,16 +52,23 @@ public class ControllerConfiguration {
 
 
     @Bean(name = ControllerBeanNames.TAB_CONSOLE_CTRL)
-    @DependsOn({"uiStore"})
+    //@DependsOn({"uiStore"})
     public ConsoleTabController consoleController() throws IOException {
         return (ConsoleTabController) loadController(ControllerBeanFXML.TAB_CONSOLE_FXML, ConsoleTabController.class);
     }
 
     @Bean(name = ControllerBeanNames.TAB_OUTPUT_CTRL)
-    @DependsOn({"uiStore"})
+    //@DependsOn({"uiStore"})
     public OutputTabController outputController() throws IOException {
         return (OutputTabController) loadController(ControllerBeanFXML.TAB_OUTPUT_FXML, OutputTabController.class);
     }
+
+    @Bean(name = ControllerBeanNames.EDITOR_CTRL)
+    //@DependsOn({"uiStore"})
+    public EditorFilesController editorController() throws IOException {
+        return (EditorFilesController) loadController(ControllerBeanFXML.EDITOR_FXML, EditorFilesController.class);
+    }
+
 
     /* Parse FXML file indicated with url, and create instance of specified Controller's type and its Parent View */
     protected Object loadController(String url, Class<?> type) throws IOException {

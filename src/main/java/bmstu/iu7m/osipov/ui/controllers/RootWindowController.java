@@ -7,7 +7,9 @@ import bmstu.iu7m.osipov.ui.controllers.handlers.BottomTabsSelectionHandler;
 import bmstu.iu7m.osipov.ui.controllers.handlers.OpenFileHandler;
 import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
+import bmstu.iu7m.osipov.ui.models.stores.EventHandlersStore;
 import bmstu.iu7m.osipov.ui.views.RootWindowView;
+import com.codepoetics.protonpack.maps.MapStream;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -24,10 +26,13 @@ public class RootWindowController extends RootWindowView {
     @Autowired
     private ApplicationContext appContext;
 
+    @Autowired
+    private EventHandlersStore hdlrs;
+
     @FXML
     private TreeFilesController tree_ctrl;
-
-    private OpenFileHandler ophdlr;
+    @FXML
+    private EditorFilesController editor_ctrl;
 
     public RootWindowController(){
         System.out.println("RootWindowController: Constructor");
@@ -38,9 +43,12 @@ public class RootWindowController extends RootWindowView {
     /* Called from Main(). */
     /* Initialize all Window dialogs. */
     public void initDialogs(Stage s){
+        System.out.println("Init all dialog windows.");
+
         //set openDialog handler
-        this.ophdlr = new OpenFileHandler(s);
-        this.ophdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
+        OpenFileHandler ophdlr = new OpenFileHandler(s, editor_ctrl.getModel());
+        ophdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
+        this.hdlrs.getHandlers().put("openFile", ophdlr);
         m_file_open.addEventHandler(ActionEvent.ACTION, ophdlr);
     }
 
@@ -60,11 +68,11 @@ public class RootWindowController extends RootWindowView {
             if(selectedLang == LanguageName.ENG)
                 return;
 
-            uiStore.getComponents().stream().filter(x -> x instanceof UITextComponent)
-                    .map(x -> ((UITextComponent)x).getTextNode()).forEach(x -> x.setText(uiStore.toEnglish().get(x.getId())));
+            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UITextComponent)
+                    .map(x -> ((UITextComponent)x.getValue()).getTextNode()).forEach(x -> x.setText(uiStore.toEnglish().get(x.getId())));
 
-            uiStore.getComponents().stream().filter(x -> x instanceof UIMenuItemComponent)
-                    .map(x -> ((UIMenuItemComponent)x).getItem()).forEach(x -> x.setText(uiStore.toEnglish().get(x.getId())));
+            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UIMenuItemComponent)
+                    .map(x -> ((UIMenuItemComponent)x.getValue()).getItem()).forEach(x -> x.setText(uiStore.toEnglish().get(x.getId())));
 
             selectedLang = LanguageName.ENG;
 
@@ -73,11 +81,11 @@ public class RootWindowController extends RootWindowView {
         m_prefs_lang_rus.setOnAction(event -> {
             if(selectedLang == LanguageName.RU)
                 return;
-            uiStore.getComponents().stream().filter(x -> x instanceof UITextComponent)
-                    .map(x -> ((UITextComponent)x).getTextNode()).forEach(x -> x.setText(uiStore.toRussian().get(x.getId())));
+            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UITextComponent)
+                    .map(x -> ((UITextComponent)x.getValue()).getTextNode()).forEach(x -> x.setText(uiStore.toRussian().get(x.getId())));
 
-            uiStore.getComponents().stream().filter(x -> x instanceof UIMenuItemComponent)
-                    .map(x -> ((UIMenuItemComponent)x).getItem()).forEach(x -> x.setText(uiStore.toRussian().get(x.getId())));
+            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UIMenuItemComponent)
+                    .map(x -> ((UIMenuItemComponent)x.getValue()).getItem()).forEach(x -> x.setText(uiStore.toRussian().get(x.getId())));
 
             selectedLang = LanguageName.RU;
         });

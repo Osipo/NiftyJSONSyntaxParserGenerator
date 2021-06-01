@@ -5,4 +5,5 @@ public interface ControllerBeanFXML {
     String TREE_FILES_FXML = "fxml/tree-files.fxml";
     String TAB_CONSOLE_FXML = "fxml/console-tab.fxml";
     String TAB_OUTPUT_FXML = "fxml/output-tab.fxml";
+    String EDITOR_FXML = "fxml/editor-files.fxml";
 }
