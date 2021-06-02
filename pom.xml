@@ -19,6 +19,7 @@
         <mockito.version>1.10.19</mockito.version>
         <spring-boot.version>2.4.3</spring-boot.version>
         <protonpack.version>1.16</protonpack.version>
+        <rsyntax-textarea.version>3.1.2</rsyntax-textarea.version>
         <graphviz-java.version>0.18.1</graphviz-java.version>
     </properties>
 
@@ -62,6 +63,12 @@
             <groupId>com.codepoetics</groupId>
             <artifactId>protonpack</artifactId>
             <version>${protonpack.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fifesoft</groupId>
+            <artifactId>rsyntaxtextarea</artifactId>
+            <version>${rsyntax-textarea.version}</version>
         </dependency>
 
         <dependency>

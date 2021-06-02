@@ -94,4 +94,11 @@ public class TreeFilesView extends VBox {
         uiStore.getComponents().put("search",new UITextComponent(search));
         uiStore.getComponents().put("menu_options_label",new UITextComponent(menu_options_label));
     }
+
+    //-------------------------------
+    //Public view components
+    //-------------------------------
+    public TreeView<FileEntryItem> getTree(){
+        return this.tree;
+    }
 }

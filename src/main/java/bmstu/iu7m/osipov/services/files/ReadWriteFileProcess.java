@@ -1,7 +1,7 @@
 package bmstu.iu7m.osipov.services.files;
 
 import javafx.scene.control.TextArea;
-import org.springframework.stereotype.Component;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -15,7 +15,7 @@ import java.util.concurrent.CountDownLatch;
 
 public class ReadWriteFileProcess implements FileProcessService {
 
-    public void readFromFile(File f, JTextPane t){
+    public void readFromFile(File f, RSyntaxTextArea t){
         if(f == null || f.isDirectory())
             return;
         CountDownLatch awaiter = new CountDownLatch(1);
@@ -24,7 +24,8 @@ public class ReadWriteFileProcess implements FileProcessService {
             try(BufferedReader reader = Files.newBufferedReader(Paths.get(f.getAbsolutePath()) ) ){
                 String line = null;
                 while((line = reader.readLine()) != null){
-                    t.getDocument().insertString(t.getDocument().getLength(),line+"\n", t.getCharacterAttributes());
+                    t.insert(line + "\n", t.getDocument().getLength());
+                    //t.getDocument().insertString(t.getDocument().getLength(),line+"\n");
                 }
                 awaiter.countDown();
             }
@@ -34,9 +35,6 @@ public class ReadWriteFileProcess implements FileProcessService {
             }
             catch (IOException e){
                 System.out.println("Cannot open file by specified path: "+f.getAbsolutePath());
-                awaiter.countDown();
-            } catch (BadLocationException e) {
-                System.out.println("Illegal position at document of JTextPane element");
                 awaiter.countDown();
             }
         });
@@ -71,5 +69,5 @@ public class ReadWriteFileProcess implements FileProcessService {
         readFromFile(new File(fullName), t);
     }
 
-    public void readFromFile(String fullName, JTextPane t){ readFromFile(new File(fullName), t);}
+    public void readFromFile(String fullName, RSyntaxTextArea t){ readFromFile(new File(fullName), t);}
 }

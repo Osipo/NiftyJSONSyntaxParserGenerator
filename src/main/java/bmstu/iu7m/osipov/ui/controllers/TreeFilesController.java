@@ -16,15 +16,9 @@ import javax.annotation.PostConstruct;
 public class TreeFilesController extends TreeFilesView {
 
     @Autowired
-    private FileLocatorService fservice;
-
-    @Autowired
-    private FileRetrievalService searchService;
-
     private TreeFilesModel model;
 
     public TreeFilesController() {
-        this.model = new TreeFilesModel();
         System.out.println("TreeFilesController: constructor");
     }
 
@@ -42,10 +36,14 @@ public class TreeFilesController extends TreeFilesView {
     public void init(){
         System.out.println("Post Construct of TreeFilesController bean");
         super.saveUIComponents();
-        if(fservice != null) {
-            System.out.println(fservice.getClass().getName());
-            loadFiles(this.fservice.getFileEntriesIn(System.getProperty("user.dir")));
+        if(model != null) {
+            loadFiles(this.model.getFileEntriesIn(System.getProperty("user.dir")));
         }
+        else
+            throw new IllegalStateException("Cannot initiate TreeFilesModel for TreeFilesController");
+
+        model.setView(this);
+
         model.selectedItemProperty().bind(tree.getSelectionModel().selectedItemProperty());
         model.selectedOptionProperty().bind(o_group.selectedToggleProperty());
         model.textProperty().bind(searchInput.textProperty());
@@ -64,7 +62,7 @@ public class TreeFilesController extends TreeFilesView {
                 System.out.println("Select directory where to search (or file) from TreeView!");
                 return;
             }
-            pdir = searchService.findEntry(pdir, type, searchInput.getText());
+            pdir = model.findFileAt(pdir, type, searchInput.getText());
             if(pdir !=  null)
                 tree.getSelectionModel().select(pdir);
         }));

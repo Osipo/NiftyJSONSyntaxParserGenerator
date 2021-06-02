@@ -37,8 +37,9 @@ public class EditorFilesController extends EditorView {
         super.saveUIComponents();
         if(model != null) {
             model.setOutput(editor);
-            System.out.println("model created mmmmm");
+            System.out.println("EditorModel was set");
         }
+
         else
             System.out.println("Model is null");
     }

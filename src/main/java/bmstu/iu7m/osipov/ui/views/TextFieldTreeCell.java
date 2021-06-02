@@ -46,8 +46,6 @@ public class TextFieldTreeCell extends TreeCell<FileEntryItem> {
 //            }
             getTreeView().getSelectionModel().select(getTreeItem());
         });
-
-        ;
     }
 
     @Override

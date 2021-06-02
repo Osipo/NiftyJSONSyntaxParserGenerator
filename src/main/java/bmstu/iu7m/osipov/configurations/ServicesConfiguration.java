@@ -3,6 +3,8 @@ package bmstu.iu7m.osipov.configurations;
 import bmstu.iu7m.osipov.services.adapters.TextReaderAdapter;
 import bmstu.iu7m.osipov.services.adapters.TextReaderAdapterImpl;
 import bmstu.iu7m.osipov.services.files.*;
+import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
