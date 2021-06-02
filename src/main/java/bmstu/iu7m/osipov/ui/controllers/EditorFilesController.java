@@ -37,6 +37,7 @@ public class EditorFilesController extends EditorView {
         super.saveUIComponents();
         if(model != null) {
             model.setOutput(editor);
+            editor_file_name.textProperty().bind(model.editedFileNameProperty());
             System.out.println("EditorModel was set");
         }
 

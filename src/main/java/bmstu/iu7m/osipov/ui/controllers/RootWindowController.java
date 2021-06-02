@@ -46,7 +46,7 @@ public class RootWindowController extends RootWindowView {
         System.out.println("Init all dialog windows.");
 
         //set openDialog handler
-        OpenFileHandler ophdlr = new OpenFileHandler(s, editor_ctrl.getModel());
+        OpenFileHandler ophdlr = new OpenFileHandler(s, editor_ctrl.getModel(), tree_ctrl.getModel());
         ophdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
         this.hdlrs.getHandlers().put("openFile", ophdlr);
         m_file_open.addEventHandler(ActionEvent.ACTION, ophdlr);

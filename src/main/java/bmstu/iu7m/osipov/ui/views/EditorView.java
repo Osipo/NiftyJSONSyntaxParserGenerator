@@ -5,6 +5,7 @@ import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
 import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -22,6 +23,8 @@ public class EditorView extends VBox {
 
     @FXML
     private VBox editor_menu;
+    @FXML
+    protected Label editor_file_name;
     @FXML
     private HBox editor_menu_btns;
     @FXML
@@ -80,6 +83,7 @@ public class EditorView extends VBox {
 
     protected void saveUIComponents(){
         this.uiStore.getComponents().put("editor_menu", new UIComponent(editor_menu));
+        this.uiStore.getComponents().put("editor_file_name", new UIComponent(editor_file_name));
         this.uiStore.getComponents().put("swi_editor_wrapper", new UIComponent(swi_editor_wrapper));
         this.uiStore.getComponents().put("editor_menu_btns", new UIComponent(editor_menu_btns));
         this.uiStore.getComponents().put("save_btn", new UIComponent(save_btn));

@@ -1,6 +1,6 @@
 package bmstu.iu7m.osipov.services.files;
 
-public class DirUtils {
+public class PathUtils {
     public static String getSubtraction(String p1, String p2){
         int i = 0;
         String c = null;

@@ -21,7 +21,6 @@ public class TreeFilesModel {
     private StringProperty text;// text of TextField at top from TreeView.
 
 
-
     @Autowired
     private FileLocatorService fservice;
 
