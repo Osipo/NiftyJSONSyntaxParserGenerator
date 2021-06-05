@@ -39,6 +39,7 @@ public class TextFieldTreeCell extends TreeCell<FileEntryItem> {
                                 .getChildren()
                     );
                 }
+                getTreeItem().setExpanded(!getTreeItem().isExpanded());
             }
 //            //ELSE IF FILE SELECTED
 //            else if(event.getClickCount() == 1 && getItem() != null){

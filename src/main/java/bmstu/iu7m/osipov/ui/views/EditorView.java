@@ -53,9 +53,7 @@ public class EditorView extends VBox {
         BackgroundFill bF = new BackgroundFill(Color.GREEN, new CornerRadii(1), null);
         editor_menu.setBackground(new Background(bF));
         swi_editor_wrapper.setTranslateY(editor_menu.getHeight());
-        //editor.setTranslateY(editor_menu.getHeight());
-
-
+        editor_file_name.setTextFill(Color.YELLOW);
 
         SwingUtilities.invokeLater(() ->{
             RSyntaxTextArea editor = new RSyntaxTextArea();

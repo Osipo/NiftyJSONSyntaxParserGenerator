@@ -19,7 +19,7 @@ import java.util.HashMap;
 public class StackFileLocator implements FileLocatorService {
 
     public StackFileLocator(){
-        System.out.println("StackFileLocator bean created.");
+        System.out.println("StackFileLocator constructor.");
     }
 
 

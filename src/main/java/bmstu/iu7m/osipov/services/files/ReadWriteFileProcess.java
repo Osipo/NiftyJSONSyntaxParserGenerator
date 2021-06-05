@@ -15,6 +15,10 @@ import java.util.concurrent.CountDownLatch;
 
 public class ReadWriteFileProcess implements FileProcessService {
 
+    public ReadWriteFileProcess(){
+        System.out.println("ReadWriteFileProcess constructor");
+    }
+
     public void readFromFile(File f, RSyntaxTextArea t){
         if(f == null || f.isDirectory())
             return;

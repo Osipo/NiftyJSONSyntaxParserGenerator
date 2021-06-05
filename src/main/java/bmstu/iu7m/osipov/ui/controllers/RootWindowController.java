@@ -5,6 +5,7 @@ import bmstu.iu7m.osipov.configurations.ControllerBeanNames;
 import bmstu.iu7m.osipov.services.LanguageName;
 import bmstu.iu7m.osipov.ui.controllers.handlers.BottomTabsSelectionHandler;
 import bmstu.iu7m.osipov.ui.controllers.handlers.OpenFileHandler;
+import bmstu.iu7m.osipov.ui.controllers.handlers.UpdateTreeViewAndOpenFileHandler;
 import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
 import bmstu.iu7m.osipov.ui.models.stores.EventHandlersStore;
@@ -46,7 +47,7 @@ public class RootWindowController extends RootWindowView {
         System.out.println("Init all dialog windows.");
 
         //set openDialog handler
-        OpenFileHandler ophdlr = new OpenFileHandler(s, editor_ctrl.getModel(), tree_ctrl.getModel());
+        UpdateTreeViewAndOpenFileHandler ophdlr = new UpdateTreeViewAndOpenFileHandler(s, editor_ctrl.getModel(), tree_ctrl.getModel());
         ophdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
         this.hdlrs.getHandlers().put("openFile", ophdlr);
         m_file_open.addEventHandler(ActionEvent.ACTION, ophdlr);

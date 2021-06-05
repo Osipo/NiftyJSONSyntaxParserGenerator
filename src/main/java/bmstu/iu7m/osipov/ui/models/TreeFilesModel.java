@@ -2,6 +2,7 @@ package bmstu.iu7m.osipov.ui.models;
 
 import bmstu.iu7m.osipov.services.files.FileLocatorService;
 import bmstu.iu7m.osipov.services.files.FileRetrievalService;
+import bmstu.iu7m.osipov.services.files.TreeFilesReaderService;
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
 import bmstu.iu7m.osipov.ui.views.TreeFilesView;
 import javafx.beans.property.ObjectProperty;
@@ -26,6 +27,9 @@ public class TreeFilesModel {
 
     @Autowired
     private FileRetrievalService searchService;
+
+    @Autowired
+    private TreeFilesReaderService treeScannerService;
 
     private TreeFilesView view;
 

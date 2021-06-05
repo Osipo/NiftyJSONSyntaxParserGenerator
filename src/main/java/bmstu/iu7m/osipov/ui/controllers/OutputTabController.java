@@ -41,6 +41,7 @@ public class OutputTabController extends OutputTabView {
             PipedOutputStream perr = new PipedOutputStream(pin2);
             System.setOut(new PrintStream(pout, true));
             System.setErr(new PrintStream(perr, true));
+            
         }catch (IOException e){
             System.out.println("Cannot create pipes: IOException caught");
         }catch (SecurityException se){

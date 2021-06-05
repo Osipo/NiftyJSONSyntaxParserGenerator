@@ -1,5 +1,6 @@
 package bmstu.iu7m.osipov.ui.controllers.handlers;
 
+import bmstu.iu7m.osipov.events.OpenFileActionEvent;
 import bmstu.iu7m.osipov.services.files.PathUtils;
 import bmstu.iu7m.osipov.ui.models.EditorModel;
 import bmstu.iu7m.osipov.ui.models.TreeFilesModel;
@@ -13,18 +14,17 @@ import javafx.scene.control.TreeItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import javax.swing.*;
 import java.io.File;
 
 public class OpenFileHandler implements EventHandler<ActionEvent> {
 
-    private ObjectProperty<TreeItem<FileEntryItem>> selected_item;
-    private Stage parent_win;
-    private EditorModel editorModel;
-    private TreeFilesModel treeFilesModel;
-    public OpenFileHandler(Stage parent_win, EditorModel editorModel, TreeFilesModel treeFilesModel){
+    protected ObjectProperty<TreeItem<FileEntryItem>> selected_item;
+    protected Stage parent_win;
+    protected EditorModel editorModel;
+    public OpenFileHandler(Stage parent_win, EditorModel editorModel){
         this.parent_win = parent_win;
         this.editorModel = editorModel;
-        this.treeFilesModel = treeFilesModel;
         this.selected_item = new SimpleObjectProperty<>(this, "selectedItem", null);
     }
 
@@ -48,20 +48,10 @@ public class OpenFileHandler implements EventHandler<ActionEvent> {
             mbox.show();
             editorModel.getFileContent(f);
             editorModel.setEditedFileName(f.getAbsolutePath());
-
-            String s1 = f.getAbsolutePath();
-            String s2 = treeFilesModel.getView().getTree().getRoot().getValue().getFullFileName();
-            String relPath = PathUtils.getSubtraction(s1, s2);
-
-            //Compute whether file is in TreeView hierarchy
-            //1. File is in TreeView
-            if(relPath != null){
-
+            if(event instanceof OpenFileActionEvent){
+                OpenFileActionEvent ninfo = (OpenFileActionEvent) event;
+                ninfo.setOpenedFile(f.getAbsolutePath());
             }
         }
-    }
-
-    private void addFileToTree(TreeItem<FileEntryItem> root, String Path){
-
     }
 }

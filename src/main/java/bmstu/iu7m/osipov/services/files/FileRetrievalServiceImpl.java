@@ -17,7 +17,7 @@ import java.nio.file.Paths;
 public class FileRetrievalServiceImpl implements FileRetrievalService {
 
     public FileRetrievalServiceImpl(){
-        System.out.println("FileRetrievalServiceImpl constructor call");
+        System.out.println("FileRetrievalServiceImpl constructor.");
     }
 
     @Autowired

@@ -26,6 +26,9 @@ public class ServicesConfiguration {
         return new ReadWriteFileProcess();
     }
 
+    @Bean(name = "TreeFilesReader")
+    public TreeFilesReaderService getTreeFilesReader(){return new TreeFilesReaderImpl();}
+
     @Bean(name = "textReader")
     public TextReaderAdapter getInputTextAdapter(){
         return new TextReaderAdapterImpl();
