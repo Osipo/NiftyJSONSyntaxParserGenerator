@@ -1,9 +1,7 @@
 package bmstu.iu7m.osipov.ui.controllers.handlers;
 
-import bmstu.iu7m.osipov.events.OpenFileActionEvent;
-import bmstu.iu7m.osipov.services.files.PathUtils;
 import bmstu.iu7m.osipov.ui.models.EditorModel;
-import bmstu.iu7m.osipov.ui.models.TreeFilesModel;
+import bmstu.iu7m.osipov.ui.models.entities.DirectoryEntryItem;
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -14,7 +12,6 @@ import javafx.scene.control.TreeItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import javax.swing.*;
 import java.io.File;
 
 public class OpenFileHandler implements EventHandler<ActionEvent> {
@@ -39,7 +36,7 @@ public class OpenFileHandler implements EventHandler<ActionEvent> {
     @Override
     public void handle(ActionEvent event) {
         FileChooser dialog = new FileChooser();
-        if(selected_item.get() != null)
+        if(selected_item.get() != null && selected_item.get().getValue() instanceof DirectoryEntryItem)
             dialog.setInitialDirectory(new File(selected_item.get().getValue().getFullFileName()));
         File f = dialog.showOpenDialog(parent_win);
         if(f != null){
@@ -48,10 +45,6 @@ public class OpenFileHandler implements EventHandler<ActionEvent> {
             mbox.show();
             editorModel.getFileContent(f);
             editorModel.setEditedFileName(f.getAbsolutePath());
-            if(event instanceof OpenFileActionEvent){
-                OpenFileActionEvent ninfo = (OpenFileActionEvent) event;
-                ninfo.setOpenedFile(f.getAbsolutePath());
-            }
         }
     }
 }

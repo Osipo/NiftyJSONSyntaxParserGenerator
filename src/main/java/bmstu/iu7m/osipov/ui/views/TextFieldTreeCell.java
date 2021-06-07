@@ -3,10 +3,7 @@ package bmstu.iu7m.osipov.ui.views;
 import bmstu.iu7m.osipov.services.files.FileLocatorService;
 import bmstu.iu7m.osipov.ui.models.entities.DirectoryEntryItem;
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TreeCell;
+import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 
 public class TextFieldTreeCell extends TreeCell<FileEntryItem> {
@@ -16,6 +13,10 @@ public class TextFieldTreeCell extends TreeCell<FileEntryItem> {
 
     private FileLocatorService fileLocator;
 
+    public void initToolTips(){
+        this.setTooltip(new Tooltip(getItem().getFullFileName()));
+    }
+
     public TextFieldTreeCell(FileLocatorService flocator) {
         this.fileLocator = flocator;
         if(this.fileLocator == null)
@@ -24,7 +25,6 @@ public class TextFieldTreeCell extends TreeCell<FileEntryItem> {
         MenuItem item = new MenuItem("Open");
         //System.out.println("TreeCell created");
         menu.getItems().add(item);
-
 
         super.setOnMouseClicked(event -> {
 
@@ -48,6 +48,7 @@ public class TextFieldTreeCell extends TreeCell<FileEntryItem> {
             getTreeView().getSelectionModel().select(getTreeItem());
         });
     }
+
 
     @Override
     public void startEdit() {

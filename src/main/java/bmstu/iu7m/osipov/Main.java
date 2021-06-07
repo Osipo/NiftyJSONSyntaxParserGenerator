@@ -9,11 +9,10 @@ import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.core.env.Environment;
+
+import java.nio.file.FileSystems;
 
 
 @Lazy
@@ -22,6 +21,9 @@ public class Main extends AbstractJavaFxApplication{
 
     @Value("${ui.main.title}")
     private String mTitle;
+
+    public static String PATH_SEPARATOR = FileSystems.getDefault().getSeparator();
+    public static String PATH_SEPARATOR_ESC = "\\" + FileSystems.getDefault().getSeparator();
 
     @Autowired
     @Qualifier(ControllerBeanNames.ROOT_CTRL)
@@ -47,6 +49,7 @@ public class Main extends AbstractJavaFxApplication{
         }
         primaryStage.setResizable(true);
         primaryStage.centerOnScreen();
+        System.out.println("Path Separator: "+Main.PATH_SEPARATOR);
         primaryStage.setOnCloseRequest(e ->{
             outputTabCtrl.closeThread();
             Platform.exit();

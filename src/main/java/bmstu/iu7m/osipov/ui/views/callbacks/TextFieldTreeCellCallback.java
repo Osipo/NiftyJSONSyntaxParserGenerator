@@ -31,6 +31,7 @@ public class TextFieldTreeCellCallback implements Callback<TreeView<FileEntryIte
 
     @Override
     public TreeCell<FileEntryItem> call(TreeView<FileEntryItem> param) {
-        return new TextFieldTreeCell(flocator);
+        TextFieldTreeCell cell = new TextFieldTreeCell(flocator);
+        return cell;
     }
 }

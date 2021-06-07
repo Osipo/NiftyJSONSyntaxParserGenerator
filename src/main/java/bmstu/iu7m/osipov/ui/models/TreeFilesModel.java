@@ -15,6 +15,7 @@ import javafx.scene.control.TreeItem;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
+import java.util.function.Predicate;
 
 public class TreeFilesModel {
     private ObjectProperty<TreeItem<FileEntryItem>> selected_item;// current selected item on TreeView
@@ -94,8 +95,16 @@ public class TreeFilesModel {
         return this.fservice.getFileEntriesIn(pdir);
     }
 
+    public TreeItem<FileEntryItem> getSpecificFileEntriesIn(String pdir, Predicate<String> cond){
+        return this.fservice.getSpecificFileEntriesIn(pdir, cond);
+    }
+
     public TreeItem<FileEntryItem> findFileAt(TreeItem<FileEntryItem> pentry, String type, String fname){
         return this.searchService.findEntry(pentry, type, fname);
+    }
+
+    public TreeItem<FileEntryItem> findFileByPath(TreeItem<FileEntryItem> pentry, String rpath){
+        return this.treeScannerService.getByPathIn(pentry, rpath);
     }
 
 }

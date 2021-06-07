@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.HashMap;
+import java.util.function.Predicate;
 
 public class StackFileLocator implements FileLocatorService {
 
@@ -77,10 +78,11 @@ public class StackFileLocator implements FileLocatorService {
     /**
      * Non-recursive version of method getAllFileEntriesFrom(String pdir)
      * @param pdir - Absolute path to directory, from where we add fileEntries (content of pdir only but not sub_dirs)
+     * @param condition [Optional parameter] A condition for selection of file entries as we select only specific files.
      * @return A root of the tree of file entires for specified pdir.
      */
     @Override
-    public TreeItem<FileEntryItem> getFileEntriesIn(String pdir){
+    public TreeItem<FileEntryItem> getSpecificFileEntriesIn(String pdir, Predicate<String> condition){
         if(pdir == null)
             return null;
 
@@ -90,6 +92,8 @@ public class StackFileLocator implements FileLocatorService {
         root.setGraphic(new ImageView(resImgs.get(ImageNames.IMG_DIR)));
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(root.getValue().getFullFileName()))) {
             for (Path p : stream) {
+                if(condition != null && !condition.test(p.toAbsolutePath().toString()))
+                    continue;
                 if (Files.isDirectory(p)) {
                     DirectoryEntryItem dentry = new DirectoryEntryItem(p.getFileName().toString());
                     dentry.setFullFileName(p.toAbsolutePath().toString());
@@ -113,6 +117,13 @@ public class StackFileLocator implements FileLocatorService {
 
         return root;
     }
+
+    @Override
+    public TreeItem<FileEntryItem> getFileEntriesIn(String pdir){
+        return getSpecificFileEntriesIn(pdir, null);
+    }
+
+
 
     @Override
     public void addEntriesTo(TreeItem<FileEntryItem> pdir){
