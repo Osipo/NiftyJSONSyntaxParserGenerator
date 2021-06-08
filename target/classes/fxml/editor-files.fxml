@@ -14,9 +14,9 @@
         <Label fx:id="editor_file_name"/>
         <HBox fx:id="editor_menu_btns" prefHeight="30" minHeight="30">
             <Button fx:id="save_btn" text="Save"/>
+            <Region HBox.hgrow="ALWAYS"/>
             <Button fx:id="close_btn" text="X"/>
         </HBox>
     </VBox>
-<!--    <TextArea fx:id="editor" prefHeight="500"/>-->
     <SwingNode fx:id="swi_editor_wrapper"/>
 </fx:root>

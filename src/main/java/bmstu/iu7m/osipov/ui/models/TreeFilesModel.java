@@ -41,7 +41,8 @@ public class TreeFilesModel {
 
         /* just show changes */
         this.selected_item.addListener(((observable, oldValue, newValue) -> {
-            System.out.println("Model_changed_item: "+newValue.getValue().getFullFileName());
+            if(newValue != null)
+                System.out.println("Model_changed_item: "+newValue.getValue().getFullFileName());
         }));
         this.selected_option.addListener(((observable, oldValue, newValue) -> {
             RadioButton btn = (RadioButton) newValue;

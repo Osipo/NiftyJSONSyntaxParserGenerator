@@ -1,9 +1,11 @@
 package bmstu.iu7m.osipov.ui.views;
 
 import bmstu.iu7m.osipov.ui.models.entities.UIComponent;
+import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
 import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
 import javafx.embed.swing.SwingNode;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -84,7 +86,7 @@ public class EditorView extends VBox {
         this.uiStore.getComponents().put("editor_file_name", new UIComponent(editor_file_name));
         this.uiStore.getComponents().put("swi_editor_wrapper", new UIComponent(swi_editor_wrapper));
         this.uiStore.getComponents().put("editor_menu_btns", new UIComponent(editor_menu_btns));
-        this.uiStore.getComponents().put("save_btn", new UIComponent(save_btn));
+        this.uiStore.getComponents().put("save_btn", new UITextComponent(save_btn));
         this.uiStore.getComponents().put("close_btn", new UIComponent(close_btn));
     }
 

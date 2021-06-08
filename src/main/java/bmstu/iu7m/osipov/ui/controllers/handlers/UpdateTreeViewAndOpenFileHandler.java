@@ -36,6 +36,7 @@ public class UpdateTreeViewAndOpenFileHandler extends OpenFileHandler implements
         try{
             subpath = PathStringUtils.getSubtraction(p1, p2);
             selected = this.treeCtrlModel.findFileByPath(root, subpath);
+            //this.treeCtrlModel.getView().getTree().getSelectionModel().clearSelection();
             this.treeCtrlModel.getView().getTree().getSelectionModel().select(selected);
         }
         // p1 > p2 BUT selected == null.
@@ -80,6 +81,7 @@ public class UpdateTreeViewAndOpenFileHandler extends OpenFileHandler implements
         catch (WrongOrderOfArgumentsException e2){
 
         }
+        this.treeCtrlModel.getView().getTree().getSelectionModel().clearSelection();
         this.treeCtrlModel.getView().getTree().setRoot(nrootDir);
         root.getValue().setFileName(orootDirName);
 

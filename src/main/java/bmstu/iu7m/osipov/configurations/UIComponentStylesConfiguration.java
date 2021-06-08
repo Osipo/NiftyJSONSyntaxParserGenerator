@@ -54,6 +54,8 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.TreeFileMenuOptionFiles, "Файлы");
         t.put(UIComponentIds.TreeFileMenuOptionDirs, "Папки");
 
+        t.put(UIComponentIds.EditorFilesSaveBtn, "Сохранить");
+
         return t;
     }
 
@@ -81,6 +83,7 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.TreeFileMenuOptionFiles, "Files");
         t.put(UIComponentIds.TreeFileMenuOptionDirs, "Directories");
 
+        t.put(UIComponentIds.EditorFilesSaveBtn, "Save");
         return t;
     }
 }
