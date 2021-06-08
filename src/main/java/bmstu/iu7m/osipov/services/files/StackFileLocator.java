@@ -90,9 +90,16 @@ public class StackFileLocator implements FileLocatorService {
         TreeItem<FileEntryItem> root = new TreeItem<>(new DirectoryEntryItem(pdir));
         root.getValue().setFullFileName(pdir);
         root.setGraphic(new ImageView(resImgs.get(ImageNames.IMG_DIR)));
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(root.getValue().getFullFileName()))) {
+        Path rpath = Paths.get(root.getValue().getFullFileName());
+
+        //BE careful when forming a path string
+        //If path string is not well-formed (when missing separator after special symbol like ':')
+        //methods Files.newDirectoryStream(), path.toAbsolutePath() and so on
+        //MAY TRY TO RESOLVE PATH AS CURRENT WORKING DIRECTORY (CWD)!
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(rpath)) {
             for (Path p : stream) {
-                if(condition != null && !condition.test(p.toAbsolutePath().toString()))
+                //System.out.println("sel path: "+p.toString());
+                if(condition != null && !condition.test(p.toString()))
                     continue;
                 if (Files.isDirectory(p)) {
                     DirectoryEntryItem dentry = new DirectoryEntryItem(p.getFileName().toString());

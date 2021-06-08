@@ -1,5 +1,6 @@
 package bmstu.iu7m.osipov.ui.controllers;
 
+import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.services.files.FileLocatorService;
 import bmstu.iu7m.osipov.services.files.FileRetrievalService;
 import bmstu.iu7m.osipov.ui.models.TreeFilesModel;
@@ -37,7 +38,7 @@ public class TreeFilesController extends TreeFilesView {
         System.out.println("Post Construct of TreeFilesController bean");
         super.saveUIComponents();
         if(model != null) {
-            loadFiles(this.model.getFileEntriesIn(System.getProperty("user.dir")));
+            loadFiles(this.model.getFileEntriesIn(System.getProperty("user.dir") + Main.PATH_SEPARATOR));
         }
         else
             throw new IllegalStateException("Cannot initiate TreeFilesModel for TreeFilesController");

@@ -48,6 +48,7 @@ public class RootWindowController extends RootWindowView {
 
         //set openDialog handler
         UpdateTreeViewAndOpenFileHandler ophdlr = new UpdateTreeViewAndOpenFileHandler(s, editor_ctrl.getModel(), tree_ctrl.getModel());
+
         ophdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
         this.hdlrs.getHandlers().put("openFile", ophdlr);
         m_file_open.addEventHandler(ActionEvent.ACTION, ophdlr);

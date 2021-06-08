@@ -29,7 +29,7 @@ public abstract class AbstractJavaFxApplication extends Application {
                 .run(savedArgs);
         context.getAutowireCapableBeanFactory().autowireBean(this);
 
-        /*
+        /* Faster than above approach but less configurable.
         SpringApplication app = new SpringApplication(getClass());
         app.setBannerMode(Banner.Mode.OFF);
         app.setHeadless(false);// we should instantiate AWT. (true = do not init AWT).

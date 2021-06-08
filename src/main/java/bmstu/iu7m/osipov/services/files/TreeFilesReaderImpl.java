@@ -27,8 +27,9 @@ public class TreeFilesReaderImpl implements TreeFilesReaderService {
             System.out.printf("Parent \"%s\" is null or it is a leaf node.\n", parent.getValue().getFullFileName());
             return null;
         }
+        System.out.println("Subpath is: "+path);
         List<String> dirs = PathStringUtils.splitPath(path);
-        int i = 1;
+        int i = 0;
         TreeItem<FileEntryItem> cur = parent;
         while(i != dirs.size() && cur != null){
             cur = getByNameIn(cur, dirs.get(i));
@@ -37,6 +38,7 @@ public class TreeFilesReaderImpl implements TreeFilesReaderService {
                         fService.getFileEntriesIn(cur.getValue().getFullFileName())
                                 .getChildren()
                 );
+                cur.setExpanded(true);
             }
             i++;
         }

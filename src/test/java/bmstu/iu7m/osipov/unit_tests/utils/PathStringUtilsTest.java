@@ -134,6 +134,7 @@ public class PathStringUtilsTest {
         dirs = null;
 
 
+        // /ab/cd/ef/
         String p2 = Main.PATH_SEPARATOR + "ab" + Main.PATH_SEPARATOR + "cd" + Main.PATH_SEPARATOR + "ef" + Main.PATH_SEPARATOR;
         dirs = PathStringUtils.splitPath(p2);
         assertEquals(4, dirs.size());
