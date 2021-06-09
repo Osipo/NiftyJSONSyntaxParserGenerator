@@ -13,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Lazy;
 
 import java.nio.file.FileSystems;
+import java.util.Locale;
 
 
 @Lazy
@@ -34,6 +35,7 @@ public class Main extends AbstractJavaFxApplication{
     private OutputTabController outputTabCtrl;
 
     public static void main(String[] args){
+        Locale.setDefault(Locale.ENGLISH);
         launchApp(Main.class, args);
     }
 

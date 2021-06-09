@@ -3,6 +3,8 @@ package bmstu.iu7m.osipov.ui.views;
 import bmstu.iu7m.osipov.services.files.FileLocatorService;
 import bmstu.iu7m.osipov.ui.models.entities.DirectoryEntryItem;
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
+import bmstu.iu7m.osipov.ui.models.stores.EventHandlersStore;
+import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 
@@ -11,18 +13,24 @@ public class TextFieldTreeCell extends TreeCell<FileEntryItem> {
     private TextField textField;
     private ContextMenu menu = new ContextMenu();
 
+    private EventHandlersStore hdlrs;
+
     private FileLocatorService fileLocator;
 
     public void initToolTips(){
         this.setTooltip(new Tooltip(getItem().getFullFileName()));
     }
 
-    public TextFieldTreeCell(FileLocatorService flocator) {
+    public TextFieldTreeCell(FileLocatorService flocator, EventHandlersStore hdlrs) {
+        this.hdlrs = hdlrs;
         this.fileLocator = flocator;
         if(this.fileLocator == null)
             System.out.println("NOT WIRED");
 
+
         MenuItem item = new MenuItem("Open");
+        if(hdlrs != null && hdlrs.getHandlers().get("openFile") != null)
+            item.addEventHandler(ActionEvent.ACTION, hdlrs.getHandlers().get("openFile"));
         //System.out.println("TreeCell created");
         menu.getItems().add(item);
 

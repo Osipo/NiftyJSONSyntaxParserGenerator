@@ -12,20 +12,32 @@ import javafx.event.EventHandler;
 import javafx.scene.control.TreeItem;
 import javafx.stage.Stage;
 
-public class UpdateTreeViewAndOpenFileHandler extends OpenFileHandler implements EventHandler<ActionEvent> {
+public class UpdateTreeViewAndOpenFileDialogHandler extends OpenFileDialogHandler implements EventHandler<ActionEvent> {
 
     private TreeFilesModel treeCtrlModel;
 
-    public UpdateTreeViewAndOpenFileHandler(Stage parent_win, EditorModel editorModel, TreeFilesModel treeCtrlModel){
+    public UpdateTreeViewAndOpenFileDialogHandler(Stage parent_win, EditorModel editorModel, TreeFilesModel treeCtrlModel){
         super(parent_win, editorModel);
         this.treeCtrlModel = treeCtrlModel;
+        setChild(this);
     }
 
     @Override
     public void handle(ActionEvent event) {
-        OpenFileActionEvent action = new OpenFileActionEvent(event);
+        OpenFileActionEvent action = null;
+        if(event instanceof OpenFileActionEvent){
+            action = (OpenFileActionEvent) event;
+        }
+        else
+            action = new OpenFileActionEvent(event);
         super.handle(action);
-        if(action.isCanceled()) {
+        if(action.isCanceled() && action.isSelected()){
+            System.out.println("OpenFileDialog > selected cancel action.");
+            this.dialogFlag.set(false);// allow open a new dialog as it was previously closed.
+            return;
+        }
+        else if(action.isCanceled()) {
+            System.out.println("Dialog is still active! Open file or decline this action!");
             return;
         }
         TreeItem<FileEntryItem> root = this.treeCtrlModel.getView().getTree().getRoot();
@@ -51,6 +63,10 @@ public class UpdateTreeViewAndOpenFileHandler extends OpenFileHandler implements
         catch (WrongOrderOfArgumentsException e){
             // File entry is out of the TreeView > create new root and add new TreeItems to view.
             setNewTreeHierarchy(root, p1, null);
+        }
+        finally {
+            System.out.println("Dialog process is finished.");
+            this.dialogFlag.set(false);
         }
     }
 

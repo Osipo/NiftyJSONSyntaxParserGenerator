@@ -3,6 +3,7 @@ package bmstu.iu7m.osipov.ui.controllers;
 import bmstu.iu7m.osipov.ui.models.EditorModel;
 import bmstu.iu7m.osipov.ui.views.EditorView;
 import javafx.fxml.FXML;
+import javafx.scene.control.Tooltip;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
@@ -38,6 +39,9 @@ public class EditorFilesController extends EditorView {
         if(model != null) {
             model.setOutput(editor);
             editor_file_name.textProperty().bind(model.editedFileNameProperty());
+            Tooltip t = new Tooltip();
+            t.textProperty().bind(editor_file_name.textProperty());
+            editor_file_name.setTooltip(t);
             System.out.println("EditorModel was set");
         }
 

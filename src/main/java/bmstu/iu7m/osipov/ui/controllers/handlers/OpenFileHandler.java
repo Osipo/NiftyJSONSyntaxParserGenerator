@@ -1,33 +1,42 @@
 package bmstu.iu7m.osipov.ui.controllers.handlers;
 
-import bmstu.iu7m.osipov.events.OpenFileActionEvent;
+import bmstu.iu7m.osipov.ui.locale.LanguageName;
 import bmstu.iu7m.osipov.ui.models.EditorModel;
-import bmstu.iu7m.osipov.ui.models.entities.DirectoryEntryItem;
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
+import bmstu.iu7m.osipov.ui.models.entities.RegularFileEntryItem;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Alert;
 import javafx.scene.control.TreeItem;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 
 import java.io.File;
 
 public class OpenFileHandler implements EventHandler<ActionEvent> {
 
-    protected ObjectProperty<TreeItem<FileEntryItem>> selected_item;
-    protected Stage parent_win;
+    protected final ObjectProperty<TreeItem<FileEntryItem>> selected_item;
+    protected final ObjectProperty<LanguageName> selected_language;
     protected EditorModel editorModel;
-    private String oldSelectedDir = null;
-    public OpenFileHandler(Stage parent_win, EditorModel editorModel){
-        this.parent_win = parent_win;
-        this.editorModel = editorModel;
+
+    public OpenFileHandler(EditorModel model) {
+        this.editorModel = model;
         this.selected_item = new SimpleObjectProperty<>(this, "selectedItem", null);
+        this.selected_language = new SimpleObjectProperty<>(this, "selectedLanguage", null);
     }
 
-    public ObjectProperty<TreeItem<FileEntryItem>> selectedItemProperty(){
+    @Override
+    public void handle(ActionEvent event) {
+        if(selected_item.get() != null && selected_item.get().getValue() instanceof RegularFileEntryItem){
+            File f = new File(selected_item.get().getValue().getFullFileName());
+            editorModel.getFileContent(f);
+            editorModel.setEditedFileName(f.getAbsolutePath());
+        }
+        else if(selected_item.get() == null){
+            System.out.println("Select file to open.");
+        }
+    }
+
+    public final ObjectProperty<TreeItem<FileEntryItem>> selectedItemProperty(){
         return this.selected_item;
     }
 
@@ -35,33 +44,11 @@ public class OpenFileHandler implements EventHandler<ActionEvent> {
         return this.selected_item.get();
     }
 
-    @Override
-    public void handle(ActionEvent event) {
-        FileChooser dialog = new FileChooser();
-        if(selected_item.get() != null && selected_item.get().getValue() instanceof DirectoryEntryItem) {
-            this.oldSelectedDir = selected_item.get().getValue().getFullFileName();
-            dialog.setInitialDirectory(new File(this.oldSelectedDir));
-        }
-        else if(this.oldSelectedDir != null){
-            dialog.setInitialDirectory(new File(this.oldSelectedDir));
-        }
-        File f = dialog.showOpenDialog(parent_win);
+    public final ObjectProperty<LanguageName> selectedLanguageProperty(){
+        return this.selected_language;
+    }
 
-        //If we picked a new (unopened) file.
-        if(f != null &&
-                (editorModel.getEditedFileName() == null
-                        || !editorModel.getEditedFileName().equals(f.getAbsolutePath())
-                )
-        )
-        {
-            Alert mbox = new Alert(Alert.AlertType.INFORMATION);
-            mbox.setContentText("Selected: "+f.getAbsolutePath());
-            mbox.show();
-            editorModel.getFileContent(f);
-            editorModel.setEditedFileName(f.getAbsolutePath());
-        }
-        else if(event instanceof OpenFileActionEvent){
-            ((OpenFileActionEvent) event).setCanceled(true);
-        }
+    public final LanguageName getSelectedLanguage(){
+        return this.selected_language.get();
     }
 }

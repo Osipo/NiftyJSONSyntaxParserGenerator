@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -56,6 +57,29 @@ public class UIComponentStylesConfiguration {
 
         t.put(UIComponentIds.EditorFilesSaveBtn, "Сохранить");
 
+        //-----------------------------------
+        // File dialog components translation
+        //-----------------------------------
+        t.put(FileDialogText.openTitleText, "Открыть новый файл");
+        t.put(FileDialogText.fileNameText, "Имя файла:");
+        t.put(FileDialogText.fileTypeText, "Тип файла:");
+        t.put(FileDialogText.lookInText, "Искать в папке:");
+        t.put(FileDialogText.upFolderTooltipText, "На один уровень вверх");
+        t.put(FileDialogText.homeFolderTooltipText, "Рабочий стол");
+        t.put(FileDialogText.listViewTooltipText, "Список");
+        t.put(FileDialogText.detailsTooltipText, "Детали");
+        t.put(FileDialogText.newFolderTooltipText, "Создать новую папку");
+        t.put(FileDialogText.cancelText, "Отмена");
+        t.put(FileDialogText.openText, "Открыть");
+        t.put(FileDialogText.cancelTooltipText, "Отменить диалог (не открывать файл)");
+        t.put(FileDialogText.allFilterText, "Все");
+        t.put(FileDialogText.jsonFilterText, "Файлы формата JSON - Нотация объектов JavaScript.");
+
+        t.put(FileDialogText.fileNameHeaderText, "Имя");
+        t.put(FileDialogText.fileTypeHeaderText, "Тип (расширение)");
+        t.put(FileDialogText.fileSizeHeaderText, "Размер");
+        t.put(FileDialogText.fileDateHeaderText, "Дата последнего изменения");
+
         return t;
     }
 
@@ -84,6 +108,30 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.TreeFileMenuOptionDirs, "Directories");
 
         t.put(UIComponentIds.EditorFilesSaveBtn, "Save");
+
+        //-----------------------------------
+        // File dialog components translation
+        //-----------------------------------
+        t.put(FileDialogText.openTitleText, "Open new file");
+        t.put(FileDialogText.fileNameText, "File Name:");
+        t.put(FileDialogText.fileTypeText, "Type of File:");
+        t.put(FileDialogText.lookInText, "Search in:");
+        t.put(FileDialogText.upFolderTooltipText, "One level up");
+        t.put(FileDialogText.homeFolderTooltipText, "Desktop");
+        t.put(FileDialogText.listViewTooltipText, "List");
+        t.put(FileDialogText.detailsTooltipText, "Details");
+        t.put(FileDialogText.newFolderTooltipText, "Create new folder");
+        t.put(FileDialogText.cancelText, "Cancel");
+        t.put(FileDialogText.openText, "Open");
+        t.put(FileDialogText.cancelTooltipText, "Abort selection and opening of file.");
+        t.put(FileDialogText.allFilterText, "All");
+        t.put(FileDialogText.jsonFilterText, "JavaScript Object Notation (JSON) files");
+
+        t.put(FileDialogText.fileNameHeaderText, "Name");
+        t.put(FileDialogText.fileTypeHeaderText, "Type (extension)");
+        t.put(FileDialogText.fileSizeHeaderText, "Size");
+        t.put(FileDialogText.fileDateHeaderText, "Last modified");
+
         return t;
     }
 }
