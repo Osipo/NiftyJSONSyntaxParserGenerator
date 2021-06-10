@@ -75,6 +75,7 @@ public class RootWindowController extends RootWindowView {
         clshdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
 
         editor_ctrl.getModel().getView().getCloseButton().addEventHandler(ActionEvent.ACTION, editor_clshdlr);
+        this.m_file_close.addEventHandler(ActionEvent.ACTION, clshdlr);
 
         this.hdlrs.getHandlers().put("openFileAndUpdateView", ophdlr);
         this.hdlrs.getHandlers().put("openFile", tree_ophdlr);

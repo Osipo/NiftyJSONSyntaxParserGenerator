@@ -29,7 +29,7 @@ public class EditorFilesController extends EditorView {
     @PostConstruct
     public void init(){
         System.out.println("Post construct of bean: EditorFilesController");
-        //wait for JTextPane initialization.
+        //wait for JRSyntaxTextArea initialization.
         try {
             swi_awaiter.await();
         }catch (InterruptedException ex){
