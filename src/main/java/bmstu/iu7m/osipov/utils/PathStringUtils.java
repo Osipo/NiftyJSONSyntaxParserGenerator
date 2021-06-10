@@ -1,4 +1,4 @@
-package bmstu.iu7m.osipov.services.files;
+package bmstu.iu7m.osipov.utils;
 
 import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.exceptions.WrongOrderOfArgumentsException;

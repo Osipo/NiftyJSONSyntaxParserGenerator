@@ -1,5 +1,6 @@
 package bmstu.iu7m.osipov.ui.views;
 
+import bmstu.iu7m.osipov.configurations.UIComponentIds;
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
 import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
 import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
@@ -88,11 +89,11 @@ public class TreeFilesView extends VBox {
     }
 
     protected void saveUIComponents(){
-        uiStore.getComponents().put("o_all",new UITextComponent(o_all));
-        uiStore.getComponents().put("o_dirs",new UITextComponent(o_dirs));
-        uiStore.getComponents().put("o_files",new UITextComponent(o_files));
-        uiStore.getComponents().put("search",new UITextComponent(search));
-        uiStore.getComponents().put("menu_options_label",new UITextComponent(menu_options_label));
+        uiStore.getComponents().put(UIComponentIds.TreeFileMenuOptionAll,new UITextComponent(o_all));
+        uiStore.getComponents().put(UIComponentIds.TreeFileMenuOptionDirs,new UITextComponent(o_dirs));
+        uiStore.getComponents().put(UIComponentIds.TreeFileMenuOptionFiles,new UITextComponent(o_files));
+        uiStore.getComponents().put(UIComponentIds.SearchButton,new UITextComponent(search));
+        uiStore.getComponents().put(UIComponentIds.TreeFileMenuOptionsLabel,new UITextComponent(menu_options_label));
     }
 
     //-------------------------------
@@ -100,5 +101,9 @@ public class TreeFilesView extends VBox {
     //-------------------------------
     public TreeView<FileEntryItem> getTree(){
         return this.tree;
+    }
+    
+    public TextFieldTreeCellCallback getCallBackFunction(){
+        return this.tc_callback;
     }
 }

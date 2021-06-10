@@ -1,15 +1,11 @@
 package bmstu.iu7m.osipov.services.files;
 
-import bmstu.iu7m.osipov.Main;
-import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.ui.models.entities.DirectoryEntryItem;
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
-import javafx.scene.Node;
+import bmstu.iu7m.osipov.utils.PathStringUtils;
 import javafx.scene.control.TreeItem;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.nio.file.FileSystems;
-import java.util.Arrays;
 import java.util.List;
 
 public class TreeFilesReaderImpl implements TreeFilesReaderService {

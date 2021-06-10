@@ -1,6 +1,7 @@
 package bmstu.iu7m.osipov.ui.models;
 
 import bmstu.iu7m.osipov.services.files.FileProcessService;
+import bmstu.iu7m.osipov.ui.views.EditorView;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.TextArea;
@@ -16,16 +17,20 @@ public class EditorModel {
     @Autowired
     private FileProcessService rwservice;
 
-    private RSyntaxTextArea txt_pane;
-
     private StringProperty editedFileName;
+
+    private EditorView view;
 
     public EditorModel(){
         this.editedFileName = new SimpleStringProperty(this,"editedFileName", null);
     }
 
-    public void setOutput(RSyntaxTextArea txt_pane){
-        this.txt_pane = txt_pane;
+    public void setView(EditorView view){
+        this.view = view;
+    }
+
+    public EditorView getView(){
+        return this.view;
     }
 
     public final void setEditedFileName(String fname){
@@ -42,6 +47,12 @@ public class EditorModel {
 
     public void getFileContent(File f){
         System.out.println("Extract content of selected file");
-        rwservice.readFromFile(f, txt_pane);
+        rwservice.readFromFile(f, view.getEditor());
+    }
+
+    public void clearFileContent(){
+        System.out.println("Closing file: \""+editedFileName.get()+"\"");
+        this.view.getEditor().setText("");
+        this.editedFileName.set("");
     }
 }

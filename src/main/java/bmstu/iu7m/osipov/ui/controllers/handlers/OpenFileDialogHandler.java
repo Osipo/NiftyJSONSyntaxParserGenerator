@@ -2,37 +2,42 @@ package bmstu.iu7m.osipov.ui.controllers.handlers;
 
 import bmstu.iu7m.osipov.configurations.FileDialogText;
 import bmstu.iu7m.osipov.events.OpenFileActionEvent;
+import bmstu.iu7m.osipov.ui.locale.LanguageName;
 import bmstu.iu7m.osipov.ui.locale.SimpleAcceptAllFileFilter;
 import bmstu.iu7m.osipov.ui.locale.SimpleAcceptJsonFileFilter;
 import bmstu.iu7m.osipov.ui.models.EditorModel;
 import bmstu.iu7m.osipov.ui.models.entities.DirectoryEntryItem;
-import com.sun.javafx.event.EventDispatchChainImpl;
+import bmstu.iu7m.osipov.utils.SwingUtils;
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 import javax.swing.*;
+import java.awt.Component;
 import java.io.File;
 import javax.swing.filechooser.FileFilter;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class OpenFileDialogHandler extends OpenFileHandler implements EventHandler<ActionEvent> {
 
-    protected Stage parent_win;
     protected AtomicReference<Boolean> dialogFlag;
 
     private AtomicReference<File> selFile;
     private String oldSelectedDir = null;
     private UpdateTreeViewAndOpenFileDialogHandler child; //child for firing event.
 
-    public OpenFileDialogHandler(Stage parent_win, EditorModel editorModel){
+    protected ObjectProperty<LanguageName> selected_language;
+
+    public OpenFileDialogHandler(EditorModel editorModel){
         super(editorModel);
-        this.parent_win = parent_win;
         this.dialogFlag = new AtomicReference<>(false);
         this.selFile = new AtomicReference<>();
+        this.selected_language = new SimpleObjectProperty<>(this, "selectedLanguage", LanguageName.ENG);
     }
 
     public void setChild(UpdateTreeViewAndOpenFileDialogHandler child){
@@ -79,13 +84,28 @@ public class OpenFileDialogHandler extends OpenFileHandler implements EventHandl
             SwingUtilities.invokeLater(() -> {
                 FileFilter all = new SimpleAcceptAllFileFilter();
                 FileFilter json = new SimpleAcceptJsonFileFilter();
-
                 JFileChooser fopen = new JFileChooser();
+
+
+//                System.out.println("Components of chooser: "+fopen.getComponents().length);
+//                for(Component c : fopen.getComponents()){
+//                    System.out.println(c.getClass().getSimpleName());
+//                }
+//                System.out.println("-----------");
+//                List<JTable> descl = SwingUtils.getDescendantsOfType2(JTable.class, fopen);
+//                JTable desc = null;
+//                if(descl.size() > 0){
+//                    desc = descl.get(0);
+//                    System.out.println("found JTable");
+//                    System.out.println("Description headers: "+desc.getColumnCount());
+//                }
+
+
                 fopen.setDialogTitle(UIManager.getString(FileDialogText.openTitleText));
-                fopen.setLocale(selected_language.get().getLocale());
                 fopen.setAcceptAllFileFilterUsed(false);
                 fopen.addChoosableFileFilter(all);
                 fopen.addChoosableFileFilter(json);
+                fopen.setLocale(this.selected_language.get().getLocale());
 
                 // SET INITIAL DIRECTORY
                 if (selected_item.get() != null && selected_item.get().getValue() instanceof DirectoryEntryItem) {
@@ -118,5 +138,13 @@ public class OpenFileDialogHandler extends OpenFileHandler implements EventHandl
         else if(event instanceof OpenFileActionEvent){
             ((OpenFileActionEvent) event).setCanceled(true);
         }
+    }
+
+    public final ObjectProperty<LanguageName> selectedLanguageProperty(){
+        return this.selected_language;
+    }
+
+    public final LanguageName getLanguage(){
+        return this.selected_language.get();
     }
 }

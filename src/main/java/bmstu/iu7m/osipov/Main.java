@@ -35,7 +35,6 @@ public class Main extends AbstractJavaFxApplication{
     private OutputTabController outputTabCtrl;
 
     public static void main(String[] args){
-        Locale.setDefault(Locale.ENGLISH);
         launchApp(Main.class, args);
     }
 

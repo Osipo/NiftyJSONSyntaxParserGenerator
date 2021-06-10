@@ -3,11 +3,8 @@ package bmstu.iu7m.osipov.ui.controllers;
 
 import bmstu.iu7m.osipov.configurations.ControllerBeanNames;
 import bmstu.iu7m.osipov.configurations.FileDialogText;
-import bmstu.iu7m.osipov.ui.controllers.handlers.OpenFileHandler;
+import bmstu.iu7m.osipov.ui.controllers.handlers.*;
 import bmstu.iu7m.osipov.ui.locale.LanguageName;
-import bmstu.iu7m.osipov.ui.controllers.handlers.BottomTabsSelectionHandler;
-import bmstu.iu7m.osipov.ui.controllers.handlers.OpenFileDialogHandler;
-import bmstu.iu7m.osipov.ui.controllers.handlers.UpdateTreeViewAndOpenFileDialogHandler;
 import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
 import bmstu.iu7m.osipov.ui.models.stores.EventHandlersStore;
@@ -64,17 +61,27 @@ public class RootWindowController extends RootWindowView {
         //----------------------------------
 
         //set openDialog handler
-        UpdateTreeViewAndOpenFileDialogHandler ophdlr = new UpdateTreeViewAndOpenFileDialogHandler(s, editor_ctrl.getModel(), tree_ctrl.getModel());
+        UpdateTreeViewAndOpenFileDialogHandler ophdlr = new UpdateTreeViewAndOpenFileDialogHandler(editor_ctrl.getModel(), tree_ctrl.getModel());
         ophdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
         ophdlr.selectedLanguageProperty().bind(this.selectedLang);
 
         OpenFileHandler tree_ophdlr = new OpenFileHandler(editor_ctrl.getModel());
         tree_ophdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
-        tree_ophdlr.selectedLanguageProperty().bind(this.selectedLang);
+
+        //set closeFile handler
+        CloseFileHandler clshdlr = new CloseFileHandler(editor_ctrl.getModel());
+        CloseEditorFileHandler editor_clshdlr = new CloseEditorFileHandler(editor_ctrl.getModel());
+
+        clshdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
+
+        editor_ctrl.getModel().getView().getCloseButton().addEventHandler(ActionEvent.ACTION, editor_clshdlr);
 
         this.hdlrs.getHandlers().put("openFileAndUpdateView", ophdlr);
         this.hdlrs.getHandlers().put("openFile", tree_ophdlr);
+        this.hdlrs.getHandlers().put("closeFile", clshdlr);
         m_file_open.addEventHandler(ActionEvent.ACTION, ophdlr);
+
+        this.tree_ctrl.getCallBackFunction().loadContextMenuForCells();
     }
 
     /* All JavaFX Components are loaded but beans are not wired yet.*/
@@ -124,18 +131,11 @@ public class RootWindowController extends RootWindowView {
 
     private void initFileDialogLanguage(Map<String, String> tran){
         SwingUtilities.invokeLater(() -> {
-//            UIDefaults defs = UIManager.getDefaults();
-//            ArrayList keys = Collections.list(defs.keys());
-//            for(Object k : keys){
-//                if(defs.getString(k) != null && k instanceof String ){
-//                    System.out.println(k + " - " + defs.getString(k));
-//                }
-//            }
-            System.out.println(UIManager.get(FileDialogText.detailsAccessText));
-            System.out.println(UIManager.get(FileDialogText.homeFolderAccessText));
-            System.out.println(UIManager.get(FileDialogText.upFolderAccessText));
-            System.out.println(UIManager.get(FileDialogText.listViewAccessText));
-            System.out.println(UIManager.get(FileDialogText.newFolderAccessText));
+//            System.out.println(UIManager.get(FileDialogText.detailsAccessText));
+//            System.out.println(UIManager.get(FileDialogText.homeFolderAccessText));
+//            System.out.println(UIManager.get(FileDialogText.upFolderAccessText));
+//            System.out.println(UIManager.get(FileDialogText.listViewAccessText));
+//            System.out.println(UIManager.get(FileDialogText.newFolderAccessText));
 
             UIManager.put(FileDialogText.lookInText, tran.get(FileDialogText.lookInText));
             UIManager.put(FileDialogText.fileNameText, tran.get(FileDialogText.fileNameText));

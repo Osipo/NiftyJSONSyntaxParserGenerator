@@ -5,6 +5,7 @@ public interface UIComponentIds {
     public static final String FileNewMenu = "m_file_new";
     public static final String FileNewTextFileMenu = "m_file_new_tfile";
     public static final String FileOpenMenu = "m_file_open";
+    public static final String FileCloseMenu = "m_file_close";
     public static final String FileExitMenu = "m_file_exit";
     public static final String PreferencesMenu = "m_prefs";
     public static final String PreferencesLanguagesMenu = "m_prefs_lang";
@@ -23,5 +24,10 @@ public interface UIComponentIds {
 
     public static final String BottomTerminal = "bottom_term";
     public static final String BottomOutput = "bottom_out";
+
+
+    public static final String TreeViewContextMenu = "tv_cm";
+    public static final String TreeViewContextMenuOpen = "tv_cm_open";
+    public static final String TreeViewContextMenuClose = "tv_cm_close";
 
 }

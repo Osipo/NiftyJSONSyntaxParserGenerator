@@ -3,7 +3,7 @@ package bmstu.iu7m.osipov.ui.controllers.handlers;
 import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.events.OpenFileActionEvent;
 import bmstu.iu7m.osipov.exceptions.WrongOrderOfArgumentsException;
-import bmstu.iu7m.osipov.services.files.PathStringUtils;
+import bmstu.iu7m.osipov.utils.PathStringUtils;
 import bmstu.iu7m.osipov.ui.models.EditorModel;
 import bmstu.iu7m.osipov.ui.models.TreeFilesModel;
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
@@ -16,8 +16,8 @@ public class UpdateTreeViewAndOpenFileDialogHandler extends OpenFileDialogHandle
 
     private TreeFilesModel treeCtrlModel;
 
-    public UpdateTreeViewAndOpenFileDialogHandler(Stage parent_win, EditorModel editorModel, TreeFilesModel treeCtrlModel){
-        super(parent_win, editorModel);
+    public UpdateTreeViewAndOpenFileDialogHandler(EditorModel editorModel, TreeFilesModel treeCtrlModel){
+        super(editorModel);
         this.treeCtrlModel = treeCtrlModel;
         setChild(this);
     }

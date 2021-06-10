@@ -1,9 +1,13 @@
 package bmstu.iu7m.osipov.ui.views;
 
+import bmstu.iu7m.osipov.configurations.UIComponentIds;
 import bmstu.iu7m.osipov.services.files.FileLocatorService;
 import bmstu.iu7m.osipov.ui.models.entities.DirectoryEntryItem;
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
+import bmstu.iu7m.osipov.ui.models.entities.UIComponent;
+import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
 import bmstu.iu7m.osipov.ui.models.stores.EventHandlersStore;
+import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
@@ -11,9 +15,12 @@ import javafx.scene.input.KeyCode;
 public class TextFieldTreeCell extends TreeCell<FileEntryItem> {
 
     private TextField textField;
-    private ContextMenu menu = new ContextMenu();
+
+    private ContextMenu menu;
 
     private EventHandlersStore hdlrs;
+
+    private UIComponentStore uiStore;
 
     private FileLocatorService fileLocator;
 
@@ -21,18 +28,19 @@ public class TextFieldTreeCell extends TreeCell<FileEntryItem> {
         this.setTooltip(new Tooltip(getItem().getFullFileName()));
     }
 
-    public TextFieldTreeCell(FileLocatorService flocator, EventHandlersStore hdlrs) {
+    public TextFieldTreeCell(FileLocatorService flocator,
+                             EventHandlersStore hdlrs,
+                             UIComponentStore uiStore,
+                             ContextMenu menu) {
         this.hdlrs = hdlrs;
+        this.uiStore = uiStore;
+        this.menu = menu;
         this.fileLocator = flocator;
         if(this.fileLocator == null)
             System.out.println("NOT WIRED");
 
-
-        MenuItem item = new MenuItem("Open");
-        if(hdlrs != null && hdlrs.getHandlers().get("openFile") != null)
-            item.addEventHandler(ActionEvent.ACTION, hdlrs.getHandlers().get("openFile"));
         //System.out.println("TreeCell created");
-        menu.getItems().add(item);
+
 
         super.setOnMouseClicked(event -> {
 

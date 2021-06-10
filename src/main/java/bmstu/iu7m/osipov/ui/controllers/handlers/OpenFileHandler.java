@@ -15,18 +15,20 @@ import java.io.File;
 public class OpenFileHandler implements EventHandler<ActionEvent> {
 
     protected final ObjectProperty<TreeItem<FileEntryItem>> selected_item;
-    protected final ObjectProperty<LanguageName> selected_language;
     protected EditorModel editorModel;
 
     public OpenFileHandler(EditorModel model) {
         this.editorModel = model;
         this.selected_item = new SimpleObjectProperty<>(this, "selectedItem", null);
-        this.selected_language = new SimpleObjectProperty<>(this, "selectedLanguage", null);
     }
 
     @Override
     public void handle(ActionEvent event) {
-        if(selected_item.get() != null && selected_item.get().getValue() instanceof RegularFileEntryItem){
+        if(selected_item.get() != null
+                && selected_item.get().getValue() instanceof RegularFileEntryItem
+                && (editorModel.getEditedFileName() == null || !selected_item.get().getValue().getFullFileName().equals(editorModel.getEditedFileName()))
+        )
+        {
             File f = new File(selected_item.get().getValue().getFullFileName());
             editorModel.getFileContent(f);
             editorModel.setEditedFileName(f.getAbsolutePath());
@@ -44,11 +46,4 @@ public class OpenFileHandler implements EventHandler<ActionEvent> {
         return this.selected_item.get();
     }
 
-    public final ObjectProperty<LanguageName> selectedLanguageProperty(){
-        return this.selected_language;
-    }
-
-    public final LanguageName getSelectedLanguage(){
-        return this.selected_language.get();
-    }
 }

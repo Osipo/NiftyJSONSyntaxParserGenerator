@@ -39,6 +39,7 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.FileNewMenu, "Новый");
         t.put(UIComponentIds.FileNewTextFileMenu, "Текстовый файл (txt)");
         t.put(UIComponentIds.FileOpenMenu, "Открыть");
+        t.put(UIComponentIds.FileCloseMenu, "Закрыть");
         t.put(UIComponentIds.FileExitMenu, "Выход");
         t.put(UIComponentIds.PreferencesMenu, "Настройки");
         t.put(UIComponentIds.PreferencesLanguagesMenu, "Языки");
@@ -56,6 +57,12 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.TreeFileMenuOptionDirs, "Папки");
 
         t.put(UIComponentIds.EditorFilesSaveBtn, "Сохранить");
+
+        //------------------------------------------
+        // TreeView ContextMenu elements translation
+        //------------------------------------------
+        t.put(UIComponentIds.TreeViewContextMenuOpen, "Открыть");
+        t.put(UIComponentIds.TreeViewContextMenuClose, "Закрыть");
 
         //-----------------------------------
         // File dialog components translation
@@ -91,6 +98,7 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.FileNewMenu, "New");
         t.put(UIComponentIds.FileNewTextFileMenu, "Text File");
         t.put(UIComponentIds.FileOpenMenu, "Open");
+        t.put(UIComponentIds.FileCloseMenu, "Close");
         t.put(UIComponentIds.FileExitMenu, "Exit");
         t.put(UIComponentIds.PreferencesMenu, "_Preferences");
         t.put(UIComponentIds.PreferencesLanguagesMenu, "Languages");
@@ -108,6 +116,12 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.TreeFileMenuOptionDirs, "Directories");
 
         t.put(UIComponentIds.EditorFilesSaveBtn, "Save");
+
+        //------------------------------------------
+        // TreeView ContextMenu elements translation
+        //------------------------------------------
+        t.put(UIComponentIds.TreeViewContextMenuOpen, "Open");
+        t.put(UIComponentIds.TreeViewContextMenuClose, "Close");
 
         //-----------------------------------
         // File dialog components translation

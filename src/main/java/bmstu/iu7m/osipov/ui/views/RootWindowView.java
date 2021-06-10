@@ -1,5 +1,6 @@
 package bmstu.iu7m.osipov.ui.views;
 
+import bmstu.iu7m.osipov.configurations.UIComponentIds;
 import bmstu.iu7m.osipov.ui.models.entities.UIComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
@@ -42,6 +43,8 @@ public class RootWindowView {
     protected MenuItem m_file_new_tfile;
     @FXML
     protected MenuItem m_file_open;
+    @FXML
+    protected MenuItem m_file_close;
     @FXML
     protected MenuItem m_file_exit;
 
@@ -90,22 +93,23 @@ public class RootWindowView {
         uiStore.getComponents().put("top", new UIComponent(top));
         uiStore.getComponents().put("fMenu", new UIComponent(fMenu));
 
-        uiStore.getComponents().put("m_file", new UIMenuItemComponent(m_file));
-        uiStore.getComponents().put("m_file_new", new UIMenuItemComponent(m_file_new));
-        uiStore.getComponents().put("m_file_new_tfile", new UIMenuItemComponent(m_file_new_tfile));
-        uiStore.getComponents().put("m_file_open", new UIMenuItemComponent(m_file_open));
-        uiStore.getComponents().put("m_file_exit", new UIMenuItemComponent(m_file_exit));
-        uiStore.getComponents().put("m_prefs", new UIMenuItemComponent(m_prefs));
-        uiStore.getComponents().put("m_prefs_lang", new UIMenuItemComponent(m_prefs_lang));
-        uiStore.getComponents().put("m_prefs_lang_eng", new UIMenuItemComponent(m_prefs_lang_eng));
-        uiStore.getComponents().put("m_prefs_lang_rus", new UIMenuItemComponent(m_prefs_lang_rus));
-        uiStore.getComponents().put("m_help", new UIMenuItemComponent(m_help));
-        uiStore.getComponents().put("m_help_about", new UIMenuItemComponent(m_help_about));
+        uiStore.getComponents().put(UIComponentIds.FileMenu, new UIMenuItemComponent(m_file));
+        uiStore.getComponents().put(UIComponentIds.FileNewMenu, new UIMenuItemComponent(m_file_new));
+        uiStore.getComponents().put(UIComponentIds.FileNewTextFileMenu, new UIMenuItemComponent(m_file_new_tfile));
+        uiStore.getComponents().put(UIComponentIds.FileOpenMenu, new UIMenuItemComponent(m_file_open));
+        uiStore.getComponents().put(UIComponentIds.FileCloseMenu, new UIMenuItemComponent(m_file_close));
+        uiStore.getComponents().put(UIComponentIds.FileExitMenu, new UIMenuItemComponent(m_file_exit));
+        uiStore.getComponents().put(UIComponentIds.PreferencesMenu, new UIMenuItemComponent(m_prefs));
+        uiStore.getComponents().put(UIComponentIds.PreferencesLanguagesMenu, new UIMenuItemComponent(m_prefs_lang));
+        uiStore.getComponents().put(UIComponentIds.PreferencesLanguagesEngMenu, new UIMenuItemComponent(m_prefs_lang_eng));
+        uiStore.getComponents().put(UIComponentIds.PreferencesLanguagesRusMenu, new UIMenuItemComponent(m_prefs_lang_rus));
+        uiStore.getComponents().put(UIComponentIds.HelpMenu, new UIMenuItemComponent(m_help));
+        uiStore.getComponents().put(UIComponentIds.HelpAboutMenu, new UIMenuItemComponent(m_help_about));
 
         uiStore.getComponents().put("bottom", new UIComponent(bottom));
         uiStore.getComponents().put("bottom_btns", new UIComponent(bottom_btns));
-        uiStore.getComponents().put("bottom_term", new UITextComponent(bottom_term));
-        uiStore.getComponents().put("bottom_out", new UITextComponent(bottom_out));
+        uiStore.getComponents().put(UIComponentIds.BottomTerminal, new UITextComponent(bottom_term));
+        uiStore.getComponents().put(UIComponentIds.BottomOutput, new UITextComponent(bottom_out));
 
         //15 + 5
         System.out.println(uiStore.getComponents().size());

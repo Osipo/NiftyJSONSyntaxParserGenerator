@@ -37,10 +37,10 @@ public class EditorFilesController extends EditorView {
         }
         super.saveUIComponents();
         if(model != null) {
-            model.setOutput(editor);
+            model.setView(this);
             editor_file_name.textProperty().bind(model.editedFileNameProperty());
             Tooltip t = new Tooltip();
-            t.textProperty().bind(editor_file_name.textProperty());
+            t.textProperty().bind(model.editedFileNameProperty());
             editor_file_name.setTooltip(t);
             System.out.println("EditorModel was set");
         }

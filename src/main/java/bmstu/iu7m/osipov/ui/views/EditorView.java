@@ -1,5 +1,6 @@
 package bmstu.iu7m.osipov.ui.views;
 
+import bmstu.iu7m.osipov.configurations.UIComponentIds;
 import bmstu.iu7m.osipov.ui.models.entities.UIComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
 import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
@@ -86,7 +87,7 @@ public class EditorView extends VBox {
         this.uiStore.getComponents().put("editor_file_name", new UIComponent(editor_file_name));
         this.uiStore.getComponents().put("swi_editor_wrapper", new UIComponent(swi_editor_wrapper));
         this.uiStore.getComponents().put("editor_menu_btns", new UIComponent(editor_menu_btns));
-        this.uiStore.getComponents().put("save_btn", new UITextComponent(save_btn));
+        this.uiStore.getComponents().put(UIComponentIds.EditorFilesSaveBtn, new UITextComponent(save_btn));
         this.uiStore.getComponents().put("close_btn", new UIComponent(close_btn));
     }
 
@@ -95,5 +96,13 @@ public class EditorView extends VBox {
     //-----------------------------------
     public RSyntaxTextArea getEditor(){
         return this.editor;
+    }
+
+    public Button getSaveButton(){
+        return this.save_btn;
+    }
+
+    public Button getCloseButton(){
+        return this.close_btn;
     }
 }

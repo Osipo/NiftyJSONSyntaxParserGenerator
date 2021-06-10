@@ -2,7 +2,7 @@ package bmstu.iu7m.osipov.unit_tests.utils;
 
 import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.exceptions.WrongOrderOfArgumentsException;
-import bmstu.iu7m.osipov.services.files.PathStringUtils;
+import bmstu.iu7m.osipov.utils.PathStringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;

@@ -22,6 +22,7 @@
                             <MenuItem fx:id="m_file_new_tfile" text="Text File"/>
                         </Menu>
                         <MenuItem fx:id="m_file_open" text="Open"/>
+                        <MenuItem fx:id="m_file_close" text="Close"/>
                         <SeparatorMenuItem/>
                         <MenuItem fx:id="m_file_exit" text="Exit"/>
                     </Menu>
