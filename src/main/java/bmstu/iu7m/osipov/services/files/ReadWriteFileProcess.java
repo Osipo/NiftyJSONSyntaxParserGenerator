@@ -5,9 +5,12 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
+import javax.swing.text.Position;
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
@@ -74,4 +77,56 @@ public class ReadWriteFileProcess implements FileProcessService {
     }
 
     public void readFromFile(String fullName, RSyntaxTextArea t){ readFromFile(new File(fullName), t);}
+
+    @Override
+    public void writeToFile(String fullName, RSyntaxTextArea t) throws FileNotFoundException {
+        RandomAccessFile f = null;
+        FileChannel channel = null;
+        FileLock lock = null;
+        if(fullName == null)
+            throw new FileNotFoundException("File can not be found as its name was not specified.");
+        try {
+            f = new RandomAccessFile(fullName, "rw");
+        } catch (FileNotFoundException ex){
+            System.out.printf("File \"%s\" does not exists\n", fullName);
+            throw ex;
+        }
+        try{
+            channel = f.getChannel();
+            lock = channel.tryLock();
+        } catch (OverlappingFileLockException | IOException ex2) {
+            System.out.println("File is editing now. Cannot write content.");
+            try{
+                f.close();
+                if(channel != null)
+                    channel.close();
+            } catch (IOException ex3){
+                System.out.println("Cannot close FileChannel.");
+            }
+            return;
+        }
+        int pos = 0;
+        int eof = t.getDocument().getLength();
+        String line = null;
+        while(pos <= eof){
+            try {
+                line = t.getDocument().getText(pos, eof);
+            }catch (BadLocationException ex){
+                break;
+            }
+            pos += line.length();
+            ByteBuffer buf = ByteBuffer.allocate(line.length());
+            buf.put(line.getBytes());
+            buf.flip();
+            try {
+                channel.write(buf);
+            }catch (IOException ex4){break;}
+        }
+        try{
+            f.close();
+            channel.close();
+        } catch (IOException ex3){
+            System.out.println("Cannot close FileChannel.");
+        }
+    }
 }

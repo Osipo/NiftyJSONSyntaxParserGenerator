@@ -38,6 +38,7 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.FileMenu, "Файл");
         t.put(UIComponentIds.FileNewMenu, "Новый");
         t.put(UIComponentIds.FileNewTextFileMenu, "Текстовый файл (txt)");
+        t.put(UIComponentIds.FileNewDirectoryMenu, "Каталог (папка)");
         t.put(UIComponentIds.FileOpenMenu, "Открыть");
         t.put(UIComponentIds.FileCloseMenu, "Закрыть");
         t.put(UIComponentIds.FileExitMenu, "Выход");
@@ -63,6 +64,10 @@ public class UIComponentStylesConfiguration {
         //------------------------------------------
         t.put(UIComponentIds.TreeViewContextMenuOpen, "Открыть");
         t.put(UIComponentIds.TreeViewContextMenuClose, "Закрыть");
+        t.put(UIComponentIds.TreeViewContextMenuDirOpen, "Открыть");
+        t.put(UIComponentIds.TreeViewContextMenuDirClose, "Закрыть");
+        t.put(UIComponentIds.TreeViewContextMenuCreateFile, "Создать файл");
+        t.put(UIComponentIds.TreeViewContextMenuCreateDir, "Создать папку");
 
         //-----------------------------------
         // File dialog components translation
@@ -87,6 +92,14 @@ public class UIComponentStylesConfiguration {
         t.put(FileDialogText.fileSizeHeaderText, "Размер");
         t.put(FileDialogText.fileDateHeaderText, "Дата последнего изменения");
 
+        //-----------------------------
+        // CreateFileDialog translation
+        //-----------------------------
+        t.put(UIComponentIds.CreateFileDialogTitled, "Новый Файл");
+        t.put(UIComponentIds.CreateFileDialogOkText, "Создать");
+        t.put(UIComponentIds.CreateFileDialogCancelText, "Отмена");
+        t.put(UIComponentIds.CreateFileDialogLabel, "Имя файла: ");
+
         return t;
     }
 
@@ -97,6 +110,7 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.FileMenu, "_File");
         t.put(UIComponentIds.FileNewMenu, "New");
         t.put(UIComponentIds.FileNewTextFileMenu, "Text File");
+        t.put(UIComponentIds.FileNewDirectoryMenu, "Directory");
         t.put(UIComponentIds.FileOpenMenu, "Open");
         t.put(UIComponentIds.FileCloseMenu, "Close");
         t.put(UIComponentIds.FileExitMenu, "Exit");
@@ -122,6 +136,10 @@ public class UIComponentStylesConfiguration {
         //------------------------------------------
         t.put(UIComponentIds.TreeViewContextMenuOpen, "Open");
         t.put(UIComponentIds.TreeViewContextMenuClose, "Close");
+        t.put(UIComponentIds.TreeViewContextMenuDirOpen, "Open");
+        t.put(UIComponentIds.TreeViewContextMenuDirClose, "Close");
+        t.put(UIComponentIds.TreeViewContextMenuCreateFile, "Create file");
+        t.put(UIComponentIds.TreeViewContextMenuCreateDir, "Create dir");
 
         //-----------------------------------
         // File dialog components translation
@@ -145,6 +163,14 @@ public class UIComponentStylesConfiguration {
         t.put(FileDialogText.fileTypeHeaderText, "Type (extension)");
         t.put(FileDialogText.fileSizeHeaderText, "Size");
         t.put(FileDialogText.fileDateHeaderText, "Last modified");
+
+        //-----------------------------
+        // CreateFileDialog translation
+        //-----------------------------
+        t.put(UIComponentIds.CreateFileDialogTitled, "New File");
+        t.put(UIComponentIds.CreateFileDialogOkText, "Create");
+        t.put(UIComponentIds.CreateFileDialogCancelText, "Cancel");
+        t.put(UIComponentIds.CreateFileDialogLabel, "File name: ");
 
         return t;
     }

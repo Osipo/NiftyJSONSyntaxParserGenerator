@@ -42,6 +42,8 @@ public class RootWindowView {
     @FXML
     protected MenuItem m_file_new_tfile;
     @FXML
+    protected MenuItem m_file_new_dir;
+    @FXML
     protected MenuItem m_file_open;
     @FXML
     protected MenuItem m_file_close;
@@ -96,6 +98,7 @@ public class RootWindowView {
         uiStore.getComponents().put(UIComponentIds.FileMenu, new UIMenuItemComponent(m_file));
         uiStore.getComponents().put(UIComponentIds.FileNewMenu, new UIMenuItemComponent(m_file_new));
         uiStore.getComponents().put(UIComponentIds.FileNewTextFileMenu, new UIMenuItemComponent(m_file_new_tfile));
+        uiStore.getComponents().put(UIComponentIds.FileNewDirectoryMenu, new UIMenuItemComponent(m_file_new_dir));
         uiStore.getComponents().put(UIComponentIds.FileOpenMenu, new UIMenuItemComponent(m_file_open));
         uiStore.getComponents().put(UIComponentIds.FileCloseMenu, new UIMenuItemComponent(m_file_close));
         uiStore.getComponents().put(UIComponentIds.FileExitMenu, new UIMenuItemComponent(m_file_exit));

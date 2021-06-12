@@ -4,6 +4,7 @@ public interface UIComponentIds {
     public static final String FileMenu = "m_file";
     public static final String FileNewMenu = "m_file_new";
     public static final String FileNewTextFileMenu = "m_file_new_tfile";
+    public static final String FileNewDirectoryMenu = "m_file_new_dir";
     public static final String FileOpenMenu = "m_file_open";
     public static final String FileCloseMenu = "m_file_close";
     public static final String FileExitMenu = "m_file_exit";
@@ -29,5 +30,15 @@ public interface UIComponentIds {
     public static final String TreeViewContextMenu = "tv_cm";
     public static final String TreeViewContextMenuOpen = "tv_cm_open";
     public static final String TreeViewContextMenuClose = "tv_cm_close";
+    public static final String TreeViewContextMenuDirOpen = "tv_cm_dir_open";
+    public static final String TreeViewContextMenuDirClose = "tv_cm_dir_close";
+    public static final String TreeViewContextMenuCreateFile = "tv_cm_create_f";
+    public static final String TreeViewContextMenuCreateDir = "tv_cm_create_dir";
+
+    public static final String CreateFileDialogTitled = "cf_dialog_titled";
+    public static final String CreateFileDialogLabel = "cf_dialog_fname_label";
+    public static final String CreateFileDialogTextField = "cf_dialog_text";
+    public static final String CreateFileDialogOkText = "cf_dialog_btn_ok";
+    public static final String CreateFileDialogCancelText = "cf_dialog_btn_cancel";
 
 }

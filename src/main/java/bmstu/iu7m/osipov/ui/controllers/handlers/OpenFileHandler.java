@@ -2,6 +2,7 @@ package bmstu.iu7m.osipov.ui.controllers.handlers;
 
 import bmstu.iu7m.osipov.ui.locale.LanguageName;
 import bmstu.iu7m.osipov.ui.models.EditorModel;
+import bmstu.iu7m.osipov.ui.models.entities.DirectoryEntryItem;
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
 import bmstu.iu7m.osipov.ui.models.entities.RegularFileEntryItem;
 import javafx.beans.property.ObjectProperty;
@@ -32,6 +33,13 @@ public class OpenFileHandler implements EventHandler<ActionEvent> {
             File f = new File(selected_item.get().getValue().getFullFileName());
             editorModel.getFileContent(f);
             editorModel.setEditedFileName(f.getAbsolutePath());
+        }
+        else if(selected_item.get() != null
+                && selected_item.get().getValue() instanceof DirectoryEntryItem
+                && !selected_item.get().isExpanded()
+        )
+        {
+            selected_item.get().setExpanded(true);
         }
         else if(selected_item.get() == null){
             System.out.println("Select file to open.");

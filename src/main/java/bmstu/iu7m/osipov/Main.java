@@ -11,14 +11,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Lazy;
-
 import java.nio.file.FileSystems;
-import java.util.Locale;
-
 
 @Lazy
 @SpringBootApplication
-public class Main extends AbstractJavaFxApplication{
+public class Main extends AbstractJavaFxApplication {
 
     @Value("${ui.main.title}")
     private String mTitle;

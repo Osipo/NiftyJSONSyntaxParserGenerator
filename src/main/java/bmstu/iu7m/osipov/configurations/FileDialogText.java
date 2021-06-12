@@ -36,6 +36,4 @@ public interface FileDialogText {
     public static final String fileTypeHeaderText = "FileChooser.fileTypeHeader";
     public static final String fileSizeHeaderText = "FileChooser.fileSizeHeader";
     public static final String fileDateHeaderText = "FileChooser.fileDateHeader";
-
-
 }

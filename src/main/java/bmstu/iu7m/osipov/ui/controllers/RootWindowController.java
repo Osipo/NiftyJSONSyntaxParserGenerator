@@ -5,8 +5,11 @@ import bmstu.iu7m.osipov.configurations.ControllerBeanNames;
 import bmstu.iu7m.osipov.configurations.FileDialogText;
 import bmstu.iu7m.osipov.ui.controllers.handlers.*;
 import bmstu.iu7m.osipov.ui.locale.LanguageName;
+import bmstu.iu7m.osipov.ui.modals.CreateFileDialog;
+import bmstu.iu7m.osipov.ui.models.entities.TitledUIComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
+import bmstu.iu7m.osipov.ui.models.entities.UITitledComponent;
 import bmstu.iu7m.osipov.ui.models.stores.EventHandlersStore;
 import bmstu.iu7m.osipov.ui.views.RootWindowView;
 import com.codepoetics.protonpack.maps.MapStream;
@@ -70,17 +73,37 @@ public class RootWindowController extends RootWindowView {
 
         //set closeFile handler
         CloseFileHandler clshdlr = new CloseFileHandler(editor_ctrl.getModel());
-        CloseEditorFileHandler editor_clshdlr = new CloseEditorFileHandler(editor_ctrl.getModel());
-
         clshdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
 
+        CloseEditorFileHandler editor_clshdlr = new CloseEditorFileHandler(editor_ctrl.getModel());
+
+        //set saveFile handler
+        SaveFileHandler svhdlr = new SaveFileHandler(editor_ctrl.getModel());
+
+        CreateFileDialog crFileDlg = new CreateFileDialog(this.uiStore);
+
+        //set createFile handler
+        CreateFileHandler tree_crthdlr_f = new CreateFileHandler(editor_ctrl.getModel(), crFileDlg);
+        tree_crthdlr_f.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
+
+        CreateFileHandler tree_crthdlr_dir = new CreateFileHandler(editor_ctrl.getModel(), true, crFileDlg);
+        tree_crthdlr_dir.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
+
+        //registrate handlers and save them to the HandlersStore
+        m_file_open.addEventHandler(ActionEvent.ACTION, ophdlr);
         editor_ctrl.getModel().getView().getCloseButton().addEventHandler(ActionEvent.ACTION, editor_clshdlr);
+        editor_ctrl.getModel().getView().getSaveButton().addEventHandler(ActionEvent.ACTION, svhdlr);
         this.m_file_close.addEventHandler(ActionEvent.ACTION, clshdlr);
+        this.m_file_new_tfile.addEventHandler(ActionEvent.ACTION, tree_crthdlr_f);
+        this.m_file_new_dir.addEventHandler(ActionEvent.ACTION, tree_crthdlr_dir);
 
         this.hdlrs.getHandlers().put("openFileAndUpdateView", ophdlr);
         this.hdlrs.getHandlers().put("openFile", tree_ophdlr);
+        this.hdlrs.getHandlers().put("saveFile", svhdlr);
         this.hdlrs.getHandlers().put("closeFile", clshdlr);
-        m_file_open.addEventHandler(ActionEvent.ACTION, ophdlr);
+        this.hdlrs.getHandlers().put("closeEditorFile", editor_clshdlr);
+        this.hdlrs.getHandlers().put("createFile", tree_crthdlr_f);
+        this.hdlrs.getHandlers().put("createDir", tree_crthdlr_dir);
 
         this.tree_ctrl.getCallBackFunction().loadContextMenuForCells();
     }
@@ -106,6 +129,8 @@ public class RootWindowController extends RootWindowView {
 
             MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UIMenuItemComponent)
                     .map(x -> ((UIMenuItemComponent)x.getValue()).getItem()).forEach(x -> x.setText(uiStore.toEnglish().get(x.getId())));
+            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UITitledComponent)
+                    .map(x -> ((UITitledComponent) x.getValue()).getTitled()).forEach(x -> x.setTitle(uiStore.toEnglish().get(x.getId())));
 
             selectedLang.set(LanguageName.ENG);
             initFileDialogLanguage(uiStore.toEnglish());
@@ -119,6 +144,8 @@ public class RootWindowController extends RootWindowView {
 
             MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UIMenuItemComponent)
                     .map(x -> ((UIMenuItemComponent)x.getValue()).getItem()).forEach(x -> x.setText(uiStore.toRussian().get(x.getId())));
+            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UITitledComponent)
+                    .map(x -> ((UITitledComponent) x.getValue()).getTitled()).forEach(x -> x.setTitle(uiStore.toRussian().get(x.getId())));
 
             selectedLang.set(LanguageName.RU);
             initFileDialogLanguage(uiStore.toRussian());

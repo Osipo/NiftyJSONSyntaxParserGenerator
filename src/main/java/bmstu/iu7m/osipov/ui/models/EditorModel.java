@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.FileNotFoundException;
 
 public class EditorModel {
 
@@ -48,6 +49,16 @@ public class EditorModel {
     public void getFileContent(File f){
         System.out.println("Extract content of selected file");
         rwservice.readFromFile(f, view.getEditor());
+    }
+
+    public void updateFile(){
+        try {
+            rwservice.writeToFile(this.editedFileName.get(), view.getEditor());
+        }catch (FileNotFoundException e){
+            System.out.println("Non-existed file removed from EditorView");
+            this.view.getEditor().setText("");
+            this.editedFileName.set("");
+        }
     }
 
     public void clearFileContent(){

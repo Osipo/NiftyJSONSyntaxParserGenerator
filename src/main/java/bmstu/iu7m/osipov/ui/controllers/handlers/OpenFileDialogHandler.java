@@ -17,7 +17,7 @@ import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 import javax.swing.*;
-import java.awt.Component;
+import java.awt.*;
 import java.io.File;
 import javax.swing.filechooser.FileFilter;
 import java.util.List;

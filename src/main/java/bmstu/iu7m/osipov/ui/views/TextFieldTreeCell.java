@@ -2,21 +2,21 @@ package bmstu.iu7m.osipov.ui.views;
 
 import bmstu.iu7m.osipov.configurations.UIComponentIds;
 import bmstu.iu7m.osipov.services.files.FileLocatorService;
-import bmstu.iu7m.osipov.ui.models.entities.DirectoryEntryItem;
-import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
-import bmstu.iu7m.osipov.ui.models.entities.UIComponent;
-import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
+import bmstu.iu7m.osipov.ui.models.entities.*;
 import bmstu.iu7m.osipov.ui.models.stores.EventHandlersStore;
 import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 
 public class TextFieldTreeCell extends TreeCell<FileEntryItem> {
 
     private TextField textField;
 
-    private ContextMenu menu;
+    private ContextMenu fileMenu;
+
+    private ContextMenu dirMenu;
 
     private EventHandlersStore hdlrs;
 
@@ -31,10 +31,13 @@ public class TextFieldTreeCell extends TreeCell<FileEntryItem> {
     public TextFieldTreeCell(FileLocatorService flocator,
                              EventHandlersStore hdlrs,
                              UIComponentStore uiStore,
-                             ContextMenu menu) {
+                             ContextMenu fmenu,
+                             ContextMenu dirMenu) {
         this.hdlrs = hdlrs;
         this.uiStore = uiStore;
-        this.menu = menu;
+        this.fileMenu = fmenu;
+        this.dirMenu = dirMenu;
+        this.setContextMenu(fmenu);
         this.fileLocator = flocator;
         if(this.fileLocator == null)
             System.out.println("NOT WIRED");
@@ -48,14 +51,16 @@ public class TextFieldTreeCell extends TreeCell<FileEntryItem> {
             if(event.getClickCount() == 1  && getItem() != null && getItem() instanceof DirectoryEntryItem){
                 System.out.println(getItem().getFullFileName());
 
-                //HERE ADD ITEMS OF DIRECTORY IF IT IS LEAF.
+                //HERE ADD ITEMS OF DIRECTORY IF IT IS LEAF
                 if(getTreeItem().isLeaf()){
                     getTreeItem().getChildren().addAll(
                             fileLocator.getFileEntriesIn(getItem().getFullFileName())
                                 .getChildren()
                     );
                 }
-                getTreeItem().setExpanded(!getTreeItem().isExpanded());
+                //IF LEFT CLICK THEN expand the directory.
+                if(event.getButton() == MouseButton.PRIMARY)
+                    getTreeItem().setExpanded(!getTreeItem().isExpanded());
             }
 //            //ELSE IF FILE SELECTED
 //            else if(event.getClickCount() == 1 && getItem() != null){
@@ -88,6 +93,12 @@ public class TextFieldTreeCell extends TreeCell<FileEntryItem> {
     @Override
     public void updateItem(FileEntryItem item, boolean empty) {
         super.updateItem(item, empty);
+        if(item instanceof DirectoryEntryItem){
+            this.setContextMenu(dirMenu);
+        }
+        else if(item instanceof RegularFileEntryItem){
+            this.setContextMenu(fileMenu);
+        }
         if (empty) {
             setText(null);
             setGraphic(null);
@@ -101,7 +112,6 @@ public class TextFieldTreeCell extends TreeCell<FileEntryItem> {
             } else {
                 setText(getString());
                 setGraphic(getTreeItem().getGraphic());
-                setContextMenu(menu);
             }
         }
     }

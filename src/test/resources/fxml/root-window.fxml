@@ -20,6 +20,7 @@
                     <Menu fx:id="m_file" text="_File" mnemonicParsing="true">
                         <Menu fx:id="m_file_new" text="New">
                             <MenuItem fx:id="m_file_new_tfile" text="Text File"/>
+                            <MenuItem fx:id="m_file_new_dir" text="Directory" />
                         </Menu>
                         <MenuItem fx:id="m_file_open" text="Open"/>
                         <MenuItem fx:id="m_file_close" text="Close"/>

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.FileNotFoundException;
 
 @Service
 public interface FileProcessService {
@@ -13,4 +14,6 @@ public interface FileProcessService {
     void readFromFile(String fullName, TextArea ta);
     void readFromFile(File f, RSyntaxTextArea t);
     void readFromFile(String fullName, RSyntaxTextArea t);
+
+    void writeToFile(String fullName, RSyntaxTextArea t) throws FileNotFoundException;
 }
