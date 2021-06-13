@@ -83,10 +83,10 @@ public class RootWindowController extends RootWindowView {
         CreateFileDialog crFileDlg = new CreateFileDialog(this.uiStore);
 
         //set createFile handler
-        CreateFileHandler tree_crthdlr_f = new CreateFileHandler(editor_ctrl.getModel(), crFileDlg);
+        CreateFileHandler tree_crthdlr_f = new CreateFileHandler(editor_ctrl.getModel(), tree_ctrl.getModel(), crFileDlg);
         tree_crthdlr_f.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
 
-        CreateFileHandler tree_crthdlr_dir = new CreateFileHandler(editor_ctrl.getModel(), true, crFileDlg);
+        CreateFileHandler tree_crthdlr_dir = new CreateFileHandler(editor_ctrl.getModel(), tree_ctrl.getModel(), true, crFileDlg);
         tree_crthdlr_dir.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
 
         //registrate handlers and save them to the HandlersStore

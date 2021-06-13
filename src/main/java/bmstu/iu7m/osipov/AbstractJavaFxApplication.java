@@ -14,6 +14,10 @@ public abstract class AbstractJavaFxApplication extends Application {
 
     protected ConfigurableApplicationContext context;
 
+    AbstractJavaFxApplication(){
+        System.out.println("JavaFX Launched.");
+    }
+
     @Override
     public void init() throws Exception {
         this.context = new SpringApplicationBuilder()
@@ -26,6 +30,7 @@ public abstract class AbstractJavaFxApplication extends Application {
                 })
                 .bannerMode(Banner.Mode.OFF)
                 .headless(false)
+                //.main(getClass())
                 .run(savedArgs);
         context.getAutowireCapableBeanFactory().autowireBean(this);
 

@@ -23,6 +23,7 @@ public class EditorModel {
     private EditorView view;
 
     public EditorModel(){
+        System.out.println("EditorModel constructor call.");
         this.editedFileName = new SimpleStringProperty(this,"editedFileName", null);
     }
 

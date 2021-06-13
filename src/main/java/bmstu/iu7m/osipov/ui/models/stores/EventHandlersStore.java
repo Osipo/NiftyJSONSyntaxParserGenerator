@@ -17,6 +17,7 @@ public class EventHandlersStore {
     @Autowired
     public EventHandlersStore(@Qualifier("hdlrsMap") Map<String, EventHandler> handlers){
         this.handlers = handlers;
+        System.out.println("EventHandlersStore constructor call.");
     }
 
     public Map<String, EventHandler> getHandlers() {

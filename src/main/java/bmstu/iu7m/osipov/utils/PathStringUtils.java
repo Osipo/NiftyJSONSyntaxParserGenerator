@@ -75,7 +75,7 @@ public class PathStringUtils {
             res.add(Main.PATH_SEPARATOR);
             path = path.substring(Main.PATH_SEPARATOR.length());
         }
-        Pattern sep = Pattern.compile("([^\\"+Main.PATH_SEPARATOR+"]+)");
+        Pattern sep = Pattern.compile("([^\\"+ Main.PATH_SEPARATOR+"]+)");
         Matcher m = sep.matcher(path);
         while(m.find())
             res.add(m.group(0));

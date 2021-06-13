@@ -27,6 +27,7 @@ public class UIComponentStore {
         this.components = components;
         this.eng = eng;
         this.rus = rus;
+        System.out.println("UIComponentStore constructor call.");
     }
 
     public Map<String, UIComponent> getComponents(){

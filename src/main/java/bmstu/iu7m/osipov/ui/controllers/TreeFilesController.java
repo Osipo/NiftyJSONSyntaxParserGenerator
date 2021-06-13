@@ -1,8 +1,6 @@
 package bmstu.iu7m.osipov.ui.controllers;
 
 import bmstu.iu7m.osipov.Main;
-import bmstu.iu7m.osipov.services.files.FileLocatorService;
-import bmstu.iu7m.osipov.services.files.FileRetrievalService;
 import bmstu.iu7m.osipov.ui.models.TreeFilesModel;
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
 import bmstu.iu7m.osipov.ui.views.TreeFilesView;

@@ -35,6 +35,7 @@ public class TreeFilesModel {
     private TreeFilesView view;
 
     public TreeFilesModel(){
+        System.out.println("TreeFilesModel constructor call.");
         this.selected_item = new SimpleObjectProperty<>(this, "selectedItem", null);
         this.selected_option = new SimpleObjectProperty<>(this,"selectedOption", null);
         this.text = new SimpleStringProperty(this, "text",null);

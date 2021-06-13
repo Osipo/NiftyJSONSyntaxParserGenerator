@@ -2,20 +2,18 @@ package bmstu.iu7m.osipov.configurations;
 
 import bmstu.iu7m.osipov.ui.models.entities.UIComponent;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Scope;
-import org.springframework.util.ResourceUtils;
+import org.springframework.core.Ordered;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 
 @Configuration
 public class ResourcesConfiguration {
@@ -35,6 +33,13 @@ public class ResourcesConfiguration {
         loadImageByURL(imgs, ImageNames.IMG_ODIR);
         ResourcesConfiguration.imgs = imgs;
         return imgs;
+    }
+
+    @Bean(name = "ResourcesConfiguration_all")
+    @DependsOn({"imgMap"})
+    public Object allBean(){
+        System.out.println("Beans of ResourceConfiguration are created.");
+        return null;
     }
 
     private void loadImageByURL(HashMap<String, Image> imap, String url){

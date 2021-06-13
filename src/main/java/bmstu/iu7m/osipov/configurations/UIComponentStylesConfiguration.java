@@ -5,17 +5,23 @@ import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 
 @Configuration
+@DependsOn({"ResourcesConfiguration_all"})
 public class UIComponentStylesConfiguration {
-
 
     @Bean(name = "uiComponents")
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
@@ -34,6 +40,7 @@ public class UIComponentStylesConfiguration {
     @Bean(name = "rusLang")
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
     public HashMap<String, String> russianMap(){
+        System.out.println("rusLang bean creation");
         HashMap<String, String> t = new HashMap<>();
         t.put(UIComponentIds.FileMenu, "Файл");
         t.put(UIComponentIds.FileNewMenu, "Новый");
@@ -106,6 +113,7 @@ public class UIComponentStylesConfiguration {
     @Bean(name = "engLang")
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
     public HashMap<String, String> englishMap(){
+        System.out.println("engLang bean creation");
         HashMap<String, String> t = new HashMap<>();
         t.put(UIComponentIds.FileMenu, "_File");
         t.put(UIComponentIds.FileNewMenu, "New");
@@ -174,4 +182,12 @@ public class UIComponentStylesConfiguration {
 
         return t;
     }
+
+    @Bean(name = "UIComponentStylesConfiguration_all")
+    @DependsOn({"uiComponents", "hdlrsMap", "rusLang", "engLang"})
+    public Object allBean(){
+        System.out.println("Beans of UIComponentStylesConfiguration are created.");
+        return null;
+    }
+
 }

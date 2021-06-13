@@ -4,21 +4,23 @@ import bmstu.iu7m.osipov.ui.factories.SpringBeanBuilderFactory;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.*;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 @Configuration
-@Import({ServicesConfiguration.class, ModelsConfiguration.class})
-@DependsOn({"uiStore", "imgMap", "hdlrsStore", "TextFieldCellCallback"})
+@DependsOn({"ModelsConfiguration_all"})
 public class ControllerConfiguration {
-
 
     private SpringBeanBuilderFactory fxFactory;
 
@@ -44,7 +46,6 @@ public class ControllerConfiguration {
     }
 
     @Bean(name = ControllerBeanNames.TREE_FILES_CTRL)
-    //@DependsOn({"imgMap", "TextFieldCellCallback", "uiStore"})
     @ConditionalOnMissingBean(TreeFilesController.class)
     public TreeFilesController treeFilesController() throws IOException {
         return (TreeFilesController) loadController(ControllerBeanFXML.TREE_FILES_FXML, TreeFilesController.class);
@@ -52,19 +53,16 @@ public class ControllerConfiguration {
 
 
     @Bean(name = ControllerBeanNames.TAB_CONSOLE_CTRL)
-    //@DependsOn({"uiStore"})
     public ConsoleTabController consoleController() throws IOException {
         return (ConsoleTabController) loadController(ControllerBeanFXML.TAB_CONSOLE_FXML, ConsoleTabController.class);
     }
 
     @Bean(name = ControllerBeanNames.TAB_OUTPUT_CTRL)
-    //@DependsOn({"uiStore"})
     public OutputTabController outputController() throws IOException {
         return (OutputTabController) loadController(ControllerBeanFXML.TAB_OUTPUT_FXML, OutputTabController.class);
     }
 
     @Bean(name = ControllerBeanNames.EDITOR_CTRL)
-    //@DependsOn({"uiStore"})
     public EditorFilesController editorController() throws IOException {
         return (EditorFilesController) loadController(ControllerBeanFXML.EDITOR_FXML, EditorFilesController.class);
     }

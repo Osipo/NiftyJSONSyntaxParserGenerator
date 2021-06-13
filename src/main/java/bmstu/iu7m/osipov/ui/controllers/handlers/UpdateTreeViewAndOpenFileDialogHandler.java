@@ -10,7 +10,6 @@ import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.TreeItem;
-import javafx.stage.Stage;
 
 public class UpdateTreeViewAndOpenFileDialogHandler extends OpenFileDialogHandler implements EventHandler<ActionEvent> {
 

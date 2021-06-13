@@ -9,6 +9,9 @@ import java.io.Reader;
 
 public class TextReaderAdapterImpl implements TextReaderAdapter {
 
+    public TextReaderAdapterImpl(){
+        System.out.println("TextReaderAdapterImpl constructor.");
+    }
     @Override
     public String read(Reader reader) throws IOException {
         BufferedReader r1 = null;

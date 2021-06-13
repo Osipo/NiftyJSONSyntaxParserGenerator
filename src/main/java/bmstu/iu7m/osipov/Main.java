@@ -10,15 +10,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.*;
+
 import java.nio.file.FileSystems;
 
-@Lazy
 @SpringBootApplication
+@Lazy
 public class Main extends AbstractJavaFxApplication {
 
     @Value("${ui.main.title}")
     private String mTitle;
+
 
     public static String PATH_SEPARATOR = FileSystems.getDefault().getSeparator();
     public static String PATH_SEPARATOR_ESC = "\\" + FileSystems.getDefault().getSeparator();
@@ -47,7 +49,7 @@ public class Main extends AbstractJavaFxApplication {
         }
         primaryStage.setResizable(true);
         primaryStage.centerOnScreen();
-        System.out.println("Path Separator: "+Main.PATH_SEPARATOR);
+        System.out.println("Path Separator: "+ Main.PATH_SEPARATOR);
         primaryStage.setOnCloseRequest(e ->{
             outputTabCtrl.closeThread();
             Platform.exit();
@@ -56,5 +58,11 @@ public class Main extends AbstractJavaFxApplication {
 
         rctrl.initDialogs(primaryStage);
         primaryStage.show();
+    }
+
+    @Bean(name = "MainComp")
+    public Object empty(){
+        System.out.println("MainComp bwan");
+        return null;
     }
 }

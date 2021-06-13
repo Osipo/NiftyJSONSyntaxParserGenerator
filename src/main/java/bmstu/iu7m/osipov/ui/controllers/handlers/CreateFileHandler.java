@@ -1,39 +1,39 @@
 package bmstu.iu7m.osipov.ui.controllers.handlers;
 
 import bmstu.iu7m.osipov.Main;
+import bmstu.iu7m.osipov.configurations.ImageNames;
+import bmstu.iu7m.osipov.configurations.ResourcesConfiguration;
 import bmstu.iu7m.osipov.ui.modals.CreateFileDialog;
 import bmstu.iu7m.osipov.ui.models.EditorModel;
+import bmstu.iu7m.osipov.ui.models.TreeFilesModel;
 import bmstu.iu7m.osipov.ui.models.entities.DirectoryEntryItem;
-import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
-import bmstu.iu7m.osipov.utils.Dialogs;
-import javafx.application.Platform;
-import javafx.concurrent.Task;
+import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
+import bmstu.iu7m.osipov.ui.models.entities.RegularFileEntryItem;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.DialogPane;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.TreeItem;
+import javafx.scene.image.ImageView;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Optional;
-import java.util.concurrent.Executors;
 
 public class CreateFileHandler extends OpenFileHandler implements EventHandler<ActionEvent> {
 
+    private CreateFileDialog dialog;// singleton modal window.
 
-    private boolean isDirectory;
-    private CreateFileDialog dialog;
-    public CreateFileHandler(EditorModel model, boolean isDirectory, CreateFileDialog dialog){
+    protected TreeFilesModel treeModel;
+    protected final boolean isDirectory;
+
+    public CreateFileHandler(EditorModel model, TreeFilesModel treeModel, boolean isDirectory, CreateFileDialog dialog){
         super(model);
+        this.treeModel = treeModel;
         this.isDirectory = isDirectory;
         this.dialog = dialog;
     }
 
-    public CreateFileHandler(EditorModel model, CreateFileDialog dialog) {
-        this(model, false, dialog);
+    public CreateFileHandler(EditorModel model, TreeFilesModel treeModel, CreateFileDialog dialog) {
+        this(model, treeModel, false, dialog);
     }
 
     @Override
@@ -49,20 +49,40 @@ public class CreateFileHandler extends OpenFileHandler implements EventHandler<A
                 if(!fullName.endsWith(Main.PATH_SEPARATOR))
                     fullName = fullName + Main.PATH_SEPARATOR;
                 fullName = fullName + fname.get();
-                if(isDirectory)
-                    fullName = fullName + Main.PATH_SEPARATOR;
 
                 File f = new File(fullName);
                 System.out.println("Fullname: \""+fullName+"\"");
                 try{
                     if(!isDirectory && f.createNewFile()){
                         System.out.println("New file was created.");
+                        RegularFileEntryItem nentry = new RegularFileEntryItem(fname.get());
+                        nentry.setFullFileName(fullName);
+                        TreeItem<FileEntryItem> nitem = new TreeItem<>(nentry);
+                        nitem.setGraphic(
+                                new ImageView(
+                                        ResourcesConfiguration.getImgs().get(ImageNames.IMG_FILE)
+                                )
+                        );
+                        selected_item.get().getChildren().add(nitem);
                         selected_item.get().setExpanded(true);
+                        treeModel.getView().getTree().getSelectionModel().clearSelection();
+                        treeModel.getView().getTree().getSelectionModel().select(nitem);
                         super.handle(event);
                     }
                     else if(isDirectory && f.mkdir()){
                         System.out.println("New directory was created.");
+                        DirectoryEntryItem nentry = new DirectoryEntryItem(fname.get());
+                        nentry.setFullFileName(fullName);
+                        TreeItem<FileEntryItem> nitem = new TreeItem<>(nentry);
+                        nitem.setGraphic(
+                                new ImageView(
+                                        ResourcesConfiguration.getImgs().get(ImageNames.IMG_DIR)
+                                )
+                        );
+                        selected_item.get().getChildren().add(nitem);
                         selected_item.get().setExpanded(true);
+                        treeModel.getView().getTree().getSelectionModel().clearSelection();
+                        treeModel.getView().getTree().getSelectionModel().select(nitem);
                         super.handle(event);
                     }
                     else{
