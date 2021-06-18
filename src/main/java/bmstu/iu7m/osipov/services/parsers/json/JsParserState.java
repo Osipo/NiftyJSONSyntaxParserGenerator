@@ -1,0 +1,5 @@
+package bmstu.iu7m.osipov.services.parsers.json;
+
+public enum JsParserState {
+    START,OPENROOT,CLOSEROOT,OPENBRACE,CLOSEBRACE,OPENARR,ARRELEM,CLOSEARR,OPENQ,CLOSEQ,OPENQP,CLOSEQP,COLON,ERR,ID_READ;
+}

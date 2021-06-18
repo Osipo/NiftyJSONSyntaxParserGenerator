@@ -2,7 +2,7 @@ package bmstu.iu7m.osipov.structures.lists;
 
 import java.util.Map;
 
-/* Represents Mutable Tuple of 2 elements */
+/* Implements Map.Entry. */
 public class KeyValuePair<K,V> implements Map.Entry<K,V> {
 
     private K key;

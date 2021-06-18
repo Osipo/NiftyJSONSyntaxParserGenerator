@@ -2,7 +2,6 @@ package bmstu.iu7m.osipov;
 
 import javafx.application.Application;
 import org.springframework.boot.Banner;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
@@ -30,30 +29,15 @@ public abstract class AbstractJavaFxApplication extends Application {
                 })
                 .bannerMode(Banner.Mode.OFF)
                 .headless(false)
-                //.main(getClass())
                 .run(savedArgs);
         context.getAutowireCapableBeanFactory().autowireBean(this);
-
-        /* Faster than above approach but less configurable.
-        SpringApplication app = new SpringApplication(getClass());
-        app.setBannerMode(Banner.Mode.OFF);
-        app.setHeadless(false);// we should instantiate AWT. (true = do not init AWT).
-        //System.setProperty("java.awt.headless", "false"); alternative way to init AWT kit.
-
-
-        context = app.run(savedArgs);// load all beans
-        context.getAutowireCapableBeanFactory().autowireBean(this);
-         */
     }
-
-
 
     @Override
     public void stop() throws Exception {
         super.stop();
         context.close();
     }
-
 
     protected static void launchApp(Class<? extends AbstractJavaFxApplication> clazz, String[] args) {
         AbstractJavaFxApplication.savedArgs = args;

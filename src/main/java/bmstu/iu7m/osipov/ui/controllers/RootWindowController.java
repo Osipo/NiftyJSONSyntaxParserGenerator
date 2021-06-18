@@ -49,7 +49,7 @@ public class RootWindowController extends RootWindowView {
     }
 
     /* This method starts after @PostConstruct init() method */
-    /* Called from Main(). */
+    /* Called from AutomatonConstructor(). */
     /* Initialize all Window dialogs. */
     public void initDialogs(Stage s){
         System.out.println("Init all dialog windows.");

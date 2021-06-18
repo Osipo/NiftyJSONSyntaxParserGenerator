@@ -1,4 +1,5 @@
 package bmstu.iu7m.osipov;
+
 import bmstu.iu7m.osipov.configurations.ControllerBeanNames;
 import bmstu.iu7m.osipov.ui.controllers.OutputTabController;
 import bmstu.iu7m.osipov.ui.controllers.RootWindowController;
@@ -58,11 +59,5 @@ public class Main extends AbstractJavaFxApplication {
 
         rctrl.initDialogs(primaryStage);
         primaryStage.show();
-    }
-
-    @Bean(name = "MainComp")
-    public Object empty(){
-        System.out.println("MainComp bwan");
-        return null;
     }
 }

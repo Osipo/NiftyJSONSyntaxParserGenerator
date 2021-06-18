@@ -2,9 +2,6 @@ package bmstu.iu7m.osipov.ui.views.callbacks;
 
 import bmstu.iu7m.osipov.configurations.UIComponentIds;
 import bmstu.iu7m.osipov.services.files.FileLocatorService;
-import bmstu.iu7m.osipov.ui.controllers.handlers.CreateFileHandler;
-import bmstu.iu7m.osipov.ui.controllers.handlers.OpenFileHandler;
-import bmstu.iu7m.osipov.ui.models.entities.DirectoryEntryItem;
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
 import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
 import bmstu.iu7m.osipov.ui.models.stores.EventHandlersStore;

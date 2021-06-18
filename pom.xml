@@ -21,6 +21,7 @@
         <protonpack.version>1.16</protonpack.version>
         <rsyntax-textarea.version>3.1.2</rsyntax-textarea.version>
         <graphviz-java.version>0.18.1</graphviz-java.version>
+        <commom-ios.version>2.10.0</commom-ios.version>
     </properties>
 
     <dependencies>
@@ -75,6 +76,12 @@
             <groupId>guru.nidi</groupId>
             <artifactId>graphviz-java</artifactId>
             <version>${graphviz-java.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commom-ios.version}</version>
         </dependency>
 
     </dependencies>
