@@ -1,13 +1,12 @@
 package bmstu.iu7m.osipov.services.grammars;
 
-import java.util.ArrayList;
 import java.util.List;
 
 //LR(0) item
 public class GrammarItem extends GrammarString {
 
-    protected int pos;
-    protected String h;
+    protected int pos;//Current position
+    protected String h;//header of the production
 
     public GrammarItem(GrammarString str,String header){
         super(str.getSymbols());

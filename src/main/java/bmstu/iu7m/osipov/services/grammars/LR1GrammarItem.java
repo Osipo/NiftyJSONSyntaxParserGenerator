@@ -6,7 +6,7 @@ import java.util.*;
 public class LR1GrammarItem extends GrammarItem {
 
     //2nd part of LR(1) item.
-    private String term;
+    private String term;// lookahead terminal symbol.
 
 
     public LR1GrammarItem(List<GrammarSymbol> symbols, int pos, String header,String t) {
