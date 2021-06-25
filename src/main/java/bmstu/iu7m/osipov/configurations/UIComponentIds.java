@@ -35,6 +35,11 @@ public interface UIComponentIds {
     public static final String TreeViewContextMenuCreateFile = "tv_cm_create_f";
     public static final String TreeViewContextMenuCreateDir = "tv_cm_create_dir";
 
+    public static final String TreeViewContextMenuCommonPrs = "tv_cm_common_parser";
+    public static final String TreeViewContextMenuLexerGen = "tv_cm_lexer_gen";
+    public static final String TreeViewContextMenuParserGen = "tv_cm_parser_gen";
+    public static final String TreeViewContextMenuParseFile = "tv_cm_parse";
+
     public static final String CreateFileDialogTitled = "cf_dialog_titled";
     public static final String CreateFileDialogLabel = "cf_dialog_fname_label";
     public static final String CreateFileDialogTextField = "cf_dialog_text";

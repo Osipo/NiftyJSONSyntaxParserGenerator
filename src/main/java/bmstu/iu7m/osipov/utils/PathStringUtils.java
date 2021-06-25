@@ -57,6 +57,9 @@ public class PathStringUtils {
         return r;
     }
 
+    public static List<String> splitPath(String path){
+        return splitPath(path, Main.PATH_SEPARATOR);
+    }
 
     //Split path to sub_directories.
     //Returns null for null args or empty-strings.
@@ -65,17 +68,17 @@ public class PathStringUtils {
     //  /oko => [/, oko]
     // /a/b/ => [/, a, b]
     // ///a//b/c/de/ => [/, a, b, c, de].
-    public static List<String> splitPath(String path){
-        if(path == null || path.length() == 0)
+    public static List<String> splitPath(String path, String separator){
+        if(path == null || path.length() == 0 || separator == null)
             return null;
         List<String> res = new ArrayList<>();
 
         //include root directory (for UNIX systems)
-        if(path.indexOf(Main.PATH_SEPARATOR) == 0){
-            res.add(Main.PATH_SEPARATOR);
-            path = path.substring(Main.PATH_SEPARATOR.length());
+        if(path.indexOf(separator) == 0){
+            res.add(separator);
+            path = path.substring(separator.length());
         }
-        Pattern sep = Pattern.compile("([^\\"+ Main.PATH_SEPARATOR+"]+)");
+        Pattern sep = Pattern.compile("([^\\"+ separator+"]+)");
         Matcher m = sep.matcher(path);
         while(m.find())
             res.add(m.group(0));

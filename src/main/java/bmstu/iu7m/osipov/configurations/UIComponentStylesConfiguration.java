@@ -75,6 +75,10 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.TreeViewContextMenuDirClose, "Закрыть");
         t.put(UIComponentIds.TreeViewContextMenuCreateFile, "Создать файл");
         t.put(UIComponentIds.TreeViewContextMenuCreateDir, "Создать папку");
+        t.put(UIComponentIds.TreeViewContextMenuLexerGen, "Создать лексический анализатор");
+        t.put(UIComponentIds.TreeViewContextMenuParserGen, "Создать синтаксический анализатор");
+        t.put(UIComponentIds.TreeViewContextMenuParseFile, "Синтаксический анализ файла");
+        t.put(UIComponentIds.TreeViewContextMenuCommonPrs, "Создать общий синтаксический анализатор");
 
         //-----------------------------------
         // File dialog components translation
@@ -148,6 +152,10 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.TreeViewContextMenuDirClose, "Close");
         t.put(UIComponentIds.TreeViewContextMenuCreateFile, "Create file");
         t.put(UIComponentIds.TreeViewContextMenuCreateDir, "Create dir");
+        t.put(UIComponentIds.TreeViewContextMenuLexerGen, "Make lexer");
+        t.put(UIComponentIds.TreeViewContextMenuParserGen, "Make parser");
+        t.put(UIComponentIds.TreeViewContextMenuParseFile, "Parse file");
+        t.put(UIComponentIds.TreeViewContextMenuCommonPrs, "Make common parser");
 
         //-----------------------------------
         // File dialog components translation

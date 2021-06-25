@@ -6,6 +6,7 @@ import bmstu.iu7m.osipov.configurations.FileDialogText;
 import bmstu.iu7m.osipov.ui.controllers.handlers.*;
 import bmstu.iu7m.osipov.ui.locale.LanguageName;
 import bmstu.iu7m.osipov.ui.modals.CreateFileDialog;
+import bmstu.iu7m.osipov.ui.models.ParserGeneratorModel;
 import bmstu.iu7m.osipov.ui.models.entities.TitledUIComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
@@ -89,6 +90,20 @@ public class RootWindowController extends RootWindowView {
         CreateFileHandler tree_crthdlr_dir = new CreateFileHandler(editor_ctrl.getModel(), tree_ctrl.getModel(), true, crFileDlg);
         tree_crthdlr_dir.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
 
+        //------------------------------------
+        // Parser Generator's handlers
+        //------------------------------------
+        ParserGeneratorModel genModel = new ParserGeneratorModel();
+
+        CreateLexerHandler tree_lexer_hdlr = new CreateLexerHandler(genModel, tree_ctrl.getModel());
+        CreateParserHandler tree_parser_hdlr = new CreateParserHandler(genModel, tree_ctrl.getModel());
+        CreateCommonParserHandler tree_cparser_hdlr = new CreateCommonParserHandler(genModel, tree_ctrl.getModel());
+        ParseFileHandler tree_parse_hdlr = new ParseFileHandler(genModel, tree_ctrl.getModel());
+        tree_lexer_hdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
+        tree_parser_hdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
+        tree_parse_hdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
+        tree_cparser_hdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
+
         //registrate handlers and save them to the HandlersStore
         m_file_open.addEventHandler(ActionEvent.ACTION, ophdlr);
         editor_ctrl.getModel().getView().getCloseButton().addEventHandler(ActionEvent.ACTION, editor_clshdlr);
@@ -104,6 +119,10 @@ public class RootWindowController extends RootWindowView {
         this.hdlrs.getHandlers().put("closeEditorFile", editor_clshdlr);
         this.hdlrs.getHandlers().put("createFile", tree_crthdlr_f);
         this.hdlrs.getHandlers().put("createDir", tree_crthdlr_dir);
+        this.hdlrs.getHandlers().put("genLexer", tree_lexer_hdlr);
+        this.hdlrs.getHandlers().put("genParser", tree_parser_hdlr);
+        this.hdlrs.getHandlers().put("genCommonParser", tree_cparser_hdlr);
+        this.hdlrs.getHandlers().put("parseFile", tree_parse_hdlr);
 
         this.tree_ctrl.getCallBackFunction().loadContextMenuForCells();
     }

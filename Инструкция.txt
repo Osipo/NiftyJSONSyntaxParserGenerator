@@ -1,0 +1,6 @@
+Используемый JDK: 1_8_162
+Сборка: bulild.bat - в переменных OPATH и PATH хранится путь к JDK и его бинарникам (JDK dir)/bin.
+run.bat - запуск ПО. Также через OPATH и PATH идёт переключение JDK.
+show_conf.bat - показать параметры JVM по умолчанию.
+
+ВАЖНО: Поставьте свой путь к JDK (в OPATH и PATH стоит путь к C:\Program Files\Java = JDK, C:\Program Files\Java\bin = JDK bins).
