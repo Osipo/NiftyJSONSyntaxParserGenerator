@@ -24,8 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 )
 public class SimpleJsonParserTest {
 
-    public static final String TEST_JSON_DOCS_DIR = "C:\\Users\\IdeaProjects\\NiftyJSONCompilerGenerator\\src\\test\\resources\\json\\";
-
     public static SimpleJsonParser parser = new SimpleJsonParser(1024);
 
 
@@ -56,7 +54,7 @@ public class SimpleJsonParserTest {
         assertEquals(false, obj.getProperty("bool").getValue());
     }
 
-    private JsonObject readFromString(String sd) throws IOException{
+    public static JsonObject readFromString(String sd) throws IOException{
         InputStream src = IOUtils.toInputStream(IOUtils.toString(new StringReader(sd)), Charsets.UTF_8);
         JsonObject obj = parser.parseStream(src);
         src.close();

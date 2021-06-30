@@ -28,7 +28,7 @@ public class Grammar {
 
     private boolean isMod = false;//flag for getGrammarWithoutEqualRules procedure.
 
-    private Grammar(){
+    public Grammar(){
         this.T = new HashSet<>();
         this.N = new HashSet<>();
         this.P = new HashMap<>();

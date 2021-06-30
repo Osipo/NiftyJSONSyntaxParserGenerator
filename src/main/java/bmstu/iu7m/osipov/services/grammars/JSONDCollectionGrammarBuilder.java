@@ -11,59 +11,52 @@ import java.util.*;
 public class JSONDCollectionGrammarBuilder {
 
     private Map<String, GrammarString> cache = new HashMap<>();
+    private Set<String> processed = new HashSet<>();
+
     public Grammar getCommonGrammar(JsonDocumentDescriptor D){
-        Set<String> T = new HashSet<>();
-        int nrules = 0;
-        Set<String> keywords = new HashSet<>();
-        Set<String> N = new HashSet<>();
-        Map<String,Set<GrammarString>> P = new HashMap<>();
-        String start = null;
-        String em = null;
-        Map<String, List<String>> lexs = new HashMap<>();
-        GrammarMetaInfo meta = new GrammarMetaInfo();
+
+        //Grammar for Empty-Language [L = empty-set]
+        Grammar G = new Grammar();
 
         //For each Pointer.
         for(String pointer : D.getProperties().keySet()){
             LinkedStack<String> elems = new LinkedStack<>(
                     PathStringUtils.splitPath(pointer, "/")
             );
+
             //from right to the left elems of pointer
+            // / a /a b
             while(!elems.isEmpty()){
                 String key = elems.top();
                 String sub_p = pointer.substring(0, pointer.lastIndexOf(key));
                 elems.pop();
-                if(cache.containsKey(sub_p))
+                if(processed.contains(sub_p))
                     continue;
-                try{
-                    int a_idx = Integer.parseInt(key);
-                    JsonArray arr = extractType(D, sub_p, JsonArray.class);
-                    if(arr == null)
-                        return null;
-                    parseArray(D, arr, sub_p);
-                } catch (NumberFormatException e){
-                    keywords.add(key);
-                    ArrayList<JsonProperty> val = D.getProperties().get(sub_p);
-                    N.add("N"+key+nrules);
-                    nrules++;
-                    GrammarString nbody = new GrammarString();
 
-                    if(!cache.values().contains(nbody)){
-                        nbody.addSymbol(new GrammarSymbol('t', key));
-                    }
+                //Scan each alternative value for
+                for(JsonProperty property : D.getProperties().get(sub_p)){
+                    parseAlterntive(G, D, property, sub_p, key);
                 }
             }
         }
-
-        return new Grammar(T, N, P, start, em, lexs, meta);
+        return G;
     }
 
-    private void parseArray(JsonDocumentDescriptor D, JsonArray arr, String prop){
+    private void parseAlterntive(Grammar G, JsonDocumentDescriptor D, JsonProperty prop, String parent, String key){
+        try{
+            int a_idx = Integer.parseInt(key);
+        } catch (NumberFormatException e){
+            G.getMeta().getKeywords().add(key);
+            G.getNonTerminals().add("N" + key + G.getNonTerminals().size());
+            GrammarString nbody = new GrammarString();
 
+            if(!cache.values().contains(nbody)){
+                nbody.addSymbol(new GrammarSymbol('t', key));
+            }
+        }
     }
 
-    private void parseAlterntive(){
 
-    }
     private <T> T extractType(JsonDocumentDescriptor desc, String p, Class<T> clazz){
         ArrayList<JsonProperty> props = desc.getProperties().get(p);
         if(props == null)

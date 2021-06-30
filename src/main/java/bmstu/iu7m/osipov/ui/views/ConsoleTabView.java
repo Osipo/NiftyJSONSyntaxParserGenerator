@@ -1,6 +1,7 @@
 package bmstu.iu7m.osipov.ui.views;
 
 import bmstu.iu7m.osipov.ui.models.entities.UIComponent;
+import bmstu.iu7m.osipov.ui.models.stores.EventHandlersStore;
 import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
@@ -28,15 +29,22 @@ public class ConsoleTabView extends VBox {
 
     protected void initView(){
         System.out.println("ConsoleTabView > initView()");
-        BackgroundFill bF = new BackgroundFill(Color.BLUE, new CornerRadii(1), null);
-        this.setBackground(new Background(bF));
-        //this.console_text.prefHeightProperty().bind(this.prefHeightProperty());
-        //this.console_text.prefWidthProperty().bind(this.prefWidthProperty());
-        //this.console_text.setEditable(false);
-        this.console_text.setVisible(false);
+        //BackgroundFill bF = new BackgroundFill(Color.BLUE, new CornerRadii(1), null);
+        //this.setBackground(new Background(bF));
+        this.console_text.prefHeightProperty().bind(this.prefHeightProperty());
+        this.console_text.prefWidthProperty().bind(this.prefWidthProperty());
+        this.console_text.setEditable(false);
+        //this.console_text.setVisible(false);
     }
 
     protected void saveUIComponents() {
         uiStore.getComponents().put("console_text", new UIComponent(console_text));
+    }
+
+    //-------------------------------
+    //Public view components
+    //-------------------------------
+    public TextArea getTerminalText(){
+        return this.console_text;
     }
 }

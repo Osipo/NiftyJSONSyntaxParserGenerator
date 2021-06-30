@@ -25,6 +25,7 @@ public class Main extends AbstractJavaFxApplication {
 
     public static String PATH_SEPARATOR = FileSystems.getDefault().getSeparator();
     public static String PATH_SEPARATOR_ESC = "\\" + FileSystems.getDefault().getSeparator();
+    public static String CWD = System.getProperty("user.dir");
 
     @Autowired
     @Qualifier(ControllerBeanNames.ROOT_CTRL)

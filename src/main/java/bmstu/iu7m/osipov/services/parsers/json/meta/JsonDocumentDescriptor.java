@@ -17,6 +17,16 @@ public class JsonDocumentDescriptor {
         return properties;
     }
 
+    public void clearDescriptor(){
+        for(String k : this.properties.keySet()){
+            ArrayList<JsonProperty> props = this.properties.getOrDefault(k, null);
+            if(props != null){
+                props.clear();
+            }
+        }
+        this.properties.clear();
+    }
+
     public void merge(JsonDocumentDescriptor desc){
         if(desc == null)
             return;
@@ -46,7 +56,6 @@ public class JsonDocumentDescriptor {
                 JsonProperty self_obj = new JsonProperty(prop, "object",true, e);
                 rules.add(self_obj);
                 properties.put(prop, rules);
-                //S.push(new Triple<>(prop, new JsonLiteral("}"), c));
 
                 //ADD <key, value> pair to the STACK.
                 JsonObject ob = (JsonObject)e;
@@ -57,8 +66,8 @@ public class JsonDocumentDescriptor {
                     String p = ks.next();
                     p = p.replaceAll("~", "~0");//encoded by RFC 6901
                     p = p.replaceAll("/", "~1");
-                    String k = prop + "/" + p;
-                    S.push(new Triple<>(k, ob.getProperty(p), ""));
+                    String k = prop + "/" + p;// JSON_Pointer
+                    S.push(new Triple<>(k, ob.getProperty(p), p));
                 }
             }
             else if(e instanceof JsonArray){
@@ -76,38 +85,51 @@ public class JsonDocumentDescriptor {
                 JsonElement el = null;
                 while(i < s){
                     el = arr.get(i);
-                    String k = prop + "/" + i;
-                    S.push(new Triple<>(k, el, ","));
+                    String k = prop + "/" + i;// JSON_Pointer
+                    S.push(new Triple<>(k, el, i + ""));
                     i++;
                 }
             }
             else if(e instanceof JsonNull){
                 ArrayList<JsonProperty> rules = new ArrayList<>();
-                JsonProperty np = new JsonProperty(prop, "null", false, e);
+                JsonProperty np = new JsonProperty(c, "null", false, e);
                 rules.add(np);
                 properties.put(prop, rules);
             }
             else if(e instanceof JsonBoolean){
                 ArrayList<JsonProperty> rules = new ArrayList<>();
-                JsonProperty np = new JsonProperty(prop, "boolean", false, e);
+                JsonProperty np = new JsonProperty(c, "boolean", false, e);
                 rules.add(np);
                 properties.put(prop, rules);
             }
             else if(e instanceof JsonNumber){
                 ArrayList<JsonProperty> rules = new ArrayList<>();
-                JsonPropertyNumber np = new JsonPropertyNumber(prop, "number", false, e);
+                JsonPropertyNumber np = new JsonPropertyNumber(c, "number", false, e);
                 rules.add(np);
                 properties.put(prop, rules);
             }
-            else if(e instanceof JsonLiteral){
-                continue;
-            }
             else if(e instanceof JsonString){
                 ArrayList<JsonProperty> rules = new ArrayList<>();
-                JsonPropertyString np = new JsonPropertyString(prop, "string", false, e, ((JsonString) e).getValue().length());
+                JsonPropertyString np = new JsonPropertyString(c, "string", false, e, ((JsonString) e).getValue().length());
                 rules.add(np);
                 properties.put(prop, rules);
             }
         }
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        for(String p : properties.keySet()){
+            sb.append(p).append(" : {\n\t");
+            ArrayList<JsonProperty> vals = properties.getOrDefault(p, null);
+            if(vals == null)
+                continue;
+            for(JsonProperty val : vals){
+                sb.append(val.toString());
+            }
+            sb.append("\n}\n");
+        }
+        return sb.toString();
     }
 }

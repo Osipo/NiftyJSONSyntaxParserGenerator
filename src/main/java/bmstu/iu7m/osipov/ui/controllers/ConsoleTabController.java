@@ -1,15 +1,25 @@
 package bmstu.iu7m.osipov.ui.controllers;
 
 import bmstu.iu7m.osipov.ui.controllers.handlers.CommandShellHandler;
+import bmstu.iu7m.osipov.ui.controllers.handlers.TerminalKeyInputHandler;
+import bmstu.iu7m.osipov.ui.models.TerminalModel;
+import bmstu.iu7m.osipov.ui.models.stores.EventHandlersStore;
 import bmstu.iu7m.osipov.ui.views.ConsoleTabView;
 import javafx.fxml.FXML;
 import javafx.scene.input.KeyEvent;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 
 public class ConsoleTabController extends ConsoleTabView {
+
+    @Autowired
+    protected EventHandlersStore hdlrs;
+
+    protected TerminalModel model;
+
     public ConsoleTabController(){
         System.out.println("ConsoleTabController: constructor");
     }
@@ -24,18 +34,15 @@ public class ConsoleTabController extends ConsoleTabView {
     public void init(){
         System.out.println("Post construct of bean ConsoleTabController");
         super.saveUIComponents();
+        this.model = new TerminalModel();
+        this.model.setView(this);
+        this.console_text.appendText(this.model.getCWD());
 
-        /*
-        Process childShell = null;
-        try{
-            ProcessBuilder pb = new ProcessBuilder("cmd");
-            pb.directory(new File(System.getProperty("user.dir")));
-            childShell = pb.start();
-            console_text.addEventHandler(KeyEvent.KEY_TYPED, new CommandShellHandler(childShell, console_text));
-        }
-        catch (IOException e){
-            System.out.println("Cannot create process for command shell.");
-        }
-        */
+        TerminalKeyInputHandler in_hdlr = new TerminalKeyInputHandler(this.model);
+        TerminalKeyInputHandler ctrl_hdlr = new TerminalKeyInputHandler(this.model);
+        this.console_text.addEventHandler(KeyEvent.KEY_TYPED, in_hdlr);
+        this.console_text.addEventHandler(KeyEvent.KEY_PRESSED, ctrl_hdlr);
+        this.hdlrs.getHandlers().put("termInput", in_hdlr);
+        this.hdlrs.getHandlers().put("termCtrl", ctrl_hdlr);
     }
 }
