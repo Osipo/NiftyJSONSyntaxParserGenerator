@@ -13,3 +13,7 @@ target/surefire-reports/
 target/surefire-reports/**
 target/maven-archiver/
 target/maven-archiver/**
+src/test/resources/grammars/lexers
+src/test/resources/grammars/lexers/**
+src/test/resources/grammars/parsers
+src/test/resources/grammars/parsers/**

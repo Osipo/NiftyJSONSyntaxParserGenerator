@@ -1,6 +1,6 @@
 package bmstu.iu7m.osipov.services.grammars;
 
-import bmstu.iu7m.osipov.services.parsers.json.elements.JsonArray;
+import bmstu.iu7m.osipov.services.parsers.json.elements.*;
 import bmstu.iu7m.osipov.services.parsers.json.meta.JsonDocumentDescriptor;
 import bmstu.iu7m.osipov.services.parsers.json.meta.JsonProperty;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
@@ -29,6 +29,7 @@ public class JSONDCollectionGrammarBuilder {
             while(!elems.isEmpty()){
                 String key = elems.top();
                 String sub_p = pointer.substring(0, pointer.lastIndexOf(key));
+                sub_p = sub_p + key; // => [/key => / + key, /k1/k2 => /k1/ + k2, / + k1]
                 elems.pop();
                 if(processed.contains(sub_p))
                     continue;
@@ -42,16 +43,24 @@ public class JSONDCollectionGrammarBuilder {
         return G;
     }
 
-    private void parseAlterntive(Grammar G, JsonDocumentDescriptor D, JsonProperty prop, String parent, String key){
+    private void parseAlterntive(Grammar G, JsonDocumentDescriptor D, JsonProperty prop, String path, String key){
+        Set<GrammarString> product_rules = G.getProductions().get(key);// try get information about production to identify alternatives
+        if(product_rules == null)
+            product_rules = new HashSet<>();
         try{
             int a_idx = Integer.parseInt(key);
         } catch (NumberFormatException e){
-            G.getMeta().getKeywords().add(key);
-            G.getNonTerminals().add("N" + key + G.getNonTerminals().size());
+            G.getMeta().getKeywords().add(PathStringUtils.quoute(key));
+            G.getNonTerminals().add("N" + G.getNonTerminals().size());
             GrammarString nbody = new GrammarString();
-
-            if(!cache.values().contains(nbody)){
-                nbody.addSymbol(new GrammarSymbol('t', key));
+            nbody.addSymbol(new GrammarSymbol('t', PathStringUtils.quoute(key) ));
+            nbody.addSymbol(new GrammarSymbol('t', ":"));
+            if(prop.getVal() instanceof JsonNull){
+                nbody.addSymbol(new GrammarSymbol('t', "null"));
+            }
+            else if(prop.getVal() instanceof JsonBoolean){
+                String literal = ((JsonBoolean)prop.getVal()).getValue() ? "true" : "false";
+                nbody.addSymbol(new GrammarSymbol('t', literal));
             }
         }
     }

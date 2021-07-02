@@ -767,9 +767,9 @@ public class Grammar {
         }
         Set<GrammarString> np = new HashSet<>();
         GrammarString nsbody = new GrammarString();
-        nsbody.addSymbol(new GrammarSymbol('n',this.S));
+        nsbody.addSymbol(new GrammarSymbol('n', this.S));
         np.add(nsbody);
-        this.P.put(newStart,np);
+        this.P.put(newStart, np); //add rule S' -> S.
         this.N.add(newStart);
         if(this.N_g.contains(S))
             this.N_g.add(newStart);

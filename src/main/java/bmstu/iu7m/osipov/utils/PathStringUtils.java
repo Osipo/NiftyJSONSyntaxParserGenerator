@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 public class PathStringUtils {
 
-    //Subtract substring p2 from string s1.
+    //Subtract prefix substring p2 from string s1.
     public static String getSubtraction(String p1, String p2) throws WrongOrderOfArgumentsException {
         if(p1 == null || p2 == null)
             return null;
@@ -83,5 +83,11 @@ public class PathStringUtils {
         while(m.find())
             res.add(m.group(0));
         return res;
+    }
+
+    public static String quoute(String s){
+        if(s == null)
+            return null;
+        return "\"" + s + "\"";
     }
 }

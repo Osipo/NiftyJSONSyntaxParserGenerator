@@ -10,8 +10,8 @@ public class SLRParserGenerator {
     public static LR_0_Automaton buildLRAutomaton(Grammar G) throws Exception {
         String S0 = G.getStart();
         String S1 = G.getStart()+"\'";
-        Map<Integer,Set<GrammarItem>> C = new TreeMap<>();//canonical items.
-        Map<Pair<Integer,String>,Integer> gotoTable = new HashMap<>();//goto function.
+        Map<Integer, Set<GrammarItem>> C = new TreeMap<>();//canonical items.
+        Map< Pair<Integer, String>, Integer> gotoTable = new HashMap<>();//goto function.
 
         try {
             G.extendStart(S1);
@@ -20,16 +20,18 @@ public class SLRParserGenerator {
             System.out.println(e.getMessage());
             throw new Exception("Cannot extend Grammar");
         }
-        Map<String,Set<String>> firstTable = LLParserGenerator.firstTable(Grammar.deleteLeftRecursion(G));
+        Map<String, Set<String>> firstTable = LLParserGenerator.firstTable(Grammar.deleteLeftRecursion(G));
 
         GrammarString start = new GrammarString();
-        start.addSymbol(new GrammarSymbol('n',S0));
-        GrammarItem S = new GrammarItem(start,S1);//point [S' -> .S]
+        start.addSymbol(new GrammarSymbol('n', S0));
+        GrammarItem S = new GrammarItem(start, S1);//point [S' -> .S]
         Set<String> symbols = new HashSet<>(G.getNonTerminals());
         symbols.addAll(G.getTerminals());
         LinkedStack<Set<GrammarItem>> ST = new LinkedStack<>();
         LinkedStack<Integer> states = new LinkedStack<>();//number of states.
-        C.put(0,closure(G,S));
+
+        //Compute closure of [S' -> .S]
+        C.put(0, closure(G, S));
         ST.push(C.get(0));
         states.push(0);
         int count = 0;

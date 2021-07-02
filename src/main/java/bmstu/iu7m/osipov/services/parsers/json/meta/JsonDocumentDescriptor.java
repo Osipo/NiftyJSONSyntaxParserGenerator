@@ -3,6 +3,7 @@ package bmstu.iu7m.osipov.services.parsers.json.meta;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.lists.Triple;
 import bmstu.iu7m.osipov.services.parsers.json.elements.*;
+import bmstu.iu7m.osipov.structures.trees.LinkedTree;
 
 import java.util.*;
 
@@ -41,6 +42,8 @@ public class JsonDocumentDescriptor {
             }
         }
     }
+
+
 
     public void describe2(JsonObject root){
         LinkedStack<Triple<String, JsonElement, String>> S = new LinkedStack<>();//entity
