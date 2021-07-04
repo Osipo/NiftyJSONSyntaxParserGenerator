@@ -88,8 +88,6 @@ public class LLParserGenerator {
 
         Map<GrammarString, String> cache = new HashMap<>();
 
-        boolean isScanned = true;
-
         while(!S.isEmpty()){
             String N = S.top();
             System.out.println(S);
@@ -98,8 +96,7 @@ public class LLParserGenerator {
             S.pop();
             Set<GrammarString> prods = G.getProductions().get(N);
             //Scan each alternative symbol by symbol
-            for(GrammarString body : prods){
-                isScanned = true;
+            M1: for(GrammarString body : prods){
                 // IF previously computed.
                 if(cache.containsKey(body)) {
                     first_n.addAll( res.get( cache.get(body) ) );
@@ -121,12 +118,12 @@ public class LLParserGenerator {
                     if(X_i == null || X_i.size() == 0){
                         S.push(N);// [ELEM STAG ETAG ELEM STAG CONTENT ETAG ELEM STAG ETAG ELEM STAG CONTENT ETAG
                         S.push(s_i.getVal());
-                        isScanned = false;
+                        break M1;
                     }
-                    else if(X_i.contains(G.getEmpty()) && isScanned){ //X IS ALREADY FILLED AND LEFT SIDE MUST BE SCANNED TOO.
+                    else if(X_i.contains(G.getEmpty())){ //X IS ALREADY FILLED AND LEFT SIDE MUST BE SCANNED TOO.
                         first_n.addAll(X_i);// CONTENT -> ELEMS, ELEMS -> e => FIRST(CONTENT) = { e, < }.
                     }
-                    else{
+                    else {
                         first_n.addAll(X_i);
                         cache.put(body, N);
                         break;
@@ -134,7 +131,6 @@ public class LLParserGenerator {
                 }
             }
         }
-
         return res;
     }
 
