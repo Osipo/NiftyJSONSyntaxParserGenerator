@@ -22,6 +22,12 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(
@@ -82,5 +88,17 @@ public class SLRParserTest {
         LinkedTree<Token> t = sa.parse(PathStrings.PARSER_INPUT + "pseudo_xml4.xml");
         assert t != null;
         Graphviz.fromString(t.toDot("I_XML_4th")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "I_XML_4th"));
+    }
+
+    @Test
+    public void testMap(){
+        Map<String, Set<String>> table = new HashMap<>();
+        Set<String> I = new HashSet<>();
+        I.add("item1");
+        table.put("k1", I); // only reference, not values.
+        I.add("item2");
+        I.add("item3");// object changed.
+        System.out.println(table);
+        assertEquals(3, table.get("k1").size());
     }
 }

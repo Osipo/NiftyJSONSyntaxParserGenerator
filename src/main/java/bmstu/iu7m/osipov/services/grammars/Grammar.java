@@ -110,7 +110,7 @@ public class Grammar {
         else
             throw new InvalidJsonGrammarException("Expected \"terms\" property with value of the JsonObject with names of terminals and their values (list of String patterns)!\n\t terms : {term_i : string | null | [string_i...] , ... n} ",null);
 
-        //OPTIONAL KEYWORDS.
+        //OPTIONAL SECTION KEYWORDS.
         JsonElement K = jsonG.getElement("keywords");
         if(K instanceof JsonArray){
             Set<String> keywords = new HashSet<>();

@@ -23,10 +23,10 @@ public class CLRParserGenerator {
         }
         GrammarString start = new GrammarString();
 
-        Map<String,Set<String>> firstTable = LLParserGenerator.firstTable(Grammar.deleteLeftRecursion(G));
+        Map<String, Set<String>> firstTable = LLParserGenerator.firstTable(G);
         HashSet<String> EOF = new HashSet<>();
         EOF.add("$");
-        firstTable.put("$",EOF);//FIRST($) = { $ };
+        firstTable.put("$", EOF);//FIRST($) = { $ };
         Map<String,Set<String>> oF = new HashMap<>();
         for(String k : firstTable.keySet()){
             if(!k.contains("\'")) {

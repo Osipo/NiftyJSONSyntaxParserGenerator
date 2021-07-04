@@ -6,6 +6,7 @@ import bmstu.iu7m.osipov.structures.observable.*;
 import bmstu.iu7m.osipov.services.grammars.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class LLParserGenerator {
     public static Map<Pair<String,String>, GrammarString> getTable(Grammar G){
@@ -55,13 +56,96 @@ public class LLParserGenerator {
         return table;
     }
 
+    public static Map<String, Set<String>> firstTable2(Grammar G){
+        Set<String> N_e = G.getN_e(); // Non-terminals with rules N -> e.
+        G = Grammar.deleteLeftRecursion(G);
+        Set<String> T = G.getTerminals();
+        Set<String> NT = G.getNonTerminals();
+        HashMap<String, Set<String>> res = new HashMap<String,Set<String>>();
+        LinkedStack<String> S = new LinkedStack<>();
+
+        System.out.println("Non left-recursing Grammar: ");
+        System.out.println(G);
+        /* For each terminal t add to Table FIRST(t) = { t }; */
+        for(String t : T){
+            HashSet<String> f = new HashSet<>();
+            f.add(t);
+            res.put(t, f);
+        }
+        Set<String> nonIndexed = NT.stream()
+                .filter(x -> N_e.contains( x.substring(0, x.indexOf('_')) ) )
+                .collect(Collectors.toSet());
+
+        for(String n : nonIndexed){
+            HashSet<String> ef = new HashSet<>();// FIRST = { e } (e == empty)
+            ef.add(G.getEmpty());
+            res.put(n, ef);
+        }
+        for(String n : NT){
+            S.push(n);
+        }
+        S.push(G.getStart());
+
+        Map<GrammarString, String> cache = new HashMap<>();
+
+        boolean isScanned = true;
+
+        while(!S.isEmpty()){
+            String N = S.top();
+            System.out.println(S);
+            Set<String> first_n = res.computeIfAbsent(N, k -> new HashSet<>());
+            res.put(N, first_n);
+            S.pop();
+            Set<GrammarString> prods = G.getProductions().get(N);
+            //Scan each alternative symbol by symbol
+            for(GrammarString body : prods){
+                isScanned = true;
+                // IF previously computed.
+                if(cache.containsKey(body)) {
+                    first_n.addAll( res.get( cache.get(body) ) );
+                    if(!first_n.contains(G.getEmpty()))
+                        break;
+                    else
+                        continue;
+                }
+                System.out.println(N + " -> "+ body);
+                for(GrammarSymbol s_i : body.getSymbols()){
+                    System.out.println(N + ":: "+s_i.getVal());
+                    //IF it is first empty
+                    if(s_i.getType() == 't'){
+                        first_n.add(s_i.getVal());// empty will be added as it is terminal.
+                        cache.put(body, N);
+                        break;
+                    }
+                    Set<String> X_i = res.get(s_i.getVal());
+                    if(X_i == null || X_i.size() == 0){
+                        S.push(N);// [ELEM STAG ETAG ELEM STAG CONTENT ETAG ELEM STAG ETAG ELEM STAG CONTENT ETAG
+                        S.push(s_i.getVal());
+                        isScanned = false;
+                    }
+                    else if(X_i.contains(G.getEmpty()) && isScanned){ //X IS ALREADY FILLED AND LEFT SIDE MUST BE SCANNED TOO.
+                        first_n.addAll(X_i);// CONTENT -> ELEMS, ELEMS -> e => FIRST(CONTENT) = { e, < }.
+                    }
+                    else{
+                        first_n.addAll(X_i);
+                        cache.put(body, N);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return res;
+    }
+
     //Compute FIRST for each terminal and non-terminal.
     //WARNING: Only for Grammars without Left-recursion!
     //You must eliminate left-recursion in Grammar _______.
-    public static Map<String,Set<String>> firstTable(Grammar G){
+    public static Map<String, Set<String>> firstTable(Grammar G){
+        G = Grammar.deleteLeftRecursion(G);
         Set<String> T = G.getTerminals();
         Set<String> NT = G.getNonTerminals();
-        HashMap<String,Set<String>> res = new HashMap<String,Set<String>>();
+        HashMap<String, Set<String>> res = new HashMap<String,Set<String>>();
         LinkedStack<String> S = new LinkedStack<>();
         for(String t : T){ //for each terminal put first(t) = t.
             HashSet<String> f = new HashSet<>();
@@ -72,7 +156,7 @@ public class LLParserGenerator {
             S.push(n);
         }
         S.push(G.getStart());
-        M1: while(!S.isEmpty()){//compute first for each nonTerminal p.
+        M1: while(!S.isEmpty()){// compute first for each nonTerminal p.
             Set<String> first_i = new HashSet<>();
             String p = S.top();
             S.pop();
@@ -83,10 +167,14 @@ public class LLParserGenerator {
                 int l = str.getSymbols().size();
                 int ec = 0;
                 boolean addAll = false;
+                if(str.getSymbols().get(0).equals(G.getEmpty()) && l == 1){
+                    first_i.add(G.getEmpty());
+                    continue;
+                }
                 for(GrammarSymbol s : str.getSymbols()){
                     if(s.getType() == 't'){
                         if(s.getVal().equals(G.getEmpty()))
-                            ec++;//continue scanning string.
+                            ec++;// continue scanning string.
                         else {
                             first_i.add(s.getVal());
                             break;//end scanning after first terminal.
@@ -122,7 +210,7 @@ public class LLParserGenerator {
                         first_i.add(G.getEmpty());
                 }
             }
-            res.put(p,first_i);
+            res.put(p, first_i);
         }
         return res;
     }
@@ -151,7 +239,7 @@ public class LLParserGenerator {
 
     //WARNING: Only for Grammars without Left-recursion!
     //You must eliminate left-recursion in Grammar _______.
-    public static Map<String,Set<String>> followTable(Grammar G,Map<String,Set<String>> firstTable){
+    public static Map<String,Set<String>> followTable(Grammar G, Map<String,Set<String>> firstTable){
         List<String> NT = new ArrayList<>(G.getNonTerminals());
         String empty = G.getEmpty();
         HashMap<String,Set<String>> res = new HashMap<String,Set<String>>();

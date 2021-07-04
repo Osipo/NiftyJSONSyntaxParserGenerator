@@ -4,22 +4,24 @@ import bmstu.iu7m.osipov.structures.graphs.Pair;
 import bmstu.iu7m.osipov.services.grammars.*;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 //Contains LR(0) items without symbol.
 public class LR_0_Automaton {
-    private Map<Integer, Set<GrammarItem>> C;//Canonical items. [LR(0)-items]
-    protected Map<Pair<Integer,String>,Integer> gotoTable;//Function GOTO(state,Symbol) = newState.
+    private Map<Integer, Set<GrammarItem>> C;// Canonical items. [LR(0)-items]
+    protected Map<Pair<Integer,String>,Integer> gotoTable;// Function GOTO(state, Symbol) = newState.
 
-    //Function ACTION(state,Symbol) = shift\reduce N |a|\err\acc
-    //where acc = accept, err = error, shift => add to stack new state
-    //reduce => command with two parameters: production header, count of symbols (which will be deleted
-    //from stack)
-    protected Map<Pair<Integer,String>,String> actionTable;
+    // Function ACTION(state, Symbol) = s\r N |a|\err\acc
+    // where acc = accept, err = error, s = shift => add to stack new state.
+    // Contains suffix with number of the new state '_newState'
+    // r = reduce => command with two parameters: production header and count of symbols (which will be deleted
+    // from stack)
+    protected Map<Pair<Integer, String>, String> actionTable;
 
     //FOLLOW function for each non-term A. returns a set of terms.
-    protected Map<String,Set<String>> follow;
+    protected Map<String, Set<String>> follow;
 
     //new Start header for Grammar.
     protected String S;
@@ -29,35 +31,42 @@ public class LR_0_Automaton {
     protected boolean hasErr;
 
     //ONLY FOR LR_1_Automaton and other subclasses.
-    protected LR_0_Automaton(Grammar G,String oldS, String nS,Map<Pair<Integer,String>,Integer> g,Map<String,Set<String>> firstTable){
+    protected LR_0_Automaton(Grammar G, String oldS, String nS, Map<Pair<Integer,String>, Integer> g, Map<String, Set<String>> firstTable){
         this.gotoTable = g;
         this.actionTable = new HashMap<>();
         this.follow = new HashMap<>();
         this.S0 = oldS;
         this.S = nS;
-        this.follow = LLParserGenerator.followTable(G,firstTable);
+        this.follow = LLParserGenerator.followTable(G, firstTable);
         this.hasErr = true;
     }
 
-    public LR_0_Automaton(Grammar G,String oldS, String ns, Map<Integer,Set<GrammarItem>> C, Map<Pair<Integer,String>,Integer> g, Map<String,Set<String>> firstTable) {
+    //For LR_0_Automaton. C is Canonical Set of items for LR(0) Grammar G.
+    public LR_0_Automaton(Grammar G, String oldS, String ns, Map<Integer, Set<GrammarItem>> C, Map<Pair<Integer, String>, Integer> g, Map<String, Set<String>> firstTable) {
         this.C = C;
         this.gotoTable = g;
         this.actionTable = new HashMap<>();
         this.follow = new HashMap<>();
         this.S0 = oldS;
         this.S = ns;
-        //System.out.println(firstTable);
+        System.out.println("HERE");
+        System.out.println(firstTable);
         //Transform FIRST.
-        Map<String,Set<String>> oF = new HashMap<>();
+        Map<String, Set<String>> oF = new HashMap<>();
         for(String k : firstTable.keySet()){
-            if(!k.contains("\'")) {
-                if(k.contains("_"))
-                    oF.put(k.substring(0, k.indexOf('_')), firstTable.get(k));
-                else
-                    oF.put(k,firstTable.get(k));
-            }
+            int s1 = k.indexOf('\'');
+            int s2 = k.indexOf('_');
+            if(s1 < s2 && s1 != -1)
+                oF.put(k.substring(0, k.indexOf('\'')), firstTable.get(k));
+            else if(s1 < s2) //s1 == -1.
+                oF.put(k.substring(0, k.indexOf('_')), firstTable.get(k));
+            else
+                oF.put(k, firstTable.get(k));
+
         }
-        this.follow = LLParserGenerator.followTable(G,oF);
+        this.follow = LLParserGenerator.followTable(G, oF);
+        System.out.println("FIRST");
+        System.out.println(oF);
         //System.out.println(follow);
         this.hasErr = true;
         initActions();
@@ -70,11 +79,13 @@ public class LR_0_Automaton {
             Set<GrammarItem> C_i = C.get(i);
             for(GrammarItem item : C_i){//for each item in C_i
                 GrammarSymbol s = item.getAt();
-                if(s != null && s.getType() == 't'){//item [A -> a .bc]
-                    Pair<Integer,String> k = new Pair<Integer,String>(i,s.getVal());
+                if(s != null && s.getType() == 't'){ //item [A -> a .bc]
+                    Pair<Integer, String> k = new Pair<Integer,String>(i, s.getVal());
                     Integer j = gotoTable.getOrDefault(k,-1);
-                    if(j != -1 && !actionTable.containsKey(k))//GOTO IS CORRECT AND RECORD IS NOT FILLED?
-                        actionTable.put(new Pair<Integer,String>(i,s.getVal()),"s_"+j);
+
+                    if(j != -1 && !actionTable.containsKey(k)) // GOTO IS CORRECT AND RECORD IS NOT FILLED?
+                        actionTable.put(new Pair<Integer, String>(i, s.getVal()), "s_"+j);// s_[state]
+
                     else if(j != -1){
                         String c = actionTable.get(k);
                         if(c.charAt(0) != 's') {
@@ -95,16 +106,16 @@ public class LR_0_Automaton {
                         }
                     }
                     else{
-                        actionTable.put(new Pair<Integer,String>(i,s.getVal()),"err");
+                        actionTable.put(new Pair<Integer, String>(i,s.getVal()),"err");
                     }
                 }
-                else if (s != null){//item [A -> a .Bc]
-                    actionTable.put(new Pair<Integer,String>(i,s.getVal()),"err");
+                else if (s != null && item.getPosition() < item.getSymbols().size()){ // item [A -> a .Bc]
+                    actionTable.put(new Pair<Integer, String>(i, s.getVal()), "err");
                 }
-                else {//item like [A -> y.]
+                else {// item like [A -> y.]
                     //item [S' -> S.]
                     if(item.getHeader().equals(S) && item.getSymbols().get(0).getVal().equals(S0)){
-                        actionTable.put(new Pair<Integer,String>(i,"$"),"acc");
+                        actionTable.put(new Pair<Integer, String>(i, "$"),"acc");
                         continue;
                     }
                     //item [S' -> y.]
@@ -113,11 +124,12 @@ public class LR_0_Automaton {
                         continue;
                     }
                     Set<String> t = follow.get(item.getHeader());
+                    //System.out.println(item.getHeader() + ": "+t);
                     //System.out.println(i+": "+item);
                     for(String term : t){
-                        Pair<Integer,String> k = new Pair<Integer,String>(i,term);
+                        Pair<Integer, String> k = new Pair<Integer, String>(i, term);
                         if(!actionTable.containsKey(k))//RECORD IS NOT FILLED?
-                            actionTable.put(k,"r_"+item.getHeader()+":"+item.getSymbols().size());
+                            actionTable.put(k, "r_" + item.getHeader()+":"+item.getSymbols().size());
                         else{
                             hasErr = true;
                             String com = actionTable.get(k);

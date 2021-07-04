@@ -75,7 +75,7 @@ public class LRParser extends Parser {
             String command = null;
             while(true) {
                 cstate = states.top();
-                Pair<Integer,String> k = new Pair<>(cstate,t);
+                Pair<Integer, String> k = new Pair<>(cstate, t);
                 if(mode == ParserMode.DEBUG)
                     System.out.println(states+" "+S+" >>"+t);
                 //command =  s s_state (shift)
@@ -83,13 +83,15 @@ public class LRParser extends Parser {
                 //      | acc
                 //      | err
                 command = table.getActionTable().get(k);
+                System.out.println(command);
                 if(command == null && empty == null){//if where are no any command and no empty.
                     isParsed = false;
                     break;
                 }
-                if(command == null){//if where is a empty symbol, try get command at [state, empty]
-                    command = table.getActionTable().get(new Pair<Integer,String>(cstate,empty));
-                    if(command != null){ //apply shift empty symbol if presence. (Rule like A -> e)
+                if(command == null){ //if where is a empty symbol, try get command at [state, empty]
+                    command = table.getActionTable().get(new Pair<Integer, String>(cstate, empty));
+                    System.out.println("Command for ["+ cstate +", empty] = " + command);
+                    if(command != null){ // apply shift empty symbol if presence. (Rule like A -> e)
                         String j = command.substring(command.indexOf('_') + 1);
                         states.push(Integer.parseInt(j));
                         LinkedNode<Token> nc = new LinkedNode<>();
@@ -108,7 +110,7 @@ public class LRParser extends Parser {
                 }
                 int argIdx = command.indexOf('_');
                 argIdx = argIdx == -1 ? 1 : argIdx;//in case of ACC or ERR
-                String act = command.substring(0,argIdx);
+                String act = command.substring(0, argIdx);
                 if(act.charAt(0) == 's'){
                     String j = command.substring(argIdx + 1);
                     states.push(Integer.parseInt(j));
@@ -131,8 +133,8 @@ public class LRParser extends Parser {
                     col = tok.getColumn();
                 }
                 else if(act.charAt(0) == 'r'){
-                    String args = command.substring(argIdx + 1);
-                    String header = args.substring(0,args.indexOf(':'));
+                    String args = command.substring(argIdx + 1); //args  of reduce command
+                    String header = args.substring(0, args.indexOf(':'));
                     int sz = Integer.parseInt(args.substring(args.indexOf(':') + 1));
                     LinkedNode<Token> parent = new LinkedNode<>();
                     while(sz > 0){
@@ -143,12 +145,12 @@ public class LRParser extends Parser {
                         parent.getChildren().add(c);
                         sz--;
                     }
-                    parent.setValue(new Token(header,header,'n',l,col));
+                    parent.setValue(new Token(header, header,'n', l, col));
                     nidx++;
                     parent.setIdx(nidx);
                     S.push(parent);
                     cstate = states.top();
-                    states.push(table.getGotoTable().get(new Pair<Integer,String>(cstate,header)));
+                    states.push(table.getGotoTable().get(new Pair<Integer, String>(cstate, header)));
                 }
                 else if(act.charAt(0) == 'a'){
                     break;

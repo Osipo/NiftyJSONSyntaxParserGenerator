@@ -8,13 +8,13 @@ public class GrammarItem extends GrammarString {
     protected int pos;//Current position
     protected String h;//header of the production
 
-    public GrammarItem(GrammarString str,String header){
+    public GrammarItem(GrammarString str, String header){
         super(str.getSymbols());
         this.pos = 0;
         this.h = header;
     }
 
-    public GrammarItem(List<GrammarSymbol> symbols, int pos,String header){
+    public GrammarItem(List<GrammarSymbol> symbols, int pos, String header){
         super(symbols);
         this.pos = pos;
         this.h = header;
