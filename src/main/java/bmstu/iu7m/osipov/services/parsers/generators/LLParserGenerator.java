@@ -12,8 +12,8 @@ public class LLParserGenerator {
     public static Map<Pair<String,String>, GrammarString> getTable(Grammar G){
         HashMap<Pair<String,String>, GrammarString> table = new HashMap<>();
 
-        Map<String,Set<String>> firstTable = firstTable(G);
-        Map<String,Set<String>> followTable = followTable(G,firstTable);
+        Map<String, Set<String>> firstTable = firstTable(G);
+        Map<String,Set<String>> followTable = followTable(G, firstTable);
         Set<String> ps = G.getProductions().keySet();
         boolean hasErr = false;
         String empty = G.getEmpty();
@@ -76,6 +76,8 @@ public class LLParserGenerator {
                 .filter(x -> N_e.contains( x.substring(0, x.indexOf('_')) ) )
                 .collect(Collectors.toSet());
 
+        //N from non-left recursive Grammar G which belongs to N_e of old G.
+        //N_e for non-left recursive Grammar is empty as it does not contains rules A -> e.
         for(String n : nonIndexed){
             HashSet<String> ef = new HashSet<>();// FIRST = { e } (e == empty)
             ef.add(G.getEmpty());

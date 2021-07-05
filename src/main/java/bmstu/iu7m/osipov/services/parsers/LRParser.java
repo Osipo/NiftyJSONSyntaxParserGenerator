@@ -22,7 +22,7 @@ public class LRParser extends Parser {
     private LR_0_Automaton table;
 
     public LRParser(Grammar G, ILexer lexer){
-        this(G,lexer,LRAlgorithm.CLR);
+        this(G, lexer, LRAlgorithm.CLR);
     }
 
     public LRParser(Grammar G, ILexer lexer, LRAlgorithm alg) {

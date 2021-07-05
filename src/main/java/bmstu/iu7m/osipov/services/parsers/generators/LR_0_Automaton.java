@@ -37,7 +37,7 @@ public class LR_0_Automaton {
         this.follow = new HashMap<>();
         this.S0 = oldS;
         this.S = nS;
-        this.follow = LLParserGenerator.followTable(G, firstTable);
+        this.follow = LLParserGenerator.followTable(G, firstTable); //firstTable is already Transformed at CLRParserGenerator.
         this.hasErr = true;
     }
 
@@ -51,20 +51,21 @@ public class LR_0_Automaton {
         this.S = ns;
         System.out.println("HERE");
         System.out.println(firstTable);
-        //Transform FIRST.
+
+        //Transform FIRST (from non-recursive indexed Grammar to non-indexed G)
         Map<String, Set<String>> oF = new HashMap<>();
         for(String k : firstTable.keySet()){
-            int s1 = k.indexOf('\'');
-            int s2 = k.indexOf('_');
-            if(s1 < s2 && s1 != -1)
-                oF.put(k.substring(0, k.indexOf('\'')), firstTable.get(k));
-            else if(s1 < s2) //s1 == -1.
-                oF.put(k.substring(0, k.indexOf('_')), firstTable.get(k));
-            else
+            int s1 = k.lastIndexOf('\'');
+            int s2 = k.lastIndexOf('_');
+            if(s1 < s2 && s1 != -1) // ' before _ like A'_ (when ' is part of the original N of G)
+                oF.put(k.substring(0, s1 + 1), firstTable.get(k));
+            else if(s1 < s2) // s1 == -1.
+                oF.put(k.substring(0, s2), firstTable.get(k));
+            else if(s1 == s2)// s1 == s2 <=> s1 == -1 and s2 == -1.
                 oF.put(k, firstTable.get(k));
 
         }
-        this.follow = LLParserGenerator.followTable(G, oF);
+        this.follow = LLParserGenerator.followTable(G, oF); //G may be left-recursive
         System.out.println("FIRST");
         System.out.println(oF);
         //System.out.println(follow);

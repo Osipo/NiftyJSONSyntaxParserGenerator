@@ -23,27 +23,28 @@ public class CLRParserGenerator {
         }
         GrammarString start = new GrammarString();
 
-        Map<String, Set<String>> firstTable = LLParserGenerator.firstTable(G);
+        Map<String, Set<String>> firstTable = LLParserGenerator.firstTable2(G); //REPLACE WITH firstTable2
         HashSet<String> EOF = new HashSet<>();
         EOF.add("$");
-        firstTable.put("$", EOF);//FIRST($) = { $ };
+        firstTable.put("$", EOF);// FIRST($) = { $ };
         Map<String,Set<String>> oF = new HashMap<>();
-        for(String k : firstTable.keySet()){
-            if(!k.contains("\'")) {
-                if(k.contains("_"))
-                    oF.put(k.substring(0, k.indexOf('_')), firstTable.get(k));
-                else
-                    oF.put(k,firstTable.get(k));
-            }
-        }
-        oF.put("$",EOF);
-        firstTable = oF;//computed FIRST on non left-recursive grammar with old names of grammar symbols.
 
-//        _______ = _______.getIndexedGrammar();
-//        S0 = S0+"_2";
-//        S1 = _______.getStart();
-        start.addSymbol(new GrammarSymbol('n',S0));
-        LR1GrammarItem S = new LR1GrammarItem(start,S1,"$");//point [S' -> .S, $]
+        for(String k : firstTable.keySet()){
+            int s1 = k.lastIndexOf('\'');
+            int s2 = k.lastIndexOf('_');
+            if(s1 < s2 && s1 != -1) // ' before _ like A'_ (when ' is part of the original N of G)
+                oF.put(k.substring(0, s1 + 1), firstTable.get(k));
+            else if(s1 < s2) // s1 == -1.
+                oF.put(k.substring(0, s2), firstTable.get(k));
+            else if(s1 == s2)// s1 == s2 <=> s1 == -1 and s2 == -1.
+                oF.put(k, firstTable.get(k));
+
+        }
+        //oF.put("$", EOF);
+        firstTable = oF;// computed FIRST on non left-recursive grammar with old names of grammar symbols.
+
+        start.addSymbol(new GrammarSymbol('n', S0));
+        LR1GrammarItem S = new LR1GrammarItem(start, S1,"$");//point [S' -> .S, $]
 
         Set<String> symbols = new HashSet<>(G.getNonTerminals());
         symbols.addAll(G.getTerminals());

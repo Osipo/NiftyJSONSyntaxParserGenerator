@@ -13,8 +13,8 @@ public class LR_1_Automaton extends LR_0_Automaton {
     private Map<Integer,Set<LR1GrammarItem>> C1;
     //then follow, S0, S, gotoTable, actionTable.
 
-    public LR_1_Automaton(Grammar G,String oldS, String ns, Map<Integer,Set<LR1GrammarItem>> C1, Map<Pair<Integer,String>,Integer> g, Map<String, Set<String>> firstTable){
-        super(G,oldS,ns,g,firstTable);
+    public LR_1_Automaton(Grammar G, String oldS, String ns, Map<Integer,Set<LR1GrammarItem>> C1, Map<Pair<Integer,String>,Integer> g, Map<String, Set<String>> firstTable){
+        super(G, oldS, ns, g, firstTable);
         this.firstTable = firstTable;
         this.C1 = C1;
         initActions();

@@ -27,4 +27,16 @@ public class GrammarTest {
         assert G.getKeywords().contains("false");
         System.out.println(G);
     }
+
+    @Test
+    public void testLeftRecursion(){
+        Grammar G = new Grammar(
+                SimpleJsonParserTest.parser.parse(PathStrings.GRAMMARS + "G_2_27.json")
+        );
+        System.out.println(G);
+        Grammar G1 = Grammar.deleteLeftRecursion(G);
+        System.out.println(G1);
+        Grammar G2 = Grammar.deleteLeftRecursion(G1);
+        System.out.println(G2);
+    }
 }

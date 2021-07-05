@@ -35,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
         classes = {}
 )
 public class SLRParserTest {
+
     @Test
     public void parse_G_2_27() throws IOException {
         Grammar G = new Grammar(
@@ -46,7 +47,7 @@ public class SLRParserTest {
         CNFA nfa = lg.buildNFA(G);
         DFALexer lexer = new DFALexer(new DFA(nfa));
         lexer.getImagefromStr(PathStrings.LEXERS,"I_G_2_27");
-        LRParser sa = new LRParser(G, lexer);
+        LRParser sa = new LRParser(G, lexer, LRAlgorithm.SLR);
         sa.setParserMode(ParserMode.DEBUG);
         LinkedTree<Token> t = sa.parse(PathStrings.PARSER_INPUT + "I_G_2_27.txt");
         assert t != null;
@@ -65,7 +66,7 @@ public class SLRParserTest {
         CNFA nfa = lg.buildNFA(G);
         DFALexer lexer = new DFALexer(new DFA(nfa));
         lexer.getImagefromStr(PathStrings.LEXERS,"I_G_416");
-        LRParser sa = new LRParser(G, lexer, LRAlgorithm.CLR);//switch to LR(1) [LR(0) is default]
+        LRParser sa = new LRParser(G, lexer, LRAlgorithm.CLR);// switch to LR(1)
         sa.setParserMode(ParserMode.DEBUG);
         LinkedTree<Token> t = sa.parse(PathStrings.PARSER_INPUT + "I_G_416.txt");
         assert t != null;
@@ -88,17 +89,5 @@ public class SLRParserTest {
         LinkedTree<Token> t = sa.parse(PathStrings.PARSER_INPUT + "pseudo_xml4.xml");
         assert t != null;
         Graphviz.fromString(t.toDot("I_XML_4th")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "I_XML_4th"));
-    }
-
-    @Test
-    public void testMap(){
-        Map<String, Set<String>> table = new HashMap<>();
-        Set<String> I = new HashSet<>();
-        I.add("item1");
-        table.put("k1", I); // only reference, not values.
-        I.add("item2");
-        I.add("item3");// object changed.
-        System.out.println(table);
-        assertEquals(3, table.get("k1").size());
     }
 }
