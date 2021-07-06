@@ -40,7 +40,6 @@ public class CLRParserGenerator {
                 oF.put(k, firstTable.get(k));
 
         }
-        //oF.put("$", EOF);
         firstTable = oF;// computed FIRST on non left-recursive grammar with old names of grammar symbols.
 
         start.addSymbol(new GrammarSymbol('n', S0));

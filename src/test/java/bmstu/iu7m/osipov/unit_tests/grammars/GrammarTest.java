@@ -33,10 +33,17 @@ public class GrammarTest {
         Grammar G = new Grammar(
                 SimpleJsonParserTest.parser.parse(PathStrings.GRAMMARS + "G_2_27.json")
         );
+        System.out.println("Original G");
         System.out.println(G);
+
         Grammar G1 = Grammar.deleteLeftRecursion(G);
+
+        System.out.println("Non-left recursive G");
         System.out.println(G1);
+
         Grammar G2 = Grammar.deleteLeftRecursion(G1);
+        System.out.println("The same");
         System.out.println(G2);
+        assert G1.getNonTerminals().equals(G2.getNonTerminals());
     }
 }

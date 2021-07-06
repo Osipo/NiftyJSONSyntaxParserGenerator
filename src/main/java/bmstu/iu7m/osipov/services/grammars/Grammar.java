@@ -28,6 +28,8 @@ public class Grammar {
 
     private boolean isMod = false;//flag for getGrammarWithoutEqualRules procedure.
 
+    private int flags = 0;
+
     public Grammar(){
         this.T = new HashSet<>();
         this.N = new HashSet<>();
@@ -605,7 +607,14 @@ public class Grammar {
         return this.meta.getEnd();
     }
 
+    private Grammar setFlags(int f){
+        this.flags = f;
+        return this;
+    }
 
+    public int getFlags(){
+        return this.flags;
+    }
 
     //Compute L(U) for U non-term
     private Set<GrammarSymbol> getL_i(String header){
@@ -805,52 +814,6 @@ public class Grammar {
         return true;
     }
 
-
-    /*
-    private Set<String> getLt_i(String N, Map<String,Set<GrammarSymbol>> lmap){
-        Set<GrammarSymbol> L = lmap.get(N);//L(U) U == N.
-        Set<String> Lts = new HashSet<>();
-        LinkedStack<GrammarString> rules = new LinkedStack<>();
-        List<String> computed = new ArrayList<>();
-        computed.add(N);
-        rules.addAll(P.get(N));
-        String h = N;
-        while(!rules.isEmpty()){
-            GrammarString rule = rules.top();
-            rules.pop();
-            if(rule.getSymbols().size() == 1){
-                GrammarSymbol si = rule.getSymbols().get(0);
-                if(si.getType() == 'n')
-                    continue;
-                if(!Lts.contains(si.getVal())){
-                    Lts.add(si.getVal());
-                    for(GrammarSymbol sym : L){
-                        if(sym.getType() == 'n' && !computed.contains(sym.getVal())){
-                            computed.add(sym.getVal());
-                        }
-                    }
-                }
-            }
-            else{
-                GrammarSymbol si = rule.getSymbols().get(0);
-                if(si.getType() == 'n')
-                    si = rule.getSymbols().get(1);
-                if(si.getType() == 'n')
-                    continue;
-                if(!Lts.contains(si.getVal())){
-                    Lts.add(si.getVal());
-                    for(GrammarSymbol sym : L){
-                        if(sym.getType() == 'n' && !computed.contains(sym.getVal())){
-                            computed.add(sym.getVal());
-                        }
-                    }
-                }
-            }
-        }
-        return Lts;
-    }*/
-
-
     //Compute set of non-terminals which generates empty-strings
     private void computeN_e(){
         Set<String> N_0 = new HashSet<>();
@@ -961,6 +924,8 @@ public class Grammar {
 
     //Shorten rules which have more than 2 GrammarSymbols. (A -> aBbB, B -> c => A -> aB1, B1 -> BB2, B2 -> bB, B -> c)
     public Grammar getShortenedGrammar(){
+        if((this.flags & GrammarFlags.SHORTENED) == GrammarFlags.SHORTENED)
+            return this;
         Set<String> rules = P.keySet();
         Set<String> NN = new HashSet<>();
         Map<String,Set<GrammarString>> newP = new HashMap<>();
@@ -1043,11 +1008,14 @@ public class Grammar {
             }
             NN.add(p);
         }
-        return new Grammar(this.T,NN,newP,this.S,this.E,this.lex_rules,this.meta);
+        return new Grammar(this.T,NN,newP,this.S,this.E,this.lex_rules,this.meta)
+                .setFlags(this.flags | GrammarFlags.SHORTENED);
     }
 
 
     public Grammar getNonEmptyWordsGrammar(){
+        if((this.flags & GrammarFlags.NO_EMPTY_STRINGS) == GrammarFlags.NO_EMPTY_STRINGS)
+            return this;
         Set<String> rules = P.keySet();
         Map<String,Set<GrammarString>> newP = new HashMap<>();
         String newS = this.S;
@@ -1085,7 +1053,8 @@ public class Grammar {
                 NN.add(p);
             }
         }
-        return new Grammar(this.T,NN,newP,newS,this.E,this.lex_rules,this.meta);
+        return new Grammar(this.T,NN,newP,newS,this.E,this.lex_rules,this.meta)
+                .setFlags(this.flags | GrammarFlags.NO_EMPTY_STRINGS);
     }
 
     //Get all subsets of rule which consists of combinations of N_e.
@@ -1160,6 +1129,8 @@ public class Grammar {
     //Get indexed grammar where each non-terminal is ordered. (by specifying unique number begining with start production S)
     //Example: S -> aSbS | bSaS | e => S1 -> aS1bS1 | bS1aS1 | e.
     public Grammar getIndexedGrammar(){
+        if((this.flags & GrammarFlags.INDEXED) == GrammarFlags.INDEXED)
+            return this;
         Map<String,String> nNames = new HashMap<>();
         Map<String,Set<GrammarString>> newP = new HashMap<>();
         Set<String> NN = new HashSet<>();
@@ -1199,7 +1170,8 @@ public class Grammar {
             }
             newP.put(np,nalts);
         }
-        return new Grammar(this.T, NN, newP, start, this.E, this.lex_rules, this.meta);
+        return new Grammar(this.T, NN, newP, start, this.E, this.lex_rules, this.meta)
+                .setFlags(this.flags | GrammarFlags.INDEXED);
     }
 
     //Given production with name n.
@@ -1220,6 +1192,8 @@ public class Grammar {
     }
 
     public Grammar getGrammarWithoutEqualRules(){
+        if((this.flags & GrammarFlags.NON_EQUAL_RULES) == GrammarFlags.NON_EQUAL_RULES)
+            return this;
         Map<String,Set<GrammarString>> newP = new HashMap<>();
         Set<String> NN = new HashSet<>();
         Set<String> ps = P.keySet().stream().sorted((x,y) -> {
@@ -1277,13 +1251,16 @@ public class Grammar {
         if(isModified) {
             Grammar R = new Grammar(T, NN, newP, start, this.E, lex_rules, this.meta).deleteUselessSymbols();
             R.isMod = true;
+            R.setFlags(this.flags | GrammarFlags.NON_EQUAL_RULES);
             return R;
         }
         else
-            return new Grammar(T,NN,newP,start,this.E,lex_rules,this.meta);
+            return new Grammar(T,NN,newP,start,this.E,lex_rules,this.meta).setFlags(this.flags | GrammarFlags.NON_EQUAL_RULES);
     }
 
     public static Grammar getChomskyGrammar(Grammar G){
+        if((G.flags & GrammarFlags.CHOMSKY) == GrammarFlags.CHOMSKY)
+            return G;
         G = G.getShortenedGrammar();
         G = G.getNonEmptyWordsGrammar();
         G = G.deleteUselessSymbols();
@@ -1340,11 +1317,13 @@ public class Grammar {
             newP.put(p,nalts);
             NN.add(p);
         }
-        return new Grammar(G.T,NN,newP,s,G.E,G.lex_rules,G.meta);
+        return new Grammar(G.T,NN,newP,s,G.E,G.lex_rules,G.meta).setFlags(G.flags | GrammarFlags.CHOMSKY);
     }
 
     //ELIMINATE LEFT RECURSION. (all type)
     public static Grammar deleteLeftRecursion(Grammar G){
+        if((G.flags & GrammarFlags.NON_LEFT_RECURSIVE) == GrammarFlags.NON_LEFT_RECURSIVE)
+            return G;
         G = G.deleteUselessSymbols();
         G = G.getNonEmptyWordsGrammar();
         if(G.hasCycles()) {
@@ -1403,7 +1382,8 @@ public class Grammar {
             newP.put(Ai+"\'",lb1);
             NN.add(Ai+"\'");
         }
-        return new Grammar(G.T,NN,newP,G.getStart(),G.E,G.getLexicalRules(),G.meta);
+        return new Grammar(G.T,NN,newP,G.getStart(),G.E,G.getLexicalRules(),G.meta)
+                .setFlags(G.flags | GrammarFlags.NON_LEFT_RECURSIVE);
     }
 
 
@@ -1478,7 +1458,9 @@ public class Grammar {
     }
 
 
-    private static boolean hasImmediateLeftRecursion(Set<GrammarString> s,String P){
+    //Check each rule of production with header P for left recursion.
+    // [A -> c A | A c] => A == left recursive (2 rule).
+    private static boolean hasImmediateLeftRecursion(Set<GrammarString> s, String P){
         for(GrammarString body : s){
             if(body.getSymbols().get(0).getVal().equals(P))
                 return true;
@@ -1488,6 +1470,8 @@ public class Grammar {
 
     //Algorithm 2.8
     public Grammar deleteNonReachableSymbols(){
+        if((this.flags & GrammarFlags.REACHABLE) == GrammarFlags.REACHABLE)
+            return this;
         Set<String> V_0 = new HashSet<>();
         Set<String> V_i = new HashSet<>();
         LinkedStack<Set<String>> S = new LinkedStack<>();
@@ -1527,11 +1511,14 @@ public class Grammar {
         Set<String> NT = new HashSet<>(V_i);
         NT.retainAll(T);
 
-        return new Grammar(NT,NN,newP,this.S,this.E,lex_rules,this.meta);
+        return new Grammar(NT,NN,newP,this.S,this.E,lex_rules,this.meta)
+                .setFlags(this.flags | GrammarFlags.REACHABLE);
     }
 
     //Algorithm 2.9
     public Grammar deleteUselessSymbols(){
+        if((this.flags & GrammarFlags.NOT_USELESS) == GrammarFlags.NOT_USELESS)
+            return this;
         Map<String,Set<GrammarString>> newP = new HashMap<>();
         Set<String> NN = new HashSet<>(N);
         NN.retainAll(this.N_g);//NN =  N INTERSECT N_g
@@ -1557,6 +1544,7 @@ public class Grammar {
                 newP.put(p,nbodies);
         }
         Grammar NG = new Grammar(this.T,NN,newP,this.S,this.E,lex_rules,this.meta);
+        NG.setFlags(this.flags | GrammarFlags.NOT_USELESS);
         return NG.deleteNonReachableSymbols();
     }
 
@@ -1625,6 +1613,8 @@ public class Grammar {
 
     //Algorithm 2.11  Delete rules A -> B, where A,B are non-terminals and length of the body == 1.
     public Grammar getNonCycledGrammar(){
+        if((this.flags & GrammarFlags.NOT_CYCLED) == GrammarFlags.NOT_CYCLED)
+            return this;
         Map<String,Set<GrammarString>> newP = new HashMap<>();
         Map<String,Set<String>> NG = new HashMap<>();
         for(String n : N){
@@ -1656,7 +1646,8 @@ public class Grammar {
                 }
             }
         }
-        return new Grammar(this.T,this.N,newP,this.S,this.E,this.lex_rules,this.meta);
+        return new Grammar(this.T,this.N,newP,this.S,this.E,this.lex_rules,this.meta)
+                .setFlags(this.flags | GrammarFlags.NOT_CYCLED);
     }
 
     //Works only for Operator Grammar
@@ -1684,10 +1675,13 @@ public class Grammar {
             }
         }
         newP.put(start,nrules);
-        return new Grammar(T,NN,newP,this.S,this.E,lex_rules,this.meta);
+        return new Grammar(T,NN,newP,this.S,this.E,lex_rules,this.meta)
+                .setFlags(this.flags);
     }
 
     public Grammar deleteLeftFactor(){
+        if((this.flags & GrammarFlags.NON_LEFT_PREFIXES) == GrammarFlags.NON_LEFT_PREFIXES)
+            return this;
         Map<String,Set<GrammarString>> newP = new HashMap<>(this.P);
         Set<String> NN = new HashSet<>();
         LinkedStack<String> rules = new LinkedStack<>();
@@ -1745,7 +1739,6 @@ public class Grammar {
                 newP.put(ph,nonPref);
                 newP.put(nName,bodyOfnewTerm);
                 id++;
-//                System.out.println(nName);
                 newRidxs.put(ph,id);
                 newRidxs.put(nName,1);
                 rules.push(ph);//continue scanning rules with header ph
@@ -1760,6 +1753,8 @@ public class Grammar {
             NN.addAll(N);
             Grammar NG = new Grammar(NT,NN,newP,this.S,this.E,lex_rules,this.meta);
             NG = NG.getGrammarWithoutEqualRules();
+            NG.setFlags(this.flags | GrammarFlags.NON_LEFT_PREFIXES);
+            NG.setFlags(this.flags & ~GrammarFlags.NOT_CYCLED & ~GrammarFlags.NOT_USELESS & ~GrammarFlags.REACHABLE);
             if(NG.isMod)
                 return NG.getNonCycledGrammar().deleteUselessSymbols();
             else
@@ -1768,6 +1763,8 @@ public class Grammar {
         NN.addAll(N);
         Grammar NG = new Grammar(T,NN,newP,this.S,this.E,lex_rules,this.meta);
         NG = NG.getGrammarWithoutEqualRules();
+        NG.setFlags(this.flags | GrammarFlags.NON_LEFT_PREFIXES);
+        NG.setFlags(this.flags & ~GrammarFlags.NOT_CYCLED & ~GrammarFlags.NOT_USELESS & ~GrammarFlags.REACHABLE);
         if(NG.isMod)
             return NG.getNonCycledGrammar().deleteUselessSymbols();
         else

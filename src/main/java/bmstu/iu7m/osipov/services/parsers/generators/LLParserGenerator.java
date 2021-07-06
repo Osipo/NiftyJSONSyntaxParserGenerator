@@ -12,8 +12,12 @@ public class LLParserGenerator {
     public static Map<Pair<String,String>, GrammarString> getTable(Grammar G){
         HashMap<Pair<String,String>, GrammarString> table = new HashMap<>();
 
-        Map<String, Set<String>> firstTable = firstTable(G);
-        Map<String,Set<String>> followTable = followTable(G, firstTable);
+        Map<String, Set<String>> firstTable = firstTable2(G);
+        System.out.println("Non left-recursive Grammar");
+        System.out.println(G);
+        System.out.println("FIRST");
+        System.out.println(firstTable);
+        Map<String, Set<String>> followTable = followTable(G, firstTable);
         Set<String> ps = G.getProductions().keySet();
         boolean hasErr = false;
         String empty = G.getEmpty();
@@ -56,6 +60,7 @@ public class LLParserGenerator {
         return table;
     }
 
+    //used for LR-parsers.
     public static Map<String, Set<String>> firstTable2(Grammar G){
         Set<String> N_e = G.getN_e(); // Non-terminals with rules N -> e.
         G = Grammar.deleteLeftRecursion(G);
@@ -64,8 +69,8 @@ public class LLParserGenerator {
         HashMap<String, Set<String>> res = new HashMap<String,Set<String>>();
         LinkedStack<String> S = new LinkedStack<>();
 
-        System.out.println("Non left-recursing Grammar: ");
-        System.out.println(G);
+        //System.out.println("Non left-recursing Grammar: ");
+        //System.out.println(G);
         /* For each terminal t add to Table FIRST(t) = { t }; */
         for(String t : T){
             HashSet<String> f = new HashSet<>();
@@ -75,6 +80,9 @@ public class LLParserGenerator {
         Set<String> nonIndexed = NT.stream()
                 .filter(x -> N_e.contains( x.substring(0, x.indexOf('_')) ) )
                 .collect(Collectors.toSet());
+        if(nonIndexed.size() == 0 && N_e.size() > 0){
+            nonIndexed = N_e;
+        }
 
         //N from non-left recursive Grammar G which belongs to N_e of old G.
         //N_e for non-left recursive Grammar is empty as it does not contains rules A -> e.
@@ -88,28 +96,28 @@ public class LLParserGenerator {
         }
         S.push(G.getStart());
 
-        Map<GrammarString, String> cache = new HashMap<>();
+        Map<GrammarString, String> cache = new HashMap<>(); //MAKE KEY UNIQUE.
 
         while(!S.isEmpty()){
             String N = S.top();
-            System.out.println(S);
             Set<String> first_n = res.computeIfAbsent(N, k -> new HashSet<>());
             res.put(N, first_n);
             S.pop();
             Set<GrammarString> prods = G.getProductions().get(N);
+            //System.out.println(N);
             //Scan each alternative symbol by symbol
             M1: for(GrammarString body : prods){
                 // IF previously computed.
-                if(cache.containsKey(body)) {
+                if(cache.containsKey(body) && N.equals( cache.get(body) ) ) {
                     first_n.addAll( res.get( cache.get(body) ) );
                     if(!first_n.contains(G.getEmpty()))
                         break;
                     else
                         continue;
                 }
-                System.out.println(N + " -> "+ body);
+                // System.out.println(N + " -> "+ body);
                 for(GrammarSymbol s_i : body.getSymbols()){
-                    System.out.println(N + ":: "+s_i.getVal());
+                    //System.out.println(N + ":: "+s_i.getVal());
                     //IF it is first empty
                     if(s_i.getType() == 't'){
                         first_n.add(s_i.getVal());// empty will be added as it is terminal.
