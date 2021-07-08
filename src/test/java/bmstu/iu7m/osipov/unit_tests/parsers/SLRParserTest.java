@@ -101,5 +101,7 @@ public class SLRParserTest {
 
         t.visit(VisitorMode.PRE, a1);
         t.visit(VisitorMode.PRE, a2);
+        Graphviz.fromString(t.toDot("I_XML_4th_reduced")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "I_XML_4th_reduced"));
+
     }
 }
