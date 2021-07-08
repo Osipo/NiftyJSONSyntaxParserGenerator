@@ -53,14 +53,14 @@ public class LLParserGenerator {
                             System.out.println("\tAmbiguous: "+table.get(rec)+" / "+b);
                             System.out.println("\tConflict detected ! Grammar is not LL(1)!");
                         }
-                        table.put(rec, b);//new GrammarString(new ArrayList<>(b.getSymbols())));
+                        table.put(rec, b);
                     }
             }
         }
         return table;
     }
 
-    //used for LR-parsers.
+    //REPLACE firstTable with this firstTable2 function!
     public static Map<String, Set<String>> firstTable2(Grammar G){
         Set<String> N_e = G.getN_e(); // Non-terminals with rules N -> e.
         G = Grammar.deleteLeftRecursion(G);
@@ -69,8 +69,6 @@ public class LLParserGenerator {
         HashMap<String, Set<String>> res = new HashMap<String,Set<String>>();
         LinkedStack<String> S = new LinkedStack<>();
 
-        //System.out.println("Non left-recursing Grammar: ");
-        //System.out.println(G);
         /* For each terminal t add to Table FIRST(t) = { t }; */
         for(String t : T){
             HashSet<String> f = new HashSet<>();
@@ -144,9 +142,6 @@ public class LLParserGenerator {
         return res;
     }
 
-    //Compute FIRST for each terminal and non-terminal.
-    //WARNING: Only for Grammars without Left-recursion!
-    //You must eliminate left-recursion in Grammar _______.
     public static Map<String, Set<String>> firstTable(Grammar G){
         G = Grammar.deleteLeftRecursion(G);
         Set<String> T = G.getTerminals();

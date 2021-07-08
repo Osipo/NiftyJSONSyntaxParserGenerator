@@ -240,130 +240,9 @@ public class AutomatonConstructor {
         return result.top();
     }
 
-    public static String addConcat(String s,RegexRPNParser parser){
-        StringBuilder result = new StringBuilder();
-        char a, b;
-        for(int i = 0; i < s.length(); i++){
-            if(s.charAt(i) == '['){// replace class [A-Z] with expression (A|B|...|Z) and add '^' if needed.
-                char t = s.charAt(i);
-
-                //if previous symbol is not operator add concatenation.
-                if(i > 0 && s.charAt(i - 1) != '(' && s.charAt(i - 1) != '|' && s.charAt(i - 1) != '^'){
-                    result.append('^');
-                }
-
-                result.append('(');
-                int j = i + 1;//first symbol after '['.
-
-                boolean wflag = false;
-
-                //scanning till ']' or to the end of string.
-                while(t != ']' && j < s.length()){
-                    t = s.charAt(j);
-                    if(t == ']')// case expression like '[]'.
-                        break;
-
-                    if(t == '@'){
-                        result.append('@');
-                        result.append(s.charAt(j + 1));
-                        if(j + 2 < s.length() && s.charAt(j + 2) != ']')
-                            result.append("|");
-                        j++;
-                        j++;
-                        continue;
-                    }
-
-                    if(j + 1 < s.length() && s.charAt(j) == '-'){
-                        a = s.charAt(j - 1);
-                        b = s.charAt(j + 1);
-                        if(a > b){
-                            char temp = a;
-                            a = b;
-                            b = temp;
-                        }
-                        while(a != b){
-                            a++;
-                            result.append(a).append("|");
-                        }
-                        CharSequence subor = result.subSequence(0,result.length() - 1);
-                        result = new StringBuilder().append(subor);
-                        j = j + 2;
-                        wflag = true;
-                        continue;
-                    }
-                    if(wflag && t != ']'){
-                        result.append("|");
-                        wflag = false;
-                    }
-                    String or =  (j + 1 == s.length() || s.charAt(j + 1) == ']') ? s.charAt(j)+"" : s.charAt(j)+"|";
-                    result.append(s.charAt(j) == ']' ? ")" : or);
-                    if(s.charAt(j) == ']'){
-                        j++;
-                        break;
-                    }
-                    if(s.charAt(j + 1) == ']'){
-                        result.append(')');
-                        j++;
-                        j++;
-                        break;
-                    }
-                    j++;
-                }
-                i = j;
-                if(i == s.length())
-                    return result.toString();
-                //check after [] current symbol.
-                if((s.charAt(i) == ')' || s.charAt(i) == '*' || s.charAt(i) == '+')){
-                    result.append(s.charAt(i));
-                    if(i + 1 < s.length() && s.charAt(i + 1) =='@') {
-                        result.append(s.charAt(i + 1));
-                        if(i + 2 < s.length()) {
-                            result.append(s.charAt(i + 2));
-                            i++;
-                        }
-                        i++;
-                    }
-                    else if(i + 1 < s.length() && s.charAt(i + 1) != ')' && s.charAt(i + 1) != '+' && s.charAt(i + 1) != '*' && s.charAt(i + 1) != '|' && s.charAt(i + 1) != '[')
-                        result.append('^');
-                }
-                else if(s.charAt(i) == '@'){
-                    result.append('@');
-                    if(i + 1 < s.length())
-                        result.append(s.charAt(i + 1));
-                    i++;
-                }
-                else if(parser.isTerminal(s.charAt(i)) || s.charAt(i) == '('){
-                    result.append('^').append(s.charAt(i));
-                }
-                else if(s.charAt(i) == '[')
-                    i = j - 1;
-                continue;
-            }
-            result.append(s.charAt(i));
-            if(s.charAt(i) == '@'){
-                if(i + 1 < s.length()) {
-                    result.append(s.charAt(i + 1));
-                    if(i + 2 < s.length() && (parser.isTerminal(s.charAt(i + 2)) || s.charAt(i + 2) == '(' ))
-                        result.append('^');
-                    i++;
-                    continue;
-                }
-            }
-            //if i is terminal and next i + 1 symbol is also terminal or '('
-            if(parser.isTerminal(s.charAt(i)) && i + 1 < s.length() && (parser.isTerminal(s.charAt(i + 1)) || s.charAt(i + 1) == '(' ) ){
-                result.append('^');
-            }
-            //else if i is operator like ')' '*' '+' and next symbol is terminal or '('
-            if((s.charAt(i) == ')' || s.charAt(i) == '*' || s.charAt(i) == '+' ) && i + 1 < s.length() && (parser.isTerminal(s.charAt(i + 1)) || s.charAt(i + 1) == '(') ){
-                result.append('^');
-            }
-        }
-        return result.toString();
-    }
-
     public static String addConcat2(String s, RegexRPNParser parser){
         StringBuilder result = new StringBuilder();
-        char a = '\u0000', b = '\u0000', c, t;
+        char a = '\u0000', b = '\u0000', c, t; // 0 code == any symbol, 1 code == empty symbol.
         int i = 0, j = 0, state = 0;
         //states
         // 0 == the begining of line or expression
@@ -382,7 +261,7 @@ public class AutomatonConstructor {
                 }
 
                 result.append('(');
-                j = i + 1;//first symbol after '['.
+                j = i + 1;// first symbol after '['.
                 while(j < s.length()){
                     t = s.charAt(j);
                     //case [@$ where $ = end of string

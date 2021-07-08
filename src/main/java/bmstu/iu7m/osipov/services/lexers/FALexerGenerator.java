@@ -50,16 +50,16 @@ public class FALexerGenerator {
                     Fs.add(nfa.getFinish());
                     alpha.add(c);
                     idC.setV1(nfa_i);
-                    Edge e2 = new Edge(vs,nfa.getStart(),(char)1);
+                    Edge e2 = new Edge(vs, nfa.getStart(), (char)1);
                     continue;
                 }
                 else {
                     //replace empty and any with one-character symbols.
                     String p_i = new String(pattern.toCharArray());
                     if(G.getEmpty() != null)
-                        p_i = p_i.replaceAll(G.getEmpty(),(char)1+"");//special symbol for empty-character.
-                    p_i = p_i.replaceAll("(?<!@)_",(char)0+"");//another special symbol for any character.
-                    p_i = p_i.replaceAll("@_","_");
+                        p_i = p_i.replaceAll(G.getEmpty(),(char)1+"");// special symbol for empty-character.
+                    p_i = p_i.replaceAll("(?<!@)_",(char)0+"");// another special symbol for any character.
+                    p_i = p_i.replaceAll("@_","_"); //escaped '_'
                     parser.setTerminals(p_i.toCharArray());
 
                     //convert [A-Z] classes to (A|B|..|Z) expressions

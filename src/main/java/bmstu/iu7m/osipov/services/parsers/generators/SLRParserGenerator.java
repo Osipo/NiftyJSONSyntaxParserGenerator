@@ -8,6 +8,7 @@ import com.codepoetics.protonpack.maps.MapStream;
 import java.util.*;
 
 public class SLRParserGenerator {
+
     public static LR_0_Automaton buildLRAutomaton(Grammar G) throws Exception {
         String S0 = G.getStart();
         String S1 = G.getStart()+"\'";
@@ -116,4 +117,10 @@ public class SLRParserGenerator {
         }
         return R;
     }
+
+    // is kernel item
+    private boolean isKernel(Grammar G, GrammarItem item){
+        return item.getPosition() > 0 || item.getHeader().equals(G.getStart());
+    }
+
 }

@@ -207,7 +207,7 @@ public class Grammar {
                         operators.add(((JsonString) e).getValue());
                     }
                     else
-                        throw new InvalidJsonGrammarException("Expected String being contained in temrs or keywords. Property \'.meta.operators\'",null);
+                        throw new InvalidJsonGrammarException("Expected String value of array element at property \'.meta.operators\'",null);
                 }
                 this.meta.setOperators(operators);
             }
@@ -228,11 +228,11 @@ public class Grammar {
                 this.meta.setMlStart(mlStart);
                 sc = o.getElement("mlCommentEnd");
                 if(sc instanceof JsonString){
-                    String mlEnd = ((JsonString) sc).getValue();
+                    String mlEnd = ((JsonString) sc).getValue(); //mlCommentEnd is just a sequence of chars (not a term)
                     this.meta.setMlEnd(mlEnd);
                 }
                 else
-                    throw new InvalidJsonGrammarException("When \'meta.mlCommentStart\' is defined \'meta.mlCommentEnd\' must be defined too!",null);
+                    throw new InvalidJsonGrammarException("When \'meta.mlCommentStart\' is defined then \'meta.mlCommentEnd\' must be defined too!",null);
             }
             //meta.id
             sc = o.getElement("id");
@@ -257,7 +257,7 @@ public class Grammar {
                     if(el instanceof JsonString) {
                         String val = ((JsonString) el).getValue();
                         this.T.add(val);
-                        aliases.put(t,val);
+                        aliases.put(t, val);
                     }
                     else
                         throw new InvalidJsonGrammarException("Expected String value of property \'meta.aliases."+t+"\' ",null);

@@ -22,7 +22,7 @@ public class LinkedTree<T> implements Tree<T>, PositionalTree<T> {
         _r = n;
         _visitor = new NRSubVisitor<T>();
         _count = 0;
-        Node<Integer> nc = new Node<>(_count);
+        Node<Integer> nc = new Node<>(_count); //wrapper node to pass _count by ref.
         __ComputeC(nc);
         _count = nc.getValue();
     }
@@ -52,9 +52,9 @@ public class LinkedTree<T> implements Tree<T>, PositionalTree<T> {
     public void add(T item){
         LinkedNode<T> n = _r;
         while(n.getChildren().size() != 0){
-            n = n.getChildren().get(0);//LEFTMOST_CHILD
+            n = n.getChildren().get(0);// ADD to LEFTMOST_CHILD
         }
-        addTo(n,item);
+        addTo(n, item);
     }
 
     /*IPositionalTree  implementation*/

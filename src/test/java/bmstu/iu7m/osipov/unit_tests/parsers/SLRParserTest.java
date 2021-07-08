@@ -11,6 +11,10 @@ import bmstu.iu7m.osipov.services.parsers.ParserMode;
 import bmstu.iu7m.osipov.structures.automats.CNFA;
 import bmstu.iu7m.osipov.structures.automats.DFA;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
+import bmstu.iu7m.osipov.structures.trees.SequentialNRVisitor;
+import bmstu.iu7m.osipov.structures.trees.VisitorMode;
+import bmstu.iu7m.osipov.structures.trees.reducers.BreakChainNode;
+import bmstu.iu7m.osipov.structures.trees.reducers.DeleteUselessSyntaxNode;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
@@ -89,5 +93,13 @@ public class SLRParserTest {
         LinkedTree<Token> t = sa.parse(PathStrings.PARSER_INPUT + "pseudo_xml4.xml");
         assert t != null;
         Graphviz.fromString(t.toDot("I_XML_4th")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "I_XML_4th"));
+
+        t.setVisitor(new SequentialNRVisitor<>());
+
+        DeleteUselessSyntaxNode a1 = new DeleteUselessSyntaxNode(G);
+        BreakChainNode a2 = new BreakChainNode();
+
+        t.visit(VisitorMode.PRE, a1);
+        t.visit(VisitorMode.PRE, a2);
     }
 }

@@ -162,7 +162,7 @@ public class CLRParserGenerator {
         return C;
     }
 
-    private static Set<LR1GrammarItem> gotoSet(Grammar G, Set<LR1GrammarItem> I, String symbol, Map<String,Set<String>> firstTable){
+    private static Set<LR1GrammarItem> gotoSet(Grammar G, Set<LR1GrammarItem> I, String symbol, Map<String, Set<String>> firstTable){
         Set<LR1GrammarItem> R = new HashSet<>();
         for(LR1GrammarItem point : I){
             if(point.getAt() != null && point.getAt().getVal().equals(symbol)){// Point: [A -> a .symbol b, X]
