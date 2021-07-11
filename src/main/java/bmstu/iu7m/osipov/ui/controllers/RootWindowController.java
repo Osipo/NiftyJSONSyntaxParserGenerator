@@ -3,9 +3,11 @@ package bmstu.iu7m.osipov.ui.controllers;
 
 import bmstu.iu7m.osipov.configurations.ControllerBeanNames;
 import bmstu.iu7m.osipov.configurations.FileDialogText;
+import bmstu.iu7m.osipov.configurations.UIComponentIds;
 import bmstu.iu7m.osipov.ui.controllers.handlers.*;
 import bmstu.iu7m.osipov.ui.locale.LanguageName;
 import bmstu.iu7m.osipov.ui.modals.CreateFileDialog;
+import bmstu.iu7m.osipov.ui.modals.ImageWindow;
 import bmstu.iu7m.osipov.ui.models.ParserGeneratorModel;
 import bmstu.iu7m.osipov.ui.models.entities.TitledUIComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
@@ -57,11 +59,6 @@ public class RootWindowController extends RootWindowView {
     public void initDialogs(Stage s){
         System.out.println("Init all dialog windows.");
 
-        //---------------------------------
-        // init language (locale) for JFileChooser dialog
-        //---------------------------------
-        initFileDialogLanguage(uiStore.toEnglish());
-
         //----------------------------------
         // init handlers for Open and Close files.
         //----------------------------------
@@ -107,9 +104,14 @@ public class RootWindowController extends RootWindowView {
         tree_parse_hdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
         tree_cparser_hdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
 
+
+
         // Right controller handlers
-        ShowLexerHandler right_ctrl_sh_lexer = new ShowLexerHandler(genModel);
-        ShowParserHandler right_ctrl_sh_parser = new ShowParserHandler(genModel);
+        ImageWindow lexer_show_win = new ImageWindow(this.uiStore, UIComponentIds.ShowLexerTitle);
+        ImageWindow parser_show_win = new ImageWindow(this.uiStore, UIComponentIds.ShowParserTitle);
+
+        ShowLexerHandler right_ctrl_sh_lexer = new ShowLexerHandler(genModel, lexer_show_win);
+        ShowParserHandler right_ctrl_sh_parser = new ShowParserHandler(genModel, parser_show_win);
 
         //Add to right controller btns
         right_ctrl.getShowLexerButton().addEventHandler(ActionEvent.ACTION, right_ctrl_sh_lexer);
@@ -141,6 +143,10 @@ public class RootWindowController extends RootWindowView {
         this.hdlrs.getHandlers().put("showLRParser", right_ctrl_sh_parser);
 
         this.tree_ctrl.getCallBackFunction().loadContextMenuForCells();
+
+        //Set default language to English forcefully!
+        selectedLang.set(LanguageName.RU);// choose another language to pass handler.
+        m_prefs_lang_eng.fire(); //and fire it.
     }
 
     /* All JavaFX Components are loaded but beans are not wired yet.*/

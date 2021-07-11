@@ -77,7 +77,7 @@ public class Graph {
             return;
         }
         try (FileWriter fw = new FileWriter(f,true);){
-            fw.write("digraph _______ {\n");
+            fw.write("digraph {\n");
             for(Vertex v : nodes){
                 fw.write(v.getName());
                 fw.write("[ label=\"");
@@ -125,7 +125,7 @@ public class Graph {
         Graphviz.fromString(toDotStr(fname)).render(Format.PNG).toFile(new File(path+fname));
     }
 
-    public void getImageFromFile(String fname,String fname2) throws IOException {
+    public void getImageFromFile(String fname, String fname2) throws IOException {
         Graphviz.fromFile(new File(fname)).render(Format.PNG).toFile(new File(fname2));
     }
 

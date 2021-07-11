@@ -223,9 +223,8 @@ public class LR_0_Automaton {
         File f = File.createTempFile("LR_automaton", ".png", new File(Main.CWD));
         f.setWritable(true);
         f.setReadable(true);
-        Graphviz.fromFile(dotF).render(Format.PNG).toFile(f);
-        dotF.delete();
-        f.deleteOnExit();
+        f = Graphviz.fromFile(dotF).render(Format.PNG).toFile(f);
+        dotF.delete(); // now dot file is useless.
         return f;
     }
 

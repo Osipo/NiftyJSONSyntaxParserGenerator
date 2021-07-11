@@ -65,11 +65,11 @@ public class ParserGeneratorHandlers {
         System.out.println(g);
         FALexerGenerator lgen = new FALexerGenerator();
         DFALexer lexer = new DFALexer(new DFA(lgen.buildNFA(g)));
-        try {
-            lexer.getImagefromStr(pdir, "Lexer");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            lexer.getImagefromStr(pdir, "Lexer");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         this.model.setCurLexer(lexer);
         this.model.setGrammar(g);
     }

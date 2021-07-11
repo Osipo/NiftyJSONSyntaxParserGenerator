@@ -47,6 +47,11 @@ public class LRParser extends Parser {
     }
 
     @Override
+    public File getImage() throws IOException {
+        return table.getImageFromDot();
+    }
+
+    @Override
     public LinkedTree<Token> parse(String fname){
         if(table == null)
             return null;

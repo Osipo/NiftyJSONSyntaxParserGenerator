@@ -19,25 +19,18 @@ import javafx.stage.Window;
 
 import java.util.Optional;
 
-public class CreateFileDialog implements TitledUIComponent {
-
-    private final Stage stage;
+public class CreateFileDialog extends ModalWindow implements TitledUIComponent {
 
     private String name;
 
     private String id;
-
-    private UIComponentStore uiStore;
-
-    private boolean isOpened = false;
 
     public CreateFileDialog(UIComponentStore store){
         this(null, store);
     }
 
     public CreateFileDialog(Window parent, UIComponentStore uiStore){
-        this.stage = new Stage();
-        this.uiStore = uiStore;
+        super(parent, uiStore);
         GridPane root = new GridPane();
         root.setVgap(10);
         Label label = new Label("File name: ");
@@ -65,8 +58,6 @@ public class CreateFileDialog implements TitledUIComponent {
         stage.setMaxWidth(500);
         stage.setMinHeight(100);
         stage.setMaxHeight(150);
-        stage.initOwner(parent);
-        stage.initModality(Modality.WINDOW_MODAL);
         stage.setScene(scene);
 
 
@@ -86,33 +77,5 @@ public class CreateFileDialog implements TitledUIComponent {
         this.isOpened = true;
         stage.showAndWait();
         return Optional.ofNullable(this.name);
-    }
-
-    public void setOpened(boolean opened) {
-        isOpened = opened;
-    }
-
-    public boolean isOpened(){
-        return this.isOpened;
-    }
-
-    @Override
-    public String getTitle() {
-        return this.stage.getTitle();
-    }
-
-    @Override
-    public void setTitle(String title) {
-        this.stage.setTitle(title);
-    }
-
-    @Override
-    public String getId() {
-        return this.id;
-    }
-
-    @Override
-    public void setId(String id) {
-        this.id = id;
     }
 }

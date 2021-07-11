@@ -74,6 +74,12 @@ public class LLParser extends Parser{
         }
     }
 
+    @Override
+    public File getImage() throws IOException {
+        System.out.println("LLParser not support showing of automaton.");
+        return null;
+    }
+
     // Algorithm 4.20 with lexer module.
     public LinkedTree<Token> parse(String fname){
         try (FileInputStream f = new FileInputStream(new File(fname).getAbsolutePath())){
