@@ -7,4 +7,5 @@ public interface ControllerBeanNames {
     String TAB_CONSOLE_CTRL = "ConsoleTabController";
     String TAB_OUTPUT_CTRL = "OutputTabController";
     String EDITOR_CTRL = "EditorFilesController";
+    String RIGHT_CTRL = "RightMenuController";
 }

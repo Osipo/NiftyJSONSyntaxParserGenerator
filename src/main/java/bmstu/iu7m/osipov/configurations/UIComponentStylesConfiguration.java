@@ -111,6 +111,12 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.CreateFileDialogCancelText, "Отмена");
         t.put(UIComponentIds.CreateFileDialogLabel, "Имя файла: ");
 
+        //-----------------------
+        // RightController menu
+        //------------------------
+        t.put(UIComponentIds.ShowParserAutomaton, "Показать автомат для восходящего LR-парсера.");
+        t.put(UIComponentIds.ShowLexerAutomaton, "Показать ДКА лексического анализатора (детерминированный автомат)");
+
         return t;
     }
 
@@ -187,6 +193,13 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.CreateFileDialogOkText, "Create");
         t.put(UIComponentIds.CreateFileDialogCancelText, "Cancel");
         t.put(UIComponentIds.CreateFileDialogLabel, "File name: ");
+
+        //-----------------------
+        // RightController menu
+        //------------------------
+        t.put(UIComponentIds.ShowLexerAutomaton, "Show Lexer automaton");
+        t.put(UIComponentIds.ShowParserAutomaton, "Show LR-Parser automaton");
+
 
         return t;
     }

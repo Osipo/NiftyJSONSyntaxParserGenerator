@@ -43,6 +43,8 @@ public class RootWindowController extends RootWindowView {
     private TreeFilesController tree_ctrl;
     @FXML
     private EditorFilesController editor_ctrl;
+    @FXML
+    private RightMenuController right_ctrl;
 
     public RootWindowController(){
         System.out.println("RootWindowController: Constructor");
@@ -78,9 +80,10 @@ public class RootWindowController extends RootWindowView {
 
         CloseEditorFileHandler editor_clshdlr = new CloseEditorFileHandler(editor_ctrl.getModel());
 
-        //set saveFile handler
+        // Init Save and Create handlers.
         SaveFileHandler svhdlr = new SaveFileHandler(editor_ctrl.getModel());
 
+        //Create file modal window dialog.
         CreateFileDialog crFileDlg = new CreateFileDialog(this.uiStore);
 
         //set createFile handler
@@ -104,10 +107,21 @@ public class RootWindowController extends RootWindowView {
         tree_parse_hdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
         tree_cparser_hdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
 
-        //registrate handlers and save them to the HandlersStore
+        // Right controller handlers
+        ShowLexerHandler right_ctrl_sh_lexer = new ShowLexerHandler(genModel);
+        ShowParserHandler right_ctrl_sh_parser = new ShowParserHandler(genModel);
+
+        //Add to right controller btns
+        right_ctrl.getShowLexerButton().addEventHandler(ActionEvent.ACTION, right_ctrl_sh_lexer);
+        right_ctrl.getShowParserButton().addEventHandler(ActionEvent.ACTION, right_ctrl_sh_parser);
+
+        // add handlers and save them to the HandlersStore
         m_file_open.addEventHandler(ActionEvent.ACTION, ophdlr);
+
+        //open and close for editor.
         editor_ctrl.getModel().getView().getCloseButton().addEventHandler(ActionEvent.ACTION, editor_clshdlr);
         editor_ctrl.getModel().getView().getSaveButton().addEventHandler(ActionEvent.ACTION, svhdlr);
+
         this.m_file_close.addEventHandler(ActionEvent.ACTION, clshdlr);
         this.m_file_new_tfile.addEventHandler(ActionEvent.ACTION, tree_crthdlr_f);
         this.m_file_new_dir.addEventHandler(ActionEvent.ACTION, tree_crthdlr_dir);
@@ -123,6 +137,8 @@ public class RootWindowController extends RootWindowView {
         this.hdlrs.getHandlers().put("genParser", tree_parser_hdlr);
         this.hdlrs.getHandlers().put("genCommonParser", tree_cparser_hdlr);
         this.hdlrs.getHandlers().put("parseFile", tree_parse_hdlr);
+        this.hdlrs.getHandlers().put("showLexer", right_ctrl_sh_lexer);
+        this.hdlrs.getHandlers().put("showLRParser", right_ctrl_sh_parser);
 
         this.tree_ctrl.getCallBackFunction().loadContextMenuForCells();
     }

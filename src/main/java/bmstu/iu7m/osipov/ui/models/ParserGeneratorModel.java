@@ -4,7 +4,7 @@ import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.lexers.ILexer;
 import bmstu.iu7m.osipov.services.parsers.Parser;
 
-public class ParserGeneratorModel {
+public class ParserGeneratorModel implements SyntaxAnalyzer {
     private ILexer curLexer;
     private Parser curParser;
     private Grammar G;

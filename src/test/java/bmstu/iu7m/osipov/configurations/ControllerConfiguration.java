@@ -28,6 +28,7 @@ import java.util.concurrent.CountDownLatch;
 @Import({ResourcesConfiguration.class, UIComponentStylesConfiguration.class, ServicesConfiguration.class, ModelsConfiguration.class})
 @DependsOn({"ModelsConfiguration_all"})
 public class ControllerConfiguration {
+
     private SpringBeanBuilderFactory fxFactory;
 
     private ApplicationContext context;
@@ -56,8 +57,9 @@ public class ControllerConfiguration {
     @DependsOn({
             ControllerBeanNames.TREE_FILES_CTRL,
             ControllerBeanNames.TAB_CONSOLE_CTRL,
-            ControllerBeanNames.TAB_OUTPUT_CTRL,
-            ControllerBeanNames.EDITOR_CTRL
+            ControllerBeanNames.EDITOR_CTRL,
+            ControllerBeanNames.RIGHT_CTRL,
+            ControllerBeanNames.TAB_OUTPUT_CTRL
     })
     public RootWindowController getRootController() throws IOException {
         System.out.println("Load root window...");
@@ -95,6 +97,11 @@ public class ControllerConfiguration {
     @Bean(name = ControllerBeanNames.EDITOR_CTRL)
     public EditorFilesController editorController() throws IOException {
         return (EditorFilesController) loadController(ControllerBeanFXML.EDITOR_FXML, EditorFilesController.class);
+    }
+
+    @Bean(name = ControllerBeanNames.RIGHT_CTRL)
+    public RightMenuController rightController() throws IOException {
+        return (RightMenuController) loadController(ControllerBeanFXML.RIGHT_MENU_FXML, RightMenuController.class);
     }
 
 

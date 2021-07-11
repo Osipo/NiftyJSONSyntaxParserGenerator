@@ -37,8 +37,9 @@ public class ControllerConfiguration {
     @DependsOn({
             ControllerBeanNames.TREE_FILES_CTRL,
             ControllerBeanNames.TAB_CONSOLE_CTRL,
+            ControllerBeanNames.EDITOR_CTRL,
+            ControllerBeanNames.RIGHT_CTRL,
             ControllerBeanNames.TAB_OUTPUT_CTRL,
-            ControllerBeanNames.EDITOR_CTRL
     })
     public RootWindowController getRootController() throws IOException {
         System.out.println("Load root window...");
@@ -66,6 +67,13 @@ public class ControllerConfiguration {
     public EditorFilesController editorController() throws IOException {
         return (EditorFilesController) loadController(ControllerBeanFXML.EDITOR_FXML, EditorFilesController.class);
     }
+
+
+    @Bean(name = ControllerBeanNames.RIGHT_CTRL)
+    public RightMenuController rightController() throws IOException {
+        return (RightMenuController) loadController(ControllerBeanFXML.RIGHT_MENU_FXML, RightMenuController.class);
+    }
+
 
 
     /* Parse FXML file indicated with url, and create instance of specified Controller's type and its Parent View */

@@ -3,9 +3,13 @@ package bmstu.iu7m.osipov.ui.models;
 import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.services.terminal.ChangeCommand;
 import bmstu.iu7m.osipov.services.terminal.Command;
+import bmstu.iu7m.osipov.ui.controllers.handlers.CommandShellHandler;
 import bmstu.iu7m.osipov.ui.views.ConsoleTabView;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class TerminalModel {
     private String cur_dir;
@@ -62,5 +66,21 @@ public class TerminalModel {
         Command C = shell.getOrDefault(cmd, null);
         if(C != null)
             C.execute(args);
+        else{ // some custom command.
+            /*
+            ProcessBuilder pb = new ProcessBuilder();
+            ArrayList<String> pargs = new ArrayList<>();
+            pargs.add(cmd);
+            pargs.addAll(args);
+            pb.directory( new File(this.cur_dir.substring(0, this.cur_dir.length() - 1)) )
+                    .command(pargs);
+            try {
+                CommandShellHandler handler = new CommandShellHandler(pb.start(), this.view.getTerminalText());
+            } catch (IOException ex){
+                System.out.println("Cannot execute custom command: "+cmd);
+                System.out.println("Process cannot be created.");
+            }
+             */
+        }
     }
 }

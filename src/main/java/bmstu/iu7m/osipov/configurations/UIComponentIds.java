@@ -46,4 +46,9 @@ public interface UIComponentIds {
     public static final String CreateFileDialogOkText = "cf_dialog_btn_ok";
     public static final String CreateFileDialogCancelText = "cf_dialog_btn_cancel";
 
+
+    // ---- Right controller ----
+    public static final String ShowLexerAutomaton = "sh_lexer";
+    public static final String ShowParserAutomaton = "sh_parser";
+
 }

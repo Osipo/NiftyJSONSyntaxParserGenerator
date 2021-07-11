@@ -1,8 +1,15 @@
 package bmstu.iu7m.osipov.services.parsers.generators;
 
+import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.structures.graphs.Pair;
 import bmstu.iu7m.osipov.services.grammars.*;
+import guru.nidi.graphviz.engine.Format;
+import guru.nidi.graphviz.engine.Graphviz;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -183,7 +190,44 @@ public class LR_0_Automaton {
         return sb.toString();
     }
 
+    public File toDotFile() throws IOException {
+        File f = File.createTempFile("LR_automaton", ".dot", new File(Main.CWD));
+        f.setWritable(true);
+        f.setReadable(true);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(f));
+        writer.write("digraph LRA {\n");
+        for(Integer state : C.keySet()){
+            writer.write(state + " [shape=\"rect\", label=\"");
+            Set<GrammarItem> I = C.get(state);
+            for(GrammarItem it : I){
+                writer.write('\t');
+                writer.write(it.toString());
+                writer.newLine();
+            }
+            writer.write("\"];\n");
+        }
 
+        for(Pair<Integer, String> tran : gotoTable.keySet()){
+            int to = gotoTable.get(tran);
+            writer.write("\t "+tran.getV1() + " -> "+to);
+            writer.write(" [label=\"" + tran.getV2() + "\"];");
+            writer.newLine();
+        }
+        writer.write("}\n");
+        writer.close();
+        return f;
+    }
+
+    public File getImageFromDot() throws IOException {
+        File dotF = toDotFile();
+        File f = File.createTempFile("LR_automaton", ".png", new File(Main.CWD));
+        f.setWritable(true);
+        f.setReadable(true);
+        Graphviz.fromFile(dotF).render(Format.PNG).toFile(f);
+        dotF.delete();
+        f.deleteOnExit();
+        return f;
+    }
 
     public boolean noConflicts(){
         return hasErr;

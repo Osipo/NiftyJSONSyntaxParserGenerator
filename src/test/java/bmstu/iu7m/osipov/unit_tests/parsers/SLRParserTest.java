@@ -69,7 +69,7 @@ public class SLRParserTest {
         FALexerGenerator lg = new FALexerGenerator();
         CNFA nfa = lg.buildNFA(G);
         DFALexer lexer = new DFALexer(new DFA(nfa));
-        lexer.getImagefromStr(PathStrings.LEXERS,"I_G_416");
+        lexer.getImagefromStr(PathStrings.LEXERS, "I_G_416");
         LRParser sa = new LRParser(G, lexer, LRAlgorithm.CLR);// switch to LR(1)
         sa.setParserMode(ParserMode.DEBUG);
         LinkedTree<Token> t = sa.parse(PathStrings.PARSER_INPUT + "I_G_416.txt");

@@ -172,7 +172,7 @@ public class DFA extends Graph {
     }
 
     //CREATE min-DFA based on DFA (minimize specified dfa)
-    public DFA(DFA dfa,boolean isLexer) {
+    public DFA(DFA dfa, boolean isLexer) {
         this.alpha = dfa.getAlpha();
         Set<Vertex> F = dfa.getFinished();
         Set<Vertex> NF = dfa.getNodes().stream().filter(vertex -> !F.contains(vertex)).collect(Collectors.toSet());//Q - F.
