@@ -28,7 +28,6 @@ public class ShowParserHandler extends ShowAnalyzerPartsHandler implements Event
 
         try {
             imgWin.setImage(img);
-            img.deleteOnExit();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }

@@ -1,6 +1,7 @@
 package bmstu.iu7m.osipov.services.parsers.generators;
 
 import bmstu.iu7m.osipov.Main;
+import bmstu.iu7m.osipov.structures.graphs.AutomatonImage;
 import bmstu.iu7m.osipov.structures.graphs.Pair;
 import bmstu.iu7m.osipov.services.grammars.*;
 import guru.nidi.graphviz.engine.Format;
@@ -16,7 +17,7 @@ import java.util.Map;
 import java.util.Set;
 
 //Contains LR(0) items without symbol.
-public class LR_0_Automaton {
+public class LR_0_Automaton implements AutomatonImage {
     private Map<Integer, Set<GrammarItem>> C;// Canonical items. [LR(0)-items]
     protected Map<Pair<Integer,String>,Integer> gotoTable;// Function GOTO(state, Symbol) = newState.
 
@@ -45,7 +46,9 @@ public class LR_0_Automaton {
         this.S0 = oldS;
         this.S = nS;
         this.follow = LLParserGenerator.followTable(G, firstTable); //firstTable is already Transformed at CLRParserGenerator.
-        this.hasErr = true;
+        this.hasErr = false;
+        System.out.println("FIRST");
+        System.out.println(firstTable);
     }
 
     //For LR_0_Automaton. C is Canonical Set of items for LR(0) Grammar G.
@@ -76,7 +79,7 @@ public class LR_0_Automaton {
         System.out.println("FIRST");
         System.out.println(oF);
         //System.out.println(follow);
-        this.hasErr = true;
+        this.hasErr = false;
         initActions();
         System.out.println("ACTION and GOTO are built.");
     }
@@ -218,6 +221,7 @@ public class LR_0_Automaton {
         return f;
     }
 
+    @Override
     public File getImageFromDot() throws IOException {
         File dotF = toDotFile();
         File f = File.createTempFile("LR_automaton", ".png", new File(Main.CWD));
@@ -229,6 +233,6 @@ public class LR_0_Automaton {
     }
 
     public boolean noConflicts(){
-        return hasErr;
+        return !hasErr;
     }
 }

@@ -1,8 +1,13 @@
 package bmstu.iu7m.osipov.services.parsers.generators;
 
+import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.structures.graphs.Pair;
 import bmstu.iu7m.osipov.services.grammars.*;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 //Contains LR(1) items with symbol (T  U  {$}).
@@ -19,6 +24,35 @@ public class LR_1_Automaton extends LR_0_Automaton {
         this.C1 = C1;
         initActions();
         System.out.println("ACTION and GOTO are built.");
+    }
+
+    @Override
+    public File toDotFile() throws IOException {
+        File f = File.createTempFile("LR_automaton", ".dot", new File(Main.CWD));
+        f.setWritable(true);
+        f.setReadable(true);
+        BufferedWriter writer = new BufferedWriter(new FileWriter(f));
+        writer.write("digraph LRA {\n");
+        for(Integer state : C1.keySet()){
+            writer.write(state + " [shape=\"rect\", label=\"");
+            Set<LR1GrammarItem> I = C1.get(state);
+            for(LR1GrammarItem it : I){
+                writer.write('\t');
+                writer.write(it.toString());
+                writer.newLine();
+            }
+            writer.write("\"];\n");
+        }
+
+        for(Pair<Integer, String> tran : gotoTable.keySet()){
+            int to = gotoTable.get(tran);
+            writer.write("\t "+tran.getV1() + " -> "+to);
+            writer.write(" [label=\"" + tran.getV2() + "\"];");
+            writer.newLine();
+        }
+        writer.write("}\n");
+        writer.close();
+        return f;
     }
 
     private void initActions(){

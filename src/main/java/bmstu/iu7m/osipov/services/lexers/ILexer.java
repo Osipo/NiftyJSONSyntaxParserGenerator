@@ -1,12 +1,15 @@
 package bmstu.iu7m.osipov.services.lexers;
 
+import bmstu.iu7m.osipov.structures.graphs.AutomatonImage;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface ILexer {
+public interface ILexer extends AutomatonImage {
     Token recognize(InputStream f) throws IOException;
     Token generateError(String s1, String s2);
     void reset();

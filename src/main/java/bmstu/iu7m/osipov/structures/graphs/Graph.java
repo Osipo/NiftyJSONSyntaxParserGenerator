@@ -1,6 +1,7 @@
 package bmstu.iu7m.osipov.structures.graphs;
 
 
+import bmstu.iu7m.osipov.Main;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
@@ -70,11 +71,67 @@ public class Graph {
         return sb.toString();
     }
 
-    public void toDotFile(String fname){
+    public File toDotFile(){
+        File f = null;
+        FileWriter fw = null;
+        try{
+            f = File.createTempFile("Lexer Automaton", ".dot", new File(Main.CWD));
+            fw = new FileWriter(f,true);
+            fw.write("digraph {\n");
+            for(Vertex v : nodes){
+                fw.write(v.getName());
+                fw.write("[ label=\"");
+                fw.write(v.getName()+"\"");
+                if(v.isStart()){
+                    if(v.isFinish()){
+                        fw.write(",color=\"blue\", shape=\"doublecircle\"");
+                        fw.write("];\n");
+                        continue;
+                    }
+                    else
+                        fw.write(",color=\"blue\", shape=\"invtriangle\"];\n");
+                    continue;
+                }
+                if(v.isFinish()){
+                    fw.write(",color=\"black\", shape=\"doublecircle\"];\n");
+                    continue;
+                }
+                fw.write(",shape=\"circle\"");
+                if(v.isDead()){
+                    fw.write(",color=\"red\"");
+                }
+                fw.write(']');
+                fw.write(";\n");
+            }
+            for(Edge e : edges){
+                String a = e.getSource().getName();
+                String b = e.getTarget().getName();
+                String l = ((int)e.getTag()) == 1 ? "empty" : e.getTag()+"";
+                fw.write(a);fw.write(" -> ");fw.write(b);
+                fw.write("[ label=\"");
+                fw.write(l+"\"");
+                fw.write("];\n");
+            }
+            fw.write("}");
+        } catch (IOException e){
+            System.out.println("Cannot create tmp dot file for Lexer image.");
+        }
+        finally {
+            try{
+                if(fw != null)
+                    fw.close();
+            }catch (IOException e){
+
+            }
+        }
+        return f;
+    }
+
+    public File toDotFile(String fname){
         File f = new File(fname);
         if(f.lastModified() != 0){
             System.out.println("Cannot write to existing file!");
-            return;
+            return null;
         }
         try (FileWriter fw = new FileWriter(f,true);){
             fw.write("digraph {\n");
@@ -119,6 +176,7 @@ public class Graph {
         } catch (IOException e) {
             System.out.println("Cannot write to file");
         }
+        return f;
     }
 
     public void getImagefromStr(String path, String fname) throws IOException {
@@ -128,6 +186,20 @@ public class Graph {
     public void getImageFromFile(String fname, String fname2) throws IOException {
         Graphviz.fromFile(new File(fname)).render(Format.PNG).toFile(new File(fname2));
     }
+
+
+    public File getImageFromDot() throws IOException {
+        File dotF = toDotFile();
+        if(dotF == null)
+            return null;
+        File f = File.createTempFile("DFA_Lexer", ".png", new File(Main.CWD));
+        f.setWritable(true);
+        f.setReadable(true);
+        f = Graphviz.fromFile(dotF).render(Format.PNG).toFile(f);
+        dotF.delete(); // now dot file is useless.
+        return f;
+    }
+
 
     public void addNode(Vertex v){ //ERR
         if(!nodes.contains(v)) {

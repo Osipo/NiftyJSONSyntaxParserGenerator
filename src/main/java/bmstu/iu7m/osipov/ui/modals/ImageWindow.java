@@ -51,5 +51,6 @@ public class ImageWindow extends ModalWindow implements TitledUIComponent {
         this.isOpened = true;
         stage.showAndWait();
         this.isOpened = false;
+        f.deleteOnExit();
     }
 }
