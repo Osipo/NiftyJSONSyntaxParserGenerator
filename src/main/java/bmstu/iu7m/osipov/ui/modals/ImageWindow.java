@@ -10,10 +10,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Window;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
+import java.io.*;
+import java.util.Objects;
 
 public class ImageWindow extends ModalWindow implements TitledUIComponent {
 
@@ -41,6 +39,7 @@ public class ImageWindow extends ModalWindow implements TitledUIComponent {
         root.getChildren().add(scrollable_img);
         stage.setScene(scene);
         this.uiStore.getComponents().put(this.id, new UITitledComponent(this));
+        stage.setMaximized(true);
     }
 
     public void setImage(File f) throws FileNotFoundException {
@@ -51,6 +50,11 @@ public class ImageWindow extends ModalWindow implements TitledUIComponent {
         this.isOpened = true;
         stage.showAndWait();
         this.isOpened = false;
-        f.deleteOnExit();
+        try {
+            io.close();
+            f.delete();
+        }catch (IOException e){
+            System.out.println("ImageWindow: Cannot remove temporary img file on closing.");
+        }
     }
 }
