@@ -4,6 +4,7 @@ import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.services.lexers.LanguageSymbol;
 import bmstu.iu7m.osipov.services.lexers.Token;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
+import bmstu.iu7m.osipov.ui.modals.ImageWindow;
 import bmstu.iu7m.osipov.ui.models.ParserGeneratorModel;
 import bmstu.iu7m.osipov.ui.models.TreeFilesModel;
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
@@ -18,8 +19,10 @@ import java.io.File;
 import java.io.IOException;
 
 public class ParseFileHandler extends ParserGeneratorHandlers implements EventHandler<ActionEvent> {
-    public ParseFileHandler(ParserGeneratorModel m, TreeFilesModel treeModel) {
+    private ImageWindow w;
+    public ParseFileHandler(ParserGeneratorModel m, TreeFilesModel treeModel, ImageWindow w) {
         super(m, treeModel);
+        this.w = w;
     }
 
     @Override
@@ -40,7 +43,8 @@ public class ParseFileHandler extends ParserGeneratorHandlers implements EventHa
         LinkedTree<LanguageSymbol> tree = this.model.getCurParser().parse(fullName);
         System.out.println("Parsed successful.");
         try {
-            Graphviz.fromString(tree.toDot("ptree")).render(Format.PNG).toFile(new File(pdir+"Tree_SLR"));
+            File f = Graphviz.fromString(tree.toDot("ptree")).render(Format.PNG).toFile(new File(pdir+"Tree_SLR"));
+            w.setImage(f);
         } catch (IOException e) {
             e.printStackTrace();
         }

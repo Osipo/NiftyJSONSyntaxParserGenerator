@@ -54,5 +54,6 @@ public interface UIComponentIds {
     // ---- Image Windows titles ----
     public static final String ShowLexerTitle = "sh_lexer_win";
     public static final String ShowParserTitle = "sh_parser_win";
+    public static final String ShowParingTreeTitle = "sh_ptree_win";
 
 }

@@ -94,11 +94,12 @@ public class RootWindowController extends RootWindowView {
         // Parser Generator's handlers
         //------------------------------------
         ParserGeneratorModel genModel = new ParserGeneratorModel();
+        ImageWindow ptree_win = new ImageWindow(this.uiStore, UIComponentIds.ShowParingTreeTitle);
 
         CreateLexerHandler tree_lexer_hdlr = new CreateLexerHandler(genModel, tree_ctrl.getModel());
         CreateParserHandler tree_parser_hdlr = new CreateParserHandler(genModel, tree_ctrl.getModel());
         CreateCommonParserHandler tree_cparser_hdlr = new CreateCommonParserHandler(genModel, tree_ctrl.getModel());
-        ParseFileHandler tree_parse_hdlr = new ParseFileHandler(genModel, tree_ctrl.getModel());
+        ParseFileHandler tree_parse_hdlr = new ParseFileHandler(genModel, tree_ctrl.getModel(), ptree_win);
         tree_lexer_hdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
         tree_parser_hdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
         tree_parse_hdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());

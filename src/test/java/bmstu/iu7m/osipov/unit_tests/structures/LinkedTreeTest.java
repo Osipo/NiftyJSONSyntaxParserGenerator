@@ -61,6 +61,6 @@ public class LinkedTreeTest {
 
     @Test
     public void empty_test(){
-        
+
     }
 }

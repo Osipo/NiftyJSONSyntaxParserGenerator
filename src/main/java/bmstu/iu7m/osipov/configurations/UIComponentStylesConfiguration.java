@@ -118,7 +118,7 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.ShowLexerAutomaton, "Показать ДКА лексического анализатора (детерминированный автомат)");
         t.put(UIComponentIds.ShowLexerTitle, "Детерминированный минимальный конечный автомат ДКА\n Лексического анализатора");
         t.put(UIComponentIds.ShowParserTitle, "Автомат GOTO для восходящего синтаксического анализатора (для LR-грамматик)");
-
+        t.put(UIComponentIds.ShowParingTreeTitle, "Дерево синтаксического разбора");
 
         return t;
     }
@@ -204,6 +204,7 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.ShowParserAutomaton, "Show LR-Parser automaton");
         t.put(UIComponentIds.ShowLexerTitle, "Lexer DF Automaton (minimal DFA)");
         t.put(UIComponentIds.ShowParserTitle, "LRParser GOTO automaton (for LR-grammars)");
+        t.put(UIComponentIds.ShowParingTreeTitle, "Parsing Tree");
 
 
         return t;
