@@ -4,6 +4,7 @@ import bmstu.iu7m.osipov.configurations.PathStrings;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.lexers.DFALexer;
 import bmstu.iu7m.osipov.services.lexers.FALexerGenerator;
+import bmstu.iu7m.osipov.services.lexers.LanguageSymbol;
 import bmstu.iu7m.osipov.services.lexers.Token;
 import bmstu.iu7m.osipov.services.parsers.LRAlgorithm;
 import bmstu.iu7m.osipov.services.parsers.LRParser;
@@ -53,7 +54,7 @@ public class SLRParserTest {
         lexer.getImagefromStr(PathStrings.LEXERS,"I_G_2_27");
         LRParser sa = new LRParser(G, lexer, LRAlgorithm.SLR);
         sa.setParserMode(ParserMode.DEBUG);
-        LinkedTree<Token> t = sa.parse(PathStrings.PARSER_INPUT + "I_G_2_27.txt");
+        LinkedTree<LanguageSymbol> t = sa.parse(PathStrings.PARSER_INPUT + "I_G_2_27.txt");
         assert t != null;
         Graphviz.fromString(t.toDot("I_G_2_27")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "I_G_2_27"));
     }
@@ -72,7 +73,7 @@ public class SLRParserTest {
         lexer.getImagefromStr(PathStrings.LEXERS, "I_G_416");
         LRParser sa = new LRParser(G, lexer, LRAlgorithm.SLR);
         sa.setParserMode(ParserMode.DEBUG);
-        LinkedTree<Token> t = sa.parse(PathStrings.PARSER_INPUT + "I_G_416.txt");
+        LinkedTree<LanguageSymbol> t = sa.parse(PathStrings.PARSER_INPUT + "I_G_416.txt");
         assert t != null;
         Graphviz.fromString(t.toDot("I_G_416")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "I_G_416"));
     }
@@ -90,7 +91,7 @@ public class SLRParserTest {
         lexer.getImagefromStr(PathStrings.LEXERS,"I_XML_4th");
         LRParser sa = new LRParser(G, lexer, LRAlgorithm.SLR);
         sa.setParserMode(ParserMode.DEBUG);
-        LinkedTree<Token> t = sa.parse(PathStrings.PARSER_INPUT + "pseudo_xml4.xml");
+        LinkedTree<LanguageSymbol> t = sa.parse(PathStrings.PARSER_INPUT + "pseudo_xml4.xml");
         assert t != null;
         Graphviz.fromString(t.toDot("I_XML_4th")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "I_XML_4th"));
 

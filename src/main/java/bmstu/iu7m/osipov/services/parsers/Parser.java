@@ -1,16 +1,11 @@
 package bmstu.iu7m.osipov.services.parsers;
 
-import bmstu.iu7m.osipov.structures.graphs.Pair;
-import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.services.grammars.*;
 import bmstu.iu7m.osipov.services.lexers.*;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public abstract class Parser {
     protected ILexer lexer;
@@ -29,7 +24,7 @@ public abstract class Parser {
 
     public abstract File getImage() throws IOException;
 
-    public abstract LinkedTree<Token> parse(String fname);
+    public abstract LinkedTree<LanguageSymbol> parse(String fname);
 
     public Parser(Grammar G, ILexer lexer) {
         this.lexer = lexer;

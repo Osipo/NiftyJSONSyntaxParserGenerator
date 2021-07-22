@@ -2,6 +2,8 @@ package bmstu.iu7m.osipov.unit_tests.grammars;
 
 import bmstu.iu7m.osipov.configurations.PathStrings;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
+import bmstu.iu7m.osipov.services.grammars.GrammarString;
+import bmstu.iu7m.osipov.services.grammars.GrammarSymbol;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,5 +47,22 @@ public class GrammarTest {
         System.out.println("The same");
         System.out.println(G2);
         assert G1.getNonTerminals().equals(G2.getNonTerminals());
+    }
+
+    @Test
+    public void test_GrammarStrings_Equility(){
+        GrammarString s1 = new GrammarString();
+        GrammarString s2 = new GrammarString();
+        s1.addSymbol(new GrammarSymbol('n', "N"));
+        s1.addSymbol(new GrammarSymbol('t', "a"));
+        s2.addSymbol(new GrammarSymbol('n', "N"));
+        s2.addSymbol(new GrammarSymbol('t', "a"));
+
+        assert s1.equals(s2);
+
+        //now change one symbol at s1.
+        s1.getSymbols().get(1).setType('n');
+
+        assert !s1.equals(s2);
     }
 }

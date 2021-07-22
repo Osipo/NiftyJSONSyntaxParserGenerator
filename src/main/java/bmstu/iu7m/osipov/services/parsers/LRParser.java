@@ -52,12 +52,12 @@ public class LRParser extends Parser {
     }
 
     @Override
-    public LinkedTree<Token> parse(String fname){
+    public LinkedTree<LanguageSymbol> parse(String fname){
         if(table == null)
             return null;
         int l,col = 0;
         try (FileInputStream f  = new FileInputStream(new File(fname).getAbsolutePath())){
-            LinkedStack<LinkedNode<Token>> S = new LinkedStack<>();//symbols.
+            LinkedStack<LinkedNode<LanguageSymbol>> S = new LinkedStack<>();//symbols.
             LinkedStack<Integer> states = new LinkedStack<>();//states.
             isParsed = true;
 
@@ -99,8 +99,8 @@ public class LRParser extends Parser {
                     if(command != null){ // apply shift empty symbol if presence. (Rule like A -> e)
                         String j = command.substring(command.indexOf('_') + 1);
                         states.push(Integer.parseInt(j));
-                        LinkedNode<Token> nc = new LinkedNode<>();
-                        nc.setValue(new Token(empty,null,'t',l,col));
+                        LinkedNode<LanguageSymbol> nc = new LinkedNode<>();
+                        nc.setValue(new Token(empty,null,'t', l, col));
                         nidx++;
                         nc.setIdx(nidx);
                         S.push(nc);
@@ -119,7 +119,7 @@ public class LRParser extends Parser {
                 if(act.charAt(0) == 's'){
                     String j = command.substring(argIdx + 1);
                     states.push(Integer.parseInt(j));
-                    LinkedNode<Token> nc = new LinkedNode<>();
+                    LinkedNode<LanguageSymbol> nc = new LinkedNode<>();
                     nc.setValue(tok);
                     nidx++;
                     nc.setIdx(nidx);
@@ -141,9 +141,9 @@ public class LRParser extends Parser {
                     String args = command.substring(argIdx + 1); //args  of reduce command
                     String header = args.substring(0, args.indexOf(':'));
                     int sz = Integer.parseInt(args.substring(args.indexOf(':') + 1));
-                    LinkedNode<Token> parent = new LinkedNode<>();
+                    LinkedNode<LanguageSymbol> parent = new LinkedNode<>();
                     while(sz > 0){
-                        LinkedNode<Token> c = S.top();
+                        LinkedNode<LanguageSymbol> c = S.top();
                         S.pop();
                         states.pop();
                         c.setParent(parent);
@@ -163,7 +163,7 @@ public class LRParser extends Parser {
             }
             lexer.reset();
             if(isParsed){
-                return new LinkedTree<Token>(S.top());
+                return new LinkedTree<LanguageSymbol>(S.top());
             }
             else
                 return null;

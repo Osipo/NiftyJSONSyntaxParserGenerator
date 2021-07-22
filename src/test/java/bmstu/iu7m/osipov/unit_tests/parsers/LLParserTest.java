@@ -4,6 +4,7 @@ import bmstu.iu7m.osipov.configurations.PathStrings;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.lexers.DFALexer;
 import bmstu.iu7m.osipov.services.lexers.FALexerGenerator;
+import bmstu.iu7m.osipov.services.lexers.LanguageSymbol;
 import bmstu.iu7m.osipov.services.lexers.Token;
 import bmstu.iu7m.osipov.services.parsers.LLParser;
 import bmstu.iu7m.osipov.services.parsers.LRAlgorithm;
@@ -43,7 +44,7 @@ public class LLParserTest {
         lexer.getImagefromStr(PathStrings.LEXERS,"I_G_2_27");
         LLParser sa = new LLParser(G, lexer);
         sa.setParserMode(ParserMode.DEBUG);
-        LinkedTree<Token> t = sa.parse(PathStrings.PARSER_INPUT + "I_G_2_27.txt");
+        LinkedTree<LanguageSymbol> t = sa.parse(PathStrings.PARSER_INPUT + "I_G_2_27.txt");
         assert t != null;
         Graphviz.fromString(t.toDot("I_G_2_27")).render(Format.PNG).toFile(new File(PathStrings.LLPARSERS + "I_G_2_27"));
     }

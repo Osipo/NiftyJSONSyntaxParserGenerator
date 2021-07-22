@@ -16,11 +16,11 @@ import java.util.Set;
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 @DependsOn({"uiComponents", "rusLang", "engLang"})
 public class UIComponentStore {
-    private Map<String, UIComponent> components;
+    private Map<String, UIComponent> components; // id > component
 
-    private Map<String, String> eng;
+    private Map<String, String> eng; // id > eng
 
-    private Map<String, String> rus;
+    private Map<String, String> rus; // id > rus
 
     @Autowired
     public UIComponentStore(@Qualifier("uiComponents") Map<String, UIComponent> components, @Qualifier("rusLang") Map<String, String> rus, @Qualifier("engLang") Map<String, String> eng ){
@@ -41,4 +41,5 @@ public class UIComponentStore {
     public Map<String, String> toEnglish(){
         return this.eng;
     }
+
 }

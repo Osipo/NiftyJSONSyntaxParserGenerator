@@ -1,8 +1,8 @@
 package bmstu.iu7m.osipov.services.grammars;
 
-public class GrammarSymbol {
+public class GrammarSymbol implements SyntaxSymbol {
     protected char type; //terminal 't' or non-terminal 'n' or error 'e'
-    protected String val;
+    protected String val; //val is the name of the symbol.
 
     public GrammarSymbol(char type, String val){
         this.type = type;

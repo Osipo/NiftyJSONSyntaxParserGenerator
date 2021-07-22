@@ -1,13 +1,17 @@
 package bmstu.iu7m.osipov.unit_tests.structures;
 
+import bmstu.iu7m.osipov.services.grammars.directives.SyntaxDirectedTranslation;
 import bmstu.iu7m.osipov.structures.lists.LinkedList;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
+import com.kitfox.svg.A;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
+
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -98,5 +102,13 @@ public class LinkedListTest {
         assertEquals("5", SUBJECT.get(5));
     }
 
-
+    @Test
+    public void test_arr_list(){
+        ArrayList<Integer> a = new ArrayList<>();
+        a.add(1);
+        a.add(2);
+        a.add(3);
+        a.add(1, 100);
+        a.forEach(x -> System.out.println(x));
+    }
 }

@@ -1,44 +1,39 @@
 package bmstu.iu7m.osipov.services.lexers;
 
+import bmstu.iu7m.osipov.services.grammars.GrammarSymbol;
+
 /**
  * Represents lexer elements.
  */
-public class Token {
-    private String name;
+public class Token extends GrammarSymbol implements LanguageSymbol {
     private String lexem;
 
     // l,c holds line and column from src file.
     private int l;
     private int c;
 
-    private char type;
-
     public Token(String name, String lexem, char type, int l, int c){
-        this.type = type;
-        this.name = name;
+        super(type, name);
         this.lexem = lexem;
         this.l = l;
         this.c = c;
     }
 
     public Token(Token t){
-        this.name = t.getName();
-        this.lexem = t.getLexem();
-        this.type = t.getType();
+        super(t.getType(), t.getName());
+        this.lexem = t.getLexeme();
         this.l = t.getLine();
         this.c = t.getColumn();
     }
 
+    @Override
     public int getLine() {
         return l;
     }
 
+    @Override
     public int getColumn() {
         return c;
-    }
-
-    public void setType(char type) {
-        this.type = type;
     }
 
     public void setLexem(String lexem) {
@@ -46,29 +41,26 @@ public class Token {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.val = name;
     }
 
-    public char getType() {
-        return type;
-    }
-
-    public String getLexem() {
+    @Override
+    public String getLexeme() {
         return lexem;
     }
 
     public String getName() {
-        return name;
+        return val;
     }
 
 
     @Override
     public String toString(){
         if(type == 't')
-            return lexem != null ? lexem : name;
+            return lexem != null ? lexem : val;
         else if(type == 'n')
-            return name;
+            return val;
         else
-            return name + "/" + lexem;
+            return val + "/" + lexem;
     }
 }

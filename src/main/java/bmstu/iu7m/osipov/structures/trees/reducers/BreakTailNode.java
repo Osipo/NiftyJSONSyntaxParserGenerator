@@ -1,5 +1,6 @@
 package bmstu.iu7m.osipov.structures.trees.reducers;
 
+import bmstu.iu7m.osipov.services.lexers.LanguageSymbol;
 import bmstu.iu7m.osipov.services.lexers.Token;
 import bmstu.iu7m.osipov.structures.trees.Action;
 import bmstu.iu7m.osipov.structures.trees.LinkedNode;
@@ -7,20 +8,20 @@ import bmstu.iu7m.osipov.structures.trees.Node;
 
 import java.util.function.Predicate;
 
-public class BreakTailNode implements Action<Node<Token>> {
-    private Predicate<LinkedNode<Token>> f;
+public class BreakTailNode implements Action<Node<LanguageSymbol>> {
+    private Predicate<LinkedNode<LanguageSymbol>> f;
 
     public BreakTailNode(){
         this.f = this::isB;
     }
 
-    public BreakTailNode(Predicate<LinkedNode<Token>> f){
+    public BreakTailNode(Predicate<LinkedNode<LanguageSymbol>> f){
         this.f = f;
     }
 
     @Override
-    public void perform(Node<Token> arg) {
-        LinkedNode<Token> t = (LinkedNode<Token>) arg;
+    public void perform(Node<LanguageSymbol> arg) {
+        LinkedNode<LanguageSymbol> t = (LinkedNode<LanguageSymbol>) arg;
         if(f != null && f.test(t)){
             up(t);
         }
@@ -31,9 +32,9 @@ public class BreakTailNode implements Action<Node<Token>> {
 
     //move children of t to its parent (with removing t).
     // [A -> t -> b/c/d] => [A -> b/c/d].
-    private void up(LinkedNode<Token> t){
+    private void up(LinkedNode<LanguageSymbol> t){
         // System.out.println(t.getValue());
-        for(LinkedNode<Token> c : t.getChildren()){
+        for(LinkedNode<LanguageSymbol> c : t.getChildren()){
             c.setParent(t.getParent());
             t.getParent().getChildren().add(c);
         }
@@ -43,7 +44,7 @@ public class BreakTailNode implements Action<Node<Token>> {
     }
 
     // is node arg is RIGHTMOST_CHILD of its parent.
-    private boolean isB(LinkedNode<Token> arg){
+    private boolean isB(LinkedNode<LanguageSymbol> arg){
         return arg.getParent() != null && arg.getChildren() != null && arg.getChildren().size() > 0 &&
                 (arg.getParent().getChildren().indexOf(arg) == arg.getParent().getChildren().size() - 1
                 || arg.getParent().getChildren().indexOf(arg) == 0);

@@ -1,5 +1,6 @@
 package bmstu.iu7m.osipov.services.parsers;
 
+import bmstu.iu7m.osipov.services.lexers.LanguageSymbol;
 import bmstu.iu7m.osipov.structures.graphs.Pair;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.services.grammars.*;
@@ -81,18 +82,18 @@ public class LLParser extends Parser{
     }
 
     // Algorithm 4.20 with lexer module.
-    public LinkedTree<Token> parse(String fname){
+    public LinkedTree<LanguageSymbol> parse(String fname){
         try (FileInputStream f = new FileInputStream(new File(fname).getAbsolutePath())){
-            LinkedStack<LinkedNode<Token>> S = new LinkedStack<>();
-            LinkedNode<Token> root = new LinkedNode<>();
-            LinkedNode<Token> EOF = new LinkedNode<>();
+            LinkedStack<LinkedNode<LanguageSymbol>> S = new LinkedStack<>();
+            LinkedNode<LanguageSymbol> root = new LinkedNode<>();
+            LinkedNode<LanguageSymbol> EOF = new LinkedNode<>();
             int line, col = 0;
             EOF.setValue(new Token("$","$",'t',0,0));
             root.setValue(new Token(start,start,'n',0,0));
             root.setIdx(1);
             S.push(EOF);
             S.push(root);// Stack: S, $.
-            LinkedNode<Token> X = S.top();
+            LinkedNode<LanguageSymbol> X = S.top();
             Token tok = lexer.recognize(f);
             isParsed = true;
             while(tok == null || tok.getName().equals("Unrecognized")){
@@ -110,7 +111,8 @@ public class LLParser extends Parser{
                 if(X.getValue().getName().equals(t)){//S.Top() == X && X == t
                     if(mode == ParserMode.DEBUG)
                         System.out.println(S+" >>"+t+" action: "+"Remove from stack "+t);
-                    S.top().getValue().setLexem(tok.getLexem());
+
+                    ((Token)S.top().getValue()).setLexem(tok.getLexeme()); //set lexeme of Node at the tree.
                     S.pop();
                     tok = lexer.recognize(f);
                     while(tok == null || tok.getName().equals("Unrecognized")){
@@ -127,7 +129,7 @@ public class LLParser extends Parser{
                     continue;
                 }
                 else if(X.getValue().getName().equals("Unrecognized")){
-                    System.out.println(X.getValue().getLexem());
+                    System.out.println(X.getValue().getLexeme());
                     isParsed = false;
                     break;
                 }
@@ -146,12 +148,12 @@ public class LLParser extends Parser{
                 }
                 else{
                     if(mode == ParserMode.DEBUG)
-                        System.out.println(S+" >>"+t+" action: "+"Produce "+prod);
+                        System.out.println(S+" >>"+t+" action: "+"Produce "+X.getValue().toString()+" -> "+ prod );
                     List<GrammarSymbol> symbols = prod.getSymbols();
                     S.pop();
                     //LinkedStack<LinkedNode<String>> RS = new LinkedStack<>();//used only to order children YK..Y1 -> Y1..Yk in brace notation
                     for(int i = symbols.size() - 1; i >= 0; i--){
-                        LinkedNode<Token> node = new LinkedNode<>();
+                        LinkedNode<LanguageSymbol> node = new LinkedNode<>();
                         nidx++;
                         node.setValue(new Token(symbols.get(i).getVal(),null,symbols.get(i).getType(),line,col));
                         node.setIdx(nidx);
@@ -165,7 +167,7 @@ public class LLParser extends Parser{
             }
             if(isParsed) {
                 lexer.reset();//reset column and line counter.
-                return new LinkedTree<Token>(root);
+                return new LinkedTree<LanguageSymbol>(root);
             }
             else {
                 if(tok.getType() != 'e') {

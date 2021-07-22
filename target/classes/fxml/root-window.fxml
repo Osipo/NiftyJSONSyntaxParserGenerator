@@ -48,10 +48,10 @@
             </VBox>
         </left>
         <center>
-            <EditorFilesController fx:id="editor_ctrl"/>
+            <EditorFilesController fx:id="editor_ctrl" />
         </center>
         <right>
-            <RightMenuController fx:id="right_ctrl"/>
+            <RightMenuController fx:id="right_ctrl" />
         </right>
         <bottom>
             <VBox fx:id="bottom" spacing="10">

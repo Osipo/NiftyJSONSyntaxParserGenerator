@@ -114,7 +114,7 @@ public class RootWindowView {
         uiStore.getComponents().put(UIComponentIds.BottomTerminal, new UITextComponent(bottom_term));
         uiStore.getComponents().put(UIComponentIds.BottomOutput, new UITextComponent(bottom_out));
 
-        //15 + 5
+
         System.out.println(uiStore.getComponents().size());
     }
 }

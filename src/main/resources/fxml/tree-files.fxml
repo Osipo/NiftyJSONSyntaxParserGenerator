@@ -16,7 +16,7 @@
         <HBox fx:id="menu" spacing="20" minHeight="50" prefHeight="50">
             <padding><Insets right="5" left="5" bottom="10" top="10" /></padding>
             <TextField fx:id="searchInput" minWidth="250" minHeight="25"/>
-            <Button fx:id="search" minWidth="50" minHeight="25" text="Search"/>
+            <Button fx:id="search" minWidth="50" minHeight="25" text="Search" />
         </HBox>
         <HBox fx:id="tfmenu_bottom" spacing="50" minHeight="20" prefHeight="20">
             <Label fx:id="menu_options_label" text="Search only: "/>

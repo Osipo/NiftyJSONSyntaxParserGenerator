@@ -1,6 +1,7 @@
 package bmstu.iu7m.osipov.ui.controllers.handlers;
 
 import bmstu.iu7m.osipov.Main;
+import bmstu.iu7m.osipov.services.lexers.LanguageSymbol;
 import bmstu.iu7m.osipov.services.lexers.Token;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
 import bmstu.iu7m.osipov.ui.models.ParserGeneratorModel;
@@ -36,7 +37,7 @@ public class ParseFileHandler extends ParserGeneratorHandlers implements EventHa
         TreeItem<FileEntryItem> pNode = selected_item.get().getParent();
         String pdir = pNode.getValue() == null ? "" : pNode.getValue().getFullFileName() + Main.PATH_SEPARATOR;
 
-        LinkedTree<Token> tree = this.model.getCurParser().parse(fullName);
+        LinkedTree<LanguageSymbol> tree = this.model.getCurParser().parse(fullName);
         System.out.println("Parsed successful.");
         try {
             Graphviz.fromString(tree.toDot("ptree")).render(Format.PNG).toFile(new File(pdir+"Tree_SLR"));

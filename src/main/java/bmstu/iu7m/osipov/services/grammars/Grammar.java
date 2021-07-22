@@ -1,5 +1,6 @@
 package bmstu.iu7m.osipov.services.grammars;
 
+import bmstu.iu7m.osipov.services.grammars.directives.SyntaxDirectedTranslation;
 import bmstu.iu7m.osipov.structures.graphs.Pair;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.observable.ObservableHashSet;
@@ -106,7 +107,7 @@ public class Grammar {
                 }
                 else
                     throw new InvalidJsonGrammarException("Value of terminal "+t+" is not a valid pattern",null);
-                lex_rules.put(t,l);
+                lex_rules.put(t, l);
             }
         }
         else
@@ -327,7 +328,7 @@ public class Grammar {
             }
         }
 
-        //SECTION PRODUCTIONS
+        //SECTION PRODUCTIONS (processed after 'meta')
         JsonElement P = jsonG.getElement("productions");
         if(P instanceof JsonArray){
             this.P = new HashMap<>();
@@ -348,9 +349,11 @@ public class Grammar {
                     if(product_rules == null)
                         product_rules = new HashSet<>();
                     if(rpart instanceof JsonArray){
-                        GrammarString alpha = new GrammarString();
+                        GrammarSDTString alpha = new GrammarSDTString();
                         ArrayList<JsonElement> symbols = ((JsonArray) rpart).getElements();
+                        int s_i = -1;
                         for(JsonElement symbol : symbols){
+                            s_i++;
                             if(symbol instanceof JsonString){
                                 String X = ((JsonString) symbol).getValue();
                                 GrammarSymbol entity;
@@ -366,6 +369,32 @@ public class Grammar {
                                     throw new InvalidJsonGrammarException("Illegal grammar symbol! " +X+
                                             "\nExpected non-terminal or termnial or keyword of Grammar.",null);
                                 alpha.addSymbol(entity);
+                                alpha.addToAugmentedBody(entity);
+                            }
+                            // PARSE ACTION AND ADD IT TO THE RULE BODY.
+                            else if(symbol instanceof JsonObject){
+                                JsonObject j_action = (JsonObject) symbol;
+
+                                // production with actions: E -> [E, +, T, {act: 'print', str: '+', file: ''}]
+                                HashMap<String, String> act_args = new HashMap<>();
+                                String aname = null;
+                                String arg_val = null;
+                                for(String p : j_action.getValue().keySet()){ // for each property of object.
+                                    if(j_action.getProperty(p) instanceof JsonString){
+                                        arg_val = ((JsonString) j_action.getProperty(p)).getValue();
+                                        if(arg_val.equals("act"))
+                                            aname = new String(arg_val.toCharArray());
+                                        else
+                                            act_args.put(p, arg_val);
+                                    }
+                                    else
+                                        throw new InvalidSyntaxDirectedTranslationException();
+                                }
+                                if(aname == null)
+                                    throw new InvalidSyntaxDirectedTranslationException();
+
+                                SyntaxDirectedTranslation action = new SyntaxDirectedTranslation(aname, s_i, act_args);
+                                alpha.addToAugmentedBody(action);
                             }
                             else
                                 throw new InvalidJsonGrammarException("Grammar Symbol must be String!",null);
@@ -396,7 +425,7 @@ public class Grammar {
                     }
                     else
                         throw new InvalidJsonGrammarException("Illegal grammar string! Expected String, Null or list of Strings",null);
-                    this.P.put(key,product_rules);
+                    this.P.put(key, product_rules);
                 }
                 catch (ClassCastException err){
                     throw new InvalidJsonGrammarException("Production item must be a json object with single property which contains a grammar string!",err);
@@ -1397,7 +1426,7 @@ public class Grammar {
         for(GrammarString s  :al1) {
             GrammarString r = new GrammarString();
             if(s.getSymbols().get(0).getVal().equals(N)){
-                List<GrammarSymbol> suffix = s.getSymbols().subList(1,s.getSymbols().size());
+                List<GrammarSymbol> suffix = s.getSymbols().subList(1, s.getSymbols().size());
                 int k = 0;
                 while(k < it.size()){
                     r.getSymbols().addAll(it.get(k).getSymbols());
@@ -1754,7 +1783,9 @@ public class Grammar {
             Grammar NG = new Grammar(NT,NN,newP,this.S,this.E,lex_rules,this.meta);
             NG = NG.getGrammarWithoutEqualRules();
             NG.setFlags(this.flags | GrammarFlags.NON_LEFT_PREFIXES);
-            NG.setFlags(this.flags & ~GrammarFlags.NOT_CYCLED & ~GrammarFlags.NOT_USELESS & ~GrammarFlags.REACHABLE);
+            NG.setFlags(NG.flags & ~GrammarFlags.NOT_CYCLED
+                    & ~GrammarFlags.NOT_USELESS & ~GrammarFlags.REACHABLE & ~GrammarFlags.NO_EMPTY_STRINGS);
+
             if(NG.isMod)
                 return NG.getNonCycledGrammar().deleteUselessSymbols();
             else
@@ -1764,7 +1795,8 @@ public class Grammar {
         Grammar NG = new Grammar(T,NN,newP,this.S,this.E,lex_rules,this.meta);
         NG = NG.getGrammarWithoutEqualRules();
         NG.setFlags(this.flags | GrammarFlags.NON_LEFT_PREFIXES);
-        NG.setFlags(this.flags & ~GrammarFlags.NOT_CYCLED & ~GrammarFlags.NOT_USELESS & ~GrammarFlags.REACHABLE);
+        NG.setFlags(NG.flags & ~GrammarFlags.NOT_CYCLED
+                & ~GrammarFlags.NOT_USELESS & ~GrammarFlags.REACHABLE & ~GrammarFlags.NO_EMPTY_STRINGS);
         if(NG.isMod)
             return NG.getNonCycledGrammar().deleteUselessSymbols();
         else

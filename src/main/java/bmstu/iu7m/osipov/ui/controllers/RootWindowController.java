@@ -54,7 +54,7 @@ public class RootWindowController extends RootWindowView {
     }
 
     /* This method starts after @PostConstruct init() method */
-    /* Called from AutomatonConstructor(). */
+    /* Called from Main start(Stage pStage) method */
     /* Initialize all Window dialogs. */
     public void initDialogs(Stage s){
         System.out.println("Init all dialog windows.");
@@ -117,6 +117,8 @@ public class RootWindowController extends RootWindowView {
         right_ctrl.getShowLexerButton().addEventHandler(ActionEvent.ACTION, right_ctrl_sh_lexer);
         right_ctrl.getShowParserButton().addEventHandler(ActionEvent.ACTION, right_ctrl_sh_parser);
 
+
+
         // add handlers and save them to the HandlersStore
         m_file_open.addEventHandler(ActionEvent.ACTION, ophdlr);
 
@@ -147,6 +149,8 @@ public class RootWindowController extends RootWindowView {
         //Set default language to English forcefully!
         selectedLang.set(LanguageName.RU);// choose another language to pass handler.
         m_prefs_lang_eng.fire(); //and fire it.
+
+
     }
 
     /* All JavaFX Components are loaded but beans are not wired yet.*/
