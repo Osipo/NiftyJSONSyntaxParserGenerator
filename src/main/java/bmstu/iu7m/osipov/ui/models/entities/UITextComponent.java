@@ -15,4 +15,14 @@ public class UITextComponent extends UIComponent {
     public Labeled getTextNode(){
         return this.textNode;
     }
+
+    @Override
+    public String getType() {
+        return this.textNode.getClass().getSimpleName();
+    }
+
+    @Override
+    public void setStyle(String style) {
+        this.textNode.setStyle(this.textNode.getStyle() + style);
+    }
 }

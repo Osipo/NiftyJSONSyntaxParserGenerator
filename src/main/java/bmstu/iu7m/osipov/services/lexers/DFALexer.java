@@ -202,7 +202,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
             }
         }
         if(((int)cur) == 65535)
-            return new Token("$","$",'t',io.getLine(),io.getCol());
+            return new Token("$","$",'t', io.getLine(), io.getCol());
         Vertex s = this.start;// s == state.
         LinkedStack<Vertex> states = new LinkedStack<>();
         states.push(s);

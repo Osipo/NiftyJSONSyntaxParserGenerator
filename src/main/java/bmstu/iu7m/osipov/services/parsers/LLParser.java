@@ -77,8 +77,7 @@ public class LLParser extends Parser{
 
     @Override
     public File getImage() throws IOException {
-        System.out.println("LLParser not support showing of automaton.");
-        return null;
+        throw new UnsupportedOperationException("LLParser does not support showing of automaton of GOTO");
     }
 
     // Algorithm 4.20 with lexer module.
@@ -112,7 +111,7 @@ public class LLParser extends Parser{
                     if(mode == ParserMode.DEBUG)
                         System.out.println(S+" >>"+t+" action: "+"Remove from stack "+t);
 
-                    ((Token)S.top().getValue()).setLexem(tok.getLexeme()); //set lexeme of Node at the tree.
+                    ((Token)S.top().getValue()).setLexem(tok.getLexeme()); //convert Token name to the lexeme.
                     S.pop();
                     tok = lexer.recognize(f);
                     while(tok == null || tok.getName().equals("Unrecognized")){

@@ -24,7 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.CountDownLatch;
 
 @Configuration
-@ComponentScan(basePackages = {"bmstu.iu7m.osipov.ui.models.stores", "bmstu.iu7m.osipov.ui"})
+@ComponentScan(basePackages = {"bmstu.iu7m.osipov.ui.models.stores", "bmstu.iu7m.osipov.ui", "bmstu.iu7m.osipov.services.parsers.css"})
 @Import({ResourcesConfiguration.class, UIComponentStylesConfiguration.class, ServicesConfiguration.class, ModelsConfiguration.class})
 @DependsOn({"ModelsConfiguration_all"})
 public class ControllerConfiguration {

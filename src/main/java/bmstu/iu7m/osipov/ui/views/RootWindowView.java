@@ -1,6 +1,8 @@
 package bmstu.iu7m.osipov.ui.views;
 
+import bmstu.iu7m.osipov.configurations.CssThemesNames;
 import bmstu.iu7m.osipov.configurations.UIComponentIds;
+import bmstu.iu7m.osipov.services.parsers.css.SimpleCssParser;
 import bmstu.iu7m.osipov.ui.models.entities.UIComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
@@ -70,6 +72,9 @@ public class RootWindowView {
     @Autowired
     protected UIComponentStore uiStore;
 
+    @Autowired
+    protected SimpleCssParser css_applier;
+
     public RootWindowView(){
         System.out.println("Parent RootWindowView constructor");
         this.b_group = new ToggleGroup();
@@ -116,5 +121,7 @@ public class RootWindowView {
 
 
         System.out.println(uiStore.getComponents().size());
+
+        css_applier.applyStylesFromResource(CssThemesNames.LIGHT_THEME);
     }
 }

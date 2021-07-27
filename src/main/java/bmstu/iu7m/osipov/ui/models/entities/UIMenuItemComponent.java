@@ -12,4 +12,14 @@ public class UIMenuItemComponent extends UIComponent {
     public MenuItem getItem(){
         return this.item;
     }
+
+    @Override
+    public String getType() {
+        return this.item.getClass().getSimpleName();
+    }
+
+    @Override
+    public void setStyle(String style) {
+        this.item.setStyle(this.item.getStyle() + style);
+    }
 }

@@ -12,4 +12,12 @@ public class UIComponent  {
     public Node getNode(){
         return node;
     }
+
+    public String getType(){
+        return this.node.getClass().getSimpleName();
+    }
+
+    public void setStyle(String style){
+        this.node.setStyle(this.node.getStyle() + style);
+    }
 }
