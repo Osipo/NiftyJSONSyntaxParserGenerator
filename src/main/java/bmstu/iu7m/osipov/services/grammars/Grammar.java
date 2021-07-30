@@ -380,9 +380,11 @@ public class Grammar {
                                 String aname = null;
                                 String arg_val = null;
                                 for(String p : j_action.getValue().keySet()){ // for each property of object.
+                                    //System.out.println(p);
+                                    //System.out.println(j_action.getProperty(p).getClass());
                                     if(j_action.getProperty(p) instanceof JsonString){
                                         arg_val = ((JsonString) j_action.getProperty(p)).getValue();
-                                        if(arg_val.equals("act"))
+                                        if(p.equals("act"))
                                             aname = new String(arg_val.toCharArray());
                                         else
                                             act_args.put(p, arg_val);

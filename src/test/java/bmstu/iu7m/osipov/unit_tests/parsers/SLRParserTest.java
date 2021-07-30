@@ -9,6 +9,7 @@ import bmstu.iu7m.osipov.services.lexers.Token;
 import bmstu.iu7m.osipov.services.parsers.LRAlgorithm;
 import bmstu.iu7m.osipov.services.parsers.LRParser;
 import bmstu.iu7m.osipov.services.parsers.ParserMode;
+import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.automats.CNFA;
 import bmstu.iu7m.osipov.structures.automats.DFA;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
@@ -16,6 +17,7 @@ import bmstu.iu7m.osipov.structures.trees.SequentialNRVisitor;
 import bmstu.iu7m.osipov.structures.trees.VisitorMode;
 import bmstu.iu7m.osipov.structures.trees.reducers.BreakChainNode;
 import bmstu.iu7m.osipov.structures.trees.reducers.DeleteUselessSyntaxNode;
+import bmstu.iu7m.osipov.structures.trees.translators.TranslationsAttacher;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
@@ -57,6 +59,33 @@ public class SLRParserTest {
         LinkedTree<LanguageSymbol> t = sa.parse(PathStrings.PARSER_INPUT + "I_G_2_27.txt");
         assert t != null;
         Graphviz.fromString(t.toDot("I_G_2_27")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "I_G_2_27"));
+    }
+
+    @Test
+    public void test_G_2_27_calc() throws IOException {
+        JsonObject ob = SimpleJsonParserTest.parser.parse(PathStrings.GRAMMARS + "G_2_27_calc.json");
+
+        System.out.println(ob.toString());
+
+        Grammar G = new Grammar(ob);
+        System.out.println("Source G: ");
+        System.out.println(G);
+        FALexerGenerator lg = new FALexerGenerator();
+        CNFA nfa = lg.buildNFA(G);
+        DFALexer lexer = new DFALexer(new DFA(nfa));
+        lexer.getImagefromStr(PathStrings.LEXERS,"I_G_2_27");
+        LRParser sa = new LRParser(G, lexer, LRAlgorithm.SLR);
+        sa.setParserMode(ParserMode.DEBUG);
+        LinkedTree<LanguageSymbol> t = sa.parse(PathStrings.PARSER_INPUT + "I_G_2_27.txt");
+        assert t != null;
+
+        t.setVisitor(new SequentialNRVisitor<>());
+        System.out.println("tree nodes before "+t.getCount());
+
+        t.visit(VisitorMode.PRE, new TranslationsAttacher(G, t.getCount()));
+
+        Graphviz.fromString(t.toDot("I_G_2_27")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "I_G_2_27_with_trans"));
+
     }
 
     //LR(1) Grammar of L = c*dc*d [cdcd, ccdccd, ccccccccdd, etc.]

@@ -12,8 +12,10 @@ import java.util.Set;
 
 public class TranslationsAttacher implements Action<Node<LanguageSymbol>> {
     private Grammar G;
-    public TranslationsAttacher(Grammar G){
+    private int last_id;
+    public TranslationsAttacher(Grammar G, int last_id){
         this.G = G;
+        this.last_id = last_id + 2;
     }
 
     @Override
@@ -25,8 +27,13 @@ public class TranslationsAttacher implements Action<Node<LanguageSymbol>> {
         Set<GrammarString> rule = G.getProductions().get(t.getValue().getName());
         GrammarString yield = mapToProduction(t);
 
+        System.out.println("Rule: "+t.getValue().getName()+" -> "+yield);
+
+        //System.out.println("search alts for "+t.getValue().getName());
         for(GrammarString alt : rule){
+            //System.out.println(alt);
             if(alt.equals(yield)) {
+                //System.out.println("matched alt is "+alt);
                 yield = alt;
                 break;
             }
@@ -34,13 +41,20 @@ public class TranslationsAttacher implements Action<Node<LanguageSymbol>> {
 
         // Augment list of children of t.
         if(yield instanceof GrammarSDTString){
+            //System.out.println("SDT matched");
             GrammarSDTString replacement = (GrammarSDTString) yield;
 
             // scan augmented string (with actions).
             for(SyntaxSymbol sym : replacement.getActions()){
+                System.out.println(sym.getClass());
+
                 if(sym instanceof SyntaxDirectedTranslation){
                     SyntaxDirectedTranslation act = (SyntaxDirectedTranslation) sym;
+                    System.out.println("Found action: "+act);
+                    System.out.println("for rule: "+yield);
                     LinkedNode<LanguageSymbol> nc = new LinkedNode<>();
+                    nc.setIdx(last_id);
+                    last_id++;
                     nc.setValue(act);//act implements Translation -> LanguageSymbol
 
                     if(act.getPos() >= t.getChildren().size()){
@@ -56,9 +70,11 @@ public class TranslationsAttacher implements Action<Node<LanguageSymbol>> {
 
     private GrammarString mapToProduction(LinkedNode<LanguageSymbol> node){
         GrammarString g = new GrammarString();
-        for(LinkedNode<LanguageSymbol> ch : node.getChildren()){
+        for(int i = node.getChildren().size() - 1; i >= 0; i--){
+            LinkedNode<LanguageSymbol> ch = node.getChildren().get(i);
             if(ch.getValue() instanceof Token)
                 g.getSymbols().add((Token)ch.getValue()); //Token extends GrammarSymbol.
+
         }
         return g;
     }

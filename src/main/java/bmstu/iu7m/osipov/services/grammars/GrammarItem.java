@@ -64,7 +64,6 @@ public class GrammarItem extends GrammarString {
     @Override
     public boolean equals(Object o) {
         return super.equals(o) && this.pos == ((GrammarItem)o).getPosition() && this.h.equals( ((GrammarItem) o).h);
-
     }
 
     @Override

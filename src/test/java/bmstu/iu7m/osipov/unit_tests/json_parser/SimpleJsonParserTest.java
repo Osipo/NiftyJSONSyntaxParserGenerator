@@ -28,6 +28,13 @@ public class SimpleJsonParserTest {
 
 
 
+    @Test
+    public void when_illegal_then_null() throws IOException {
+        String e1= "{ \"eobj\" : {";
+        JsonObject obj = readFromString(e1);
+        assertNull(obj);
+    }
+
     //2. Parser returns only real numbers (even then we specified number).
     @Test
     public void parse_object_with_single_property() throws IOException {

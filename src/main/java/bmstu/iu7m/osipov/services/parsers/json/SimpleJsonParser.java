@@ -83,7 +83,6 @@ public class SimpleJsonParser {
    public JsonObject parse(File fl){
        LinkedStack<JsonObject> obs = new LinkedStack<>();
        obs.push(new JsonObject());
-       //FileInputStream f = null;
        LinkedStack<JsonArray> arrays = new LinkedStack<>();
        try (FileInputStream f  = new FileInputStream(fl);
             InputStreamReader ch = new InputStreamReader(f);

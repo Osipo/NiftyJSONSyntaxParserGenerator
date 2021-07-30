@@ -29,8 +29,8 @@
   "nonTerms": ["S","D","E","T","F"],
   "productions": [{"S": ["S", ";","D"]},{"S": "D"},
     {"D": ["id","=","E"]},
-    {"E": ["E","+","T", {"act": "print", "str": "E.val + T.val", "format": "aexp"} ]},{"E": ["E","-","T"]}, {"E": "T"},
-    {"T": ["T","*","F"]},{"T": ["T","/","F"]},{"T": "F"},
-    {"F": ["(","E",")"]},{"F": "id"},{"F": "num"},{"F": "realNum"},{"F": "true"},{"F": "false"}],
+    {"E": ["E","+","T", {"act": "print", "str": "+"} ]},{"E": ["E","-","T", {"act": "print", "str": "-"}]}, {"E": "T"},
+    {"T": ["T","*","F", {"act": "print", "str": "*"} ]},{"T": ["T","/","F", {"act": "print", "str": "/"}]},{"T": "F"},
+    {"F": ["(","E",")"]},{"F": "id"},{"F": "num"}, {"F": "realNum"},{"F": "true"},{"F": "false"}],
   "start": "S"
 }

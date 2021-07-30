@@ -3,6 +3,7 @@ package bmstu.iu7m.osipov.utils;
 import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.exceptions.WrongOrderOfArgumentsException;
 
+import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -89,5 +90,13 @@ public class PathStringUtils {
         if(s == null)
             return null;
         return "\"" + s + "\"";
+    }
+
+    // Replace custom separator to the FS sep.
+    public static String replaceSeparator(String path){
+        if(path == null || path.length() == 0)
+            return path;
+        String sep = "\\" + FileSystems.getDefault().getSeparator();
+        return path.replaceAll("[\\"+ "\\"+"/]+", sep);
     }
 }

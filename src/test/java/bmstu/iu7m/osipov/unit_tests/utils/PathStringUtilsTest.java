@@ -9,6 +9,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -57,6 +59,10 @@ public class PathStringUtilsTest {
         assertTrue(e.getMessage().contains(s));
     }
 
+
+    //-----------------------------------------
+    // Test PathStringUtils.splitPath(s) method
+    //-----------------------------------------
     @Test
     public void when_split_then_non_empty_substrings(){
         // ab/ab/ab/ab
@@ -158,6 +164,26 @@ public class PathStringUtilsTest {
     }
 
 
+    //------------------------------------------------
+    // Test PathStringUtils.replaceSeparator(s) method
+    //------------------------------------------------
+    @Test
+    public void then_empty_or_null_then_return_the_same(){
+        String p1 = "";
+        assertNull(null, PathStringUtils.replaceSeparator(null));
+        assertEquals(p1, PathStringUtils.replaceSeparator(p1));
+    }
+
+    @Test
+    public void then_backslash_then_replace_direct(){
+        String s = "a/b/c";
+        String sep = FileSystems.getDefault().getSeparator();
+        String t = "a" +sep+ "b" + sep + "c";
+        assertEquals(t, PathStringUtils.replaceSeparator(s));
+
+        String s2 = "a///b//\\\\\\c";
+        assertEquals(t, PathStringUtils.replaceSeparator(s2));
+    }
 
     private static String generatePath(String pat, int times){
         StringBuilder sb = new StringBuilder();
