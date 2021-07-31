@@ -1,9 +1,6 @@
 package bmstu.iu7m.osipov.services.parsers.json;
 
-import bmstu.iu7m.osipov.services.parsers.json.elements.JsonArray;
-import bmstu.iu7m.osipov.services.parsers.json.elements.JsonElement;
-import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
-import bmstu.iu7m.osipov.services.parsers.json.elements.JsonString;
+import bmstu.iu7m.osipov.services.parsers.json.elements.*;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 
 import java.io.*;
@@ -16,8 +13,7 @@ public class SimpleJsonParser2 {
 
     private int line;
     private int col;
-    private boolean escaped;
-    private boolean inArray;
+    private JsonElement curVal;
 
     public SimpleJsonParser2(int bsize){
         this.state = JsParserState.START;
@@ -26,8 +22,6 @@ public class SimpleJsonParser2 {
         this.bufp = 0;
         this.line = 1;
         this.col = 0;
-        this.escaped = false;
-        this.inArray = false;
     }
 
     public SimpleJsonParser2(){
@@ -47,9 +41,11 @@ public class SimpleJsonParser2 {
             result = parseStream(f);
         } catch (FileNotFoundException e){
             System.out.println(e.getMessage());
+            flushBuf();
         } catch (IOException e){
             System.out.println(e.getMessage());
             this.state = JsParserState.START;
+            flushBuf();
             return null;
         }
         return result;
@@ -58,25 +54,28 @@ public class SimpleJsonParser2 {
     public JsonObject parseStream(InputStream in){
         LinkedStack<JsonObject> J_OBJS = new LinkedStack<>();
         LinkedStack<JsonArray> J_ARRS = new LinkedStack<>();
+        LinkedStack<JsonElement> J_ROOTS = new LinkedStack<>();
         LinkedStack<String> props = new LinkedStack<>();
 
         try(InputStreamReader ch = new InputStreamReader(in)){
             this.state = JsParserState.START;
-            JsonString propName = new JsonString(null);
             while(this.state != JsParserState.CLOSEROOT && this.state != JsParserState.ERR)
-                iterate(J_OBJS, J_ARRS, props, ch);
+                iterate(J_OBJS, J_ARRS, J_ROOTS, props, ch);
 
         } catch (IOException e){
             System.out.println(e.getMessage());
             System.out.println("At ("+line+":"+col+")");
             this.state = JsParserState.START;
+            flushBuf();
             return null;
         }
         this.state = JsParserState.START;
+        flushBuf();
         return J_OBJS.top();
     }
 
-    public void iterate(LinkedStack<JsonObject> J_OBJS, LinkedStack<JsonArray> J_ARR, LinkedStack<String> props, InputStreamReader r) throws IOException{
+    public void iterate(LinkedStack<JsonObject> J_OBJS, LinkedStack<JsonArray> J_ARR,
+                        LinkedStack<JsonElement> J_ROOTS, LinkedStack<String> props, InputStreamReader r) throws IOException{
         int c = (int)' ';
         JsonObject cur_obj = null;
         while(c == ' ' || c == '\n' || c == '\r' || c == '\t') { //skip spaces
@@ -88,6 +87,7 @@ public class SimpleJsonParser2 {
 
         else if(this.state == JsParserState.START){ // state = Start, c == '{'
             J_OBJS.push(new JsonObject());
+            J_ROOTS.push(J_OBJS.top());
             this.state = JsParserState.AWAIT_PROPS;
         }
         else if((this.state == JsParserState.AWAIT_PROPS || this.state == JsParserState.AWAIT_STRVALUE) && c != '\"')
@@ -96,15 +96,15 @@ public class SimpleJsonParser2 {
 
             c = getFilech(r); //read character.
             int l = 0;
-            while(c != '\"' && bufp < bsize) {
+            while(c != '\"' && bufp < bsize) { //read all content until '"' char (end of the string).
                 if(c == '\\')
                     c = getEscaped(r);
                 l++;
                 buf[bufp++] = (char)c;
                 c = getFilech(r);
             }
-            if(bufp >= bsize) {
-                err('\"', ""+c);
+            if(bufp >= bsize && c != '\"') {
+                err('\"', ""+(char)c);
                 return;
             }
             props.push(new String(buf, 0, l));
@@ -121,14 +121,14 @@ public class SimpleJsonParser2 {
                 buf[bufp++] = (char)c;
                 c = getFilech(r);
             }
-            if(bufp >= bsize) {
-                err('\"', ""+c);
+            if(bufp >= bsize && c != '\"') {
+                err('\"', ""+(char)c);
                 return;
             }
 
-            readValue(J_OBJS, J_ARR, props, r, new String(buf, 0, l));
-            flushBuf();
             this.state = JsParserState.READ_STRVALUE;
+            this.curVal = parseFromStr(new String(buf, 0, l), 1);
+            flushBuf();
         }
         else if(this.state == JsParserState.READ_PROPNAME && c != ':')
             err(c,":");
@@ -138,6 +138,7 @@ public class SimpleJsonParser2 {
 
         //FIRST SYMBOL OF VALUE (AFTER SEPARATOR)
         else if(this.state == JsParserState.COLON){
+            //System.out.println("Property: "+props.top()+ " symbol \'"+(char)c+"\'");
             switch (c){
                 case '\"':{
                     this.state = JsParserState.AWAIT_STRVALUE;
@@ -152,83 +153,146 @@ public class SimpleJsonParser2 {
                     break;
                 }
                 case '[': {
-                    this.state = JsParserState.OPENARR;
-                    if(ungetch((char) c) == 0)
-                        err(c, "available space but OutOfMemory!");
+                    J_ARR.push(new JsonArray());
+                    J_ROOTS.push(J_ARR.top());
+                    this.state = JsParserState.COLON;
                     break;
                 }
-                default:{
+                default: {
+                    int l = 0;
+                    while(bufp < bsize && (c != ' ' && c != '\n' && c != '\r' && c != '\t')){ //read all content til first space symbol ' '
+                        buf[bufp++] = (char)c;
+                        c = getFilech(r);
+                        l++;
+                    }
+                    if(bufp >= bsize && (c != ' ' && c != '\n' && c != '\r' && c != '\t')) {
+                        err(' ', "end of the token (space symbol or LF or CR or tab) but \"..."+(char)c+"\"");
+                        return;
+                    }
+                    String v = new String(buf, 0, l);
+                    flushBuf();
+                    if(v.equals("null"))
+                        this.curVal = new JsonNull();
+                    else if(v.equals("false"))
+                        this.curVal = new JsonBoolean('f');
+                    else if(v.equals("true"))
+                        this.curVal = new JsonBoolean('t');
+                    else
+                        this.curVal = parseFromStr(v, 2);
+                    this.state = JsParserState.READ_STRVALUE;
                     break;
-                }
+                } // END of default.
+            } //END of switch
+        }// END COLON state.
+
+        //BEGIN READ_STRVALUE state.
+        else if(this.state == JsParserState.READ_STRVALUE){
+            cur_obj = J_OBJS.top();
+            JsonArray cur_arr = null;
+            if(c == ',' && J_ROOTS.top() instanceof JsonArray){
+                cur_arr = J_ARR.top();
+                cur_arr.getElements().add(this.curVal);// add new item to array
+                this.state = JsParserState.COLON; //awaiting new value
+                this.curVal = null;
             }
-        }
-        else if(this.state == JsParserState.OPENARR && c != '[')
-            err(c,"[");
-        else if(this.state == JsParserState.OPENARR){
-            this.inArray = true;
-            J_ARR.push(new JsonArray());
-            this.state = JsParserState.COLON;
-        }
-    }
-
-    private void readValue(LinkedStack<JsonObject> J_OBJS, LinkedStack<JsonArray> J_ARRS,
-                           LinkedStack<String> props, InputStreamReader r, String val) throws IOException {
-        JsonObject cur_obj = J_OBJS.top();
-        JsonArray cur_arr = J_ARRS.top();
-        int c = (int)' ';
-        while(c == ' ' || c == '\n' || c == '\r' || c == '\t') //skip trailing spaces.
-            c = getch(r);
-
-        if(c == ',' && inArray){
-            cur_arr.getElements().add(parseFromStr(val));
-            this.state = JsParserState.COLON;
-        }
-        else if(c == ']' && inArray){
-            J_ARRS.pop();
-            JsonArray e_arr = J_ARRS.top();
-            e_arr.getElements().add(cur_arr);
-            //RECURSIVE CALL (check that next is ',' or ']' or '}')
-        }
-        else if(c == '}' && inArray){
-            cur_obj.getValue().put(props.top(), parseFromStr(val));
-            props.pop();
-            J_OBJS.pop();
-            cur_arr.getElements().add(cur_obj);
-            //RECURSIVE CALL (check that next is ',' or ']' or '}')
-        }
-        else if(c == ','){
-            cur_obj.getValue().put(props.top(), parseFromStr(val));
-            props.pop();
-            this.state = JsParserState.AWAIT_PROPS;
-        }
-        else if(c == ']'){
-            cur_obj.getValue().put(props.top(), cur_arr);
-            J_ARRS.pop();
-            props.pop();
-            //RECURSIVE CALL (check that next is ',' or ']' or '}')
-        }
-        else if(c == '}'){
-            cur_obj.getValue().put(props.top(), parseFromStr(val));
-            props.pop();
-            if(J_OBJS.size() == 1) // root object finished.
-                this.state = JsParserState.CLOSEROOT;
-            else{
-                J_OBJS.pop();
-                JsonObject e_obj = J_OBJS.top();
-                e_obj.getValue().put(props.top(), cur_obj);
+            else if(c == ',' && J_ROOTS.top() instanceof JsonObject){
+                cur_obj.getValue().put(props.top(), this.curVal);//add new pair prop : value to the object.
                 props.pop();
-                //RECURSIVE CALL (check that next is ',' or ']' or '}')
+                this.state = JsParserState.AWAIT_PROPS;//awaiting new property
+                this.curVal = null;
             }
-        }
+            else if(c == ']' && J_ROOTS.top() instanceof JsonArray){
+                cur_arr = J_ARR.top();
+                cur_arr.getElements().add(this.curVal);// add processed value to processed array.
+                J_ARR.pop(); // remove processed array.
+                J_ROOTS.pop();// and update root.
+                this.curVal = null;
+                if(J_ROOTS.top() instanceof JsonArray){
+                    J_ARR.top().getElements().add(cur_arr); //add array as item
+                }
+                else if(J_ROOTS.top() instanceof JsonObject){
+                    J_OBJS.top().getValue().put(props.top(), cur_arr);// add array as property.
+                    props.pop();
+                }
+                this.state = JsParserState.NEXT_VALUE;
+            }
+            else if(c == '}'){
+                cur_obj.getValue().put(props.top(), this.curVal);
+                props.pop();
+                this.curVal = null;
+                if(J_OBJS.size() == 1) // root object finished.
+                    this.state = JsParserState.CLOSEROOT; // set final state to exit from cycle.
+                else{
+                    J_OBJS.pop();//remove processed object.
+                    J_ROOTS.pop();//and update root.
+                    if(J_ROOTS.top() instanceof JsonArray){
+                        J_ARR.top().getElements().add(cur_obj);
+                    }
+                    else if(J_ROOTS.top() instanceof JsonObject){
+                        J_OBJS.top().getValue().put(props.top(), cur_obj);
+                        props.pop();
+                    }
+                    this.state = JsParserState.NEXT_VALUE;
+                }
+            }
+        } //END READ_STRVALUE
+
+        //BEGIN NEXT_VALUE state.
+        else if(this.state == JsParserState.NEXT_VALUE){
+            cur_obj = J_OBJS.top();
+            if(c == ',' && J_ROOTS.top() instanceof JsonArray){
+                this.state = JsParserState.COLON;
+            }
+            else if(c == ',' && J_ROOTS.top() instanceof JsonObject){
+                this.state = JsParserState.AWAIT_PROPS;
+            }
+            else if(c == ']' && J_ROOTS.top() instanceof JsonArray){
+                JsonArray cur_arr = J_ARR.top();
+                J_ARR.pop(); // remove processed array.
+                J_ROOTS.pop();// and update root.
+                if(J_ROOTS.top() instanceof JsonArray){
+                    J_ARR.top().getElements().add(cur_arr); //add array as item
+                }
+                else if(J_ROOTS.top() instanceof JsonObject){
+                    J_OBJS.top().getValue().put(props.top(), cur_arr);// add array as property.
+                    props.pop();
+                }
+                this.state = JsParserState.NEXT_VALUE;
+            }
+            else if(c == '}'){
+                cur_obj = J_OBJS.top();
+                if(J_OBJS.size() == 1) // root object finished.
+                    this.state = JsParserState.CLOSEROOT; // set final state to exit from cycle.
+                else{
+                    J_OBJS.pop();//remove processed object.
+                    J_ROOTS.pop();//and update root.
+                    if(J_ROOTS.top() instanceof JsonArray){
+                        J_ARR.top().getElements().add(cur_obj);
+                    }
+                    else if(J_ROOTS.top() instanceof JsonObject){
+                        J_OBJS.top().getValue().put(props.top(), cur_obj);
+                        props.pop();
+                    }
+                    this.state = JsParserState.NEXT_VALUE;
+                }
+            }
+        } // END NEXT_VALUE
     }
 
-    private JsonElement parseFromStr(String val){
-        return null;
+    private JsonElement parseFromStr(String val, int type){
+        switch (type){
+            case 1: return new JsonString(val);
+            case 2: { //TODO: Parse numeric literal strings ELSE SET state = ERR;
+                String exp = val.substring(val.indexOf('E') + 1);
+                return null;
+            }
+            default: return new JsonString(val);
+        }
     }
 
     private void err(int act, String msg){
         state = JsParserState.ERR;
-        System.out.println("Founded illegal symbol \'" + act + "\'" +
+        System.out.println("Founded illegal symbol \'" + (char)act + "\'" +
                 " at ("+line+":"+col+"). Expected: "+msg);
     }
 

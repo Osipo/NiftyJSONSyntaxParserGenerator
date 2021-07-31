@@ -2,6 +2,7 @@ package bmstu.iu7m.osipov.unit_tests.json_parser;
 
 
 import bmstu.iu7m.osipov.services.parsers.json.SimpleJsonParser;
+import bmstu.iu7m.osipov.services.parsers.json.SimpleJsonParser2;
 import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import org.apache.commons.io.Charsets;
@@ -25,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SimpleJsonParserTest {
 
     public static SimpleJsonParser parser = new SimpleJsonParser(1024);
+    public static final SimpleJsonParser2 JSON_PARSER = new SimpleJsonParser2(1024);
 
 
 
