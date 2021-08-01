@@ -38,7 +38,6 @@ public class CreateCommonParserHandler extends ParserGeneratorHandlers implement
             System.out.println("Cannot create Common Parser. You must specify directory with collections of JSON-documents");
             return;
         }
-        SimpleJsonParser jsonParser = new SimpleJsonParser();
 
         TreeItem<FileEntryItem> pNode = selected_item.get();
         String pdir = pNode.getValue() == null ? "" : pNode.getValue().getFullFileName() + Main.PATH_SEPARATOR;
@@ -58,7 +57,7 @@ public class CreateCommonParserHandler extends ParserGeneratorHandlers implement
             if(!item.getFileName().endsWith(".json"))
                 continue;
 
-            ob_i = jsonParser.parse(item.getFullFileName());
+            ob_i = json_translator.parse(item.getFullFileName());
 
             //Skip non-valid json files.
             if(ob_i == null)

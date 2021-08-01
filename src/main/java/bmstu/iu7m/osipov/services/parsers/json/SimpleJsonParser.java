@@ -546,7 +546,7 @@ public class SimpleJsonParser {
                     err(x, "hexDigit: one of [0-9] or [A-Fa-f]");
                     return 0;
                 }
-                int code = (int)ProcessExp.parse(new String(hcode),null,'N',16,1);
+                int code = (int)ProcessNumber.parse(new String(hcode),null,'N',16,1);
                 return code;
             }
             default:{
@@ -691,14 +691,14 @@ public class SimpleJsonParser {
                     String e = b.toString();
                     b = null;
                     b = new StringBuilder();
-                    b.append(ProcessExp.parse(n,e,exp,16,sign));
+                    b.append(ProcessNumber.parse(n,e,exp,16,sign));
                     ex = 1;
                 }
                 else{
                     String n = b.toString();
                     b = null;
                     b = new StringBuilder();
-                    b.append(ProcessExp.parse(n,null,'O',16,sign));//without exponent. parse it to decimal format (valid JSON)
+                    b.append(ProcessNumber.parse(n,null,'O',16,sign));//without exponent. parse it to decimal format (valid JSON)
                 }
                 if(c == 'L' || c == 'l' || c == 'S' || c == 's'){
                     String num = b.toString();
@@ -763,14 +763,14 @@ public class SimpleJsonParser {
                     String e = b.toString();
                     b = null;
                     b = new StringBuilder();
-                    b.append(ProcessExp.parse(n,e,exp,2,sign));
+                    b.append(ProcessNumber.parse(n,e,exp,2,sign));
                     ex = 1;
                 }
                 else{
                     String n = b.toString();
                     b = null;
                     b = new StringBuilder();
-                    b.append(ProcessExp.parse(n,null,'O',2,sign));//without exponent. parse it to decimal format (valid JSON)
+                    b.append(ProcessNumber.parse(n,null,'O',2,sign));//without exponent. parse it to decimal format (valid JSON)
                 }
                 if(c == 'L' || c == 'l' || c == 'F' || c == 'f'){
                     String num = b.toString();
@@ -835,14 +835,14 @@ public class SimpleJsonParser {
                     String e = b.toString();
                     b = null;
                     b = new StringBuilder();
-                    b.append(ProcessExp.parse(n,e,exp,8,sign));
+                    b.append(ProcessNumber.parse(n,e,exp,8,sign));
                     ex = 1;
                 }
                 else{
                     String n = b.toString();
                     b = null;
                     b = new StringBuilder();
-                    b.append(ProcessExp.parse(n,null,'O',8,sign));//without exponent. parse it to decimal format (valid JSON)
+                    b.append(ProcessNumber.parse(n,null,'O',8,sign));//without exponent. parse it to decimal format (valid JSON)
                 }
                 if(c == 'L' || c == 'l' || c == 'F' || c == 'f'){
                     String num = b.toString();
@@ -920,14 +920,14 @@ public class SimpleJsonParser {
                 String e = b.toString();
                 b = null;
                 b = new StringBuilder();
-                b.append(ProcessExp.parse(n,e,exp,10,sign));
+                b.append(ProcessNumber.parse(n,e,exp,10,sign));
                 ex = 1;
             }
             else{
                 String n = b.toString();
                 b = null;
                 b = new StringBuilder();
-                b.append(ProcessExp.parse(n,null,'O',10,sign));//without exponent. parse it to decimal format (valid JSON)
+                b.append(ProcessNumber.parse(n,null,'O',10,sign));//without exponent. parse it to decimal format (valid JSON)
             }
             if(c == 'L' || c == 'l' || c == 'F' || c == 'f'){
                 String num = b.toString();
@@ -982,14 +982,14 @@ public class SimpleJsonParser {
                 String e = b.toString();
                 b = null;
                 b = new StringBuilder();
-                b.append(ProcessExp.parse(n,e,exp,10,sign));
+                b.append(ProcessNumber.parse(n,e,exp,10,sign));
                 ex = 1;
             }
             else{
                 String n = b.toString();
                 b = null;
                 b = new StringBuilder();
-                b.append(ProcessExp.parse(n,null,'O',10,sign));//without exponent. parse it to decimal format (valid JSON)
+                b.append(ProcessNumber.parse(n,null,'O',10,sign));//without exponent. parse it to decimal format (valid JSON)
             }
             if(c == 'L' || c == 'l' || c == 'F' || c == 'f'){
                 String num = b.toString();

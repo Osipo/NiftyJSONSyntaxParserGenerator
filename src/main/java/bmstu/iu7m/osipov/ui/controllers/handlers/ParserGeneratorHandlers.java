@@ -10,6 +10,7 @@ import bmstu.iu7m.osipov.services.parsers.LRAlgorithm;
 import bmstu.iu7m.osipov.services.parsers.LRParser;
 import bmstu.iu7m.osipov.services.parsers.Parser;
 import bmstu.iu7m.osipov.services.parsers.json.SimpleJsonParser;
+import bmstu.iu7m.osipov.services.parsers.json.SimpleJsonParser2;
 import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.automats.DFA;
 import bmstu.iu7m.osipov.ui.models.ParserGeneratorModel;
@@ -26,11 +27,13 @@ public class ParserGeneratorHandlers {
     protected ParserGeneratorModel model;
     protected TreeFilesModel treeModel;
     protected final ObjectProperty<TreeItem<FileEntryItem>> selected_item;
+    protected SimpleJsonParser2 json_translator;
 
     public ParserGeneratorHandlers(ParserGeneratorModel m, TreeFilesModel treeModel){
         this.model = m;
         this.treeModel = treeModel;
         this.selected_item = new SimpleObjectProperty<>(this, "selectedItem", null);
+        this.json_translator = new SimpleJsonParser2();
     }
 
     public final ObjectProperty<TreeItem<FileEntryItem>> selectedItemProperty(){
@@ -49,8 +52,7 @@ public class ParserGeneratorHandlers {
         System.out.println("From directory: "+pdir);
 
         RegexRPNParser rpn = new RegexRPNParser();
-        SimpleJsonParser parser = new SimpleJsonParser();
-        JsonObject ob = parser.parse(f);
+        JsonObject ob = json_translator.parse(f);
         if(ob == null){
             System.out.println("Cannot parse to JSON-tree elements.");
             return;

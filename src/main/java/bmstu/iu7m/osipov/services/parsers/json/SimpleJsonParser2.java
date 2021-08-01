@@ -46,6 +46,7 @@ public class SimpleJsonParser2 {
             System.out.println(e.getMessage());
             this.state = JsParserState.START;
             flushBuf();
+            this.col = 0; this.line = 1;
             return null;
         }
         return result;
@@ -58,19 +59,22 @@ public class SimpleJsonParser2 {
         LinkedStack<String> props = new LinkedStack<>();
 
         try(InputStreamReader ch = new InputStreamReader(in)){
-            this.state = JsParserState.START;
+            this.state = JsParserState.START;// before read set parser to the start state.
+            this.col = 0; this.line = 1;
+            flushBuf();
             while(this.state != JsParserState.CLOSEROOT && this.state != JsParserState.ERR)
                 iterate(J_OBJS, J_ARRS, J_ROOTS, props, ch);
+            if(this.state == JsParserState.ERR) {
+                flushBuf();
+                return null;
+            }
 
         } catch (IOException e){
             System.out.println(e.getMessage());
             System.out.println("At ("+line+":"+col+")");
-            this.state = JsParserState.START;
             flushBuf();
             return null;
         }
-        this.state = JsParserState.START;
-        flushBuf();
         return J_OBJS.top();
     }
 
@@ -127,7 +131,7 @@ public class SimpleJsonParser2 {
             }
 
             this.state = JsParserState.READ_STRVALUE;
-            this.curVal = parseFromStr(new String(buf, 0, l), 1);
+            this.curVal = new JsonString(new String(buf, 0, l));//parseFromStr(new String(buf, 0, l), 1);
             flushBuf();
         }
         else if(this.state == JsParserState.READ_PROPNAME && c != ':')
@@ -166,7 +170,7 @@ public class SimpleJsonParser2 {
                         l++;
                     }
                     if(bufp >= bsize && (c != ' ' && c != '\n' && c != '\r' && c != '\t')) {
-                        err(' ', "end of the token (space symbol or LF or CR or tab) but \"..."+(char)c+"\"");
+                        err(c, "end of the token (space symbol or LF or CR or tab) but \"..."+(char)c+"\"");
                         return;
                     }
                     String v = new String(buf, 0, l);
@@ -177,8 +181,13 @@ public class SimpleJsonParser2 {
                         this.curVal = new JsonBoolean('f');
                     else if(v.equals("true"))
                         this.curVal = new JsonBoolean('t');
-                    else
-                        this.curVal = parseFromStr(v, 2);
+                    else {
+                       double val = ProcessNumber.parseNumber(v);
+                       if(Math.floor(val) == val)
+                           this.curVal = new JsonNumber((int) val);
+                       else
+                           this.curVal = new JsonRealNumber(val);
+                    }
                     this.state = JsParserState.READ_STRVALUE;
                     break;
                 } // END of default.
@@ -279,17 +288,6 @@ public class SimpleJsonParser2 {
         } // END NEXT_VALUE
     }
 
-    private JsonElement parseFromStr(String val, int type){
-        switch (type){
-            case 1: return new JsonString(val);
-            case 2: { //TODO: Parse numeric literal strings ELSE SET state = ERR;
-                String exp = val.substring(val.indexOf('E') + 1);
-                return null;
-            }
-            default: return new JsonString(val);
-        }
-    }
-
     private void err(int act, String msg){
         state = JsParserState.ERR;
         System.out.println("Founded illegal symbol \'" + (char)act + "\'" +
@@ -370,7 +368,7 @@ public class SimpleJsonParser2 {
                     err(x, "Unicode token \\uxxxx where x one of [0-9] or [A-Fa-f]");
                     return 0;
                 }
-                int code = (int)ProcessExp.parse(new String(hcode),null,'N',16,1); //just parse positive hex number to decimal.
+                int code = (int)ProcessNumber.parse(new String(hcode),null,'N',16,1); //just parse positive hex number to decimal.
                 return code;
             }
             default:{

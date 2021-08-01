@@ -46,7 +46,7 @@ public class SLRParserTest {
     @Test
     public void parse_G_2_27() throws IOException {
         Grammar G = new Grammar(
-                SimpleJsonParserTest.parser.parse(PathStrings.GRAMMARS + "G_2_27.json")
+                SimpleJsonParserTest.JSON_PARSER.parse(PathStrings.GRAMMARS + "G_2_27.json")
         );
         System.out.println("Source G: ");
         System.out.println(G);
@@ -110,7 +110,7 @@ public class SLRParserTest {
     @Test
     public void test_xml4_grammar() throws IOException {
         Grammar G = new Grammar(
-                SimpleJsonParserTest.parser.parse(PathStrings.GRAMMARS + "Xml_4th.json")
+                SimpleJsonParserTest.JSON_PARSER.parse(PathStrings.GRAMMARS + "Xml_4th.json")
         );
         System.out.println("Source G: ");
         System.out.println(G);

@@ -33,7 +33,13 @@ public class SimpleJsonParserTest {
     @Test
     public void when_illegal_then_null() throws IOException {
         String e1= "{ \"eobj\" : {";
+        String e2 = "{ \"eof\" : a";
+        String e3 = "{ \"eof2\" :  ";
         JsonObject obj = readFromString(e1);
+        assertNull(obj);
+        obj = readFromString(e2);
+        assertNull(obj);
+        obj = readFromString(e3);
         assertNull(obj);
     }
 
@@ -56,16 +62,20 @@ public class SimpleJsonParserTest {
 
         obj = readFromString(d3);
         assert obj != null;
-        assertEquals(12400.0, obj.getProperty("num").getValue());
+        assertEquals(12400, obj.getProperty("num").getValue());
 
         obj = readFromString(d4);
         assert obj != null;
         assertEquals(false, obj.getProperty("bool").getValue());
+
+        obj = readFromString(d5);
+        assert  obj != null;
+        assertEquals(2.123, obj.getProperty("realNum").getValue());
     }
 
     public static JsonObject readFromString(String sd) throws IOException{
         InputStream src = IOUtils.toInputStream(IOUtils.toString(new StringReader(sd)), Charsets.UTF_8);
-        JsonObject obj = parser.parseStream(src);
+        JsonObject obj = JSON_PARSER.parseStream(src);
         src.close();
         return obj;
     }
