@@ -13,6 +13,7 @@ import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.automats.CNFA;
 import bmstu.iu7m.osipov.structures.automats.DFA;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
+import bmstu.iu7m.osipov.structures.trees.ReverseChildren;
 import bmstu.iu7m.osipov.structures.trees.RightToLeftNRVisitor;
 import bmstu.iu7m.osipov.structures.trees.VisitorMode;
 import bmstu.iu7m.osipov.structures.trees.reducers.BreakChainNode;
@@ -76,17 +77,23 @@ public class SLRParserTest {
         LinkedTree<LanguageSymbol> t = sa.parse(PathStrings.PARSER_INPUT + "I_G_2_27.txt");
         assert t != null;
 
-        t.setVisitor(new RightToLeftNRVisitor<>());
+        //t.setVisitor(new RightToLeftNRVisitor<>()); // traverse children right to left
+        t.visit(VisitorMode.PRE, new ReverseChildren()); // or just reverse them.
+
+
         System.out.println("tree nodes before "+t.getCount());
 
         t.visit(VisitorMode.PRE, new TranslationsAttacher(G, t.getCount()));
 
-        System.out.println("tree nodes before "+t.getCount());
+        System.out.println("tree nodes after attaching acts "+t.getCount());
 
         ExecuteTranslationNode act_executor = new ExecuteTranslationNode();
         act_executor.putActionParser("print", new PrintSDT());
 
         System.out.println("Perform translation... :");
+
+        //prefix notation: = + * + a a a a = - * 23.2 2 2 = 2000000.2e-10
+        //postfix notation: a a + a * a + = 23.2 2 * 2 - = 2000000.2e-10 =
 
         t.visit(VisitorMode.PRE, act_executor); //postfix notation.
         System.out.println(); //make new line.

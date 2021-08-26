@@ -71,7 +71,7 @@ public class TranslationsAttacher implements Action<Node<LanguageSymbol>> {
 
     private GrammarString mapToProduction(LinkedNode<LanguageSymbol> node){
         GrammarString g = new GrammarString();
-        for(int i = node.getChildren().size() - 1; i >= 0; i--){ //because of STACK of Parser.
+        for(int i = 0; i < node.getChildren().size(); i++){ //because of STACK of Parser.
             LinkedNode<LanguageSymbol> ch = node.getChildren().get(i);
             if(ch.getValue() instanceof Token)
                 g.getSymbols().add( (Token) ch.getValue()); //Token extends GrammarSymbol and implements LanguageSymbol.
