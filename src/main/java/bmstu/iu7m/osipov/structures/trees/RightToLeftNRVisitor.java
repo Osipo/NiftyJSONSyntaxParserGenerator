@@ -6,7 +6,8 @@ import java.util.List;
 
 //Works fine with MUTABLE TREES
 //BUT USES STACK (So Children C1...CN of node N will be interpreted as CN...C1)
-public class SequentialNRVisitor<T> extends NRSubVisitor<T> implements Visitor<T>, SubVisitor<T> {
+//(traverses from CN to C1 i.e. from right to the left of the list of children).
+public class RightToLeftNRVisitor<T> extends NRSubVisitor<T> implements Visitor<T>, SubVisitor<T> {
 
 
     @Override

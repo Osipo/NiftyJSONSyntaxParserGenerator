@@ -3,7 +3,9 @@ package bmstu.iu7m.osipov.services.grammars.directives;
 import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.services.lexers.LanguageSymbol;
 import bmstu.iu7m.osipov.services.lexers.Translation;
+import bmstu.iu7m.osipov.structures.trees.LinkedNode;
 import bmstu.iu7m.osipov.structures.trees.Node;
+import bmstu.iu7m.osipov.utils.GrammarBuilderUtils;
 import bmstu.iu7m.osipov.utils.PathStringUtils;
 
 import java.io.File;
@@ -13,13 +15,18 @@ import java.util.Set;
 
 public class PrintSDT implements SDTParser {
 
+
     @Override
     public void exec(Translation t, Node<LanguageSymbol> parent) {
         if(t != null && t.getArguments() != null){
             String str = t.getArguments().getOrDefault("str", "");
             String fname = t.getArguments().getOrDefault("output", "");
             if(fname.equals("")){
-                System.out.print(str);
+                LinkedNode<LanguageSymbol> l_parent = (LinkedNode<LanguageSymbol>) parent;
+
+                System.out.print(
+                        GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, str)
+                );
             }
             else{
                 fname = PathStringUtils.replaceSeparator(Main.CWD + fname);

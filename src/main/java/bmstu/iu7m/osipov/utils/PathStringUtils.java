@@ -47,6 +47,12 @@ public class PathStringUtils {
         return s1.substring(0, l);
     }
 
+    /** Works like lastIndexOf except that it finds last presence
+     * of symbol at src which index is not greater than toIndex.
+     * @param src Source string where symbol is being seeked
+     * @param symbol symbol to find
+     * @param toIndex the right bounder of seeking.
+     */
     public static int tilIndexOf(String src, char symbol, int toIndex){
         if(src == null || toIndex < 0)
             return -1;
@@ -92,11 +98,11 @@ public class PathStringUtils {
         return "\"" + s + "\"";
     }
 
-    // Replace custom separator to the FS sep.
+    // Replace custom separator to the File system sep.
     public static String replaceSeparator(String path){
         if(path == null || path.length() == 0)
             return path;
-        String sep = "\\" + FileSystems.getDefault().getSeparator();
-        return path.replaceAll("[\\"+ "\\"+"/]+", sep);
+        String sep = "\\" + FileSystems.getDefault().getSeparator(); //escaped separator
+        return path.replaceAll("[\\" + "\\" + "/]+", sep);  // replace '/' or '\' with escaped separator.
     }
 }

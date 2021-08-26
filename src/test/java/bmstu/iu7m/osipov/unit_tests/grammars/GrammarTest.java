@@ -21,7 +21,7 @@ public class GrammarTest {
     @Test
     public void test_G_2_27(){
         Grammar G = new Grammar(
-                SimpleJsonParserTest.parser.parse(PathStrings.GRAMMARS + "G_2_27.json")
+                SimpleJsonParserTest.JSON_PARSER.parse(PathStrings.GRAMMARS + "G_2_27.json")
         );
         assert G.getTerminals().size() == 14;
         assert G.getKeywords().size() == 2;
@@ -33,7 +33,7 @@ public class GrammarTest {
     @Test
     public void testLeftRecursion(){
         Grammar G = new Grammar(
-                SimpleJsonParserTest.parser.parse(PathStrings.GRAMMARS + "G_2_27.json")
+                SimpleJsonParserTest.JSON_PARSER.parse(PathStrings.GRAMMARS + "G_2_27.json")
         );
         System.out.println("Original G");
         System.out.println(G);

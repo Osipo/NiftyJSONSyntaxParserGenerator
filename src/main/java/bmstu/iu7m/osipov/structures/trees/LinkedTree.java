@@ -100,7 +100,7 @@ public class LinkedTree<T> implements Tree<T>, PositionalTree<T> {
                 _count = nc.getValue();
                 break;
             case POST:
-                _visitor.postOrder(this,act);
+                _visitor.postOrder(this, act);
                 __ComputeC(nc);
                 _count = nc.getValue();
                 break;

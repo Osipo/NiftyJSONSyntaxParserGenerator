@@ -2,10 +2,10 @@ package bmstu.iu7m.osipov.unit_tests.parsers;
 
 import bmstu.iu7m.osipov.configurations.PathStrings;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
+import bmstu.iu7m.osipov.services.grammars.directives.PrintSDT;
 import bmstu.iu7m.osipov.services.lexers.DFALexer;
 import bmstu.iu7m.osipov.services.lexers.FALexerGenerator;
 import bmstu.iu7m.osipov.services.lexers.LanguageSymbol;
-import bmstu.iu7m.osipov.services.lexers.Token;
 import bmstu.iu7m.osipov.services.parsers.LRAlgorithm;
 import bmstu.iu7m.osipov.services.parsers.LRParser;
 import bmstu.iu7m.osipov.services.parsers.ParserMode;
@@ -13,10 +13,11 @@ import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.automats.CNFA;
 import bmstu.iu7m.osipov.structures.automats.DFA;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
-import bmstu.iu7m.osipov.structures.trees.SequentialNRVisitor;
+import bmstu.iu7m.osipov.structures.trees.RightToLeftNRVisitor;
 import bmstu.iu7m.osipov.structures.trees.VisitorMode;
 import bmstu.iu7m.osipov.structures.trees.reducers.BreakChainNode;
 import bmstu.iu7m.osipov.structures.trees.reducers.DeleteUselessSyntaxNode;
+import bmstu.iu7m.osipov.structures.trees.translators.ExecuteTranslationNode;
 import bmstu.iu7m.osipov.structures.trees.translators.TranslationsAttacher;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
 import guru.nidi.graphviz.engine.Format;
@@ -29,10 +30,6 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -79,16 +76,29 @@ public class SLRParserTest {
         LinkedTree<LanguageSymbol> t = sa.parse(PathStrings.PARSER_INPUT + "I_G_2_27.txt");
         assert t != null;
 
-        t.setVisitor(new SequentialNRVisitor<>());
+        t.setVisitor(new RightToLeftNRVisitor<>());
         System.out.println("tree nodes before "+t.getCount());
 
         t.visit(VisitorMode.PRE, new TranslationsAttacher(G, t.getCount()));
+
+        System.out.println("tree nodes before "+t.getCount());
+
+        ExecuteTranslationNode act_executor = new ExecuteTranslationNode();
+        act_executor.putActionParser("print", new PrintSDT());
+
+        System.out.println("Perform translation... :");
+
+        t.visit(VisitorMode.PRE, act_executor); //postfix notation.
+        System.out.println(); //make new line.
+
+        t.visit(VisitorMode.POST, act_executor); //yet postfix notation because of SDT position.
+        System.out.println(); //make new line.
 
         Graphviz.fromString(t.toDot("I_G_2_27")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "I_G_2_27_with_trans"));
 
     }
 
-    //LR(1) Grammar of L = c*dc*d [cdcd, ccdccd, ccccccccdd, etc.]
+    //LR(0) Grammar of L = c*dc*d [cdcd, ccdccd, ccccccccdd, etc.]
     @Test
     public void parse_G_416() throws IOException {
         Grammar G = new Grammar(
@@ -124,7 +134,7 @@ public class SLRParserTest {
         assert t != null;
         Graphviz.fromString(t.toDot("I_XML_4th")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "I_XML_4th"));
 
-        t.setVisitor(new SequentialNRVisitor<>());
+        t.setVisitor(new RightToLeftNRVisitor<>());
 
         DeleteUselessSyntaxNode a1 = new DeleteUselessSyntaxNode(G);
         BreakChainNode a2 = new BreakChainNode();

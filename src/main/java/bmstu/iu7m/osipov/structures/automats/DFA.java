@@ -204,8 +204,8 @@ public class DFA extends Graph {
 
 
 
-    //MAKERECORD__ERR
-    private void makeRecord(ArrayList<Set<Vertex>> P,HashMap<Pair<Vertex,Character>,Vertex> oldTran, Set<Vertex> group,Vertex s,Vertex n, Elem<Integer> count, HashMap<String,Vertex> mapped){
+    //Form new tranTable for MIN-DFA
+    private void makeRecord(ArrayList<Set<Vertex>> P,HashMap<Pair<Vertex,Character>,Vertex> oldTran, Set<Vertex> group,Vertex s, Vertex n, Elem<Integer> count, HashMap<String,Vertex> mapped){
         n.setName("M"+count.getV1());
         n.setValue(s.getValue());
         if(mapped.get(s.getName()) != null){
@@ -293,7 +293,7 @@ public class DFA extends Graph {
                 String gname = l.get(i).getValue();
                 if(!ids.contains(gname)){
                     ids.push(gname);
-                    ig.put(gname,new HashSet<>());
+                    ig.put(gname, new HashSet<>());
                 }
             }
             for(int i = 0; i < l.size();i++){

@@ -64,14 +64,12 @@ public class SimpleJsonParser2 {
             flushBuf();
             while(this.state != JsParserState.CLOSEROOT && this.state != JsParserState.ERR)
                 iterate(J_OBJS, J_ARRS, J_ROOTS, props, ch);
-            if(this.state == JsParserState.ERR) {
-                flushBuf();
+            if(this.state == JsParserState.ERR)
                 return null;
-            }
 
         } catch (IOException e){
             System.out.println(e.getMessage());
-            System.out.println("At ("+line+":"+col+")");
+            System.out.println("At (" + line + ":" + col + ")");
             flushBuf();
             return null;
         }
@@ -183,8 +181,10 @@ public class SimpleJsonParser2 {
                         this.curVal = new JsonBoolean('t');
                     else {
                        double val = ProcessNumber.parseNumber(v);
-                       if(Math.floor(val) == val)
-                           this.curVal = new JsonNumber((int) val);
+                       if(Double.isNaN(val)) // NaN (Not a Number) tokens are invalid.
+                           err(c, "a number token but found NaN \""+v+"\"");
+                       else if(Math.floor(val) == val)
+                           this.curVal = new JsonNumber((long) val);
                        else
                            this.curVal = new JsonRealNumber(val);
                     }

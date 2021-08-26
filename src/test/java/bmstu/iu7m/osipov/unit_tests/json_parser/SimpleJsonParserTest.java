@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 )
 public class SimpleJsonParserTest {
 
-    public static SimpleJsonParser parser = new SimpleJsonParser(1024);
+    //public static SimpleJsonParser parser = new SimpleJsonParser(1024);
     public static final SimpleJsonParser2 JSON_PARSER = new SimpleJsonParser2(1024);
 
 
@@ -78,10 +78,5 @@ public class SimpleJsonParserTest {
         JsonObject obj = JSON_PARSER.parseStream(src);
         src.close();
         return obj;
-    }
-
-    @AfterAll
-    public void clearMem(){
-        parser = null;
     }
 }

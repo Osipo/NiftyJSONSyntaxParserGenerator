@@ -14,7 +14,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
     private Token prevTok;// lexer previous recognized Token.
     private char[] ignore;// symbols that are ignored at InputStream by default it is [\n, \t, ' ', \r]
 
-    /* these fields are allusion for GrammarMetaInfo type */
+    /* these fields are allusion (refs) for GrammarMetaInfo type */
     /* The reason is why GrammarMetaInfo is not used here
        is that we need fully independent Lexer without coupling to specific Grammar.
      */
@@ -178,6 +178,12 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
         return this.id;
     }
 
+    /**
+     *
+     * @param f stream of symbols.
+     * @return
+     * @throws IOException
+     */
     @Override
     public Token recognize(InputStream f) throws IOException {
         char cur = (char)io.getch(f);

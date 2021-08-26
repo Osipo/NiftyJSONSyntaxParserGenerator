@@ -6,6 +6,7 @@ import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.observable.ObservableHashSet;
 import bmstu.iu7m.osipov.exceptions.*;
 import bmstu.iu7m.osipov.services.parsers.json.elements.*;
+import bmstu.iu7m.osipov.utils.GrammarBuilderUtils;
 
 import java.io.*;
 import java.util.*;
@@ -371,6 +372,7 @@ public class Grammar {
                                 alpha.addSymbol(entity);
                                 alpha.addToAugmentedBody(entity);
                             }
+
                             // PARSE ACTION AND ADD IT TO THE RULE BODY.
                             else if(symbol instanceof JsonObject){
                                 JsonObject j_action = (JsonObject) symbol;
@@ -379,14 +381,13 @@ public class Grammar {
                                 HashMap<String, String> act_args = new HashMap<>();
                                 String aname = null;
                                 String arg_val = null;
-                                for(String p : j_action.getValue().keySet()){ // for each property of object.
-                                    //System.out.println(p);
-                                    //System.out.println(j_action.getProperty(p).getClass());
+                                for(String p : j_action.getValue().keySet()){ // for each property of action-object.
                                     if(j_action.getProperty(p) instanceof JsonString){
                                         arg_val = ((JsonString) j_action.getProperty(p)).getValue();
-                                        if(p.equals("act"))
+                                        if(p.equals("act"))//property 'act': arg_val.
                                             aname = new String(arg_val.toCharArray());
                                         else
+                                            //TODO: ADD ADDITIONAL PARSING OF ACTION_ARGS_STRS.
                                             act_args.put(p, arg_val);
                                     }
                                     else

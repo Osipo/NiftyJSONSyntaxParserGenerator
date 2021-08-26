@@ -124,12 +124,12 @@ public class LLParserGenerator {
                     }
                     Set<String> X_i = res.get(s_i.getVal());
                     if(X_i == null || X_i.size() == 0){
-                        S.push(N);// [ELEM STAG ETAG ELEM STAG CONTENT ETAG ELEM STAG ETAG ELEM STAG CONTENT ETAG
+                        S.push(N);
                         S.push(s_i.getVal());
-                        break M1;
+                        break M1;//found new Non-Terminal s_i at body. Compute FIRST(s_i) then return to the body.
                     }
                     else if(X_i.contains(G.getEmpty())){ //X IS ALREADY FILLED AND LEFT SIDE MUST BE SCANNED TOO.
-                        first_n.addAll(X_i);// CONTENT -> ELEMS, ELEMS -> e => FIRST(CONTENT) = { e, < }.
+                        first_n.addAll(X_i);
                     }
                     else {
                         first_n.addAll(X_i);

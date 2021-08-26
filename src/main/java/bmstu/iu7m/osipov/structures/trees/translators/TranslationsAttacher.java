@@ -27,7 +27,7 @@ public class TranslationsAttacher implements Action<Node<LanguageSymbol>> {
         Set<GrammarString> rule = G.getProductions().get(t.getValue().getName());
         GrammarString yield = mapToProduction(t);
 
-        System.out.println("Rule: "+t.getValue().getName()+" -> "+yield);
+        //System.out.println("Rule: "+t.getValue().getName()+" -> "+yield);
 
         //System.out.println("search alts for "+t.getValue().getName());
         for(GrammarString alt : rule){
@@ -46,12 +46,12 @@ public class TranslationsAttacher implements Action<Node<LanguageSymbol>> {
 
             // scan augmented string (with actions).
             for(SyntaxSymbol sym : replacement.getActions()){
-                System.out.println(sym.getClass());
+                //System.out.println(sym.getClass());
 
                 if(sym instanceof SyntaxDirectedTranslation){
                     SyntaxDirectedTranslation act = (SyntaxDirectedTranslation) sym;
-                    System.out.println("Found action: "+act);
-                    System.out.println("for rule: "+yield);
+                    //System.out.println("Found action: "+act);
+                    //System.out.println("for rule: "+yield);
                     LinkedNode<LanguageSymbol> nc = new LinkedNode<>();
                     nc.setIdx(last_id);
                     last_id++;
@@ -63,6 +63,7 @@ public class TranslationsAttacher implements Action<Node<LanguageSymbol>> {
                     else {
                         t.getChildren().add(act.getPos(), nc);
                     }
+                    nc.setParent(t);
                 }
             }
         }
@@ -70,10 +71,10 @@ public class TranslationsAttacher implements Action<Node<LanguageSymbol>> {
 
     private GrammarString mapToProduction(LinkedNode<LanguageSymbol> node){
         GrammarString g = new GrammarString();
-        for(int i = node.getChildren().size() - 1; i >= 0; i--){
+        for(int i = node.getChildren().size() - 1; i >= 0; i--){ //because of STACK of Parser.
             LinkedNode<LanguageSymbol> ch = node.getChildren().get(i);
             if(ch.getValue() instanceof Token)
-                g.getSymbols().add((Token)ch.getValue()); //Token extends GrammarSymbol.
+                g.getSymbols().add( (Token) ch.getValue()); //Token extends GrammarSymbol and implements LanguageSymbol.
 
         }
         return g;

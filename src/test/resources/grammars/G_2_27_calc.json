@@ -20,17 +20,27 @@
     "realNum": "_"
   },
   "meta": {
-    "operands": ["id","num","realNum","true","false"],
+    "operands": ["id","num","realNum", "true", "false"],
     "aliases": {
       "-": "um",
       "+": "up"
-    }
+    },
+    "actions": [
+      {"rule": "F", "act": "print", "str": "$0"}
+    ]
   },
   "nonTerms": ["S","D","E","T","F"],
-  "productions": [{"S": ["S", ";","D"]},{"S": "D"},
-    {"D": ["id","=","E"]},
-    {"E": ["E","+","T", {"act": "print", "str": "+"} ]},{"E": ["E","-","T", {"act": "print", "str": "-"}]}, {"E": "T"},
-    {"T": ["T","*","F", {"act": "print", "str": "*"} ]},{"T": ["T","/","F", {"act": "print", "str": "/"}]},{"T": "F"},
-    {"F": ["(","E",")"]},{"F": "id"},{"F": "num"}, {"F": "realNum"},{"F": "true"},{"F": "false"}],
+  "productions": [
+    {"S": ["S", ";","D"]},{"S": "D"},
+    {"D": ["id","=","E", {"act": "print", "str": "$1 "}] },
+    {"E": ["E","+","T", {"act": "print", "str": "+ "} ]},{"E": ["E","-","T", {"act": "print", "str": "- "}]}, {"E": "T"},
+    {"T": ["T","*","F", {"act": "print", "str": "* "} ]},{"T": ["T","/","F", {"act": "print", "str": "/ "}]},{"T": "F"},
+    {"F": ["(","E",")"]},
+    {"F": ["id", {"act": "print", "str": "$0 "}]},
+    {"F": ["num", {"act": "print", "str": "$0 "}]},
+    {"F": ["realNum", {"act": "print", "str": "$0 "}]},
+    {"F": ["true", {"act": "print", "str": "$0 "}]},
+    {"F": ["false", {"act": "print", "str": "$0 "}]}
+  ],
   "start": "S"
 }

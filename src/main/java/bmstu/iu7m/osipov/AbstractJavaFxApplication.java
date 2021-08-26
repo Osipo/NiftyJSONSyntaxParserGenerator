@@ -39,6 +39,7 @@ public abstract class AbstractJavaFxApplication extends Application {
         context.close();
     }
 
+    //TODO: Process arguments here.
     protected static void launchApp(Class<? extends AbstractJavaFxApplication> clazz, String[] args) {
         AbstractJavaFxApplication.savedArgs = args;
         Application.launch(clazz, args);

@@ -23,7 +23,7 @@ public class SpringBeanBuilderFactory implements BuilderFactory {
         try {
             o = springContext.getBean(type.getSimpleName(), type);
             return new SpringBeanBuilder<>(o);
-        }catch (NoSuchBeanDefinitionException e){
+        } catch (NoSuchBeanDefinitionException e){
             //System.out.println("Cannot find bean of type "+type.getTypeName());
             if(defaultBuilderFactory != null)
                 return defaultBuilderFactory.getBuilder(type);

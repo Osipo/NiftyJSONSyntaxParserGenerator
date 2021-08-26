@@ -30,7 +30,7 @@ public class ExecuteTranslationNode implements Action<Node<LanguageSymbol>> {
             SyntaxDirectedTranslation act = (SyntaxDirectedTranslation) t.getValue();
             SDTParser executor = act_parsers.getOrDefault(act.getActName(), null);
             if(executor != null)
-                executor.exec(act, t);
+                executor.exec(act, t.getParent());
         }
     }
 }

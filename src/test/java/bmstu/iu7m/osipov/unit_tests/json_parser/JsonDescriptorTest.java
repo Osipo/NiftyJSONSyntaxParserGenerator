@@ -54,7 +54,7 @@ public class JsonDescriptorTest {
         JsonDocumentDescriptor D = new JsonDocumentDescriptor();
         String fname = PathStrings.TEST_JSON_DOCS_DIR + "SomeData.json";
         System.out.println(fname);
-        JsonObject ob = SimpleJsonParserTest.parser.parse(new File(fname));
+        JsonObject ob = SimpleJsonParserTest.JSON_PARSER.parse(new File(fname));
         assert ob != null;
         D.describe2(ob);
         System.out.println(D);
