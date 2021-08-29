@@ -8,7 +8,6 @@ import bmstu.iu7m.osipov.services.lexers.FALexerGenerator;
 import bmstu.iu7m.osipov.services.parsers.LRAlgorithm;
 import bmstu.iu7m.osipov.services.parsers.LRParser;
 import bmstu.iu7m.osipov.services.parsers.Parser;
-import bmstu.iu7m.osipov.services.parsers.json.SimpleJsonParser;
 import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.services.parsers.json.meta.JsonDocumentDescriptor;
 import bmstu.iu7m.osipov.structures.automats.DFA;

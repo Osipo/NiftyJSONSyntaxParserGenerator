@@ -84,7 +84,14 @@ public class SimpleJsonParser2 {
             c = getch(r);
         }
 
-        if(this.state == JsParserState.START && c != '{') //Json object must starts with '{'
+        if(this.state == JsParserState.AWAIT_PROPS && c == '}' && ungetch('}') == 0)
+            err('}', "available space for '}' but OutOfMemory!");
+
+        else if(this.state == JsParserState.AWAIT_PROPS && c == '}'){ // side effect from previous if [ ungetch('}') call]!
+            this.state = JsParserState.NEXT_VALUE; // just goto NEXT_VALUE where all checks.
+        }
+
+        else if(this.state == JsParserState.START && c != '{') //Json object must starts with '{'
             err(c, "{");
 
         else if(this.state == JsParserState.START){ // state = Start, c == '{'
@@ -94,19 +101,19 @@ public class SimpleJsonParser2 {
         }
         else if((this.state == JsParserState.AWAIT_PROPS || this.state == JsParserState.AWAIT_STRVALUE) && c != '\"')
             err(c, "\"");
-        else if(this.state == JsParserState.AWAIT_PROPS){ // state == AWAIT_PROPS, c == '"' == t(Start, '{')
+        else if(this.state == JsParserState.AWAIT_PROPS){ // state == AWAIT_PROPS, c == '"' [ trans_from(Start, '{') ]
 
             c = getFilech(r); //read character.
             int l = 0;
-            while(c != '\"' && bufp < bsize) { //read all content until '"' char (end of the string).
+            while(c != '\"' && bufp < bsize) { //read all content until '"' char (end of the string) while buffer available.
                 if(c == '\\')
                     c = getEscaped(r);
                 l++;
                 buf[bufp++] = (char)c;
                 c = getFilech(r);
             }
-            if(bufp >= bsize && c != '\"') {
-                err('\"', ""+(char)c);
+            if(bufp >= bsize && c != '\"') { //too long string (buffer exceeded)
+                err(c, "available space for \'"+(char)c +"'\' or EOL (\") symbol");
                 return;
             }
             props.push(new String(buf, 0, l));
@@ -124,17 +131,31 @@ public class SimpleJsonParser2 {
                 c = getFilech(r);
             }
             if(bufp >= bsize && c != '\"') {
-                err('\"', ""+(char)c);
+                err(c, "available space for \'"+(char)c +"'\' or EOL (\") symbol");
                 return;
             }
 
             this.state = JsParserState.READ_STRVALUE;
-            this.curVal = new JsonString(new String(buf, 0, l));//parseFromStr(new String(buf, 0, l), 1);
+            this.curVal = new JsonString(new String(buf, 0, l));
             flushBuf();
         }
         else if(this.state == JsParserState.READ_PROPNAME && c != ':')
             err(c,":");
-        else if(this.state == JsParserState.READ_PROPNAME){ // ':' name value separator was read.
+        else if(this.state == JsParserState.READ_PROPNAME){ // c == ':' name value separator was read.
+            this.state = JsParserState.COLON;
+        }
+
+
+        else if(this.state == JsParserState.EMPTY_OR_NOT_ARR && c == ']' && ungetch(']') == 0){
+            err(']', "available space for ']' but OutOfMemory!");
+        }
+        else if(this.state == JsParserState.EMPTY_OR_NOT_ARR && c == ']'){ // side effect from previous else if [ungetch() call!]
+            this.state = JsParserState.NEXT_VALUE;
+        }
+        else if(this.state == JsParserState.EMPTY_OR_NOT_ARR && ungetch((char) c) == 0){ // c != ']'
+            err(c, "available space for '"+(char)c+"' but OutOfMemory!");
+        }
+        else if(this.state == JsParserState.EMPTY_OR_NOT_ARR){
             this.state = JsParserState.COLON;
         }
 
@@ -157,18 +178,26 @@ public class SimpleJsonParser2 {
                 case '[': {
                     J_ARR.push(new JsonArray());
                     J_ROOTS.push(J_ARR.top());
-                    this.state = JsParserState.COLON;
+                    this.state = JsParserState.EMPTY_OR_NOT_ARR;
                     break;
                 }
                 default: {
                     int l = 0;
-                    while(bufp < bsize && (c != ' ' && c != '\n' && c != '\r' && c != '\t')){ //read all content til first space symbol ' '
+
+                    //CHECK that rvalue is not consists of token symbols ( ']' '}' ',' ':' '[' '{', EOF)
+                    while(bufp < bsize && (c != ' ' && c != '\n' && c != '\r' && c != '\t')
+                        && (c != '}' && c != ']' && c != ',' && c != ':' && c != '{'  && c != '[' && c != 65535)
+                    )
+                    { //read all content til first space symbol ' '
                         buf[bufp++] = (char)c;
                         c = getFilech(r);
                         l++;
                     }
-                    if(bufp >= bsize && (c != ' ' && c != '\n' && c != '\r' && c != '\t')) {
-                        err(c, "end of the token (space symbol or LF or CR or tab) but \"..."+(char)c+"\"");
+                    if(bufp >= bsize && (c != ' ' && c != '\n' && c != '\r' && c != '\t')
+                            && (c != '}' && c != ']' && c != ',' && c != ':' && c != '{' && c != '[' && c != 65535)
+                    )
+                    {
+                        err(c, "end of the token (space symbol or LF or CR or tab) or another token ('}' ']' etc.) but \"..."+(char)c+"\"");
                         return;
                     }
                     String v = new String(buf, 0, l);
@@ -189,12 +218,14 @@ public class SimpleJsonParser2 {
                            this.curVal = new JsonRealNumber(val);
                     }
                     this.state = JsParserState.READ_STRVALUE;
+                    if(ungetch((char) c) == 0)
+                        err(c, "available space but OutOfMemory!");
                     break;
                 } // END of default.
             } //END of switch
         }// END COLON state.
 
-        //BEGIN READ_STRVALUE state.
+        //BEGIN READ_STRVALUE state. (READ_NON_EMPTY_VALUE)
         else if(this.state == JsParserState.READ_STRVALUE){
             cur_obj = J_OBJS.top();
             JsonArray cur_arr = null;
@@ -210,7 +241,7 @@ public class SimpleJsonParser2 {
                 this.state = JsParserState.AWAIT_PROPS;//awaiting new property
                 this.curVal = null;
             }
-            else if(c == ']' && J_ROOTS.top() instanceof JsonArray){
+            else if(c == ']' && J_ROOTS.top() instanceof JsonArray){ //after processed value follows ']'
                 cur_arr = J_ARR.top();
                 cur_arr.getElements().add(this.curVal);// add processed value to processed array.
                 J_ARR.pop(); // remove processed array.
@@ -225,7 +256,7 @@ public class SimpleJsonParser2 {
                 }
                 this.state = JsParserState.NEXT_VALUE;
             }
-            else if(c == '}'){
+            else if(c == '}'){ //after processed value follows '}'
                 cur_obj.getValue().put(props.top(), this.curVal);
                 props.pop();
                 this.curVal = null;
@@ -244,9 +275,11 @@ public class SimpleJsonParser2 {
                     this.state = JsParserState.NEXT_VALUE;
                 }
             }
+            else
+                err(c, "one of ',' '}' ']' ");
         } //END READ_STRVALUE
 
-        //BEGIN NEXT_VALUE state.
+        //BEGIN NEXT_VALUE state
         else if(this.state == JsParserState.NEXT_VALUE){
             cur_obj = J_OBJS.top();
             if(c == ',' && J_ROOTS.top() instanceof JsonArray){
@@ -285,6 +318,9 @@ public class SimpleJsonParser2 {
                     this.state = JsParserState.NEXT_VALUE;
                 }
             }
+            else
+                err(c, "one of ',' '}' ']' ");
+
         } // END NEXT_VALUE
     }
 

@@ -6,7 +6,6 @@ import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.lexers.DFALexer;
 import bmstu.iu7m.osipov.services.lexers.FALexerGenerator;
 import bmstu.iu7m.osipov.services.lexers.RegexRPNParser;
-import bmstu.iu7m.osipov.services.parsers.json.SimpleJsonParser;
 import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.automats.DFA;
 import bmstu.iu7m.osipov.ui.models.ParserGeneratorModel;

@@ -1,8 +1,10 @@
 package bmstu.iu7m.osipov.unit_tests.json_parser;
 
 
-import bmstu.iu7m.osipov.services.parsers.json.SimpleJsonParser;
 import bmstu.iu7m.osipov.services.parsers.json.SimpleJsonParser2;
+import bmstu.iu7m.osipov.services.parsers.json.elements.JsonArray;
+import bmstu.iu7m.osipov.services.parsers.json.elements.JsonBoolean;
+import bmstu.iu7m.osipov.services.parsers.json.elements.JsonElement;
 import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import org.apache.commons.io.Charsets;
@@ -15,6 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.*;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -25,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
 )
 public class SimpleJsonParserTest {
 
-    //public static SimpleJsonParser parser = new SimpleJsonParser(1024);
     public static final SimpleJsonParser2 JSON_PARSER = new SimpleJsonParser2(1024);
 
 
@@ -62,7 +64,7 @@ public class SimpleJsonParserTest {
 
         obj = readFromString(d3);
         assert obj != null;
-        assertEquals(12400, obj.getProperty("num").getValue());
+        assertEquals(12400L, obj.getProperty("num").getValue());
 
         obj = readFromString(d4);
         assert obj != null;
@@ -71,6 +73,61 @@ public class SimpleJsonParserTest {
         obj = readFromString(d5);
         assert  obj != null;
         assertEquals(2.123, obj.getProperty("realNum").getValue());
+    }
+
+    //TODO: validate empty objects and arrays.
+    @Test
+    public void parse_empty_object() throws IOException {
+        String de1 = "{ }";
+        String de2= "{ " +
+                "\"p1\" : \"str\", \"p2\" : { }"
+                + " }";
+
+        String de3 = "{" +
+                "\"p1\" : { }, \"p2\" : true"
+                + "}";
+
+        String de4 = "{ \"p1\" : [ { },{},{}] }";
+
+        JsonObject obj = readFromString(de1);
+
+        assert obj != null;
+        assertEquals(0, obj.getValue().keySet().size());
+
+
+        obj = readFromString(de2);
+        assert  obj != null;
+        assertEquals(2, obj.getValue().keySet().size());
+        assertEquals("str", obj.getProperty("p1").getValue());
+        assertTrue(obj.getProperty("p2") instanceof JsonObject);
+        obj = (JsonObject) obj.getProperty("p2");
+        assertEquals(0, obj.getValue().keySet().size());
+
+
+        obj = readFromString(de3);
+        assert  obj != null;
+        assertEquals(2, obj.getValue().keySet().size());
+        assertTrue(obj.getProperty("p2") instanceof JsonBoolean);
+        assertEquals(true, obj.getProperty("p2").getValue());
+        assertTrue(obj.getProperty("p1") instanceof JsonObject);
+        obj = (JsonObject) obj.getProperty("p1");
+        assertEquals(0, obj.getValue().keySet().size());
+
+        obj = readFromString(de4);
+        assert obj != null;
+        assertEquals(1, obj.getValue().keySet().size());
+        assertTrue(obj.getProperty("p1") instanceof JsonArray);
+        ArrayList<JsonElement> ar = (ArrayList<JsonElement>) obj.getProperty("p1").getValue();
+
+        assertEquals(3, ar.size());
+        assertTrue(ar.get(0) instanceof JsonObject);
+        assertTrue(ar.get(1) instanceof JsonObject);
+        assertTrue(ar.get(2) instanceof JsonObject);
+    }
+
+    @Test
+    public void parse_empty_arrays(){
+
     }
 
     public static JsonObject readFromString(String sd) throws IOException{
