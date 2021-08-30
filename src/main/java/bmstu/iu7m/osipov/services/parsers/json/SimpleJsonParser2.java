@@ -84,12 +84,16 @@ public class SimpleJsonParser2 {
             c = getch(r);
         }
 
-        if(this.state == JsParserState.AWAIT_PROPS && c == '}' && ungetch('}') == 0)
+        if(this.state == JsParserState.AWAIT_PROPS_OR_END_OF_OBJ && c == '}' && ungetch('}') == 0)
             err('}', "available space for '}' but OutOfMemory!");
 
-        else if(this.state == JsParserState.AWAIT_PROPS && c == '}'){ // side effect from previous if [ ungetch('}') call]!
+        else if(this.state == JsParserState.AWAIT_PROPS_OR_END_OF_OBJ && c == '}'){ // side effect from previous if [ ungetch('}') call]!
             this.state = JsParserState.NEXT_VALUE; // just goto NEXT_VALUE where all checks.
         }
+        else if(this.state == JsParserState.AWAIT_PROPS_OR_END_OF_OBJ && ungetch((char) c) == 0)
+            err(c, "available space for '"+(char) c +"' but OutOfMemory!");
+        else if(this.state == JsParserState.AWAIT_PROPS_OR_END_OF_OBJ)
+            this.state = JsParserState.AWAIT_PROPS;
 
         else if(this.state == JsParserState.START && c != '{') //Json object must starts with '{'
             err(c, "{");
@@ -97,7 +101,7 @@ public class SimpleJsonParser2 {
         else if(this.state == JsParserState.START){ // state = Start, c == '{'
             J_OBJS.push(new JsonObject());
             J_ROOTS.push(J_OBJS.top());
-            this.state = JsParserState.AWAIT_PROPS;
+            this.state = JsParserState.AWAIT_PROPS_OR_END_OF_OBJ;
         }
         else if((this.state == JsParserState.AWAIT_PROPS || this.state == JsParserState.AWAIT_STRVALUE) && c != '\"')
             err(c, "\"");

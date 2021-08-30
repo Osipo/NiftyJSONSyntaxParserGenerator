@@ -37,11 +37,15 @@ public class SimpleJsonParserTest {
         String e1= "{ \"eobj\" : {";
         String e2 = "{ \"eof\" : a";
         String e3 = "{ \"eof2\" :  ";
+        String e4 = "{ \"p1\" : \"str\" , }";
         JsonObject obj = readFromString(e1);
         assertNull(obj);
         obj = readFromString(e2);
         assertNull(obj);
         obj = readFromString(e3);
+        assertNull(obj);
+
+        obj = readFromString(e4);
         assertNull(obj);
     }
 
@@ -75,7 +79,7 @@ public class SimpleJsonParserTest {
         assertEquals(2.123, obj.getProperty("realNum").getValue());
     }
 
-    //TODO: validate empty objects and arrays.
+
     @Test
     public void parse_empty_object() throws IOException {
         String de1 = "{ }";
@@ -126,8 +130,14 @@ public class SimpleJsonParserTest {
     }
 
     @Test
-    public void parse_empty_arrays(){
+    public void parse_empty_arrays() throws IOException {
+        String d1 = "{ \"arr\" : [ ] }";
 
+        JsonObject obj = readFromString(d1);
+        assertEquals(1, obj.getValue().keySet().size());
+        assertTrue(obj.getProperty("arr") instanceof JsonArray);
+        JsonArray arr = (JsonArray) obj.getProperty("arr");
+        assertEquals(0, arr.getValue().size());
     }
 
     public static JsonObject readFromString(String sd) throws IOException{
