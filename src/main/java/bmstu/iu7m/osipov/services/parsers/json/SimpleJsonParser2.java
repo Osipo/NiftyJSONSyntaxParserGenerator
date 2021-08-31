@@ -84,14 +84,16 @@ public class SimpleJsonParser2 {
             c = getch(r);
         }
 
+        //JSON_OBJ -> { PROPS } | { }.
         if(this.state == JsParserState.AWAIT_PROPS_OR_END_OF_OBJ && c == '}' && ungetch('}') == 0)
             err('}', "available space for '}' but OutOfMemory!");
 
         else if(this.state == JsParserState.AWAIT_PROPS_OR_END_OF_OBJ && c == '}'){ // side effect from previous if [ ungetch('}') call]!
             this.state = JsParserState.NEXT_VALUE; // just goto NEXT_VALUE where all checks.
         }
-        else if(this.state == JsParserState.AWAIT_PROPS_OR_END_OF_OBJ && ungetch((char) c) == 0)
+        else if(this.state == JsParserState.AWAIT_PROPS_OR_END_OF_OBJ && ungetch((char) c) == 0) // ungetch call produces side effect for next else if branch
             err(c, "available space for '"+(char) c +"' but OutOfMemory!");
+
         else if(this.state == JsParserState.AWAIT_PROPS_OR_END_OF_OBJ)
             this.state = JsParserState.AWAIT_PROPS;
 
@@ -408,7 +410,7 @@ public class SimpleJsonParser2 {
                     err(x, "Unicode token \\uxxxx where x one of [0-9] or [A-Fa-f]");
                     return 0;
                 }
-                int code = (int)ProcessNumber.parse(new String(hcode),null,'N',16,1); //just parse positive hex number to decimal.
+                int code = (int)ProcessNumber.parse(new String(hcode),null,'N',16,1, 1); //just parse positive hex number to decimal.
                 return code;
             }
             default:{

@@ -3,6 +3,8 @@ package bmstu.iu7m.osipov.configurations;
 import bmstu.iu7m.osipov.services.adapters.TextReaderAdapter;
 import bmstu.iu7m.osipov.services.adapters.TextReaderAdapterImpl;
 import bmstu.iu7m.osipov.services.files.*;
+import bmstu.iu7m.osipov.services.parsers.json.SimpleJsonParser2;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
@@ -10,6 +12,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.annotation.Order;
 
 @Configuration
@@ -39,8 +42,12 @@ public class ServicesConfiguration {
         return new TextReaderAdapterImpl();
     }
 
+    @Bean(name = "jsonParser")
+    @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+    public SimpleJsonParser2 getJSONParser(){ return new SimpleJsonParser2(); }
+
     @Bean(name = "ServicesConfiguration_all")
-    @DependsOn({"FileSearcher", "ReadWriteFileProcess", "TreeFilesReader", "textReader"})
+    @DependsOn({"FileSearcher", "ReadWriteFileProcess", "TreeFilesReader", "textReader", "jsonParser"})
     public Object allBean(){
         System.out.println("Beans of ServicesConfiguration are created.");
         return null;

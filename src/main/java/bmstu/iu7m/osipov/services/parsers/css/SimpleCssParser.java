@@ -23,7 +23,7 @@ import java.util.Map;
 /*
   Read and parse css file from 'resources' directory
   Preserves the style rule that was previously applied IF one has the high priority.
-  Example: id.p1 class.p1 => id.p1
+  Example: id.p1 class.p1 ->  id.p1 (id > class)
   Example: class1.p1, class2.p1 => class2.p2 (prev priority is <= new priority).
  */
 public class SimpleCssParser {
@@ -142,7 +142,7 @@ public class SimpleCssParser {
         HashMap<String, String> props = css_styles.get(rule);
         //System.out.println("Selector: "+rule+" -> "+buf.toString());
         switch (type){
-            case '.':{
+            case '.':{ //extract objects from uiStore by className (getClass().getSimpleName() == sel)
                 MapStream.of(uiStore.getComponents())
                         .filter(x -> x.getValue().getType().equals(sel))
                         .forEach(x -> {
@@ -174,6 +174,7 @@ public class SimpleCssParser {
                             HashMap<String, String> props
     )
     {
+        //Pair of [RuleName: properties with values]
         Pair<String, HashMap<String, String>> app_props = css_meta.computeIfAbsent(c, k -> new Pair<>(rule, new HashMap<>(props)));
         for(String k : props.keySet()){
 

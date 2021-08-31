@@ -4,7 +4,6 @@ import bmstu.iu7m.osipov.configurations.UIComponentIds;
 import bmstu.iu7m.osipov.services.files.FileLocatorService;
 import bmstu.iu7m.osipov.ui.controllers.handlers.*;
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
-import bmstu.iu7m.osipov.ui.models.entities.UIComponent;
 import bmstu.iu7m.osipov.ui.models.entities.UIMenuItemComponent;
 import bmstu.iu7m.osipov.ui.models.stores.EventHandlersStore;
 import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
@@ -49,6 +48,7 @@ public class TextFieldTreeCellCallback implements Callback<TreeView<FileEntryIte
         return cell;
     }
 
+    // called by RootWindowController at initDialogs(Stage s) method
     public void loadContextMenuForCells(){
         this.fileMenu = new ContextMenu();
         this.dirMenu = new ContextMenu();
@@ -86,12 +86,13 @@ public class TextFieldTreeCellCallback implements Callback<TreeView<FileEntryIte
 
         //Init Context menu for Directories
         MenuItem dir_open = new MenuItem("Open");
-        dir_open.setId(UIComponentIds.TreeViewContextMenuDirOpen);
         MenuItem dir_close = new MenuItem("Close");
-        dir_close.setId(UIComponentIds.TreeViewContextMenuDirClose);
         MenuItem cf = new MenuItem("Create file");
         MenuItem cdir = new MenuItem("Create dir");
         MenuItem com_pars = new MenuItem("Make common parser");
+
+        dir_open.setId(UIComponentIds.TreeViewContextMenuDirOpen);
+        dir_close.setId(UIComponentIds.TreeViewContextMenuDirClose);
         cf.setId(UIComponentIds.TreeViewContextMenuCreateFile);
         cdir.setId(UIComponentIds.TreeViewContextMenuCreateDir);
         com_pars.setId(UIComponentIds.TreeViewContextMenuCommonPrs);

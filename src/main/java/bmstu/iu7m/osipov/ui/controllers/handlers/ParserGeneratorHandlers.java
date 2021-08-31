@@ -18,6 +18,7 @@ import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.TreeItem;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,13 +27,14 @@ public class ParserGeneratorHandlers {
     protected ParserGeneratorModel model;
     protected TreeFilesModel treeModel;
     protected final ObjectProperty<TreeItem<FileEntryItem>> selected_item;
+
+    @Autowired
     protected SimpleJsonParser2 json_translator;
 
     public ParserGeneratorHandlers(ParserGeneratorModel m, TreeFilesModel treeModel){
         this.model = m;
         this.treeModel = treeModel;
         this.selected_item = new SimpleObjectProperty<>(this, "selectedItem", null);
-        this.json_translator = new SimpleJsonParser2();
     }
 
     public final ObjectProperty<TreeItem<FileEntryItem>> selectedItemProperty(){

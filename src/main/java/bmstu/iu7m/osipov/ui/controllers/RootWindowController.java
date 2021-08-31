@@ -147,9 +147,10 @@ public class RootWindowController extends RootWindowView {
 
         this.tree_ctrl.getCallBackFunction().loadContextMenuForCells();
 
-        //Set default language to English forcefully!
+        //Set default language to English forcefully by switching it to Russian
+        // AND then switching it again to English with fire 'click' event on m_prefs_lang_eng MenuItem.
         selectedLang.set(LanguageName.RU);// choose another language to pass handler.
-        m_prefs_lang_eng.fire(); //and fire it.
+        m_prefs_lang_eng.fire(); //and fire English_item click.
 
 
     }

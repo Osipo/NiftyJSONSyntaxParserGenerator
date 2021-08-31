@@ -9,4 +9,5 @@ public interface PathStrings {
     public static final String PARSERS = PathStringUtils.replaceSeparator("C:\\Users\\Oleg\\IdeaProjects\\NiftyJSONCompilerGenerator\\src\\test\\resources\\grammars\\parsers\\");
     public static final String LLPARSERS = PathStringUtils.replaceSeparator("C:\\Users\\Oleg\\IdeaProjects\\NiftyJSONCompilerGenerator\\src\\test\\resources\\grammars\\parsers\\LL1\\");
     public static final String PARSER_INPUT = PathStringUtils.replaceSeparator("C:\\Users\\Oleg\\IdeaProjects\\NiftyJSONCompilerGenerator\\src\\test\\resources\\input\\");
+    public static final String COLLAZ = PathStringUtils.replaceSeparator("C:\\Users\\Oleg\\IdeaProjects\\NiftyJSONCompilerGenerator\\src\\test\\resources");
 }

@@ -7,8 +7,9 @@
     -fx-font-family: 'serif';
     -fx-font-size: 15px;
     -fx-color: darkblue 50% lightblue 50%;
+    -fx-cursor: hand;
 }
 
 .MenuItem {
-    -fx-background-color: green;
+    -fx-background: green;
 }
