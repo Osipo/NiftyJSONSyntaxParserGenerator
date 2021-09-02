@@ -19,7 +19,7 @@ import javafx.scene.control.TreeItem;
 import java.io.File;
 import java.io.IOException;
 
-public class CreateLexerHandler extends ParserGeneratorHandlers implements EventHandler<ActionEvent> {
+public class CreateLexerHandler extends ParserGeneratorHandlers<ActionEvent> implements ObserverEventHandler<ActionEvent> {
     public CreateLexerHandler(ParserGeneratorModel m, TreeFilesModel treeModel) {
         super(m, treeModel);
     }

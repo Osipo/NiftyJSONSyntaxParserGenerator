@@ -18,7 +18,7 @@ import javafx.scene.control.TreeItem;
 import java.io.File;
 import java.io.IOException;
 
-public class ParseFileHandler extends ParserGeneratorHandlers implements EventHandler<ActionEvent> {
+public class ParseFileHandler extends ParserGeneratorHandlers<ActionEvent> implements ObserverEventHandler<ActionEvent> {
     private ImageWindow w;
     public ParseFileHandler(ParserGeneratorModel m, TreeFilesModel treeModel, ImageWindow w) {
         super(m, treeModel);
@@ -34,7 +34,7 @@ public class ParseFileHandler extends ParserGeneratorHandlers implements EventHa
         String fullName = selected_item.get().getValue().getFullFileName();
         System.out.println("Init parsing of file: " + fullName);
         if(this.model.getCurLexer() == null || this.model.getCurParser() == null){
-            System.out.println("Cannot parse. First, create Parser with Lexer by selecting \"Make Parser\" option!");
+            System.out.println("Cannot parse. First, create Parser with Lexer by selecting \"Make Lexer and Parser\" option!");
             return;
         }
         TreeItem<FileEntryItem> pNode = selected_item.get().getParent();

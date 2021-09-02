@@ -4,7 +4,7 @@ import bmstu.iu7m.osipov.ui.models.EditorModel;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
-public class SaveFileHandler implements EventHandler<ActionEvent> {
+public class SaveFileHandler extends ObserverBaseEventHandler<ActionEvent> implements ObserverEventHandler<ActionEvent> {
 
     protected EditorModel editorModel;
 

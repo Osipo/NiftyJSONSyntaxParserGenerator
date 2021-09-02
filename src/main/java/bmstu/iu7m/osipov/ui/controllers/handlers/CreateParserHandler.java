@@ -11,7 +11,7 @@ import javafx.event.EventHandler;
 
 import java.io.File;
 
-public class CreateParserHandler extends ParserGeneratorHandlers implements EventHandler<ActionEvent> {
+public class CreateParserHandler extends ParserGeneratorHandlers<ActionEvent> implements ObserverEventHandler<ActionEvent> {
     public CreateParserHandler(ParserGeneratorModel m, TreeFilesModel treeModel) {
         super(m, treeModel);
     }

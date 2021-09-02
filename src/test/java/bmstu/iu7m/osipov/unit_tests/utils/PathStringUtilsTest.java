@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
         classes = {}
 )
 public class PathStringUtilsTest {
+
     @Test
     public void when_null_then_null() throws WrongOrderOfArgumentsException {
         assertNull(PathStringUtils.getSubtraction(null, ""));

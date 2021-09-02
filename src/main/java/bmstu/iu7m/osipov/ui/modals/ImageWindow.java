@@ -9,10 +9,15 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Window;
+import javafx.stage.WindowEvent;
 
 import java.io.*;
 import java.util.Objects;
 
+//Three instances of ImageWindow
+// One for ShowLexer handler
+// One for ShowParser handler
+// Last one for Show ParseHandler (showing parsing Tree)
 public class ImageWindow extends ModalWindow implements TitledUIComponent {
 
     private final ImageView imgView;

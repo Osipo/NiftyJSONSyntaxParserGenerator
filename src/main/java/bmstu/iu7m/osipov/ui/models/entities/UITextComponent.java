@@ -6,10 +6,9 @@ import javafx.scene.control.Labeled;
 public class UITextComponent extends UIComponent {
 
     private Labeled textNode;
-    public UITextComponent(Node node) {
+    public UITextComponent(Labeled node) {
         super(node);
-        if(node instanceof Labeled)
-            textNode = (Labeled) node;
+        this.textNode = node;
     }
 
     public Labeled getTextNode(){

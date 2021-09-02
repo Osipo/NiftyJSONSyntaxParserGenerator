@@ -10,7 +10,7 @@ import javafx.scene.input.KeyEvent;
 
 import java.io.*;
 
-public class CommandShellHandler implements EventHandler<KeyEvent>, Runnable {
+public class CommandShellHandler extends ObserverBaseEventHandler<KeyEvent> implements ObserverEventHandler<KeyEvent>, Runnable {
 
     private TextArea cmd_text;
 

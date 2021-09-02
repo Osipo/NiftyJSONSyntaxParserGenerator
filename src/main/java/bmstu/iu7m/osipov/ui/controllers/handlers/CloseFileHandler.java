@@ -10,7 +10,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.TreeItem;
 
-public class CloseFileHandler implements EventHandler<ActionEvent> {
+public class CloseFileHandler extends ObserverBaseEventHandler<ActionEvent> implements ObserverEventHandler<ActionEvent> {
 
 
     protected final ObjectProperty<TreeItem<FileEntryItem>> selected_item;

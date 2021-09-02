@@ -11,7 +11,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.TreeItem;
 
-public class UpdateTreeViewAndOpenFileDialogHandler extends OpenFileDialogHandler implements EventHandler<ActionEvent> {
+public class UpdateTreeViewAndOpenFileDialogHandler extends OpenFileDialogHandler implements ObserverEventHandler<ActionEvent> {
 
     private TreeFilesModel treeCtrlModel;
 

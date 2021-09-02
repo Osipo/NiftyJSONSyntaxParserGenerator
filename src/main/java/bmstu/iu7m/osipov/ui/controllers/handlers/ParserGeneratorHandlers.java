@@ -17,13 +17,15 @@ import bmstu.iu7m.osipov.ui.models.TreeFilesModel;
 import bmstu.iu7m.osipov.ui.models.entities.FileEntryItem;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.scene.control.TreeItem;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
 
-public class ParserGeneratorHandlers {
+public abstract class ParserGeneratorHandlers<T extends Event> extends ObserverBaseEventHandler<T> {
     protected ParserGeneratorModel model;
     protected TreeFilesModel treeModel;
     protected final ObjectProperty<TreeItem<FileEntryItem>> selected_item;

@@ -3,6 +3,7 @@ package bmstu.iu7m.osipov;
 import bmstu.iu7m.osipov.configurations.ControllerBeanNames;
 import bmstu.iu7m.osipov.ui.controllers.OutputTabController;
 import bmstu.iu7m.osipov.ui.controllers.RootWindowController;
+import bmstu.iu7m.osipov.utils.PathStringUtils;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
@@ -26,6 +27,9 @@ public class Main extends AbstractJavaFxApplication {
     public static String PATH_SEPARATOR = FileSystems.getDefault().getSeparator();
     public static String PATH_SEPARATOR_ESC = "\\" + FileSystems.getDefault().getSeparator();
     public static String CWD = System.getProperty("user.dir");
+
+    //tuning PROJECT_DIR for unit tests.
+    public static String PROJECT_DIR = PathStringUtils.replaceSeparator("C:\\Users\\Oleg\\IdeaProjects\\NiftyJSONCompilerGenerator\\");
 
     @Autowired
     @Qualifier(ControllerBeanNames.ROOT_CTRL)

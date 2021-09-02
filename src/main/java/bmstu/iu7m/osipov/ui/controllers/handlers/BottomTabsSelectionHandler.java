@@ -5,7 +5,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
-public class BottomTabsSelectionHandler implements EventHandler<ActionEvent> {
+public class BottomTabsSelectionHandler extends ObserverBaseEventHandler<ActionEvent> implements ObserverEventHandler<ActionEvent> {
 
     private Pane parent;
     private Node child;

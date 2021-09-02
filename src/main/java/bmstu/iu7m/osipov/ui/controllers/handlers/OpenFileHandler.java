@@ -13,7 +13,7 @@ import javafx.scene.control.TreeItem;
 
 import java.io.File;
 
-public class OpenFileHandler implements EventHandler<ActionEvent> {
+public class OpenFileHandler extends ObserverBaseEventHandler<ActionEvent> implements ObserverEventHandler<ActionEvent> {
 
     protected final ObjectProperty<TreeItem<FileEntryItem>> selected_item;
     protected EditorModel editorModel;

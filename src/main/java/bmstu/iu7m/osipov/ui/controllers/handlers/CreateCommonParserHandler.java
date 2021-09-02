@@ -22,7 +22,7 @@ import javafx.scene.control.TreeItem;
 
 import java.io.IOException;
 
-public class CreateCommonParserHandler extends ParserGeneratorHandlers implements EventHandler<ActionEvent> {
+public class CreateCommonParserHandler extends ParserGeneratorHandlers<ActionEvent> implements ObserverEventHandler<ActionEvent> {
 
     private JSONDCollectionGrammarBuilder g_builder;
 

@@ -18,7 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
-public class CreateFileHandler extends OpenFileHandler implements EventHandler<ActionEvent> {
+public class CreateFileHandler extends OpenFileHandler implements ObserverEventHandler<ActionEvent> {
 
     private CreateFileDialog dialog;// singleton modal window.
 

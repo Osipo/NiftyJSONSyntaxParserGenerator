@@ -115,15 +115,21 @@ public class RootWindowController extends RootWindowView {
         ShowParserHandler right_ctrl_sh_parser = new ShowParserHandler(genModel, parser_show_win);
 
         //Add to right controller btns
-        right_ctrl.getShowLexerButton().addEventHandler(ActionEvent.ACTION, right_ctrl_sh_lexer);
-        right_ctrl.getShowParserButton().addEventHandler(ActionEvent.ACTION, right_ctrl_sh_parser);
+        right_ctrl_sh_lexer.attachTo(ActionEvent.ACTION, uiStore.getComponents().get(UIComponentIds.ShowLexerAutomaton));
+        right_ctrl_sh_parser.attachTo(ActionEvent.ACTION, uiStore.getComponents().get(UIComponentIds.ShowParserAutomaton));
+
+        //right_ctrl.getShowLexerButton().addEventHandler(ActionEvent.ACTION, right_ctrl_sh_lexer);
+        //right_ctrl.getShowParserButton().addEventHandler(ActionEvent.ACTION, right_ctrl_sh_parser);
 
 
 
         // add handlers and save them to the HandlersStore
-        m_file_open.addEventHandler(ActionEvent.ACTION, ophdlr);
+        //m_file_open.addEventHandler(ActionEvent.ACTION, ophdlr);
+        ophdlr.attachTo(ActionEvent.ACTION, uiStore.getComponents().get(UIComponentIds.FileOpenMenu));
 
         //open and close for editor.
+        //TODO: Replace component.addEventHandler with eventHandler.attachTo(etype, component)
+
         editor_ctrl.getModel().getView().getCloseButton().addEventHandler(ActionEvent.ACTION, editor_clshdlr);
         editor_ctrl.getModel().getView().getSaveButton().addEventHandler(ActionEvent.ACTION, svhdlr);
 

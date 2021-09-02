@@ -23,7 +23,7 @@ import javax.swing.filechooser.FileFilter;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class OpenFileDialogHandler extends OpenFileHandler implements EventHandler<ActionEvent> {
+public class OpenFileDialogHandler extends OpenFileHandler implements ObserverEventHandler<ActionEvent> {
 
     protected AtomicReference<Boolean> dialogFlag;
 

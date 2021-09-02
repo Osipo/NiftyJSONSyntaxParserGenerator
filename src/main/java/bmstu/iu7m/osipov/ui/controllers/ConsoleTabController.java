@@ -40,8 +40,10 @@ public class ConsoleTabController extends ConsoleTabView {
 
         TerminalKeyInputHandler in_hdlr = new TerminalKeyInputHandler(this.model);
         TerminalKeyInputHandler ctrl_hdlr = new TerminalKeyInputHandler(this.model);
-        this.console_text.addEventHandler(KeyEvent.KEY_TYPED, in_hdlr);
-        this.console_text.addEventHandler(KeyEvent.KEY_PRESSED, ctrl_hdlr);
+
+        in_hdlr.attachTo(KeyEvent.KEY_TYPED, uiStore.getComponents().get("console_text"));
+        ctrl_hdlr.attachTo(KeyEvent.KEY_PRESSED, uiStore.getComponents().get("console_text"));
+
         this.hdlrs.getHandlers().put("termInput", in_hdlr);
         this.hdlrs.getHandlers().put("termCtrl", ctrl_hdlr);
     }

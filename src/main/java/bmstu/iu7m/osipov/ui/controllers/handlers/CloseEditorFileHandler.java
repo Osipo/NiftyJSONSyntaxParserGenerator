@@ -4,7 +4,7 @@ import bmstu.iu7m.osipov.ui.models.EditorModel;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
-public class CloseEditorFileHandler extends CloseFileHandler implements EventHandler<ActionEvent> {
+public class CloseEditorFileHandler extends CloseFileHandler implements ObserverEventHandler<ActionEvent> {
     public CloseEditorFileHandler(EditorModel model) {
         super(model);
     }

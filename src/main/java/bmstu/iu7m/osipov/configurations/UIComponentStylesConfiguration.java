@@ -1,5 +1,6 @@
 package bmstu.iu7m.osipov.configurations;
 
+import bmstu.iu7m.osipov.ui.controllers.handlers.ObserverEventHandler;
 import bmstu.iu7m.osipov.ui.models.entities.UIComponent;
 import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
 import javafx.event.Event;
@@ -32,7 +33,7 @@ public class UIComponentStylesConfiguration {
 
     @Bean(name = "hdlrsMap")
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-    public HashMap<String, EventHandler> getEventHandlersStore(){
+    public HashMap<String, ObserverEventHandler> getEventHandlersStore(){
         System.out.println("structure for event handlers is created");
         return new HashMap<>();
     }
@@ -211,7 +212,7 @@ public class UIComponentStylesConfiguration {
     }
 
     @Bean(name = "UIComponentStylesConfiguration_all")
-    @DependsOn({"uiComponents", "hdlrsMap", "rusLang", "engLang"})
+    @DependsOn({"uiComponents", "hdlrsMap", "rusLang", "engLang", "hdlrsStore"})
     public Object allBean(){
         System.out.println("Beans of UIComponentStylesConfiguration are created.");
         return null;

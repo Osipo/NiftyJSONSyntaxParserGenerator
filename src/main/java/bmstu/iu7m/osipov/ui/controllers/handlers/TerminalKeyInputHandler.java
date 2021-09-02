@@ -7,7 +7,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import java.util.List;
 
-public class TerminalKeyInputHandler implements EventHandler<KeyEvent> {
+public class TerminalKeyInputHandler extends ObserverBaseEventHandler<KeyEvent> implements ObserverEventHandler<KeyEvent> {
 
     protected TerminalModel termModel;
 

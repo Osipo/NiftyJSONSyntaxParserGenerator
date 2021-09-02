@@ -9,7 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class ShowLexerHandler extends ShowAnalyzerPartsHandler implements EventHandler<ActionEvent> {
+public class ShowLexerHandler extends ShowAnalyzerPartsHandler<ActionEvent> implements ObserverEventHandler<ActionEvent> {
 
     public ShowLexerHandler(SyntaxAnalyzer sa, ImageWindow w){
         super(sa, w);

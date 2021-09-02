@@ -65,18 +65,29 @@ public class TextFieldTreeCellCallback implements Callback<TreeView<FileEntryIte
         MenuItem par_file = new MenuItem("Parse file");
         par_file.setId(UIComponentIds.TreeViewContextMenuParseFile);
 
+        UIMenuItemComponent c1_1 = new UIMenuItemComponent(open);
+        UIMenuItemComponent c1_2 = new UIMenuItemComponent(close);
+        UIMenuItemComponent c1_3 = new UIMenuItemComponent(lexgen);
+        UIMenuItemComponent c1_4 = new UIMenuItemComponent(parsgen);
+        UIMenuItemComponent c1_5 = new UIMenuItemComponent(par_file);
+
         //SET handlers to the items of menu.
         //BE SURE THAT EventHandlers have type parameter = ActionEvent!
-        if(hdlrs != null && hdlrs.getHandlers().get("openFile") instanceof OpenFileHandler)
-            open.addEventHandler(ActionEvent.ACTION, hdlrs.getHandlers().get("openFile"));
-        if(hdlrs != null && hdlrs.getHandlers().get("closeFile") instanceof CloseFileHandler)
-            close.addEventHandler(ActionEvent.ACTION, hdlrs.getHandlers().get("closeFile"));
-        if(hdlrs != null && hdlrs.getHandlers().get("genLexer") instanceof CreateLexerHandler)
-            lexgen.addEventHandler(ActionEvent.ACTION, hdlrs.getHandlers().get("genLexer"));
-        if(hdlrs != null && hdlrs.getHandlers().get("genParser") instanceof CreateParserHandler)
-            parsgen.addEventHandler(ActionEvent.ACTION, hdlrs.getHandlers().get("genParser"));
-        if(hdlrs != null && hdlrs.getHandlers().get("parseFile") instanceof ParseFileHandler)
-            par_file.addEventHandler(ActionEvent.ACTION, hdlrs.getHandlers().get("parseFile"));
+        if(hdlrs != null && hdlrs.getHandlers().get("openFile") instanceof OpenFileHandler) {
+            ((OpenFileHandler) hdlrs.getHandlers().get("openFile")).attachTo(ActionEvent.ACTION, c1_1);
+        }
+        if(hdlrs != null && hdlrs.getHandlers().get("closeFile") instanceof CloseFileHandler) {
+            ((CloseFileHandler) hdlrs.getHandlers().get("closeFile")).attachTo(ActionEvent.ACTION, c1_2);
+        }
+        if(hdlrs != null && hdlrs.getHandlers().get("genLexer") instanceof CreateLexerHandler) {
+            ((CreateLexerHandler) hdlrs.getHandlers().get("genLexer")).attachTo(ActionEvent.ACTION, c1_3);
+        }
+        if(hdlrs != null && hdlrs.getHandlers().get("genParser") instanceof CreateParserHandler) {
+            ((CreateParserHandler) hdlrs.getHandlers().get("genParser")).attachTo(ActionEvent.ACTION, c1_4);
+        }
+        if(hdlrs != null && hdlrs.getHandlers().get("parseFile") instanceof ParseFileHandler) {
+            ((ParseFileHandler) hdlrs.getHandlers().get("parseFile")).attachTo(ActionEvent.ACTION, c1_5);
+        }
 
         fileMenu.getItems().add(open);
         fileMenu.getItems().add(lexgen);
@@ -97,18 +108,29 @@ public class TextFieldTreeCellCallback implements Callback<TreeView<FileEntryIte
         cdir.setId(UIComponentIds.TreeViewContextMenuCreateDir);
         com_pars.setId(UIComponentIds.TreeViewContextMenuCommonPrs);
 
+        UIMenuItemComponent c2_1 = new UIMenuItemComponent(dir_open);
+        UIMenuItemComponent c2_2 = new UIMenuItemComponent(dir_close);
+        UIMenuItemComponent c2_3 = new UIMenuItemComponent(cf);
+        UIMenuItemComponent c2_4 = new UIMenuItemComponent(cdir);
+        UIMenuItemComponent c2_5 = new UIMenuItemComponent(com_pars);
 
 
-        if(hdlrs != null && hdlrs.getHandlers().get("openFile") instanceof OpenFileHandler)
-            dir_open.addEventHandler(ActionEvent.ACTION, hdlrs.getHandlers().get("openFile"));
-        if(hdlrs != null && hdlrs.getHandlers().get("closeFile") instanceof CloseFileHandler)
-            dir_close.addEventHandler(ActionEvent.ACTION, hdlrs.getHandlers().get("closeFile"));
-        if(hdlrs != null && hdlrs.getHandlers().get("createFile") instanceof CreateFileHandler)
-            cf.addEventHandler(ActionEvent.ACTION, hdlrs.getHandlers().get("createFile"));
-        if(hdlrs != null && hdlrs.getHandlers().get("createDir") instanceof CreateFileHandler)
-            cdir.addEventHandler(ActionEvent.ACTION, hdlrs.getHandlers().get("createDir"));
-        if(hdlrs != null && hdlrs.getHandlers().get("genCommonParser") instanceof CreateCommonParserHandler)
-            com_pars.addEventHandler(ActionEvent.ACTION, hdlrs.getHandlers().get("genCommonParser"));
+
+        if(hdlrs != null && hdlrs.getHandlers().get("openFile") instanceof OpenFileHandler) {
+            ((OpenFileHandler) hdlrs.getHandlers().get("openFile")).attachTo(ActionEvent.ACTION, c2_1);
+        }
+        if(hdlrs != null && hdlrs.getHandlers().get("closeFile") instanceof CloseFileHandler) {
+            ((CloseFileHandler) hdlrs.getHandlers().get("closeFile")).attachTo(ActionEvent.ACTION, c2_2);
+        }
+        if(hdlrs != null && hdlrs.getHandlers().get("createFile") instanceof CreateFileHandler) {
+            ((CreateFileHandler) hdlrs.getHandlers().get("createFile")).attachTo(ActionEvent.ACTION, c2_3);
+        }
+        if(hdlrs != null && hdlrs.getHandlers().get("createDir") instanceof CreateFileHandler) {
+            ((CreateFileHandler) hdlrs.getHandlers().get("createDir")).attachTo(ActionEvent.ACTION, c2_4);
+        }
+        if(hdlrs != null && hdlrs.getHandlers().get("genCommonParser") instanceof CreateCommonParserHandler) {
+            ((CreateCommonParserHandler) hdlrs.getHandlers().get("genCommonParser")).attachTo(ActionEvent.ACTION, c2_5);
+        }
 
         dirMenu.getItems().add(dir_open);
         dirMenu.getItems().add(cf);
@@ -116,16 +138,16 @@ public class TextFieldTreeCellCallback implements Callback<TreeView<FileEntryIte
         dirMenu.getItems().add(com_pars);
         dirMenu.getItems().add(dir_close);
 
-        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuOpen, new UIMenuItemComponent(open));
-        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuClose, new UIMenuItemComponent(close));
-        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuDirOpen, new UIMenuItemComponent(dir_open));
-        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuDirClose, new UIMenuItemComponent(dir_close));
-        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuCreateFile, new UIMenuItemComponent(cf));
-        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuCreateDir, new UIMenuItemComponent(cdir));
-        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuCommonPrs, new UIMenuItemComponent(com_pars));
-        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuLexerGen, new UIMenuItemComponent(lexgen));
-        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuParserGen, new UIMenuItemComponent(parsgen));
-        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuParseFile, new UIMenuItemComponent(par_file));
+        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuOpen, c1_1);
+        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuClose, c1_2);
+        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuDirOpen, c2_1);
+        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuDirClose, c2_2);
+        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuCreateFile, c2_3);
+        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuCreateDir, c2_4);
+        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuCommonPrs, c2_5);
+        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuLexerGen, c1_3);
+        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuParserGen, c1_4);
+        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuParseFile, c1_5);
         System.out.println("Context menu was built.");
     }
 }

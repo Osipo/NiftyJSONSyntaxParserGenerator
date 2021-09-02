@@ -1,9 +1,12 @@
 package bmstu.iu7m.osipov.ui.models.entities;
 
 
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.scene.Node;
 
-public class UIComponent  {
+public class UIComponent implements EventSubscriber {
     protected Node node;
     public UIComponent(Node node){
         this.node = node;
@@ -19,5 +22,15 @@ public class UIComponent  {
 
     public void setStyle(String style){
         this.node.setStyle(this.node.getStyle() + style);
+    }
+
+    @Override
+    public <T extends Event> void addEventHandler(EventType<T> etype, EventHandler<T> handler){
+        this.node.addEventHandler(etype, handler);
+    }
+
+    @Override
+    public <T extends Event> void removeEventHandler(EventType<T> etype, EventHandler<T> handler){
+        this.node.removeEventHandler(etype, handler);
     }
 }
