@@ -124,18 +124,22 @@ public class RootWindowController extends RootWindowView {
 
 
         // add handlers and save them to the HandlersStore
-        //m_file_open.addEventHandler(ActionEvent.ACTION, ophdlr);
         ophdlr.attachTo(ActionEvent.ACTION, uiStore.getComponents().get(UIComponentIds.FileOpenMenu));
 
         //open and close for editor.
-        //TODO: Replace component.addEventHandler with eventHandler.attachTo(etype, component)
 
-        editor_ctrl.getModel().getView().getCloseButton().addEventHandler(ActionEvent.ACTION, editor_clshdlr);
-        editor_ctrl.getModel().getView().getSaveButton().addEventHandler(ActionEvent.ACTION, svhdlr);
 
-        this.m_file_close.addEventHandler(ActionEvent.ACTION, clshdlr);
-        this.m_file_new_tfile.addEventHandler(ActionEvent.ACTION, tree_crthdlr_f);
-        this.m_file_new_dir.addEventHandler(ActionEvent.ACTION, tree_crthdlr_dir);
+        svhdlr.attachTo(ActionEvent.ACTION, uiStore.getComponents().get(UIComponentIds.EditorFilesSaveBtn));
+        editor_clshdlr.attachTo(ActionEvent.ACTION, uiStore.getComponents().get(UIComponentIds.EditorFilesCloseBtn));
+
+        //this.m_file_close.addEventHandler(ActionEvent.ACTION, clshdlr);
+        clshdlr.attachTo(ActionEvent.ACTION, uiStore.getComponents().get(UIComponentIds.FileCloseMenu));
+
+        //this.m_file_new_tfile.addEventHandler(ActionEvent.ACTION, tree_crthdlr_f);
+        tree_crthdlr_f.attachTo(ActionEvent.ACTION, uiStore.getComponents().get(UIComponentIds.FileNewTextFileMenu));
+
+        //this.m_file_new_dir.addEventHandler(ActionEvent.ACTION, tree_crthdlr_dir);
+        tree_crthdlr_dir.attachTo(ActionEvent.ACTION, uiStore.getComponents().get(UIComponentIds.FileNewDirectoryMenu));
 
         this.hdlrs.getHandlers().put("openFileAndUpdateView", ophdlr);
         this.hdlrs.getHandlers().put("openFile", tree_ophdlr);

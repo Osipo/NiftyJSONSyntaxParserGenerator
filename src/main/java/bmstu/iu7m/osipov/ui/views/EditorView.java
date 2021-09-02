@@ -88,7 +88,7 @@ public class EditorView extends VBox {
         this.uiStore.getComponents().put("swi_editor_wrapper", new UIComponent(swi_editor_wrapper));
         this.uiStore.getComponents().put("editor_menu_btns", new UIComponent(editor_menu_btns));
         this.uiStore.getComponents().put(UIComponentIds.EditorFilesSaveBtn, new UITextComponent(save_btn));
-        this.uiStore.getComponents().put("close_btn", new UIComponent(close_btn));
+        this.uiStore.getComponents().put(UIComponentIds.EditorFilesCloseBtn, new UIComponent(close_btn));
     }
 
     //-----------------------------------

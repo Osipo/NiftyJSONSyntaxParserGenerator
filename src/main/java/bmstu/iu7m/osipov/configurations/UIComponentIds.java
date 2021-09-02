@@ -22,6 +22,7 @@ public interface UIComponentIds {
     public static final String TreeFileMenuOptionFiles = "o_files";
 
     public static final String EditorFilesSaveBtn = "save_btn";
+    public static final String EditorFilesCloseBtn = "close_btn";
 
     public static final String BottomTerminal = "bottom_term";
     public static final String BottomOutput = "bottom_out";
