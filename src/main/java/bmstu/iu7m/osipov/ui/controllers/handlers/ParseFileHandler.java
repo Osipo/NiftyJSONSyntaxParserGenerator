@@ -34,7 +34,7 @@ public class ParseFileHandler extends ParserGeneratorHandlers<ActionEvent> imple
         String fullName = selected_item.get().getValue().getFullFileName();
         System.out.println("Init parsing of file: " + fullName);
         if(this.model.getCurLexer() == null || this.model.getCurParser() == null){
-            System.out.println("Cannot parse. First, create Parser with Lexer by selecting \"Make Lexer and Parser\" option!");
+            System.out.println("Cannot parse. First, create Parser with Lexer by selecting \"Make full Parser+Lexer\" option!");
             return;
         }
         TreeItem<FileEntryItem> pNode = selected_item.get().getParent();

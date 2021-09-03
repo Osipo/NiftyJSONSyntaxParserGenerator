@@ -1,5 +1,6 @@
 package bmstu.iu7m.osipov.ui.models.stores;
 
+import bmstu.iu7m.osipov.ui.controllers.handlers.ObserverEventHandler;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,15 +13,15 @@ import java.util.Map;
 @Component("hdlrsStore")
 @DependsOn({"hdlrsMap"})
 public class EventHandlersStore {
-    private Map<String, EventHandler> handlers;
+    private Map<String, ObserverEventHandler> handlers;
 
     @Autowired
-    public EventHandlersStore(@Qualifier("hdlrsMap") Map<String, EventHandler> handlers){
+    public EventHandlersStore(@Qualifier("hdlrsMap") Map<String, ObserverEventHandler> handlers){
         this.handlers = handlers;
         System.out.println("EventHandlersStore constructor call.");
     }
 
-    public Map<String, EventHandler> getHandlers() {
+    public Map<String, ObserverEventHandler> getHandlers() {
         return this.handlers;
     }
 }

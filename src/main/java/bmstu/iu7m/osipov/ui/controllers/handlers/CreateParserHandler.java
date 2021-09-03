@@ -12,16 +12,22 @@ import javafx.event.EventHandler;
 import java.io.File;
 
 public class CreateParserHandler extends ParserGeneratorHandlers<ActionEvent> implements ObserverEventHandler<ActionEvent> {
-    public CreateParserHandler(ParserGeneratorModel m, TreeFilesModel treeModel) {
+
+    private boolean ignore_cur_lexer = false;
+
+    public CreateParserHandler(ParserGeneratorModel m, TreeFilesModel treeModel, boolean ignore_cur_lexer) {
         super(m, treeModel);
+        this.ignore_cur_lexer = ignore_cur_lexer;
     }
+
+
 
     @Override
     public void handle(ActionEvent event) {
         System.out.println("Init parser creation");
         //for regular files (NON-dirs)
         if(selected_item.get() != null && selected_item.get().getValue() instanceof RegularFileEntryItem){
-            if(this.model.getCurLexer() == null)
+            if(this.model.getCurLexer() == null || ignore_cur_lexer)
                 initLexer();
             Parser parser = null;
             if(this.model.getCurLexer() != null && this.model.getGrammar() != null)

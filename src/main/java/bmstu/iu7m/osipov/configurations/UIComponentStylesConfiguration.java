@@ -78,6 +78,7 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.TreeViewContextMenuCreateDir, "Создать папку");
         t.put(UIComponentIds.TreeViewContextMenuLexerGen, "Создать лексический анализатор");
         t.put(UIComponentIds.TreeViewContextMenuParserGen, "Создать синтаксический анализатор");
+        t.put(UIComponentIds.TreeViewContextMenuLexAndParserGen, "Создать парсер вместе с лексером");
         t.put(UIComponentIds.TreeViewContextMenuParseFile, "Синтаксический анализ файла");
         t.put(UIComponentIds.TreeViewContextMenuCommonPrs, "Создать общий синтаксический анализатор");
 
@@ -164,6 +165,7 @@ public class UIComponentStylesConfiguration {
         t.put(UIComponentIds.TreeViewContextMenuCreateDir, "Create dir");
         t.put(UIComponentIds.TreeViewContextMenuLexerGen, "Make lexer");
         t.put(UIComponentIds.TreeViewContextMenuParserGen, "Make parser");
+        t.put(UIComponentIds.TreeViewContextMenuLexAndParserGen, "Make full Parser+Lexer");
         t.put(UIComponentIds.TreeViewContextMenuParseFile, "Parse file");
         t.put(UIComponentIds.TreeViewContextMenuCommonPrs, "Make common parser");
 

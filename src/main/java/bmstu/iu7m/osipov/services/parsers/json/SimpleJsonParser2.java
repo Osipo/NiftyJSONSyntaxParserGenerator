@@ -5,7 +5,7 @@ import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 
 import java.io.*;
 
-public class SimpleJsonParser2 {
+public class SimpleJsonParser2 implements JsonParserService {
     private JsParserState state;
     private char[] buf;
     private int bsize;
@@ -29,11 +29,13 @@ public class SimpleJsonParser2 {
     }
 
 
+    @Override
     public JsonObject parse(String fileName) {
         File f = new File(fileName);
         return parse(f);
     }
 
+    @Override
     public JsonObject parse(File fl){
         JsonObject result = null;
         try(FileInputStream f = new FileInputStream(fl.getAbsolutePath());
@@ -52,6 +54,7 @@ public class SimpleJsonParser2 {
         return result;
     }
 
+    @Override
     public JsonObject parseStream(InputStream in){
         LinkedStack<JsonObject> J_OBJS = new LinkedStack<>();
         LinkedStack<JsonArray> J_ARRS = new LinkedStack<>();
@@ -76,7 +79,7 @@ public class SimpleJsonParser2 {
         return J_OBJS.top();
     }
 
-    public void iterate(LinkedStack<JsonObject> J_OBJS, LinkedStack<JsonArray> J_ARR,
+    private void iterate(LinkedStack<JsonObject> J_OBJS, LinkedStack<JsonArray> J_ARR,
                         LinkedStack<JsonElement> J_ROOTS, LinkedStack<String> props, InputStreamReader r) throws IOException{
         int c = (int)' ';
         JsonObject cur_obj = null;

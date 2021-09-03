@@ -4,6 +4,7 @@ package bmstu.iu7m.osipov.ui.controllers;
 import bmstu.iu7m.osipov.configurations.ControllerBeanNames;
 import bmstu.iu7m.osipov.configurations.FileDialogText;
 import bmstu.iu7m.osipov.configurations.UIComponentIds;
+import bmstu.iu7m.osipov.services.parsers.json.JsonParserService;
 import bmstu.iu7m.osipov.ui.controllers.handlers.*;
 import bmstu.iu7m.osipov.ui.locale.LanguageName;
 import bmstu.iu7m.osipov.ui.modals.CreateFileDialog;
@@ -40,6 +41,9 @@ public class RootWindowController extends RootWindowView {
 
     @Autowired
     private EventHandlersStore hdlrs;
+
+    @Autowired
+    private JsonParserService jsonParser;
 
     @FXML
     private TreeFilesController tree_ctrl;
@@ -97,11 +101,19 @@ public class RootWindowController extends RootWindowView {
         ImageWindow ptree_win = new ImageWindow(this.uiStore, UIComponentIds.ShowParingTreeTitle);
 
         CreateLexerHandler tree_lexer_hdlr = new CreateLexerHandler(genModel, tree_ctrl.getModel());
-        CreateParserHandler tree_parser_hdlr = new CreateParserHandler(genModel, tree_ctrl.getModel());
+        tree_lexer_hdlr.setJsonParser(jsonParser);
+        CreateParserHandler tree_parser_hdlr = new CreateParserHandler(genModel, tree_ctrl.getModel(), false);
+        tree_parser_hdlr.setJsonParser(jsonParser);
+        CreateParserHandler tree_lexer_parser_hdlr = new CreateParserHandler(genModel, tree_ctrl.getModel(), true);
+        tree_lexer_parser_hdlr.setJsonParser(jsonParser);
+
         CreateCommonParserHandler tree_cparser_hdlr = new CreateCommonParserHandler(genModel, tree_ctrl.getModel());
+        tree_cparser_hdlr.setJsonParser(jsonParser);
+
         ParseFileHandler tree_parse_hdlr = new ParseFileHandler(genModel, tree_ctrl.getModel(), ptree_win);
         tree_lexer_hdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
         tree_parser_hdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
+        tree_lexer_parser_hdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
         tree_parse_hdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
         tree_cparser_hdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
 
@@ -150,6 +162,7 @@ public class RootWindowController extends RootWindowView {
         this.hdlrs.getHandlers().put("createDir", tree_crthdlr_dir);
         this.hdlrs.getHandlers().put("genLexer", tree_lexer_hdlr);
         this.hdlrs.getHandlers().put("genParser", tree_parser_hdlr);
+        this.hdlrs.getHandlers().put("genLexAndParser", tree_lexer_parser_hdlr);
         this.hdlrs.getHandlers().put("genCommonParser", tree_cparser_hdlr);
         this.hdlrs.getHandlers().put("parseFile", tree_parse_hdlr);
         this.hdlrs.getHandlers().put("showLexer", right_ctrl_sh_lexer);

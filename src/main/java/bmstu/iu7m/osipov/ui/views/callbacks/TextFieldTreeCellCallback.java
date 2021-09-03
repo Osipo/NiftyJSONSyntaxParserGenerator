@@ -62,6 +62,8 @@ public class TextFieldTreeCellCallback implements Callback<TreeView<FileEntryIte
         lexgen.setId(UIComponentIds.TreeViewContextMenuLexerGen);
         MenuItem parsgen = new MenuItem("Make parser");
         parsgen.setId(UIComponentIds.TreeViewContextMenuParserGen);
+        MenuItem lex_with_pars_gen = new MenuItem("Make full Parser+Lexer");
+        lex_with_pars_gen.setId(UIComponentIds.TreeViewContextMenuLexAndParserGen);
         MenuItem par_file = new MenuItem("Parse file");
         par_file.setId(UIComponentIds.TreeViewContextMenuParseFile);
 
@@ -70,6 +72,7 @@ public class TextFieldTreeCellCallback implements Callback<TreeView<FileEntryIte
         UIMenuItemComponent c1_3 = new UIMenuItemComponent(lexgen);
         UIMenuItemComponent c1_4 = new UIMenuItemComponent(parsgen);
         UIMenuItemComponent c1_5 = new UIMenuItemComponent(par_file);
+        UIMenuItemComponent c1_6 = new UIMenuItemComponent(lex_with_pars_gen);
 
         //SET handlers to the items of menu.
         //BE SURE THAT EventHandlers have type parameter = ActionEvent!
@@ -85,6 +88,9 @@ public class TextFieldTreeCellCallback implements Callback<TreeView<FileEntryIte
         if(hdlrs != null && hdlrs.getHandlers().get("genParser") instanceof CreateParserHandler) {
             ((CreateParserHandler) hdlrs.getHandlers().get("genParser")).attachTo(ActionEvent.ACTION, c1_4);
         }
+        if(hdlrs != null && hdlrs.getHandlers().get("genLexAndParser") instanceof CreateParserHandler){
+            ((CreateParserHandler) hdlrs.getHandlers().get("genLexAndParser")).attachTo(ActionEvent.ACTION, c1_6);
+        }
         if(hdlrs != null && hdlrs.getHandlers().get("parseFile") instanceof ParseFileHandler) {
             ((ParseFileHandler) hdlrs.getHandlers().get("parseFile")).attachTo(ActionEvent.ACTION, c1_5);
         }
@@ -92,6 +98,7 @@ public class TextFieldTreeCellCallback implements Callback<TreeView<FileEntryIte
         fileMenu.getItems().add(open);
         fileMenu.getItems().add(lexgen);
         fileMenu.getItems().add(parsgen);
+        fileMenu.getItems().add(lex_with_pars_gen);
         fileMenu.getItems().add(par_file);
         fileMenu.getItems().add(close);
 
@@ -148,6 +155,7 @@ public class TextFieldTreeCellCallback implements Callback<TreeView<FileEntryIte
         this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuLexerGen, c1_3);
         this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuParserGen, c1_4);
         this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuParseFile, c1_5);
+        this.uiStore.getComponents().put(UIComponentIds.TreeViewContextMenuLexAndParserGen, c1_6);
         System.out.println("Context menu was built.");
     }
 }

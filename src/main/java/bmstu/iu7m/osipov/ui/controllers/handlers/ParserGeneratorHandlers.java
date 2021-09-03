@@ -9,6 +9,7 @@ import bmstu.iu7m.osipov.services.lexers.RegexRPNParser;
 import bmstu.iu7m.osipov.services.parsers.LRAlgorithm;
 import bmstu.iu7m.osipov.services.parsers.LRParser;
 import bmstu.iu7m.osipov.services.parsers.Parser;
+import bmstu.iu7m.osipov.services.parsers.json.JsonParserService;
 import bmstu.iu7m.osipov.services.parsers.json.SimpleJsonParser2;
 import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.automats.DFA;
@@ -21,6 +22,7 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.scene.control.TreeItem;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,8 +32,7 @@ public abstract class ParserGeneratorHandlers<T extends Event> extends ObserverB
     protected TreeFilesModel treeModel;
     protected final ObjectProperty<TreeItem<FileEntryItem>> selected_item;
 
-    @Autowired
-    protected SimpleJsonParser2 json_translator;
+    protected JsonParserService json_translator;
 
     public ParserGeneratorHandlers(ParserGeneratorModel m, TreeFilesModel treeModel){
         this.model = m;
@@ -54,7 +55,6 @@ public abstract class ParserGeneratorHandlers<T extends Event> extends ObserverB
         String pdir = pNode.getValue() == null ? "" : pNode.getValue().getFullFileName() + Main.PATH_SEPARATOR;
         System.out.println("From directory: "+pdir);
 
-        RegexRPNParser rpn = new RegexRPNParser();
         JsonObject ob = json_translator.parse(f);
         if(ob == null){
             System.out.println("Cannot parse to JSON-tree elements.");
@@ -70,12 +70,13 @@ public abstract class ParserGeneratorHandlers<T extends Event> extends ObserverB
         System.out.println(g);
         FALexerGenerator lgen = new FALexerGenerator();
         DFALexer lexer = new DFALexer(new DFA(lgen.buildNFA(g)));
-//        try {
-//            lexer.getImagefromStr(pdir, "Lexer");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
         this.model.setCurLexer(lexer);
         this.model.setGrammar(g);
+    }
+
+    public void setJsonParser(JsonParserService jsonParser){
+        if(jsonParser == null)
+            throw new IllegalArgumentException("Cannot set current jsonParser of ParserGeneratorHandlers to NULL!");
+        this.json_translator = jsonParser;
     }
 }
