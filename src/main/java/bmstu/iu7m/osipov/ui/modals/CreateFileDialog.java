@@ -23,8 +23,6 @@ public class CreateFileDialog extends ModalWindow implements TitledUIComponent {
 
     private String name;
 
-    private String id;
-
     public CreateFileDialog(UIComponentStore store){
         this(null, store);
     }

@@ -4,4 +4,5 @@ public interface ImageNames {
     String IMG_FILE = "img/rfile.png";
     String IMG_DIR = "img/dir.jpg";
     String IMG_ODIR = "img/seldir.jpg";
+    String IMG_TARGET_BTN = "img/target_btn.png";
 }

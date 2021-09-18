@@ -20,8 +20,11 @@ public class ShowLexerHandler extends ShowAnalyzerPartsHandler<ActionEvent> impl
         File img = null;
         try {
             img = sa.getCurLexer().getImageFromDot();
-        } catch (IOException | NullPointerException e) {
-            e.printStackTrace();
+        } catch (NullPointerException e) {
+            System.out.println("Cannot show lexer as it has not been created!");
+        }
+        catch (IOException e){
+            System.out.println("Cannot create file for lexer description. File is too big or inaccessible.");
         }
         if(img == null)
             return;
@@ -29,7 +32,7 @@ public class ShowLexerHandler extends ShowAnalyzerPartsHandler<ActionEvent> impl
         try {
             imgWin.setImage(img);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("Cannot make image. File '"+img.getAbsolutePath()+"' was not corrected");
         }
     }
 }

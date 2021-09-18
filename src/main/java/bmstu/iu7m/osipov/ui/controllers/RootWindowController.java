@@ -42,6 +42,9 @@ public class RootWindowController extends RootWindowView {
     @Autowired
     private EventHandlersStore hdlrs;
 
+    //----------------------------------------------
+    // JSON PARSER AS A PART OF RootWindowController
+    //----------------------------------------------
     @Autowired
     private JsonParserService jsonParser;
 
@@ -64,7 +67,7 @@ public class RootWindowController extends RootWindowView {
         System.out.println("Init all dialog windows.");
 
         //----------------------------------
-        // init handlers for Open and Close files.
+        // init handlers for Open/Edit/Save/Close files.
         //----------------------------------
 
         //set openDialog handler
@@ -79,6 +82,7 @@ public class RootWindowController extends RootWindowView {
         CloseFileHandler clshdlr = new CloseFileHandler(editor_ctrl.getModel());
         clshdlr.selectedItemProperty().bind(tree_ctrl.getModel().selectedItemProperty());
 
+        //set closeFile for editor button (as editor has file, he need not check current opened file)
         CloseEditorFileHandler editor_clshdlr = new CloseEditorFileHandler(editor_ctrl.getModel());
 
         // Init Save and Create handlers.
@@ -129,10 +133,6 @@ public class RootWindowController extends RootWindowView {
         //Add to right controller btns
         right_ctrl_sh_lexer.attachTo(ActionEvent.ACTION, uiStore.getComponents().get(UIComponentIds.ShowLexerAutomaton));
         right_ctrl_sh_parser.attachTo(ActionEvent.ACTION, uiStore.getComponents().get(UIComponentIds.ShowParserAutomaton));
-
-        //right_ctrl.getShowLexerButton().addEventHandler(ActionEvent.ACTION, right_ctrl_sh_lexer);
-        //right_ctrl.getShowParserButton().addEventHandler(ActionEvent.ACTION, right_ctrl_sh_parser);
-
 
 
         // add handlers and save them to the HandlersStore

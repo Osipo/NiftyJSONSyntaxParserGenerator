@@ -10,6 +10,11 @@
     -fx-cursor: hand;
 }
 
+#o_show_options {
+    -fx-color: gray;
+    -fx-pref-width: 20px;
+}
+
 .MenuItem {
     -fx-background: green;
 }

@@ -12,7 +12,7 @@
 <fx:root xmlns="http://javafx.com/javafx"
          xmlns:fx="http://javafx.com/fxml"
          type="VBox">
-    <VBox fx:id="tfmenu" minHeight="70" prefHeight="70" minWidth="350">
+    <VBox fx:id="tfmenu" minHeight="95" prefHeight="95" minWidth="350">
         <HBox fx:id="menu" spacing="20" minHeight="50" prefHeight="50">
             <padding><Insets right="5" left="5" bottom="10" top="10" /></padding>
             <TextField fx:id="searchInput" minWidth="250" minHeight="25"/>
@@ -25,6 +25,9 @@
                 <RadioButton fx:id="o_dirs" text="Directories"/>
                 <RadioButton fx:id="o_files" text="Files"/>
             </HBox>
+        </HBox>
+        <HBox fx:id="tfmenu_bottom_2" spacing="20" minHeight="25" prefHeight="25">
+            <Button fx:id="o_show_options" text="Op" minHeight="25" prefHeight="25" prefWidth="25" maxWidth="25"/>
         </HBox>
     </VBox>
     <TreeView fx:id="tree" prefHeight="500"/>

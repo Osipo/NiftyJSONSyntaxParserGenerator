@@ -6,23 +6,15 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
-public abstract class ModalWindow implements TitledUIComponent {
-
-    protected String id;
-    protected final Stage stage;
-    protected UIComponentStore uiStore;
-    protected boolean isOpened;
+public abstract class ModalWindow extends bmstu.iu7m.osipov.ui.modals.Window implements TitledUIComponent {
 
     public ModalWindow(UIComponentStore store){
-        this(null, store);
+        super(null, store);
     }
 
     public ModalWindow(Window parent, UIComponentStore store){
-        this.stage = new Stage();
-        this.uiStore = store;
-        this.isOpened = false;
-        stage.initOwner(parent);
-        stage.initModality(Modality.WINDOW_MODAL);
+        super(parent, store);
+        stage.initModality(Modality.WINDOW_MODAL); //override modality.
     }
 
     public void setOpened(boolean opened) {

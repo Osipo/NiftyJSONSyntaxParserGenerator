@@ -31,6 +31,7 @@ public class ResourcesConfiguration {
         loadImageByURL(imgs, ImageNames.IMG_FILE);
         loadImageByURL(imgs, ImageNames.IMG_DIR);
         loadImageByURL(imgs, ImageNames.IMG_ODIR);
+        loadImageByURL(imgs, ImageNames.IMG_TARGET_BTN);
         ResourcesConfiguration.imgs = imgs;
         return imgs;
     }

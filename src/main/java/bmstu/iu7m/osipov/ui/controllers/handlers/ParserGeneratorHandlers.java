@@ -32,6 +32,8 @@ public abstract class ParserGeneratorHandlers<T extends Event> extends ObserverB
     protected TreeFilesModel treeModel;
     protected final ObjectProperty<TreeItem<FileEntryItem>> selected_item;
 
+    // set by setJsonParser() method.
+    // setJsonParser() method called from RootWindowController as it has injected JsonParserService
     protected JsonParserService json_translator;
 
     public ParserGeneratorHandlers(ParserGeneratorModel m, TreeFilesModel treeModel){

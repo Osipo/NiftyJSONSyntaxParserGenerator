@@ -30,6 +30,9 @@ public class GrammarMetaInfo {
     //For example scopeCategories may be defined as a Set of Strings {CLASS, METHOD, BLOCK, GLOBAL}
     private Set<String> scopeCategories;
 
+    //tuning on if it has Syntax Directed Translations/Actions (SDT)
+    private boolean hasTranslations = false;
+
     public GrammarMetaInfo(){
         this.keywords = new HashSet<>();
         this.operands = new HashSet<>();
@@ -156,5 +159,13 @@ public class GrammarMetaInfo {
 
     public Set<String> getScopeCategories() {
         return scopeCategories;
+    }
+
+    public void setHasTranslations(boolean f){
+        this.hasTranslations = f;
+    }
+
+    public boolean hasTranslations() {
+        return hasTranslations;
     }
 }

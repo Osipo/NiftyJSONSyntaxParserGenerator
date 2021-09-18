@@ -340,6 +340,7 @@ public class Grammar {
             for(JsonElement e : rules){
                 try {
                     JsonObject o = (JsonObject) e;
+
                     //Ignore empty objects.
                     if(o.getValue().keySet().size() == 0)
                         continue;
@@ -379,7 +380,7 @@ public class Grammar {
 
                                 // production with actions: E -> [E, +, T, {act: 'print', str: '+', file: ''}]
                                 HashMap<String, String> act_args = new HashMap<>();
-                                String aname = null;
+                                String aname = null; //action name [value of 'act' property]
                                 String arg_val = null;
                                 for(String p : j_action.getValue().keySet()){ // for each property of action-object.
                                     if(j_action.getProperty(p) instanceof JsonString){
@@ -393,14 +394,15 @@ public class Grammar {
                                     else
                                         throw new InvalidSyntaxDirectedTranslationException();
                                 }
-                                if(aname == null)
+                                if(aname == null) // cannot identify action. There is no name (property 'act') for it.
                                     throw new InvalidSyntaxDirectedTranslationException();
 
                                 SyntaxDirectedTranslation action = new SyntaxDirectedTranslation(aname, s_i, act_args);
                                 alpha.addToAugmentedBody(action);
+                                this.meta.setHasTranslations(true);
                             }
                             else
-                                throw new InvalidJsonGrammarException("Grammar Symbol must be String!",null);
+                                throw new InvalidJsonGrammarException("Grammar Symbol must be String or Translation json object!",null);
                         }
                         product_rules.add(alpha);
                     }

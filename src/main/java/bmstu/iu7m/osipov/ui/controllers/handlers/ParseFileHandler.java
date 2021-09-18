@@ -12,7 +12,6 @@ import bmstu.iu7m.osipov.ui.models.entities.RegularFileEntryItem;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.TreeItem;
 
 import java.io.File;
@@ -41,12 +40,12 @@ public class ParseFileHandler extends ParserGeneratorHandlers<ActionEvent> imple
         String pdir = pNode.getValue() == null ? "" : pNode.getValue().getFullFileName() + Main.PATH_SEPARATOR;
 
         LinkedTree<LanguageSymbol> tree = this.model.getCurParser().parse(fullName);
-        System.out.println("Parsed successful.");
+        System.out.println("Parsing finished.");
         try {
             File f = Graphviz.fromString(tree.toDot("ptree")).render(Format.PNG).toFile(new File(pdir+"Tree_SLR"));
             w.setImage(f);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Cannot show Parsing Tree. File is too big or source input was not passed by parser.");
         }
     }
 }

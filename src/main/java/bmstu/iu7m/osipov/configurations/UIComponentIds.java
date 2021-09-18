@@ -20,6 +20,7 @@ public interface UIComponentIds {
     public static final String TreeFileMenuOptionAll = "o_all";
     public static final String TreeFileMenuOptionDirs = "o_dirs";
     public static final String TreeFileMenuOptionFiles = "o_files";
+    public static final String TreeFileMenuOptionShow = "o_show_options";
 
     public static final String EditorFilesSaveBtn = "save_btn";
     public static final String EditorFilesCloseBtn = "close_btn";
@@ -42,11 +43,17 @@ public interface UIComponentIds {
     public static final String TreeViewContextMenuLexAndParserGen = "tv_cm_lex_and_pars_gen";
     public static final String TreeViewContextMenuParseFile = "tv_cm_parse";
 
+
+    //-----------------------------------------
+    //--          Modal Windows
+    //-----------------------------------------
     public static final String CreateFileDialogTitled = "cf_dialog_titled";
     public static final String CreateFileDialogLabel = "cf_dialog_fname_label";
     public static final String CreateFileDialogTextField = "cf_dialog_text";
     public static final String CreateFileDialogOkText = "cf_dialog_btn_ok";
     public static final String CreateFileDialogCancelText = "cf_dialog_btn_cancel";
+
+    public static final String ShowMessageDialogTitled = "sh_msg_dialog";
 
 
     // ---- Right controller ----
