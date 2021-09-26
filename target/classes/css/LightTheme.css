@@ -2,6 +2,9 @@
     -fx-color: red;
 }
 
+#test_btn {
+    @fx-text: 'Test MessageWin';
+}
 
 .Button {
     -fx-font-family: 'serif';
@@ -12,7 +15,11 @@
 
 #o_show_options {
     -fx-color: gray;
-    -fx-pref-width: 20px;
+     @fx-text: '';
+     -fx-border-color: blue;
+     -fx-border-width: 5px;
+     -fx-border-radius: 0px;
+     -fx-border-style: solid;
 }
 
 .MenuItem {

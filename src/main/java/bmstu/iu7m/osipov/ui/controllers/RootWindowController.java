@@ -61,7 +61,7 @@ public class RootWindowController extends RootWindowView {
     }
 
     /* This method starts after @PostConstruct init() method */
-    /* Called from Main start(Stage pStage) method */
+    /* Called from Main start(Stage pStage) method (FX-Application thread) */
     /* Initialize all Window dialogs. */
     public void initDialogs(Stage s){
         System.out.println("Init all dialog windows.");
@@ -153,6 +153,8 @@ public class RootWindowController extends RootWindowView {
         //this.m_file_new_dir.addEventHandler(ActionEvent.ACTION, tree_crthdlr_dir);
         tree_crthdlr_dir.attachTo(ActionEvent.ACTION, uiStore.getComponents().get(UIComponentIds.FileNewDirectoryMenu));
 
+        right_ctrl.test_window();
+
         this.hdlrs.getHandlers().put("openFileAndUpdateView", ophdlr);
         this.hdlrs.getHandlers().put("openFile", tree_ophdlr);
         this.hdlrs.getHandlers().put("saveFile", svhdlr);
@@ -174,8 +176,6 @@ public class RootWindowController extends RootWindowView {
         // AND then switching it again to English with fire 'click' event on m_prefs_lang_eng MenuItem.
         selectedLang.set(LanguageName.RU);// choose another language to pass handler.
         m_prefs_lang_eng.fire(); //and fire English_item click.
-
-
     }
 
     /* All JavaFX Components are loaded but beans are not wired yet.*/
@@ -186,6 +186,7 @@ public class RootWindowController extends RootWindowView {
     }
 
     /* All beans are wired. DI completed. */
+    /* Also applies all CSS rules to all elements in uiStore after saving them (see RootWindowView > saveUIComponents()). */
     @PostConstruct
     public void init(){
         System.out.println("Post Construct of RootWindowController bean");
@@ -194,12 +195,17 @@ public class RootWindowController extends RootWindowView {
             if(selectedLang.get() == LanguageName.ENG)
                 return;
 
-            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UITextComponent)
+            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UITextComponent).filter(x -> !x.getValue().isReadTextFromCss())
                     .map(x -> ((UITextComponent)x.getValue()).getTextNode()).forEach(x -> x.setText(uiStore.toEnglish().get(x.getId())));
 
-            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UIMenuItemComponent)
+            /* if some text is not presented in Dictionaries => then replace 'NULL' with some dummy value
+            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UITextComponent).map(x -> ((UITextComponent) x.getValue()).getTextNode())
+                    .filter(x -> x.getText() == null).forEach(x -> x.setText("NOT FOUND TRAN"));
+             */
+
+            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UIMenuItemComponent).filter(x -> !x.getValue().isReadTextFromCss())
                     .map(x -> ((UIMenuItemComponent)x.getValue()).getItem()).forEach(x -> x.setText(uiStore.toEnglish().get(x.getId())));
-            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UITitledComponent)
+            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UITitledComponent).filter(x -> !x.getValue().isReadTextFromCss())
                     .map(x -> ((UITitledComponent) x.getValue()).getTitled()).forEach(x -> x.setTitle(uiStore.toEnglish().get(x.getId())));
 
             selectedLang.set(LanguageName.ENG);
@@ -209,12 +215,12 @@ public class RootWindowController extends RootWindowView {
         m_prefs_lang_rus.setOnAction(event -> {
             if(selectedLang.get() == LanguageName.RU)
                 return;
-            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UITextComponent)
+            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UITextComponent).filter(x -> !x.getValue().isReadTextFromCss())
                     .map(x -> ((UITextComponent)x.getValue()).getTextNode()).forEach(x -> x.setText(uiStore.toRussian().get(x.getId())));
 
-            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UIMenuItemComponent)
+            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UIMenuItemComponent).filter(x -> !x.getValue().isReadTextFromCss())
                     .map(x -> ((UIMenuItemComponent)x.getValue()).getItem()).forEach(x -> x.setText(uiStore.toRussian().get(x.getId())));
-            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UITitledComponent)
+            MapStream.of(uiStore.getComponents()).filter(x -> x.getValue() instanceof UITitledComponent).filter(x -> !x.getValue().isReadTextFromCss())
                     .map(x -> ((UITitledComponent) x.getValue()).getTitled()).forEach(x -> x.setTitle(uiStore.toRussian().get(x.getId())));
 
             selectedLang.set(LanguageName.RU);

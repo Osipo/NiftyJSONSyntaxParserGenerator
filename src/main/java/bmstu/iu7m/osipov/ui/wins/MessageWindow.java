@@ -11,7 +11,7 @@ import javafx.scene.layout.HBox;
 public class MessageWindow extends Window {
 
     private Label msg;
-    public MessageWindow(UIComponentStore store){super(null, store);}
+    public MessageWindow(UIComponentStore store){this(null, store);}
 
     public MessageWindow(javafx.stage.Window parent, UIComponentStore store) {
         super(parent, store);

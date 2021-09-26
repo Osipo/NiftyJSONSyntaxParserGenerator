@@ -14,5 +14,6 @@
     <VBox fx:id="r_btns" spacing="20">
         <Button fx:id="sh_lexer" text="Show Lexer automaton"/>
         <Button fx:id="sh_parser" text="Show LR-Parser automaton"/>
+        <Button fx:id="test_btn" />
     </VBox>
 </fx:root>

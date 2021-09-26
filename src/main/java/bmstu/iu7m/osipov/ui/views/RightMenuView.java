@@ -17,6 +17,9 @@ public class RightMenuView extends VBox {
     @FXML
     private Button sh_parser;
 
+    @FXML
+    private Button test_btn;
+
     @Autowired
     protected UIComponentStore uiStore;
 
@@ -25,12 +28,14 @@ public class RightMenuView extends VBox {
     }
 
     protected void initView(){
+        r_btns.prefWidthProperty().bind(this.prefWidthProperty());
         System.out.println("RightMenuView > initView()");
     }
 
     protected void saveUIComponents(){
         this.uiStore.getComponents().put(UIComponentIds.ShowLexerAutomaton, new UITextComponent(sh_lexer));
         this.uiStore.getComponents().put(UIComponentIds.ShowParserAutomaton, new UITextComponent(sh_parser));
+        this.uiStore.getComponents().put("test_btn", new UITextComponent(test_btn));
     }
 
     //--------------------------------

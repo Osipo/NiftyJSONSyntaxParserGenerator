@@ -8,6 +8,7 @@ import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
 import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
 import bmstu.iu7m.osipov.ui.views.callbacks.TextFieldTreeCellCallback;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -87,7 +88,7 @@ public class TreeFilesView extends VBox {
 
         o_show_options.setTooltip(new Tooltip("show context menu on selected item."));
         o_show_options.setGraphic(new ImageView(ResourcesConfiguration.getImgs().get(ImageNames.IMG_TARGET_BTN)));
-
+        o_show_options.translateYProperty().bind(tfmenu_bottom_2.translateYProperty());
         o_all.setToggleGroup(o_group);
         o_dirs.setToggleGroup(o_group);
         o_files.setToggleGroup(o_group);
@@ -109,8 +110,10 @@ public class TreeFilesView extends VBox {
         uiStore.getComponents().put(UIComponentIds.TreeFileMenuOptionDirs,new UITextComponent(o_dirs));
         uiStore.getComponents().put(UIComponentIds.TreeFileMenuOptionFiles,new UITextComponent(o_files));
         uiStore.getComponents().put(UIComponentIds.TreeFileMenuOptionShow, new UITextComponent(o_show_options));
-        uiStore.getComponents().put(UIComponentIds.SearchButton,new UITextComponent(search));
+        uiStore.getComponents().put(UIComponentIds.SearchButton, new UITextComponent(search));
         uiStore.getComponents().put(UIComponentIds.TreeFileMenuOptionsLabel, new UITextComponent(menu_options_label));
+        o_show_options.setMinSize(25, 25);
+        o_show_options.setMaxSize(25, 25);
     }
 
     //-------------------------------

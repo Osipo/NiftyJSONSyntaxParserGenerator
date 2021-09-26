@@ -9,7 +9,7 @@ import javafx.stage.Window;
 public abstract class ModalWindow extends bmstu.iu7m.osipov.ui.modals.Window implements TitledUIComponent {
 
     public ModalWindow(UIComponentStore store){
-        super(null, store);
+        this(null, store);
     }
 
     public ModalWindow(Window parent, UIComponentStore store){

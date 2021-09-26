@@ -1,8 +1,24 @@
 #sh_lexer {
     -fx-color: red;
 }
+
+#test_btn {
+    @fx-text: 'Test MessageWin';
+}
+
 .Button {
     -fx-font-family: 'serif';
     -fx-font-size: 15px;
     -fx-color: darkblue 50% lightblue 50%;
+    -fx-cursor: hand;
+}
+
+#o_show_options {
+    -fx-color: gray;
+    -fx-width: 50px;
+     @fx-text: '';
+}
+
+.MenuItem {
+    -fx-background: green;
 }

@@ -3,6 +3,7 @@ package bmstu.iu7m.osipov.services.parsers.css;
 import bmstu.iu7m.osipov.structures.graphs.Pair;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.ui.models.entities.UIComponent;
+import bmstu.iu7m.osipov.ui.models.entities.UITextComponent;
 import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
 import com.codepoetics.protonpack.maps.MapStream;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,6 +178,15 @@ public class SimpleCssParser {
         //Pair of [RuleName: properties with values]
         Pair<String, HashMap<String, String>> app_props = css_meta.computeIfAbsent(c, k -> new Pair<>(rule, new HashMap<>(props)));
         for(String k : props.keySet()){
+
+            if(k.equals("@fx-text") && c instanceof UITextComponent){ //special common property '@fx-text' for setting text
+                String strval = props.get(k);
+                strval = strval.substring(2, strval.length() - 1); //remove quoted
+                ((UITextComponent) c).getTextNode().setText(strval);
+                app_props.getV2().remove("@fx-text"); //remove processed property of component c from style string IF EXISTS.
+                c.setReadTextFromCss(true);
+                continue;
+            }
 
             // id rule was previously set.
             if(app_props.getV1().charAt(0) == '#' && rule.charAt(0) != '#'

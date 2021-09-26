@@ -8,6 +8,8 @@ import javafx.scene.Node;
 
 public class UIComponent implements EventSubscriber {
     protected Node node;
+    protected boolean readTextFromCss = false;
+
     public UIComponent(Node node){
         this.node = node;
     }
@@ -27,6 +29,14 @@ public class UIComponent implements EventSubscriber {
     @Override
     public <T extends Event> void addEventHandler(EventType<T> etype, EventHandler<T> handler){
         this.node.addEventHandler(etype, handler);
+    }
+
+    public void setReadTextFromCss(boolean appliedCss) {
+        this.readTextFromCss = appliedCss;
+    }
+
+    public boolean isReadTextFromCss() {
+        return this.readTextFromCss;
     }
 
     @Override
