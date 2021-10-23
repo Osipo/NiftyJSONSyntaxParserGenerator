@@ -20,7 +20,7 @@ public abstract class Window implements TitledUIComponent {
         this.uiStore = store;
         this.isOpened = false;
         stage.initOwner(parent);
-        stage.initModality(Modality.NONE); //No Modality.
+        stage.initModality(Modality.APPLICATION_MODAL); //No Modality.
     }
 
     public void setOpened(boolean opened) {

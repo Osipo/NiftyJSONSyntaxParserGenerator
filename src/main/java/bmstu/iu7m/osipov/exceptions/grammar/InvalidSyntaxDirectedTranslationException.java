@@ -1,4 +1,4 @@
-package bmstu.iu7m.osipov.exceptions;
+package bmstu.iu7m.osipov.exceptions.grammar;
 
 public class InvalidSyntaxDirectedTranslationException extends RuntimeException {
     public InvalidSyntaxDirectedTranslationException(){

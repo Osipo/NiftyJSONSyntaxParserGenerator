@@ -17,9 +17,10 @@
     -fx-color: gray;
      @fx-text: '';
      -fx-border-color: blue;
-     -fx-border-width: 5px;
-     -fx-border-radius: 0px;
-     -fx-border-style: solid;
+     -fx-border-width: 3, 2, 5, 2;
+     -fx-border-radius: 0;
+     -fx-border-insets: 0;
+     -fx-border-style: solid outside;
 }
 
 .MenuItem {

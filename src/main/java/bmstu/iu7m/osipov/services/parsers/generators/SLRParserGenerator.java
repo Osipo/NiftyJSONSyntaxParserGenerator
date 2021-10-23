@@ -11,7 +11,7 @@ public class SLRParserGenerator {
 
     public static LR_0_Automaton buildLRAutomaton(Grammar G) throws Exception {
         String S0 = G.getStart();
-        String S1 = G.getStart()+"\'";
+        String S1 = G.getStart()+"\'"; //S'
         Map<Integer, Set<GrammarItem>> C = new TreeMap<>();//canonical items.
         Map< Pair<Integer, String>, Integer> gotoTable = new HashMap<>();//goto function.
 

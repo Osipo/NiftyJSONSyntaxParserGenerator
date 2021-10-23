@@ -1,12 +1,12 @@
 package bmstu.iu7m.osipov.services.grammars;
 
+import bmstu.iu7m.osipov.exceptions.grammar.InvalidJsonGrammarException;
+import bmstu.iu7m.osipov.exceptions.grammar.InvalidSyntaxDirectedTranslationException;
 import bmstu.iu7m.osipov.services.grammars.directives.SyntaxDirectedTranslation;
 import bmstu.iu7m.osipov.structures.graphs.Pair;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.observable.ObservableHashSet;
-import bmstu.iu7m.osipov.exceptions.*;
 import bmstu.iu7m.osipov.services.parsers.json.elements.*;
-import bmstu.iu7m.osipov.utils.GrammarBuilderUtils;
 
 import java.io.*;
 import java.util.*;
@@ -43,7 +43,8 @@ public class Grammar {
         this.lex_rules = new HashMap<>();
     }
 
-    public Grammar(Set<String> T, Set<String> N, Map<String,Set<GrammarString>> P,String start, String em, Map<String,List<String>> lexs, GrammarMetaInfo meta){
+
+    public Grammar(Set<String> T, Set<String> N, Map<String,Set<GrammarString>> P, String start, String em, Map<String, List<String>> lexs, GrammarMetaInfo meta){
         this.T = T;
         this.N = N;
         this.P = P;
@@ -325,7 +326,7 @@ public class Grammar {
                         throw new InvalidJsonGrammarException("The value of \"scopeEnd\" must be terminal (the property name of \"terms\")!",null);
                 }
                 else
-                    throw new InvalidJsonGrammarException("When defined \"scopeStart\" the \"scopeEnd\" must be defined too.\n Both are JsonString.\n",null);
+                    throw new InvalidJsonGrammarException("When defined \"scopeStart\" the \"scopeEnd\" must be defined too.\n Both must be JsonString.\n",null);
             }
         }
 
@@ -436,7 +437,7 @@ public class Grammar {
                     throw new InvalidJsonGrammarException("Production item must be a json object with single property which contains a grammar string!",err);
                 }
             }
-            /* update terms after checks [init T only on those terms that are actually presented in rules]*/
+            /* update terms after checks [init T only on those terms that are actually presented in rules] */
             this.T.clear();
             this.T = null;
             this.T = real_terms;
@@ -1312,20 +1313,23 @@ public class Grammar {
                     GrammarSymbol x2 = b.getSymbols().get(1);
                     GrammarString nb = new GrammarString();;
                     if(x1.getType() != 't' && x2.getType() != 't'){
-                        nb.addSymbol(new GrammarSymbol(x1.getType(),x1.getVal()));
-                        nb.addSymbol(new GrammarSymbol(x2.getType(),x2.getVal()));
+                        nb.addSymbol(new GrammarSymbol(x1.getType(), x1.getVal()));
+                        nb.addSymbol(new GrammarSymbol(x2.getType(), x2.getVal()));
                         nalts.add(nb);
                     }
                     else{
                         if(x1.getType() == 't'){
                             String nT = x1.getVal()+"-";
                             NN.add(nT);
+
+                            //Generate new rule for new non-term {X' -> X} where X is terminal and X' is replacement for him
                             HashSet<GrammarString> termB = new HashSet<>();
                             GrammarString termBB = new GrammarString();
-                            termBB.addSymbol(new GrammarSymbol(x1.getType(),x1.getVal()));
+                            termBB.addSymbol(new GrammarSymbol(x1.getType(), x1.getVal()));
                             termB.add(termBB);
-                            newP.put(nT,termB);
-                            nb.addSymbol(new GrammarSymbol('n',nT));
+                            newP.put(nT, termB);
+
+                            nb.addSymbol(new GrammarSymbol('n', nT));
                         }
                         else
                             nb.addSymbol(new GrammarSymbol(x1.getType(),x1.getVal()));
@@ -1348,10 +1352,10 @@ public class Grammar {
                     nalts.add(new GrammarString(new ArrayList<>(b.getSymbols())));
                 }
             }
-            newP.put(p,nalts);
+            newP.put(p, nalts);
             NN.add(p);
         }
-        return new Grammar(G.T,NN,newP,s,G.E,G.lex_rules,G.meta).setFlags(G.flags | GrammarFlags.CHOMSKY);
+        return new Grammar(G.T, NN, newP, s, G.E, G.lex_rules, G.meta).setFlags(G.flags | GrammarFlags.CHOMSKY);
     }
 
     //ELIMINATE LEFT RECURSION. (all type)
@@ -1713,6 +1717,9 @@ public class Grammar {
                 .setFlags(this.flags);
     }
 
+    //-----------------------------------------
+    // Left factor algorithm
+    //-----------------------------------------
     public Grammar deleteLeftFactor(){
         if((this.flags & GrammarFlags.NON_LEFT_PREFIXES) == GrammarFlags.NON_LEFT_PREFIXES)
             return this;
@@ -1876,5 +1883,39 @@ public class Grammar {
             i++;
         }
         return preffix;
+    }
+
+
+    // G*
+    public static Grammar kliniClosure(Grammar g) throws Exception {
+        String newStart = g.getStart() + "\'"; //S'
+        if(g.T.contains(newStart) || g.N.contains(newStart)
+                || g.meta.getKeywords().contains(newStart)
+                || g.S.equals(newStart) || (g.E != null && g.E.equals(newStart)) ){
+            System.out.println("Symbol "+newStart+" is already defined!");
+            throw new Exception("Cannot add new Rule. The element "+newStart+" is already exists!");
+        }
+        Set<GrammarString> np = new HashSet<>(); //new Production
+        GrammarString nsbody = new GrammarString();
+        nsbody.addSymbol(new GrammarSymbol('n', g.S));
+        nsbody.addSymbol(new GrammarSymbol('n', newStart));
+        GrammarString e = new GrammarString();
+        if(g.E == null)
+        e.addSymbol(new GrammarSymbol('t', g.E));
+        np.add(nsbody);
+        np.add(e); //S' -> SS' | e
+
+
+        Map<String,Set<GrammarString>> P2 = new HashMap<>(g.P);
+        P2.put(newStart, np); //add rule S' -> SS' | e
+        Grammar R = new Grammar(new HashSet<String>(g.T), new HashSet<String>(g.N), P2, newStart, g.E,
+                new HashMap<String, List<String>>(g.getLexicalRules()), g.meta);
+        R.setFlags(g.flags);
+        return R;
+    }
+
+    //G1 UNION G2
+    public static Grammar getUnion(Grammar g1, Grammar g2){
+        return null;
     }
 }
