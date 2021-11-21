@@ -1,6 +1,7 @@
 <Stage attr1="modal">
     <Scene width="500" height="400">
-
+        <HBox hgap="10" id="container1" />
+        <HBox hgap="5" id="container2"  />
     </Scene>
     <VBox>
 

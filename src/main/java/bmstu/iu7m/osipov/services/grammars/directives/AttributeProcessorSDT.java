@@ -62,13 +62,14 @@ public class AttributeProcessorSDT implements SDTParser {
                 //a_1.b_2. -> a_1.
 
                 String pr = this.prefix.toString();
+                //System.out.println(pr);
                 int idx = pr.indexOf('.');
                 if(idx + 1 == pr.length()){
                     this.prefix.delete(0, pr.length());
                 }
                 else{
                     idx = pr.lastIndexOf('.', pr.length() - 2);
-                    this.prefix.delete(idx, this.prefix.length());
+                    this.prefix.delete(idx + 1, this.prefix.length());
                 }
                 break;
             }
