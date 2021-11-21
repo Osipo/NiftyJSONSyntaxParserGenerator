@@ -155,6 +155,8 @@ public class RootWindowController extends RootWindowView {
 
         right_ctrl.test_window();
 
+
+
         this.hdlrs.getHandlers().put("openFileAndUpdateView", ophdlr);
         this.hdlrs.getHandlers().put("openFile", tree_ophdlr);
         this.hdlrs.getHandlers().put("saveFile", svhdlr);

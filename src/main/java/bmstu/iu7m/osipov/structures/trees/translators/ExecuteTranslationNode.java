@@ -26,6 +26,7 @@ public class ExecuteTranslationNode implements Action<Node<LanguageSymbol>> {
     @Override
     public void perform(Node<LanguageSymbol> arg) {
         LinkedNode<LanguageSymbol> t = (LinkedNode<LanguageSymbol>) arg;
+
         if(t.getValue() instanceof Translation && t.getValue() instanceof SyntaxDirectedTranslation){
             SyntaxDirectedTranslation act = (SyntaxDirectedTranslation) t.getValue();
             SDTParser executor = act_parsers.getOrDefault(act.getActName(), null);

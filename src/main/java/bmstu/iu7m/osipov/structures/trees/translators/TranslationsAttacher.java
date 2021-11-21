@@ -41,7 +41,7 @@ public class TranslationsAttacher implements Action<Node<LanguageSymbol>> {
 
         // Augment list of children of t.
         if(yield instanceof GrammarSDTString){
-            //System.out.println("SDT matched");
+            //System.out.println("SDT matched: "+yield);
             GrammarSDTString replacement = (GrammarSDTString) yield;
 
             // scan augmented string (with actions).

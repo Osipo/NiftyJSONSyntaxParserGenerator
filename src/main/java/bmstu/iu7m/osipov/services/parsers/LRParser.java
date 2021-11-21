@@ -63,10 +63,12 @@ public class LRParser extends Parser {
 
             //READ first token
             Token tok = lexer.recognize(f);
+
+            //Skip comments (NULL tokens) and Unrecognized (INVALID lexems)
             while(tok == null || tok.getName().equals("Unrecognized")){
-                if(tok != null) {
+                if(tok != null) { //NOT COMMENT -> INVALID TOKEN.
                     System.out.println(tok);
-                    isParsed = false;//TODO: MAY BE OPTIONAL.
+                    isParsed = false;//TODO: HANDLE LEXICAL ERRORS
                 }
                 tok = lexer.recognize(f);
             }
@@ -83,8 +85,8 @@ public class LRParser extends Parser {
                 Pair<Integer, String> k = new Pair<>(cstate, t);
                 if(mode == ParserMode.DEBUG)
                     System.out.println(states+" "+S+" >>"+t);
-                //command =  s s_state (shift)
-                //      | r_header:size
+                //command =  s_state (shift to the new state)
+                //      | r_header:size (reduce to production with header and size of items)
                 //      | acc
                 //      | err
                 command = table.getActionTable().get(k);

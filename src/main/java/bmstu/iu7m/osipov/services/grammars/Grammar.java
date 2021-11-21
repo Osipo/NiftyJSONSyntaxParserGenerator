@@ -386,7 +386,7 @@ public class Grammar {
                                 for(String p : j_action.getValue().keySet()){ // for each property of action-object.
                                     if(j_action.getProperty(p) instanceof JsonString){
                                         arg_val = ((JsonString) j_action.getProperty(p)).getValue();
-                                        if(p.equals("act"))//property 'act': arg_val.
+                                        if(p.equals("act")) // property 'act': arg_val.
                                             aname = new String(arg_val.toCharArray());
                                         else
                                             //TODO: ADD ADDITIONAL PARSING OF ACTION_ARGS_STRS.

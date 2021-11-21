@@ -15,7 +15,7 @@ public class GrammarBuilderUtils {
      * '$' sign and a positive number, where number indicates to the position
      * of the body (starts from zero).
      * @param body node with body of production (rule)
-     * @param act_arg the string value of the argument
+     * @param act_arg the string value of the argument (property of translation object which embedded into production)
      * @return parsed value of argument
      */
     public static String replaceSymRefsAtArgument(LinkedNode<LanguageSymbol> body, String act_arg){
@@ -29,7 +29,7 @@ public class GrammarBuilderUtils {
 
         for(int i = 0; i < syms.length; i++){
             if(syms[i] == '@' && i + 1 < syms.length) {
-                sb.append(syms[i + 1]);
+                sb.append(syms[i + 1]); //'@' verbatim sign (to print '@' use '@@')
                 i += 1;
             }
             else if(syms[i] == '$'){
@@ -39,6 +39,13 @@ public class GrammarBuilderUtils {
                 int j = i;
                 while(i < syms.length && syms[i] >= '0' && syms[i] <= '9') i++;
                 int num = Integer.parseInt(act_arg.substring(j, i));
+                if(i + 1 < syms.length && syms[i] == '_' ){
+                    body = body.getChildren().get(num);
+                    syms[i] = '$';
+                    i -= 1;
+                    continue;
+                }
+
                 String nval = body.getChildren().get(num).getValue().getLexeme();
                 sb.append(nval);
                 i -= 1;

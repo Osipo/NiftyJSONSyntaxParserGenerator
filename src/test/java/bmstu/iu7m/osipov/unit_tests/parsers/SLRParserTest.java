@@ -105,6 +105,8 @@ public class SLRParserTest {
 
     }
 
+
+
     //LR(0) Grammar of L = c*dc*d [cdcd, ccdccd, ccccccccdd, etc.]
     @Test
     public void parse_G_416() throws IOException {
@@ -151,4 +153,5 @@ public class SLRParserTest {
         Graphviz.fromString(t.toDot("I_XML_4th_reduced")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "I_XML_4th_reduced"));
 
     }
+
 }

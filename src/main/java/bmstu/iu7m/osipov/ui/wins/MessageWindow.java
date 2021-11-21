@@ -1,15 +1,17 @@
 package bmstu.iu7m.osipov.ui.wins;
 
+import bmstu.iu7m.osipov.configurations.ImageNames;
+import bmstu.iu7m.osipov.configurations.ResourcesConfiguration;
 import bmstu.iu7m.osipov.configurations.UIComponentIds;
 import bmstu.iu7m.osipov.ui.modals.Window;
 import bmstu.iu7m.osipov.ui.models.stores.UIComponentStore;
-import com.sun.rowset.internal.Row;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -32,6 +34,7 @@ public class MessageWindow extends Window {
         stage.setMaxWidth(500);
         stage.setMinHeight(100);
         stage.setMaxHeight(150);
+        stage.setResizable(false);
 
         //----------------------------------------
         //--  Set columns and rows of root grid --
@@ -65,6 +68,8 @@ public class MessageWindow extends Window {
         msg_body.setSpacing(20);
         msg_body.prefWidthProperty().bind(root.prefWidthProperty());
         this.msg = new Label("");
+
+        //msg_body.getChildren().add(new ImageView(ResourcesConfiguration.getImgs().get(ImageNames.IMG_FILE)));
         msg_body.getChildren().add(msg);
 
         root.add(msg_body, 0, 1);

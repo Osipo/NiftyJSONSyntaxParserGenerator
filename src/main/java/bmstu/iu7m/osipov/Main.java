@@ -8,6 +8,7 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,6 +56,7 @@ public class Main extends AbstractJavaFxApplication {
         }
         primaryStage.setResizable(true);
         primaryStage.centerOnScreen();
+
         System.out.println("Path Separator: "+ Main.PATH_SEPARATOR);
         primaryStage.setOnCloseRequest(e ->{
             outputTabCtrl.closeThread();

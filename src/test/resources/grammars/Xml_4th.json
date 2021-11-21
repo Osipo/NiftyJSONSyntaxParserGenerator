@@ -21,10 +21,10 @@
   "nonTerms": ["DOC", "ELEMS", "ELEM", "STAG", "ETAG", "EMPTYTAG", "CONTENT", "ATTRS", "ATTR", "ATTRVAL"],
   "productions": [
     {"DOC": "ELEM"},{"ELEM": ["STAG", "CONTENT", "ETAG"]},{"ELEM": "EMPTYTAG"},
-    {"STAG": ["<", "name", "ATTRS", ">"]}, {"ETAG": ["</","name",">"]},
-    {"EMPTYTAG": ["<", "name", "ATTRS", "/>"]}, {"CONTENT": "ELEMS"},
+    {"STAG": ["<", "name", "ATTRS", ">"]}, {"STAG":  ["<", "name", ">"]}, {"ETAG": ["</","name",">"]},
+    {"EMPTYTAG": ["<", "name", "ATTRS", "/>"]}, {"EMPTYTAG": ["<", "name", "/>"]}, {"CONTENT": "ELEMS"},
     {"ELEMS": ["ELEMS", "ELEM"]},{"ELEMS": "e"},
-    {"ATTRS": ["ATTRS", "ATTR"]}, {"ATTRS": "e"},
+    {"ATTRS": ["ATTRS", "ATTR"]}, {"ATTRS": "ATTR"},
     {"ATTR": ["name", "eq", "ATTRVAL"]},
     {"ATTRVAL": "string"}
   ],

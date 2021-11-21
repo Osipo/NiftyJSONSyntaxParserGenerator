@@ -20,13 +20,15 @@
   },
   "nonTerms": ["DOC", "ELEMS", "ELEM", "STAG", "ETAG", "EMPTYTAG", "CONTENT", "ATTRS", "ATTR", "ATTRVAL"],
   "productions": [
-    {"DOC": "ELEM"},{"ELEM": ["STAG", "CONTENT", "ETAG"]},{"ELEM": "EMPTYTAG"},
-    {"STAG": ["<", "name", "ATTRS", ">"]}, {"STAG":  ["<", "name", ">"]}, {"ETAG": ["</","name",">"]},
+    {"DOC": ["ELEM", {"act": "showAttrs"}]},{"ELEM": ["STAG", "CONTENT", "ETAG"]},{"ELEM": "EMPTYTAG"},
+    {"STAG": ["<", "name",  {"act": "addPrefix", "pref": "$1"}, "ATTRS", ">"]},
+    {"STAG":  ["<", "name", {"act": "addPrefix", "pref": "$1"}, ">"]},
+    {"ETAG": ["</", "name", {"act": "removePrefix"}, ">"]},
     {"EMPTYTAG": ["<", "name", "ATTRS", "/>"]}, {"EMPTYTAG": ["<", "name", "/>"]}, {"CONTENT": "ELEMS"},
     {"ELEMS": ["ELEMS", "ELEM"]},{"ELEMS": "e"},
     {"ATTRS": ["ATTRS", "ATTR"]}, {"ATTRS": "ATTR"},
-    {"ATTR": ["name", "eq", "ATTRVAL"]},
-    {"ATTRVAL": "string"}
+    {"ATTR": ["name", "eq", "ATTRVAL", {"act": "putAttr", "key": "$0", "val": "$2_0"}]},
+    {"ATTRVAL": "string" }
   ],
   "start": "DOC",
 
