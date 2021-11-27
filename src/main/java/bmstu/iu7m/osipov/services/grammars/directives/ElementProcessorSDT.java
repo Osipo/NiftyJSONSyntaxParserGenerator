@@ -18,11 +18,14 @@ public class ElementProcessorSDT implements SDTParser {
 
     LinkedStack<Object> objects;
 
+    LinkedStack<String> props_objects;
+
     Map<String, String> obj_attrs;
 
     public ElementProcessorSDT(AttributeProcessorSDT attr_processor){
         this.curName = null;
         this.objects = new LinkedStack<>();
+        this.props_objects = new LinkedStack<>();
         this.obj_attrs = new HashMap<>();
         this.attr_processor = attr_processor;
     }
@@ -42,7 +45,10 @@ public class ElementProcessorSDT implements SDTParser {
                 arg1 = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, arg1);
                 arg2 = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, arg2);
 
-                this.attr_processor.putAttribute(obj_attrs, arg1, arg2);
+
+                //this.attr_processor.putAttribute(obj_attrs, arg1, arg2);
+                this.obj_attrs.put(arg1, arg2);
+
                 break;
             }
             case "createObject": {
@@ -54,12 +60,14 @@ public class ElementProcessorSDT implements SDTParser {
                         (arg1.contains(".") && (this.curName == null || !this.curName.equals(arg1.substring(0, arg1.indexOf('.')))))
                 )
                 {
+                    System.out.println("Error: at Tag <"+arg1+">\n\t Complex attribute must be defined withing an object and have no String attributes!");
+                    System.out.println("Note that name before '.' must be the same as enclosing Tag name!");
                     break; //complex property must be defined within object and its attributes are Tags and not str=vals pairs!
                 }
                 if(arg1.contains(".")){ //well-formed complex property
                     Object pObj = this.objects.top();
                 }
-                else{
+                else {
                     this.curName = arg1;
                     System.out.println("{");
                     System.out.println("\tobject: "+this.curName);

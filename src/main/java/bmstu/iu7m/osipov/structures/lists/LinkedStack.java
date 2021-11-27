@@ -61,6 +61,19 @@ public class LinkedStack<T> implements Iterable<T> {
         else return _head.getElement();
     }
 
+    public T topFrom(int step){
+        if(step == 0)
+            return top();
+        else if(step < 0)
+            return null;
+        ElementType<T> temp = _head;
+        while(step > 0 && temp != null) {
+            temp = temp.getNext();
+            step--;
+        }
+        return (temp == null) ? null : temp.getElement();
+    }
+
     public void add(T item){
         push(item);
     }

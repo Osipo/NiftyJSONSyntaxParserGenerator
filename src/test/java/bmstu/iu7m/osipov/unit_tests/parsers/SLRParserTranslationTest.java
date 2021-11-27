@@ -5,6 +5,7 @@ import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.grammars.directives.AttributeProcessorSDT;
 import bmstu.iu7m.osipov.services.grammars.directives.ElementProcessorSDT;
 import bmstu.iu7m.osipov.services.grammars.directives.PrintSDT;
+import bmstu.iu7m.osipov.services.grammars.directives.TypeProcessorSDT;
 import bmstu.iu7m.osipov.services.lexers.DFALexer;
 import bmstu.iu7m.osipov.services.lexers.FALexerGenerator;
 import bmstu.iu7m.osipov.services.lexers.LanguageSymbol;
@@ -38,7 +39,8 @@ public class SLRParserTranslationTest {
 
     @Test
     public void test_translations() throws Exception{
-        test("javafx_xml.json","stage_example1.xml");
+        //test("javafx_xml.json","stage_example1.xml");
+        test("javafx_xml.json", "fx_constructors_schema_nested.xml");
     }
 
     public void test(String grammar, String input) throws Exception {
@@ -77,19 +79,30 @@ public class SLRParserTranslationTest {
 
 
         ExecuteTranslationNode act_executor = new ExecuteTranslationNode();
-        AttributeProcessorSDT actor = new AttributeProcessorSDT();
-        ElementProcessorSDT elem_actor = new ElementProcessorSDT(actor);
 
-        act_executor.putActionParser("createObject", elem_actor);
-        act_executor.putActionParser("putAttr", elem_actor);
-        act_executor.putActionParser("putAttr", actor);
-        act_executor.putActionParser("showAttrs", actor);
-        act_executor.putActionParser("addPrefix", actor);
-        act_executor.putActionParser("removePrefix", actor);
+        if(input.equals("stage_example1.xml")) {
+            AttributeProcessorSDT actor = new AttributeProcessorSDT();
+            ElementProcessorSDT elem_actor = new ElementProcessorSDT(actor);
 
+            act_executor.putActionParser("createObject", elem_actor);
+            act_executor.putActionParser("putAttr", elem_actor);
+            act_executor.putActionParser("putAttr", actor);
+            act_executor.putActionParser("showAttrs", actor);
+            act_executor.putActionParser("addPrefix", actor);
+            act_executor.putActionParser("removePrefix", actor);
+        }
+        else if(input.equals("fx_constructors_schema_nested.xml")){
+            TypeProcessorSDT type_actor = new TypeProcessorSDT();
+            act_executor.putActionParser("putAttr", type_actor);
+            act_executor.putActionParser("addPrefix", type_actor);
+            act_executor.putActionParser("removePrefix", type_actor);
+            act_executor.putActionParser("createObject", type_actor);
+            act_executor.putActionParser("showAttrs", type_actor);
+        }
 
         System.out.println("Perform translation... :");
         t.visit(VisitorMode.PRE, act_executor);// find and execute.
+
     }
 
 }

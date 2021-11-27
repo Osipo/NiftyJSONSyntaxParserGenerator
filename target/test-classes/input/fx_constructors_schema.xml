@@ -1,0 +1,46 @@
+<SchemaTypes>
+    <Constructor type="Stage">
+        <Constructor.Params>
+            <Param name="style" type="StageStyle"/>
+        </Constructor.Params>
+    </Constructor>
+    <Constructor type="Stage">
+    </Constructor>
+
+    <Constructor type="HBox">
+        <Constructor.Params>
+            <Param name="spacing" type="double"/>
+        </Constructor.Params>
+    </Constructor>
+    <Constructor type="HBox">
+        <Constructor.Params>
+            <Param name="spacing" type="double"/>
+            <Param name="children" type="List<Node>"/>
+        </Constructor.Params>
+    </Constructor>
+    <Constructor type="HBox">
+        <Constructor.Params>
+            <Param name="children" type="List<Node>"/>
+        </Constructor.Params>
+    </Constructor>
+    <Constructor type="HBox">
+    </Constructor>
+    <Constructor type="VBox">
+        <Constructor.Params>
+            <Param name="spacing" type="double"/>
+        </Constructor.Params>
+    </Constructor>
+    <Constructor type="VBox">
+        <Constructor.Params>
+            <Param name="spacing" type="double"/>
+            <Param name="children" type="List<Node>"/>
+        </Constructor.Params>
+    </Constructor>
+    <Constructor type="VBox">
+        <Constructor.Params>
+            <Param name="children" type="List<Node>"/>
+        </Constructor.Params>
+    </Constructor>
+    <Constructor type="VBox">
+    </Constructor>
+</SchemaTypes>
