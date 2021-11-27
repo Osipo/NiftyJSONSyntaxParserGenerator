@@ -28,6 +28,15 @@ public class AttributeProcessorSDT implements SDTParser {
         return this.attrs;
     }
 
+    public long getCurrentId(){
+        return elems;
+    }
+
+    //called from ElementProcessorSDT.
+    public void putAttribute(Map<String, String> ob_attrs, String key, String val){
+        ob_attrs.put(key, val);
+    }
+
     @Override
     public void exec(Translation t, Node<LanguageSymbol> parent) {
         if(t == null || t.getArguments() == null)
@@ -43,7 +52,6 @@ public class AttributeProcessorSDT implements SDTParser {
                 String arg2 = t.getArguments().getOrDefault("val", null);
                 arg1 = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, arg1);
                 arg2 = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, arg2);
-
                 arg1 = prefix.toString() + arg1; //include current prefix
 
                 this.attrs.put(arg1, arg2); //key = value.

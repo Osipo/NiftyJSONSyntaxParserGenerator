@@ -8,19 +8,29 @@ import bmstu.iu7m.osipov.structures.trees.Action;
 import bmstu.iu7m.osipov.structures.trees.LinkedNode;
 import bmstu.iu7m.osipov.structures.trees.Node;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ExecuteTranslationNode implements Action<Node<LanguageSymbol>> {
 
-    private Map<String, SDTParser> act_parsers;
+    private Map<String, List<SDTParser>> act_parsers;
 
     public ExecuteTranslationNode(){
         this.act_parsers = new HashMap<>();
     }
 
     public void putActionParser(String actName, SDTParser parser){
-        this.act_parsers.put(actName, parser);
+        List<SDTParser> actors = null;
+        if( (actors = this.act_parsers.getOrDefault(actName, null)) == null){
+            actors = new ArrayList<>();
+            actors.add(parser);
+            this.act_parsers.put(actName, actors);
+        }
+        else{
+            actors.add(parser);
+        }
     }
 
     @Override
@@ -29,9 +39,12 @@ public class ExecuteTranslationNode implements Action<Node<LanguageSymbol>> {
 
         if(t.getValue() instanceof Translation && t.getValue() instanceof SyntaxDirectedTranslation){
             SyntaxDirectedTranslation act = (SyntaxDirectedTranslation) t.getValue();
-            SDTParser executor = act_parsers.getOrDefault(act.getActName(), null);
-            if(executor != null)
-                executor.exec(act, t.getParent());
+            List<SDTParser> executors = act_parsers.getOrDefault(act.getActName(), null);
+            if(executors == null)
+                return;
+            for(SDTParser e : executors){
+                e.exec(act, t.getParent());
+            }
         }
     }
 }

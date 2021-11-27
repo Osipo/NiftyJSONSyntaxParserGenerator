@@ -3,6 +3,7 @@ package bmstu.iu7m.osipov.unit_tests.parsers;
 import bmstu.iu7m.osipov.configurations.PathStrings;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.grammars.directives.AttributeProcessorSDT;
+import bmstu.iu7m.osipov.services.grammars.directives.ElementProcessorSDT;
 import bmstu.iu7m.osipov.services.grammars.directives.PrintSDT;
 import bmstu.iu7m.osipov.services.lexers.DFALexer;
 import bmstu.iu7m.osipov.services.lexers.FALexerGenerator;
@@ -77,6 +78,10 @@ public class SLRParserTranslationTest {
 
         ExecuteTranslationNode act_executor = new ExecuteTranslationNode();
         AttributeProcessorSDT actor = new AttributeProcessorSDT();
+        ElementProcessorSDT elem_actor = new ElementProcessorSDT(actor);
+
+        act_executor.putActionParser("createObject", elem_actor);
+        act_executor.putActionParser("putAttr", elem_actor);
         act_executor.putActionParser("putAttr", actor);
         act_executor.putActionParser("showAttrs", actor);
         act_executor.putActionParser("addPrefix", actor);
