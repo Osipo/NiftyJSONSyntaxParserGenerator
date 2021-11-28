@@ -42,7 +42,7 @@ public class LinkedStack<T> implements Iterable<T> {
     //POP
     public void pop(){
         if(isEmpty()){
-            System.out.println("Error. Stack is empty");
+            //System.out.println("Error. Stack is empty");
             return;
         }
         else{
@@ -55,7 +55,7 @@ public class LinkedStack<T> implements Iterable<T> {
     //TOP
     public T top(){
         if(isEmpty()){
-            System.out.println("Error. Stack is empty");
+            //System.out.println("Error. Stack is empty");
             return null;
         }
         else return _head.getElement();
@@ -86,7 +86,7 @@ public class LinkedStack<T> implements Iterable<T> {
 
     public boolean remove(T item){
         if(isEmpty()){
-            System.out.println("Error. Stack is empty");
+            //System.out.println("Error. Stack is empty");
             return false;
         }
         else if(item == null && top() == null){
@@ -139,7 +139,7 @@ public class LinkedStack<T> implements Iterable<T> {
 
     public void copy(T[] array, int arrayIndex){
         if(arrayIndex < 0 || arrayIndex >= array.length){
-            System.out.println("arrayIndex is out of range");
+            //System.out.println("arrayIndex is out of range");
             return;
         }
         ElementType<T> c = _head;

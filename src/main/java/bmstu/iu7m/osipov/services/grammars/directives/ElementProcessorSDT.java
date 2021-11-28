@@ -75,6 +75,7 @@ public class ElementProcessorSDT implements SDTParser {
                     System.out.println("}");
                     this.obj_attrs.clear(); //clear str-valued attrs.
                 }
+                break;
             } //end 'createObject' action
         } // end switch
     }

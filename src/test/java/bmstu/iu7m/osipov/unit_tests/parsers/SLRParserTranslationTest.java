@@ -76,6 +76,7 @@ public class SLRParserTranslationTest {
         t.visit(VisitorMode.PRE, new TranslationsAttacher(G, t.getCount()));
         System.out.println("tree nodes after attaching acts "+t.getCount());
 
+        //Graphviz.fromString(t.toDot(norm_input)).render(Format.PNG).toFile(new File(PathStrings.PARSERS + norm_input + "Attached"));
 
 
         ExecuteTranslationNode act_executor = new ExecuteTranslationNode();

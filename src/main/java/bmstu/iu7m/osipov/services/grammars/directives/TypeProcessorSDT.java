@@ -59,15 +59,16 @@ public class TypeProcessorSDT implements SDTParser {
             case "removePrefix": {
                 String arg1 = t.getArguments().getOrDefault("pref", null);
                 arg1 = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, arg1);
-                String arg2 = t.getArguments().getOrDefault("closed", null);
+                String arg2 = t.getArguments().getOrDefault("closed", null); //is closed tag <name/>
                 if(this.names.top() == null){ //no parents and elems!
                     System.out.println("Error: Illegal sequence of tags.");
                     break;
                 }
-                else if(arg2 == null && !this.names.top().equals(arg1)){ // not matched by parent tag.
+                else if(arg2 == null && !this.names.top().equals(arg1)){ // not matched by parent open tag <name>.
                     System.out.println("Enclosing tag: </"+arg1+"> is not matched with opening: <"+this.names.top()+">");
+                    break;
                 }
-                Object cur = this.objects.top();
+                Object cur = this.objects.top(); //may be null at </SchemaTypes>
                 if(arg1.equals("Constructor")) { // </Constructor> tag.
                     if(! (cur instanceof ConstructorElement)){
                         System.out.println("Error: At tag </Constructor> cannot find created object.");
@@ -190,7 +191,7 @@ public class TypeProcessorSDT implements SDTParser {
                     this.obj_attrs.clear();
                     this.names.push("Param");
                 }
-
+                break;
             } //end 'createObject' action.
 
             case "showAttrs": {
