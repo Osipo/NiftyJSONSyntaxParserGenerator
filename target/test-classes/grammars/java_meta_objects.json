@@ -1,0 +1,19 @@
+{
+  "terms": {
+      "id": "[A-Za-z@_][A-Za-z@_0-9]+",
+      "(": "(",
+      ")": ")",
+      ",": ",",
+      "<": "<",
+      ">": ">"
+  },
+  "nonTerms": ["S", "CLIST","C","PLIST","P", "PT", "GP", "PTLIST"],
+  "productions": [
+    {"S": ["CLIST"]}, {"CLIST": ["CLIST", "C"]}, {"CLIST": "C"},
+    {"C": ["id","(","PLIST",")"]}, {"C": ["id","(",")"]},
+    {"PLIST": ["PLIST", ",", "P"]}, {"PLIST": "P"}, {"GP": ["<", "PTLIST", ">"]},
+    {"PTLIST": ["PTLIST", ",", "PT"]}, {"PTLIST": "PT"},
+    {"P": ["PT", "id"]}, {"PT": "id"},{"PT": ["id", "GP"]}
+  ],
+  "start": "S"
+}

@@ -4,7 +4,6 @@ import bmstu.iu7m.osipov.configurations.PathStrings;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.grammars.directives.AttributeProcessorSDT;
 import bmstu.iu7m.osipov.services.grammars.directives.ElementProcessorSDT;
-import bmstu.iu7m.osipov.services.grammars.directives.PrintSDT;
 import bmstu.iu7m.osipov.services.grammars.directives.TypeProcessorSDT;
 import bmstu.iu7m.osipov.services.lexers.DFALexer;
 import bmstu.iu7m.osipov.services.lexers.FALexerGenerator;
@@ -40,7 +39,8 @@ public class SLRParserTranslationTest {
     @Test
     public void test_translations() throws Exception{
         //test("javafx_xml.json","stage_example1.xml");
-        test("javafx_xml.json", "fx_constructors_schema_nested.xml");
+        //test("javafx_xml.json", "fx_constructors_schema_nested.xml");
+        test("java_meta_objects.json", "java_objects_constructors.txt");
     }
 
     public void test(String grammar, String input) throws Exception {
@@ -103,7 +103,5 @@ public class SLRParserTranslationTest {
 
         System.out.println("Perform translation... :");
         t.visit(VisitorMode.PRE, act_executor);// find and execute.
-
     }
-
 }
