@@ -7,9 +7,11 @@
       "<": "<",
       ">": ">"
   },
-  "nonTerms": ["S", "CLIST","C","PLIST","P", "PT", "GP", "PTLIST"],
+  "nonTerms": ["S", "PKGLIST", "PKG", "CLIST","C","PLIST","P", "PT", "GP", "PTLIST"],
   "productions": [
-    {"S": ["CLIST"]}, {"CLIST": ["CLIST", "C"]}, {"CLIST": "C"},
+    {"S": ["PKGLIST"]}, {"PKGLIST": ["PKGLIST", "PKG"]}, {"PKGLIST": "PKG"},
+    {"PKG": ["id", ":", "CLIST"]},
+    {"CLIST": ["CLIST", "C"]}, {"CLIST": "C"},
     {"C": ["id","(","PLIST",")"]}, {"C": ["id","(",")"]},
     {"PLIST": ["PLIST", ",", "P"]}, {"PLIST": "P"}, {"GP": ["<", "PTLIST", ">"]},
     {"PTLIST": ["PTLIST", ",", "PT"]}, {"PTLIST": "PT"},

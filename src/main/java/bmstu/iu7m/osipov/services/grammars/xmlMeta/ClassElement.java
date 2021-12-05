@@ -8,8 +8,11 @@ public class ClassElement {
 
     private String typeName;
 
-    public ClassElement(String name){
+    private String packageName;
+
+    public ClassElement(String name, String packageName){
         this.typeName = name;
+        this.packageName = packageName;
     }
 
     public void addConstructor(ConstructorElement c){
@@ -24,6 +27,14 @@ public class ClassElement {
 
     public List<ConstructorElement> getConstructors(){
         return this.ctors;
+    }
+
+    public String getName(){
+        return this.typeName;
+    }
+
+    public String getPackageName(){
+        return this.packageName;
     }
 
     @Override

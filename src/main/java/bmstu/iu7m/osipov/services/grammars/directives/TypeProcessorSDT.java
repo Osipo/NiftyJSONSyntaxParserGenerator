@@ -9,7 +9,6 @@ import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.trees.LinkedNode;
 import bmstu.iu7m.osipov.structures.trees.Node;
 import bmstu.iu7m.osipov.utils.GrammarBuilderUtils;
-import com.eclipsesource.v8.debug.mirror.Scope;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,9 +17,13 @@ public class TypeProcessorSDT implements SDTParser {
 
     private HashMap<String, ClassElement> types;
 
+    private HashMap<String, String> aliases;
+
     LinkedStack<Object> objects;
 
     LinkedStack<String> names;
+
+    LinkedStack<String> pkgs;
 
     Map<String, String> obj_attrs;
 
@@ -28,11 +31,17 @@ public class TypeProcessorSDT implements SDTParser {
         this.types = new HashMap<>();
         this.objects = new LinkedStack<>();
         this.names = new LinkedStack<>();
+        this.pkgs = new LinkedStack<>();
+        this.aliases = new HashMap<>();
         this.obj_attrs = new HashMap<>();
     }
 
     public Map<String, ClassElement> getTypes(){
         return this.types;
+    }
+
+    public Map<String, String> getAliases(){
+        return this.aliases;
     }
 
     //1. Parent is SchemaType and element is already exists -> error
@@ -84,8 +93,11 @@ public class TypeProcessorSDT implements SDTParser {
                     ConstructorElement ctr = (ConstructorElement) cur;
                     claz.addConstructor(ctr);
                 }
-                else if(!arg1.contains(".") && arg2 == null){ //non-empty tag and not property-object marker.
+                else if(!arg1.contains(".") && arg2 == null && !arg1.equals("Package")){ //non-empty tag and not property-object marker.
                     this.objects.pop();
+                }
+                else if(arg1.equals("Package")){
+                    this.pkgs.pop();
                 }
 
                 this.names.pop();
@@ -97,6 +109,7 @@ public class TypeProcessorSDT implements SDTParser {
                 String arg2 = t.getArguments().getOrDefault("val", null);
                 arg1 = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, arg1);
                 arg2 = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, arg2);
+                arg2 = arg2.substring(1, arg2.length() - 1);
                 this.obj_attrs.put(arg1, arg2);
 
                 break;
@@ -129,30 +142,59 @@ public class TypeProcessorSDT implements SDTParser {
                     break;
                 }
 
+                String name = this.names.top();
                 this.names.pop();
                 if(this.names.top() == null){ //root was extracted previously!
                     System.out.println("Error: Illegal sequence of tags.");
                     this.names.push(arg1);//put back for 'removePrefix'
                     break;
                 }
-
-                if(this.names.top().equals("SchemaTypes") //non-unique type name at SchemaTypes
-                    && this.types.getOrDefault(this.names.top(), null) != null
-                )
-                {
-                    System.out.println("Error: at Tag <"+arg1+">\n\t It is already defined at <SchemaTypes>. Only unique type names are allowed.");
+                if(name.equals("Package")){
+                    if(!this.names.top().equals("SchemaTypes") && !this.names.top().equals("Package")) {
+                        System.out.println(
+                                "Error: Package can be defiend only within <SchemaTypes> or another <Package>"
+                            +   "\nBut parent tag is :<" + this.names.top()+">"
+                        );
+                        this.names.push(arg1); //put back for 'removePrefix'
+                        break;
+                    }
+                    if(this.pkgs.top() != null && this.pkgs.top().equals(name)){
+                        System.out.println("Error: package name must be unique!");
+                        this.names.push(arg1); //put back for 'removePrefix'
+                        break;
+                    }
+                    String pname = obj_attrs.getOrDefault("name", null);
+                    if(pname == null || pname.length() == 0){
+                        System.out.println("Error: package name must be specified as string attribute 'name'='value'");
+                        this.names.push(arg1); //put back for 'removePrefix'
+                        break;
+                    }
+                    if(this.pkgs.top() != null)
+                        pname = this.pkgs.top() + "." + pname;
+                    this.pkgs.push(pname);
+                    this.obj_attrs.clear();
+                    this.names.push(arg1); //put back for 'removePrefix'
                     break;
                 }
-                else if(this.names.top().equals("SchemaTypes")){ //new type definition.
-                    ClassElement element = new ClassElement(arg1);
-                    this.types.put(arg1, element);
+
+                if(this.names.top().equals("Package") //non-unique type name at Package
+                    && this.types.getOrDefault(this.pkgs.top() + "."+ name, null) != null
+                )
+                {
+                    System.out.println("Error: at Tag <"+arg1+">\n\t It is already defined at <Package>. Only unique type names are allowed within it.");
+                    break;
+                }
+                else if(this.names.top().equals("Package")){ //new type definition.
+                    ClassElement element = new ClassElement(arg1, this.pkgs.top());
+                    this.types.put(this.pkgs.top() + "." + name, element);
+                    this.aliases.put(arg1, this.pkgs.top() + "." + name);
                     this.objects.push(element);
                     this.obj_attrs.clear();
                     this.names.push(arg1);//put back for 'removePrefix' SchemaTypes > Stage
                     break;
                 }
 
-                this.names.push(arg1); //put back after root element checks
+                this.names.push(arg1); //put back after parent element checks
                 if(this.names.top().equals("Constructor")
                         && (this.objects.top() == null ||
                                 !(this.objects.top() instanceof ClassElement)
@@ -199,6 +241,11 @@ public class TypeProcessorSDT implements SDTParser {
                 for(String k: this.types.keySet()){
                     System.out.println(this.types.get(k));
                 }
+                System.out.println("Aliases: ");
+                for(String k : this.aliases.keySet()){
+                    System.out.println(k + ":: "+this.aliases.get(k));
+                }
+
                 System.out.println("END");
                 break;
             }

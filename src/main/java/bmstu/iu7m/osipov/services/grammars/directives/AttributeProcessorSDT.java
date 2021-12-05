@@ -54,6 +54,7 @@ public class AttributeProcessorSDT implements SDTParser {
                 arg2 = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, arg2);
                 arg1 = prefix.toString() + arg1; //include current prefix
 
+                arg2 = arg2.substring(1, arg2.length() - 1);
                 this.attrs.put(arg1, arg2); //key = value.
                 break;
             }

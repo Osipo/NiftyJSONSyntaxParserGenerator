@@ -1,9 +1,9 @@
-<Stage attr1="modal">
-    <Scene width="500" height="400">
-        <HBox hgap="10" id="container1" />
-        <HBox hgap="5" id="container2"  />
+<Stage>
+    <Scene width="400" height="500"> # One line comment starts with '#'. See javafx_xml.json 'meta'
+        <HBox spacing="10" id="container1" /> # Only one child at Scene.
+        <HBox spacing="5" id="container2"  /> # Will be ignored.
     </Scene>
-    <VBox>
+    <VBox> # Only Scene allowed. Will be Ignored.
 
     </VBox>
 </Stage>

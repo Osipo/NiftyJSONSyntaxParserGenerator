@@ -1,57 +1,93 @@
 <SchemaTypes>
-    <Stage>
-        <Stage.Constructors>
-            <Constructor>
-                <Constructor.Params>
-                    <Param name="style" type="StageStyle"/>
-                </Constructor.Params>
-            </Constructor>
-            <Constructor>
-            </Constructor>
-        </Stage.Constructors>
-    </Stage>
-    <HBox>
-        <HBox.Constructors>
-            <Constructor>
-                <Constructor.Params>
-                    <Param name="spacing" type="double"/>
-                </Constructor.Params>
-            </Constructor>
-            <Constructor>
-                <Constructor.Params>
-                    <Param name="spacing" type="double"/>
-                    <Param name="children" type="List<Node>"/>
-                </Constructor.Params>
-            </Constructor>
-            <Constructor>
-                <Constructor.Params>
-                    <Param name="children" type="List<Node>"/>
-                </Constructor.Params>
-            </Constructor>
-            <Constructor>
-            </Constructor>
-        </HBox.Constructors>
-    </HBox>
-    <VBox>
-        <VBox.Constructors>
-            <Constructor>
-                <Constructor.Params>
-                    <Param name="spacing" type="double"/>
-                </Constructor.Params>
-            </Constructor>
-            <Constructor>
-                <Constructor.Params>
-                    <Param name="spacing" type="double"/>
-                    <Param name="children" type="List<Node>"/>
-                </Constructor.Params>
-            </Constructor>
-            <Constructor>
-                <Constructor.Params>
-                    <Param name="children" type="List<Node>"/>
-                </Constructor.Params>
-            </Constructor>
-            <Constructor>
-            </Constructor>
-        </VBox.Constructors>
-    </VBox>
+    <Package name="javafx.stage">
+        <Stage>
+            <Stage.Constructors>
+                <Constructor>
+                    <Constructor.Params>
+                        <Param name="style" type="javafx.stage.StageStyle"/>
+                    </Constructor.Params>
+                </Constructor>
+                <Constructor>
+                </Constructor>
+            </Stage.Constructors>
+        </Stage>
+    </Package>
+    <Package name="javafx.scene">
+        <Scene>
+            <Scene.Constructors>
+                <Constructor>
+                    <Constructor.Params>
+                        <Param name="root" type="javafx.scene.Parent"/>
+                    </Constructor.Params>
+                </Constructor>
+                <Constructor>
+                    <Constructor.Params>
+                        <Param name="root" type="javafx.scene.Parent"/>
+                        <Param name="width" type="double"/>
+                        <Param name="height" type="double"/>
+                    </Constructor.Params>
+                </Constructor>
+                <Constructor>
+                    <Constructor.Params>
+                        <Param name="root" type="javafx.scene.Parent"/>
+                        <Param name="width" type="double"/>
+                        <Param name="height" type="double"/>
+                        <Param name="paint" type="javafx.scene.paint.Paint" />
+                    </Constructor.Params>
+                </Constructor>
+                <Constructor>
+                    <Constructor.Params>
+                        <Param name="root" type="javafx.scene.Parent"/>
+                        <Param name="paint" type="javafx.scene.paint.Paint" />
+                    </Constructor.Params>
+                </Constructor>
+            </Scene.Constructors>
+        </Scene>
+        <Package name="layout">
+            <HBox>
+                <HBox.Constructors>
+                    <Constructor>
+                        <Constructor.Params>
+                            <Param name="spacing" type="double"/>
+                        </Constructor.Params>
+                    </Constructor>
+                    <Constructor>
+                        <Constructor.Params>
+                            <Param name="spacing" type="double"/>
+                            <Param name="children" type="List<Node>"/>
+                        </Constructor.Params>
+                    </Constructor>
+                    <Constructor>
+                        <Constructor.Params>
+                            <Param name="children" type="List<Node>"/>
+                        </Constructor.Params>
+                    </Constructor>
+                    <Constructor>
+                    </Constructor>
+                </HBox.Constructors>
+            </HBox>
+            <VBox>
+                <VBox.Constructors>
+                    <Constructor>
+                        <Constructor.Params>
+                            <Param name="spacing" type="double"/>
+                        </Constructor.Params>
+                    </Constructor>
+                    <Constructor>
+                        <Constructor.Params>
+                            <Param name="spacing" type="double"/>
+                            <Param name="children" type="List<Node>"/>
+                        </Constructor.Params>
+                    </Constructor>
+                    <Constructor>
+                        <Constructor.Params>
+                            <Param name="children" type="List<Node>"/>
+                        </Constructor.Params>
+                    </Constructor>
+                    <Constructor>
+                    </Constructor>
+                </VBox.Constructors>
+            </VBox>
+        </Package>
+    </Package>
 </SchemaTypes>

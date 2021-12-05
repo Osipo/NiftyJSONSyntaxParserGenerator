@@ -441,6 +441,12 @@ public class Grammar {
             this.T.clear();
             this.T = null;
             this.T = real_terms;
+            if(this.meta.getCommentLine() != null){
+                this.T.add(this.meta.getCommentLine());
+            }
+            if(this.meta.getMlStart() != null){
+                this.T.add(this.meta.getMlStart());
+            }
         }
         else
             throw new InvalidJsonGrammarException("Property \"productions\" is not a list!",null);

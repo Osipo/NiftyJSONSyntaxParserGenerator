@@ -16,7 +16,8 @@
     "stringSymbols": ["(", "nameChar", "|", "\\_", "|", "<", "|", ">", ")", "*"],
     "string": ["(","doubleQuote", "stringSymbols", "doubleQuote", ")", "|","(","quote", "stringSymbols","quote",")"],
     "name": ["(", "alpha", "|", "@_", "|", ":", ")", "nameChar", "*"],
-    "e": null
+    "e": null,
+    "commentStr": "#"
   },
   "nonTerms": ["DOC", "ELEMS", "ELEM", "STAG", "ETAG", "EMPTYTAG", "CONTENT", "ATTRS", "ATTR", "ATTRVAL"],
   "productions": [
@@ -34,6 +35,7 @@
   "start": "DOC",
 
   "meta" : {
-    "operands": ["string", "name"]
+    "operands": ["string", "name"],
+    "commentLine": "commentStr"
   }
 }

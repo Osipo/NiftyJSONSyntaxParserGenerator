@@ -21,13 +21,23 @@ import bmstu.iu7m.osipov.structures.trees.translators.TranslationsAttacher;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.Parent;
+import javafx.stage.Stage;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
+import javax.swing.*;
 import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Parameter;
+import java.util.concurrent.CountDownLatch;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(
@@ -36,11 +46,38 @@ import java.io.File;
 )
 public class SLRParserTranslationTest {
 
+    @BeforeClass
+    public static void initAWT() throws InterruptedException {
+        System.setProperty("java.awt.headless", "false");
+        System.out.println("Headless of AWT set to false");
+        final CountDownLatch latch = new CountDownLatch(1);
+        /* wait until Toolkit will be initialized */
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new JFXPanel(); // initializes JavaFX environment for tests.
+                latch.countDown();
+            }
+        });
+        latch.await();
+        System.out.println("SwingGUI > Toolkit initialized.");
+    }
+
     @Test
     public void test_translations() throws Exception{
         //test("javafx_xml.json","stage_example1.xml");
         //test("javafx_xml.json", "fx_constructors_schema_nested.xml");
-        test("java_meta_objects.json", "java_objects_constructors.txt");
+        //test("java_meta_objects.json", "java_objects_constructors.txt");
+
+        /* execute at JavaFX-Thread */
+        final CountDownLatch finish = new CountDownLatch(1);
+        Platform.runLater(() -> {
+            try {
+                testScheme(finish,"javafx_xml.json", "fx_constructors_schema_nested.xml", "stage_example1.xml");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        finish.await();
     }
 
     public void test(String grammar, String input) throws Exception {
@@ -70,7 +107,7 @@ public class SLRParserTranslationTest {
         //t.setVisitor(new RightToLeftNRVisitor<>()); // traverse children right to left
         t.visit(VisitorMode.PRE, new ReverseChildren()); // or just reverse them.
 
-        Graphviz.fromString(t.toDot(norm_input)).render(Format.PNG).toFile(new File(PathStrings.PARSERS + norm_input + "Reversed"));
+        //Graphviz.fromString(t.toDot(norm_input)).render(Format.PNG).toFile(new File(PathStrings.PARSERS + norm_input + "Reversed"));
 
         System.out.println("tree nodes before "+t.getCount());
         t.visit(VisitorMode.PRE, new TranslationsAttacher(G, t.getCount()));
@@ -83,7 +120,8 @@ public class SLRParserTranslationTest {
 
         if(input.equals("stage_example1.xml")) {
             AttributeProcessorSDT actor = new AttributeProcessorSDT();
-            ElementProcessorSDT elem_actor = new ElementProcessorSDT(actor);
+            TypeProcessorSDT type_actor = new TypeProcessorSDT();
+            ElementProcessorSDT elem_actor = new ElementProcessorSDT(actor, type_actor);
 
             act_executor.putActionParser("createObject", elem_actor);
             act_executor.putActionParser("putAttr", elem_actor);
@@ -103,5 +141,96 @@ public class SLRParserTranslationTest {
 
         System.out.println("Perform translation... :");
         t.visit(VisitorMode.PRE, act_executor);// find and execute.
+    }
+
+
+    public void testScheme(CountDownLatch finish_flag, String grammar, String scheme, String input) throws Exception {
+        Grammar G = new Grammar(
+                SimpleJsonParserTest.JSON_PARSER.parse(PathStrings.GRAMMARS + grammar)
+        );
+        System.out.println("Source G: ");
+        System.out.println(G);
+        System.out.println("CommentLine: "+G.getCommentLine());
+
+        String norm_input = input.substring(0, input.indexOf('.'));
+        String norm_grammar = grammar.substring(0, grammar.indexOf('.'));
+        String norm_scheme = scheme.substring(0, scheme.indexOf('.'));
+
+        FALexerGenerator lg = new FALexerGenerator();
+        CNFA nfa = lg.buildNFA(G);
+        DFALexer lexer = new DFALexer(new DFA(nfa));
+
+        lexer.getImagefromStr(PathStrings.LEXERS,"I_G_"+norm_grammar);
+
+        LRParser sa = new LRParser(G, lexer, LRAlgorithm.SLR);
+        sa.setParserMode(ParserMode.DEBUG);
+
+        LinkedTree<LanguageSymbol> stree = sa.parse(PathStrings.PARSER_INPUT + scheme);
+        assert stree != null;
+        Graphviz.fromString(stree.toDot(norm_scheme)).render(Format.PNG).toFile(new File(PathStrings.PARSERS + norm_scheme));
+
+        stree.visit(VisitorMode.PRE, new ReverseChildren());
+        stree.visit(VisitorMode.PRE, new TranslationsAttacher(G, stree.getCount()));
+        ExecuteTranslationNode act_executor = new ExecuteTranslationNode();
+        TypeProcessorSDT type_actor = new TypeProcessorSDT();
+        act_executor.putActionParser("putAttr", type_actor);
+        act_executor.putActionParser("addPrefix", type_actor);
+        act_executor.putActionParser("removePrefix", type_actor);
+        act_executor.putActionParser("createObject", type_actor);
+        act_executor.putActionParser("showAttrs", type_actor);
+        System.out.println("Translate to schema :");
+        stree.visit(VisitorMode.PRE, act_executor);// find and execute.
+
+        System.out.println("Schema processed.");
+        LinkedTree<LanguageSymbol> otree = sa.parse(PathStrings.PARSER_INPUT + input);
+        assert otree != null;
+        Graphviz.fromString(otree.toDot(norm_input)).render(Format.PNG).toFile(new File(PathStrings.PARSERS + norm_input));
+        otree.visit(VisitorMode.PRE, new ReverseChildren());
+        otree.visit(VisitorMode.PRE, new TranslationsAttacher(G, otree.getCount()));
+
+        ExecuteTranslationNode exec2 = new ExecuteTranslationNode();
+        AttributeProcessorSDT actor = new AttributeProcessorSDT();
+        ElementProcessorSDT elem_actor = new ElementProcessorSDT(actor, type_actor);
+
+        exec2.putActionParser("createObject", elem_actor);
+        exec2.putActionParser("putAttr", elem_actor);
+        exec2.putActionParser("putAttr", actor);
+        exec2.putActionParser("showAttrs", actor);
+        exec2.putActionParser("addPrefix", actor);
+        exec2.putActionParser("removePrefix", elem_actor);
+        exec2.putActionParser("removePrefix", actor);
+
+        System.out.println("Translate document according to scheme");
+        otree.visit(VisitorMode.PRE, exec2);
+        if(elem_actor.getStage() != null){
+            Stage s  =(Stage) elem_actor.getStage();
+            s.showAndWait();
+        }
+        finish_flag.countDown();
+    }
+
+
+    @Test
+    public void check_type()  {
+       /* blank code*/
+        String s = "sss";
+        System.out.println(s.toString());
+        Constructor<?> stagectr = null;
+        try{
+            stagectr = Class.forName("javafx.stage.Stage").getDeclaredConstructor(null);
+
+        } catch (ClassNotFoundException | SecurityException | NoSuchMethodException e){System.out.println(e);}
+
+        Constructor<?> finalStagectr = stagectr;
+
+        /* JavaFX Thread */
+        Platform.runLater(() -> {
+            try {
+                finalStagectr.newInstance(new Object[0]);
+                System.out.println("Stage object created");
+            } catch (InvocationTargetException e){
+                System.out.println(e.getCause().getCause());
+            } catch (InstantiationException | IllegalArgumentException | IllegalAccessException e){ }
+        });
     }
 }

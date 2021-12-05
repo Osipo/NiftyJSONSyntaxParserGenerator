@@ -216,7 +216,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
         sb.append(cur);
         int pl = 0;
         while(((int)cur) != 65535 && !s.isDead()){//while not EOF or not deadState.
-            s = moveTo(s,cur);
+            s = moveTo(s, cur);
             if(s == null || s.isDead()){
                 //System.out.println("Lexeme at ("+io.getLine()+":"+io.getCol()+") :: "+sb.toString());
                 String err = sb.toString();
