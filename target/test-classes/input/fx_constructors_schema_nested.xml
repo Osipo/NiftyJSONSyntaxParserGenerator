@@ -89,5 +89,18 @@
                 </VBox.Constructors>
             </VBox>
         </Package>
+        <Package name="control">
+            <Button>
+                <Button.Constructors>
+                    <Constructor>
+                        <Constructor.Params>
+                            <Param name="text" type="java.lang.String"/>
+                        </Constructor.Params>
+                    </Constructor>
+                    <Constructor>
+                    </Constructor>
+                </Button.Constructors>
+            </Button>
+        </Package>
     </Package>
 </SchemaTypes>

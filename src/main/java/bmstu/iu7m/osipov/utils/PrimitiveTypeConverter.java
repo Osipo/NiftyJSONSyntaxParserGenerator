@@ -45,6 +45,9 @@ public class PrimitiveTypeConverter {
                 result = ProcessNumber.parseNumber(src);
                 break;
             }
+            default:{
+                result = src;
+            }
         }
         return result;
     }

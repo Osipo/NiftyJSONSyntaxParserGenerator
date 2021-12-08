@@ -25,6 +25,7 @@ import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +37,9 @@ import javax.swing.*;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -219,6 +222,9 @@ public class SLRParserTranslationTest {
         try{
             stagectr = Class.forName("javafx.stage.Stage").getDeclaredConstructor(null);
 
+            Method methods = Arrays.stream(Stage.class.getDeclaredMethods()).filter(x -> x.getName().equalsIgnoreCase("initstyle")).findFirst().get();
+            if(methods == null)
+                System.out.println("searching 'initstyle' failed.");
         } catch (ClassNotFoundException | SecurityException | NoSuchMethodException e){System.out.println(e);}
 
         Constructor<?> finalStagectr = stagectr;

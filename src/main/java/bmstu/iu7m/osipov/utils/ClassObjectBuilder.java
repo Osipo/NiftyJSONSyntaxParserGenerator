@@ -1,8 +1,12 @@
 package bmstu.iu7m.osipov.utils;
 
+import javax.swing.text.html.Option;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 
 public class ClassObjectBuilder {
 
@@ -25,6 +29,9 @@ public class ClassObjectBuilder {
             return obj;
 
         try {
+            for(int i = 0; i < paramValues.length; i++){
+                paramValues[i] = PrimitiveTypeConverter.castTo(paramTypes[i], paramValues[i].toString());
+            }
             obj = ctr.newInstance(paramValues);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e){}
@@ -60,5 +67,23 @@ public class ClassObjectBuilder {
                 | InvocationTargetException e){}
 
         return obj;
+    }
+
+    public static Method getDeclaredMethod(Object obj, String name){
+        Method m = null;
+        if(obj == null || name == null || name.length() == 0)
+            return m;
+         m = Arrays.stream(obj.getClass().getDeclaredMethods())
+                .filter(x -> x.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+        return m;
+    }
+
+    public static Method getMethod(Object obj, String name){
+        Method m = null;
+        if(obj == null || name == null || name.length() == 0)
+            return m;
+        m = Arrays.stream(obj.getClass().getMethods())
+                .filter(x -> x.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+        return m;
     }
 }

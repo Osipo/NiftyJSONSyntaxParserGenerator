@@ -14,12 +14,14 @@ import bmstu.iu7m.osipov.utils.GrammarBuilderUtils;
 import bmstu.iu7m.osipov.utils.PrimitiveTypeConverter;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -157,8 +159,11 @@ public class ElementProcessorSDT implements SDTParser {
                     for(ConstructorElement ctr : class_meta.getConstructors()){
                         m_i = 0;
                         idx_i++;
-                        if(ctr.getParams() == null || ctr.getParams().size() == 0){
+                        if((ctr.getParams() == null || ctr.getParams().size() == 0) && idx == -1){
                             idx = idx_i;
+                            continue;
+                        }
+                        else if(ctr.getParams() == null || ctr.getParams().size() == 0){
                             continue;
                         }
                         for(ParameterElement param : ctr.getParams()){
@@ -255,15 +260,20 @@ public class ElementProcessorSDT implements SDTParser {
     //on collection returned by these methods the 'add' method invoked.
     //'add' appends child 'c' to the collection.
     private void processChildren(Object c){
-        if(c == null)
+        System.out.println("state = "+this.state + " Stack: "+this.objects.toString());
+        if(c == null) {
+            System.out.println("Cannot create object of class '"+this.curName+"'");
             return;
+        }
         if(this.state == 2){
             processScene(c);
+            processSimpleProperties(c);
             return;
         }
         Object parent = this.objects.top();
         if(parent == null){
             this.objects.push(c);
+            processSimpleProperties(c);
             return;
         }
         Method m = null;
@@ -283,20 +293,27 @@ public class ElementProcessorSDT implements SDTParser {
         Object children = null;
         try{
             children = m.invoke(parent);
-            m = children.getClass().getMethod("add", javafx.scene.Node.class);
+            m = children.getClass().getMethod("addAll", Object[].class);
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
                     | NoSuchMethodException | SecurityException e){
             m = null;
+            System.out.println("method add not found.");
             children = null;
         }
         if(m == null || children == null)
             return;
-
         try {
-            m.invoke(children, c);
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e){}
+            // WRAP VARARGS WITH Object[] array.
+            // Second array may have specific type
+            // But as it is generic then the type is Object.
+            m.invoke(children, new Object[]{ new Object[]{ c } });
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e){
+            System.out.println("cannot add child. Illegal child type (argument to addAll)");
+            System.out.println(e);
+        }
 
         this.objects.push(c);
+        processSimpleProperties(c);
     }//end method.
 
     private void processScene(Object root){
@@ -332,15 +349,35 @@ public class ElementProcessorSDT implements SDTParser {
         this.state = 3;
     }
 
-    private void processProperties(Object c){
+    private void processSimpleProperties(Object c){
         if(c == null)
             return;
         String methodName = null;
         Method m = null;
+        System.out.println("Process properties of: "+c.getClass().getSimpleName());
         for(Map.Entry<String, String> entry : this.obj_attrs.entrySet()){
             if(entry.getValue() == null)
                 continue;
             methodName = entry.getKey();
+            System.out.println("Looking for: '"+methodName+"'");
+            m = ClassObjectBuilder.getDeclaredMethod(c, "set" + methodName);
+            if(m == null)
+                m = ClassObjectBuilder.getDeclaredMethod(c, "init" + methodName);
+
+            // inherited Properties.
+            if(methodName.equalsIgnoreCase("style") || methodName.equalsIgnoreCase("id")){
+                m = ClassObjectBuilder.getMethod(c, "set" + methodName);
+                m = (m == null) ?  ClassObjectBuilder.getMethod(c, "init" + methodName) : m;
+            }
+            if(m == null)
+                continue;
+            try {
+                System.out.println("Found setter prop: "+methodName);
+
+                m.invoke(c, entry.getValue());
+            }catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e){
+                System.out.println(e);
+            }
         }
-    }
+    } //end method.
 }

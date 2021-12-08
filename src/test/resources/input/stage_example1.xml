@@ -1,9 +1,17 @@
 <Stage>
     <Scene width="400" height="500"> # One line comment starts with '#'. See javafx_xml.json 'meta'
-        <HBox spacing="10" id="container1" /> # Only one child at Scene.
+        <HBox spacing="10" id="container1"
+              style="-fx-border-color: red, green;
+                     -fx-border-style: solid inside, solid inside;
+                     -fx-border-width: 5, 2;
+                     -fx-border-insets: 0, 5;
+                     -fx-border-radius: 0, 0;"> # Only one child at Scene.
+            <Button text="OK" maxwidth="Double.MAX_VALUE"/>
+            <Button text="OK2" maxwidth="Double.MAX_VALUE"/>
+        </HBox>
         <HBox spacing="5" id="container2"  /> # Will be ignored.
     </Scene>
-    <VBox> # Only Scene allowed. Will be Ignored.
+    <VBox> # Only one unique Scene allowed. Will be Ignored.
 
     </VBox> # Other objects will be ignored (include new Scene) as the root will be the Stage object.
 </Stage>
