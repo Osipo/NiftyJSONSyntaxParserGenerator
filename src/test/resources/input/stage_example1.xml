@@ -1,13 +1,13 @@
 <Stage>
     <Scene width="400" height="500"> # One line comment starts with '#'. See javafx_xml.json 'meta'
-        <HBox spacing="10" id="container1"
+        <HBox spacing="12.5" id="container1" fillHeight="true"
               style="-fx-border-color: red, green;
                      -fx-border-style: solid inside, solid inside;
                      -fx-border-width: 5, 2;
                      -fx-border-insets: 0, 5;
                      -fx-border-radius: 0, 0;"> # Only one child at Scene.
-            <Button text="OK" maxwidth="Double.MAX_VALUE"/>
-            <Button text="OK2" maxwidth="Double.MAX_VALUE"/>
+            <Button text="OK" maxHeight="MAX_VALUE"/>
+            <Button text="OK2" prefwidth="100" prefHeight="30"/>
         </HBox>
         <HBox spacing="5" id="container2"  /> # Will be ignored.
     </Scene>

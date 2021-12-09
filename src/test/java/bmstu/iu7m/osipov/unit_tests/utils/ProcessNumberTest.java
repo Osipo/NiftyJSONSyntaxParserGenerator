@@ -1,6 +1,6 @@
 package bmstu.iu7m.osipov.unit_tests.utils;
 
-import bmstu.iu7m.osipov.services.parsers.json.ProcessNumber;
+import bmstu.iu7m.osipov.utils.ProcessNumber;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -115,5 +115,37 @@ public class ProcessNumberTest {
     @Test
     public void when_exp_negative_then_divide(){
         assertEquals(1d, ProcessNumber.parseNumber("1000.0E-3"));
+    }
+
+    @Test
+    public void when_illegal_type_or_num_then_NaN(){
+        assertEquals(Double.NaN, ProcessNumber.parseNumber(null, null));
+        assertEquals(Double.NaN, ProcessNumber.parseNumber(null, String.class));
+        assertEquals(Double.NaN, ProcessNumber.parseNumber("", String.class));
+        assertEquals(Double.NaN, ProcessNumber.parseNumber("", int.class));
+        assertEquals(Double.NaN, ProcessNumber.parseNumber("", null));
+
+        assertEquals(Double.NaN, ProcessNumber.parseNumber("231", null));
+        assertEquals(Double.NaN, ProcessNumber.parseNumber("1000", String.class));
+    }
+
+    @Test
+    public void when_type_dismatched_when_error(){
+        assertNotEquals(123, ProcessNumber.parseNumber("123", short.class));
+        assertNotEquals(123L, ProcessNumber.parseNumber("123", int.class));
+        assertNotEquals(123L, ProcessNumber.parseNumber("123", Integer.class));
+        assertNotEquals(124F, ProcessNumber.parseNumber("124", Double.class));
+        assertNotEquals(0.124, ProcessNumber.parseNumber("0.124", Float.class));
+    }
+
+    @Test
+    public void when_valid_number_with_type_int_then_int(){
+        assertEquals(123, ProcessNumber.parseNumber("123", int.class));
+        assertEquals(123, ProcessNumber.parseNumber("123", Integer.class));
+        assertEquals((byte)127, ProcessNumber.parseNumber("127", byte.class));
+        assertEquals((byte)127, ProcessNumber.parseNumber("127", Byte.class));
+        assertEquals(10000L, ProcessNumber.parseNumber("10000", Long.class));
+        assertEquals(1.24f, ProcessNumber.parseNumber("1.24", Float.class));
+        assertEquals(0.00001, ProcessNumber.parseNumber("0.00001", Double.class));
     }
 }

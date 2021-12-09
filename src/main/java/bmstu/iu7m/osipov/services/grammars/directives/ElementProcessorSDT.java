@@ -12,6 +12,7 @@ import bmstu.iu7m.osipov.structures.trees.Node;
 import bmstu.iu7m.osipov.utils.ClassObjectBuilder;
 import bmstu.iu7m.osipov.utils.GrammarBuilderUtils;
 import bmstu.iu7m.osipov.utils.PrimitiveTypeConverter;
+import bmstu.iu7m.osipov.utils.ProcessNumber;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
@@ -33,6 +34,8 @@ public class ElementProcessorSDT implements SDTParser {
 
     protected static Map<String, Class<?>> primitives;
 
+    protected static Map<String, Class<?>> boxedTypes;
+
     static {
         primitives = new HashMap<>();
         primitives.put("boolean", boolean.class);
@@ -43,6 +46,23 @@ public class ElementProcessorSDT implements SDTParser {
         primitives.put("long", long.class);
         primitives.put("float", float.class);
         primitives.put("double", double.class);
+
+        boxedTypes = new HashMap<>();
+        boxedTypes.put("boolean", Boolean.class);
+        boxedTypes.put("byte", Byte.class);
+        boxedTypes.put("char",Character.class);
+        boxedTypes.put("short",Short.class);
+        boxedTypes.put("int", Integer.class);
+        boxedTypes.put("long", Long.class);
+        boxedTypes.put("float", Float.class);
+        boxedTypes.put("double", Double.class);
+    }
+
+    public static Map<String, Class<?>> getPrimitiveTypes(){
+        return primitives;
+    }
+    public static Map<String, Class<?>> getBoxedTypes(){
+        return boxedTypes;
     }
 
     /*state machine for javafx-objects.
@@ -360,9 +380,9 @@ public class ElementProcessorSDT implements SDTParser {
                 continue;
             methodName = entry.getKey();
             System.out.println("Looking for: '"+methodName+"'");
-            m = ClassObjectBuilder.getDeclaredMethod(c, "set" + methodName);
+            m = ClassObjectBuilder.getMethod(c, "set" + methodName);
             if(m == null)
-                m = ClassObjectBuilder.getDeclaredMethod(c, "init" + methodName);
+                m = ClassObjectBuilder.getMethod(c, "init" + methodName);
 
             // inherited Properties.
             if(methodName.equalsIgnoreCase("style") || methodName.equalsIgnoreCase("id")){
@@ -373,8 +393,17 @@ public class ElementProcessorSDT implements SDTParser {
                 continue;
             try {
                 System.out.println("Found setter prop: "+methodName);
+                Class<?> propType = m.getParameters()[0].getType();
+                System.out.println("Property: "+propType.getSimpleName());
 
-                m.invoke(c, entry.getValue());
+                if(propType.getSimpleName().equalsIgnoreCase("String"))
+                    m.invoke(c, entry.getValue());
+                else if(propType.getSimpleName().equals("boolean")){
+                    m.invoke(c, entry.getValue().equals("true"));
+                }
+                else {
+                    m.invoke(c, ProcessNumber.parseNumber(entry.getValue(), propType));
+                }
             }catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e){
                 System.out.println(e);
             }

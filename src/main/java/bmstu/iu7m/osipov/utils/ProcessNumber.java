@@ -1,4 +1,6 @@
-package bmstu.iu7m.osipov.services.parsers.json;
+package bmstu.iu7m.osipov.utils;
+
+import bmstu.iu7m.osipov.services.grammars.directives.ElementProcessorSDT;
 
 //Process octal,hex,binary,decimal scientific literals to decimal number.
 public class ProcessNumber {
@@ -126,4 +128,53 @@ public class ProcessNumber {
         String number = str.substring(i, idx);
         return parse(number, exp, etype, base, sign, esign);
     }
+
+    public static Number parseNumber(String num, Class<?> type){
+        if(type == null)
+            return Double.NaN;
+        type = ElementProcessorSDT.getBoxedTypes().getOrDefault(type.getSimpleName(), type);
+        if(!Number.class.isAssignableFrom(type) || num == null || num.length() == 0)
+            return Double.NaN;
+
+        boolean isMax = num.equalsIgnoreCase("MAX_VALUE");
+        boolean isMin = num.equalsIgnoreCase("MIN_VALUE");
+        boolean isInf = num.equalsIgnoreCase("INFINITY");
+        switch (type.getSimpleName()){
+            case "byte": case "Byte":{
+                return  (isMax) ? Byte.MAX_VALUE :
+                        (isMin) ? Byte.MIN_VALUE :
+                                (byte)parseNumber(num);
+            }
+            case "short": case "Short":{
+                return  (isMax) ? Short.MAX_VALUE :
+                        (isMin) ? Short.MIN_VALUE :
+                                (short)parseNumber(num);
+            }
+            case "int": case "Integer":{
+                return  (isMax) ? Integer.MAX_VALUE :
+                        (isMin) ? Integer.MIN_VALUE :
+                                (int)parseNumber(num);
+            }
+            case "long": case"Long":{
+                return  (isMax) ? Long.MAX_VALUE :
+                        (isMin) ? Long.MIN_VALUE :
+                                (long)parseNumber(num);
+            }
+            case "float": case "Float":{
+                return  (isMax) ? Float.MAX_VALUE :
+                        (isMin) ? Float.MIN_VALUE :
+                        (isInf) ? Float.POSITIVE_INFINITY :
+                                (float)parseNumber(num);
+            }
+            case "double": case "Double": {
+                return  (isMax) ? Double.MAX_VALUE :
+                        (isMin) ? Double.MIN_VALUE :
+                        (isInf) ? Double.POSITIVE_INFINITY :
+                                parseNumber(num);
+            }
+            default:{
+                return Double.NaN;
+            }
+        }// end of switch
+    }// end of method
 }

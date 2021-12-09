@@ -1,9 +1,5 @@
 package bmstu.iu7m.osipov.utils;
 
-import bmstu.iu7m.osipov.services.parsers.json.ProcessNumber;
-
-import java.lang.reflect.Type;
-
 public class PrimitiveTypeConverter {
 
     /**
