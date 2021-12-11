@@ -1,13 +1,20 @@
 <Stage>
+    <Stage.Resources>
+        <Insets key="ok2_top_60" top="60" right="0" bottom="0" left="0"/>
+    </Stage.Resources>
     <Scene width="400" height="500"> # One line comment starts with '#'. See javafx_xml.json 'meta'
         <HBox spacing="12.5" id="container1" fillHeight="true"
+              alignment="CENTER"
               style="-fx-border-color: red, green;
                      -fx-border-style: solid inside, solid inside;
                      -fx-border-width: 5, 2;
                      -fx-border-insets: 0, 5;
                      -fx-border-radius: 0, 0;"> # Only one child at Scene.
             <Button text="OK" maxHeight="MAX_VALUE"/>
-            <Button text="OK2" prefwidth="100" prefHeight="30"/>
+            <TextField id="f1" HBox.hgrow="ALWAYS" />
+            <Button text="OK2" prefwidth="60" prefHeight="30" HBox.hgrow="ALWAYS"
+                HBox.margin="{ok2_top_60}" # Resource added.
+            />
         </HBox>
         <HBox spacing="5" id="container2"  /> # Will be ignored.
     </Scene>

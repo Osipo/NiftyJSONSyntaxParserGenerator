@@ -89,4 +89,13 @@ public class ClassObjectBuilder {
                 .filter(x -> x.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
         return m;
     }
+
+    public static Method getClassMethod(Class<?> clazz, String name){
+        Method m = null;
+        if(clazz == null || name == null || name.length() == 0)
+            return m;
+        m = Arrays.stream(clazz.getMethods()).filter(x -> x.getName().equalsIgnoreCase(name))
+                .findFirst().orElse(null);
+        return m;
+    }
 }

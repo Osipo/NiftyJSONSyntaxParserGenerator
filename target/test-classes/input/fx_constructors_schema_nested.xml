@@ -44,6 +44,32 @@
             </Scene.Constructors>
         </Scene>
         <Package name="layout">
+            <CornerRadii>
+                <Constructor>
+                    <Constructor.Params>
+                        <Param name="radius" type="double"/>
+                    </Constructor.Params>
+                </Constructor>
+                <Constructor>
+                    <Constructor.Params>
+                        <Param name="radius" type="double"/>
+                        <Param name="asPercent" type="boolean"/>
+                    </Constructor.Params>
+                </Constructor>
+            </CornerRadii>
+            <BackgroundFill>
+                <Constructor>
+                    <Constructor.Params>
+                        <Param name="color" type="javafx.scene.paint.Color"/>
+                        <Param name="radius" type="javafx.scene.layout.CornerRadii" />
+                        <Param name="insets" type="javafx.geometry.Insets"/>
+                    </Constructor.Params>
+                </Constructor>
+            </BackgroundFill>
+            <Background>
+                <Constructor>
+                </Constructor>
+            </Background>
             <HBox>
                 <HBox.Constructors>
                     <Constructor>
@@ -101,6 +127,31 @@
                     </Constructor>
                 </Button.Constructors>
             </Button>
+            <TextField>
+                <TextField.Constructors>
+                    <Constructor>
+                    </Constructor>
+                </TextField.Constructors>
+            </TextField>
         </Package>
+    </Package>
+    <Package name="javafx.geometry">
+        <Insets>
+            <Insets.Constructors>
+                <Constructor>
+                    <Constructor.Params>
+                        <Param name="topRightBottomLeft" type="double" />
+                    </Constructor.Params>
+                </Constructor>
+                <Constructor>
+                    <Constructor.Params>
+                        <Param name="top" type="double"/>
+                        <Param name="right" type="double"/>
+                        <Param name="bottom" type="double"/>
+                        <Param name="left" type="double"/>
+                    </Constructor.Params>
+                </Constructor>
+            </Insets.Constructors>
+        </Insets>
     </Package>
 </SchemaTypes>

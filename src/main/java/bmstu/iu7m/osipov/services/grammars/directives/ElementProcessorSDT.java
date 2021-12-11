@@ -15,6 +15,7 @@ import bmstu.iu7m.osipov.utils.PrimitiveTypeConverter;
 import bmstu.iu7m.osipov.utils.ProcessNumber;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
@@ -25,6 +26,7 @@ import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ElementProcessorSDT implements SDTParser {
 
@@ -35,6 +37,8 @@ public class ElementProcessorSDT implements SDTParser {
     protected static Map<String, Class<?>> primitives;
 
     protected static Map<String, Class<?>> boxedTypes;
+
+    protected Map<String, Object> resources;
 
     static {
         primitives = new HashMap<>();
@@ -69,6 +73,7 @@ public class ElementProcessorSDT implements SDTParser {
         -1 = Error.
         0 = Awaiting Stage (creates Stage and goto 1)
         1 = Awaiting Scene (remember constructor of Scene and goto 2)
+        10 = Read resource objects (java Objects and some javafx style Objects like Background, Insets, BackgroundFill)
         2 = Awaiting Root (extract Scene constructor with its parent Stage and goto 3)
         3 = Read Scene graph.
      */
@@ -92,6 +97,7 @@ public class ElementProcessorSDT implements SDTParser {
         this.obj_attrs = new HashMap<>();
         this.attr_processor = attr_processor;
         this.type_processor = type_processor;
+        this.resources = new HashMap<>();
     }
 
     public Object getStage(){
@@ -133,8 +139,10 @@ public class ElementProcessorSDT implements SDTParser {
                     break; //complex property must be defined within object and its attributes are Tags and not str=vals pairs!
                 }
                 if(arg1.contains(".")){ //well-formed complex property
-                    Object pObj = this.objects.top();
-                    this.obj_attrs.clear();
+                    String pTag = arg1.substring(0, arg1.indexOf('.'));
+                    if(pTag.equals("Stage") && this.state == 1){
+                        this.state = 10;
+                    }
                 }
                 else {
                     this.curName = arg1;
@@ -240,6 +248,8 @@ public class ElementProcessorSDT implements SDTParser {
                     //3. Extract parameters and their types.
                     ConstructorElement ctr_i = class_meta.getConstructors().get(idx);
                     int pargs = 0;
+
+                    //if constructor HaveNoParams then Params is null else get size.
                     if(!ctr_i.haveNoParams())//for no-args constructor: parameterTypes are null.
                         pargs = ctr_i.getParams().size();
                     Class<?>[] ctr_types = (pargs == 0) ? null : new Class[pargs];
@@ -268,6 +278,14 @@ public class ElementProcessorSDT implements SDTParser {
             } //end 'createObject' action
 
             case "removePrefix":{
+                String clTag = t.getArguments().getOrDefault("pref", null);
+                clTag = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, clTag);
+                if(clTag.contains(".") && clTag.substring(0, clTag.indexOf('.')).equals("Stage")) {
+                    this.state = 1; // 10 -> 1.
+                    break;
+                }
+                else if(this.state == 10)
+                    break;
                 if(this.objects.top() != null)
                     System.out.println(this.objects.top().getClass().getSimpleName());
                 this.objects.pop();
@@ -283,6 +301,11 @@ public class ElementProcessorSDT implements SDTParser {
         System.out.println("state = "+this.state + " Stack: "+this.objects.toString());
         if(c == null) {
             System.out.println("Cannot create object of class '"+this.curName+"'");
+            return;
+        }
+        if(this.state == 10){
+            processSimpleProperties(c);
+            this.resources.put(this.obj_attrs.get("key"), c);
             return;
         }
         if(this.state == 2){
@@ -380,27 +403,53 @@ public class ElementProcessorSDT implements SDTParser {
                 continue;
             methodName = entry.getKey();
             System.out.println("Looking for: '"+methodName+"'");
+            if(methodName.contains(".")){
+                processStaticProperties(methodName, c, entry.getValue());
+                continue;
+            }
+
             m = ClassObjectBuilder.getMethod(c, "set" + methodName);
             if(m == null)
                 m = ClassObjectBuilder.getMethod(c, "init" + methodName);
 
-            // inherited Properties.
+            /* inherited Properties.
             if(methodName.equalsIgnoreCase("style") || methodName.equalsIgnoreCase("id")){
                 m = ClassObjectBuilder.getMethod(c, "set" + methodName);
                 m = (m == null) ?  ClassObjectBuilder.getMethod(c, "init" + methodName) : m;
-            }
+            }*/
             if(m == null)
                 continue;
             try {
                 System.out.println("Found setter prop: "+methodName);
                 Class<?> propType = m.getParameters()[0].getType();
-                System.out.println("Property: "+propType.getSimpleName());
+                System.out.println("Property type: "+propType.getSimpleName());
 
+                /* If String setter */
                 if(propType.getSimpleName().equalsIgnoreCase("String"))
                     m.invoke(c, entry.getValue());
+
+                /* If boolean setter */
                 else if(propType.getSimpleName().equals("boolean")){
                     m.invoke(c, entry.getValue().equals("true"));
                 }
+
+                /* If Enum setter */
+                else if(propType.isEnum()){
+                    m.invoke(c,
+                            Enum.valueOf((Class<? extends Enum>)propType, entry.getValue())
+                    );
+                }
+
+                /* Resource setter */
+                else if(entry.getValue().charAt(0) == '{'
+                        && entry.getValue().charAt(entry.getValue().length() - 1) == '}'
+                )
+                {
+                    String rkey = entry.getValue().substring(1, entry.getValue().length() - 1);
+                    m.invoke(c, this.resources.getOrDefault(rkey, null));
+                }
+
+                /* Number setter */
                 else {
                     m.invoke(c, ProcessNumber.parseNumber(entry.getValue(), propType));
                 }
@@ -409,4 +458,58 @@ public class ElementProcessorSDT implements SDTParser {
             }
         }
     } //end method.
+
+    //Process properties like 'HBox.margin', or 'Grid.rowSpan'
+    private void processStaticProperties(String methodName, Object arg1, String value){
+
+        String fullTypeName = this.type_processor
+                .getAliases()
+                .getOrDefault(methodName.substring(0, methodName.indexOf('.')), null);
+        if(fullTypeName == null){
+            System.out.println("Cannot find class: '"+methodName.substring(0, methodName.indexOf('.')) + "'");
+            return;
+        }
+        String setterName = methodName.substring(methodName.indexOf('.') + 1);
+        try {
+            Class<?> clazz = Class.forName(fullTypeName);
+
+            Method m = ClassObjectBuilder.getClassMethod(clazz, setterName);
+            m = (m == null) ? ClassObjectBuilder.getClassMethod(clazz, "set" + setterName) : m;
+            m = (m == null) ? ClassObjectBuilder.getClassMethod(clazz, "init" + setterName) : m;
+            if(m != null) {
+                System.out.println("Found setter STATIC prop: "+setterName);
+                Class<?> propType = m.getParameters()[1].getType(); //zero argument - child node.
+                System.out.println("Property: "+propType.getSimpleName());
+
+                /* if String setter */
+                if(propType.getSimpleName().equalsIgnoreCase("String"))
+                    m.invoke(null, arg1, value);
+
+                /* if boolean setter */
+                else if(propType.getSimpleName().equals("boolean")){
+                    m.invoke(null,arg1, value.equals("true"));
+                }
+
+                /* if Enum setter */
+                else if(propType.isEnum()){
+                    System.out.println("Enum<"+propType.getSimpleName()+">");
+                    m.invoke(null, arg1, Enum.valueOf((Class) propType, value));
+                }
+                /* Resource setter */
+                else if(value.charAt(0) == '{'
+                        && value.charAt(value.length() - 1) == '}'
+                )
+                {
+                    String rkey = value.substring(1, value.length() - 1); // remove '{}'
+                    m.invoke(null, arg1, this.resources.getOrDefault(rkey, null));
+                }
+                /* if Number setter */
+                else {
+                    m.invoke(null,arg1, ProcessNumber.parseNumber(value, propType));
+                }
+            }
+        }catch (ClassNotFoundException   | InvocationTargetException | IllegalArgumentException | IllegalAccessException e){
+            System.out.println(e);
+        }
+    }// end method.
 }
