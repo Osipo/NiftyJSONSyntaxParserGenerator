@@ -495,7 +495,7 @@ public class ElementProcessorSDT implements SDTParser {
                     System.out.println("Enum<"+propType.getSimpleName()+">");
                     m.invoke(null, arg1, Enum.valueOf((Class) propType, value));
                 }
-                /* Resource setter */
+                /* if Resource setter */
                 else if(value.charAt(0) == '{'
                         && value.charAt(value.length() - 1) == '}'
                 )
