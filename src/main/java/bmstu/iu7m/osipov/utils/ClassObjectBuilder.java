@@ -1,17 +1,43 @@
 package bmstu.iu7m.osipov.utils;
 
-import javax.swing.text.html.Option;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
+import java.util.*;
 public class ClassObjectBuilder {
+
+    private static Map<String, Class<?>> primitives;
+
+    private static Map<String, Class<?>> boxedTypes;
+
+    static {
+        primitives = new HashMap<>();
+        primitives.put("boolean", boolean.class);
+        primitives.put("byte", byte.class);
+        primitives.put("char",char.class);
+        primitives.put("short",short.class);
+        primitives.put("int", int.class);
+        primitives.put("long", long.class);
+        primitives.put("float", float.class);
+        primitives.put("double", double.class);
+
+        boxedTypes = new HashMap<>();
+        boxedTypes.put("boolean", Boolean.class);
+        boxedTypes.put("byte", Byte.class);
+        boxedTypes.put("char",Character.class);
+        boxedTypes.put("short",Short.class);
+        boxedTypes.put("int", Integer.class);
+        boxedTypes.put("long", Long.class);
+        boxedTypes.put("float", Float.class);
+        boxedTypes.put("double", Double.class);
+    }
+
+    public static Map<String, Class<?>> getPrimitiveTypes(){
+        return primitives;
+    }
+    public static Map<String, Class<?>> getBoxedTypes(){
+        return boxedTypes;
+    }
 
     public static Object createInstance(String className, Class<?>[] paramTypes, Object[] paramValues){
         Class type = null;

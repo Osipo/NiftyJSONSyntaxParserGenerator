@@ -132,7 +132,7 @@ public class ProcessNumber {
     public static Number parseNumber(String num, Class<?> type){
         if(type == null)
             return Double.NaN;
-        type = ElementProcessorSDT.getBoxedTypes().getOrDefault(type.getSimpleName(), type);
+        type = ClassObjectBuilder.getBoxedTypes().getOrDefault(type.getSimpleName(), type);
         if(!Number.class.isAssignableFrom(type) || num == null || num.length() == 0)
             return Double.NaN;
 

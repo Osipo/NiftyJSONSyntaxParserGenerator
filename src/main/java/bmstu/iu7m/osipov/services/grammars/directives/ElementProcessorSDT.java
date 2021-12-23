@@ -15,18 +15,13 @@ import bmstu.iu7m.osipov.utils.PrimitiveTypeConverter;
 import bmstu.iu7m.osipov.utils.ProcessNumber;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class ElementProcessorSDT implements SDTParser {
 
@@ -72,7 +67,7 @@ public class ElementProcessorSDT implements SDTParser {
     /*state machine for javafx-objects.
         -1 = Error.
         0 = Awaiting Stage (creates Stage and goto 1)
-        1 = Awaiting Scene (remember constructor of Scene and goto 2)
+        1 = Awaiting Scene (remember constructor of Scene and goto 2) OR (read resources start and goto 10)
         10 = Read resource objects (java Objects and some javafx style Objects like Background, Insets, BackgroundFill)
         2 = Awaiting Root (extract Scene constructor with its parent Stage and goto 3)
         3 = Read Scene graph.
@@ -256,7 +251,7 @@ public class ElementProcessorSDT implements SDTParser {
                     Object[] vals = new Object[pargs];
                     for(int ii = 0; ii < pargs; ii++){
                         try {
-                            Class<?> ptype = primitives.getOrDefault(ctr_i.getParams().get(ii).getType(), null);
+                            Class<?> ptype = ClassObjectBuilder.getPrimitiveTypes().getOrDefault(ctr_i.getParams().get(ii).getType(), null);
                             ptype = (ptype != null) ? ptype : Class.forName(ctr_i.getParams().get(ii).getType());
                             ctr_types[ii] = ptype;
                             vals[ii] = obj_attrs.getOrDefault(ctr_i.getParams().get(ii).getName(), null);
