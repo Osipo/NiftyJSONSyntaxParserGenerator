@@ -91,6 +91,7 @@ public class TypeProcessorSDT implements SDTParser {
                     }
                     ClassElement claz = (ClassElement) par;
                     ConstructorElement ctr = (ConstructorElement) cur;
+                    ctr.setClassName(claz.getFullName());
                     claz.addConstructor(ctr);
                 }
                 else if(!arg1.contains(".") && arg2 == null && !arg1.equals("Package")){ //non-empty tag and not property-object marker.

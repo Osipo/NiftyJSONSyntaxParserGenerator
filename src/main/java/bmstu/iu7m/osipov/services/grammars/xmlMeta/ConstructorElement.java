@@ -8,6 +8,8 @@ public class ConstructorElement {
 
     private List<ParameterElement> params;
 
+    private String className;
+
     public ConstructorElement(){
 
     }
@@ -16,6 +18,14 @@ public class ConstructorElement {
         if(this.params == null)
             this.params = new ArrayList<>(20);
         this.params.add(p);
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public String getClassName(){
+        return this.className;
     }
 
     public boolean haveNoParams(){

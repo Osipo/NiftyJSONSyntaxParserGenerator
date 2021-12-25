@@ -33,6 +33,8 @@ public class ClassElement {
         return this.typeName;
     }
 
+    public String getFullName(){ return this.packageName + "." + this.typeName;}
+
     public String getPackageName(){
         return this.packageName;
     }

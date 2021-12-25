@@ -236,4 +236,28 @@ public class SLRParserTranslationTest {
             } catch (InstantiationException | IllegalArgumentException | IllegalAccessException e){ }
         });
     }
+
+    //Make sure that 'switch' returns value before 'break'
+    //At break it returns -1.
+    private int switcher(int x){
+        switch(x){
+            case 1:{
+                return x * 2;
+            }
+            case 10:{
+                break;
+            }
+        }
+        return -1;
+    }
+
+    @Test
+    public void switch_return_instead_of_break(){
+        int x = 1, y = 1;
+        y = switcher(x);
+        assert y == x * 2;
+        x = 10;
+        y = switcher(x);
+        assert y == -1;
+    }
 }
