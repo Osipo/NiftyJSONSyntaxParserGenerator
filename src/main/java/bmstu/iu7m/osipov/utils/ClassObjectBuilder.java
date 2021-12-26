@@ -3,7 +3,11 @@ package bmstu.iu7m.osipov.utils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
 public class ClassObjectBuilder {
 
     private static Map<String, Class<?>> primitives;
@@ -96,6 +100,21 @@ public class ClassObjectBuilder {
                 | InvocationTargetException e){}
 
         return obj;
+    }
+
+    public static Object createInstance(Constructor<?> constructor, Object[] paramValues,
+                                        Function2<Constructor<?>, Object[], Object[]> converter
+    )
+    {
+        return createInstance(constructor, converter.call(constructor, paramValues));
+    }
+
+    public static Object createInstance(Constructor<?> constructor, Object[] paramValues,
+                                        Function3<Constructor<?>, Object[], Integer, Object[]> converter,
+                                        int offset
+    )
+    {
+        return createInstance(constructor, converter.call(constructor, paramValues, offset));
     }
 
     public static Method getDeclaredMethod(Object obj, String name){

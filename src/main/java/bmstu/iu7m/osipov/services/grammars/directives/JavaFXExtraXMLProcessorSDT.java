@@ -12,10 +12,13 @@ import bmstu.iu7m.osipov.structures.trees.LinkedNode;
 import bmstu.iu7m.osipov.structures.trees.Node;
 import bmstu.iu7m.osipov.utils.ClassObjectBuilder;
 import bmstu.iu7m.osipov.utils.GrammarBuilderUtils;
+import bmstu.iu7m.osipov.utils.PrimitiveTypeConverter;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -112,6 +115,8 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             }//end 'createObject'
 
             case "removePrefix":{
+                String clTag = t.getArguments().getOrDefault("pref", null);
+                clTag = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, clTag);
                 break;
             }//end 'removePrefix'
 
@@ -165,7 +170,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 if(ctr_with_vals == null)
                     break;
 
-                Object stage = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue());
+                Object stage = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
                 if(stage == null)
                     break;
                 this.objects.push(stage); //push new root node.
@@ -197,7 +202,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 ctr_with_vals = getConstructorWithValues(meta_ctr);
                 if(ctr_with_vals == null)
                     break;
-                Object sceneRoot = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue());
+                Object sceneRoot = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
                 if(sceneRoot == null)
                     break;
                 if(!processScene(sceneRoot))
@@ -205,7 +210,22 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 processSimpleProperties(sceneRoot);
                 return;
             }
-
+            case 4: { /* Scene graph content */
+                meta_ctr = getTypeConstructorElement();
+                if(meta_ctr == null)
+                    break;
+                ctr_with_vals = getConstructorWithValues(meta_ctr);
+                if(ctr_with_vals == null)
+                    break;
+                Object elem_or_layout = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
+                if(elem_or_layout == null)
+                    break;
+                if(!processChildren(elem_or_layout))
+                    break;
+                this.objects.push(elem_or_layout); //push new root node.
+                processSimpleProperties(elem_or_layout);
+                return;
+            }
         }//end switch
         this.state = -1; //if reached here -> no return operator performed -> 'break' -> Error
     }//end method
@@ -281,8 +301,33 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         return new KeyValuePair<>(ClassObjectBuilder.getDeclaredConstructor(meta_ctr.getClassName(), ctr_types), vals);
     }
 
-    private void processChildren(Object child){
+    private boolean processChildren(Object child){
+        Object parent = this.objects.top();
+        if(parent == null || child == null)
+            return false;
 
+        Method m = ClassObjectBuilder.getMethod(parent, "getChildren");
+        m = (m == null) ? ClassObjectBuilder.getMethod(parent, "getItems") : m;
+        if(m == null)
+            return false;
+
+        Object children = null;
+        try{
+            children = m.invoke(parent);
+            m = children.getClass().getMethod("addAll", Object[].class);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException e){
+            return false;
+        }
+        try {
+            // WRAP VARARGS WITH Object[] array.
+            // Second array may have specific type
+            // But as it is generic then the type is Object.
+            m.invoke(children, new Object[]{ new Object[]{ child } });
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e){
+            return false;
+        }
+        return true;
     }
 
     private boolean processScene(Object root){
@@ -307,11 +352,99 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         if(stage == null)
             return false;
 
+        Object scene = ClassObjectBuilder.createInstance(scene_ctr, args, PrimitiveTypeConverter::convertConstructorArguments, 1);
+        if(scene == null)
+            return false;
+
+        // Call stage.setScene(scene)
+        Method setScene = null;
+        try{
+            setScene = stage.getClass().getDeclaredMethod("setScene", Scene.class);
+            setScene.invoke(stage, scene);
+        } catch (NoSuchMethodException | SecurityException | IllegalArgumentException | IllegalAccessException | InvocationTargetException e){
+            return false;
+        }
+        this.objects.push(scene); // add Scene object with sceneRoot.
+        this.objects.push(root);
         return true;
     }
 
     private void processSimpleProperties(Object root){
+        if(root == null)
+            return;
+        String methodName = null;
+        Method m = null;
+        System.out.println("Process properties of: "+root.getClass().getSimpleName());
+        for(Map.Entry<String, String> entry : this.obj_attrs.entrySet()) {
+            if (entry.getValue() == null)
+                continue;
 
+            methodName = entry.getKey();
+            System.out.println("Looking setter for: '" + methodName + "'");
+            if (methodName.contains(".")) {
+                processStaticProperty(methodName, root, entry.getValue());
+                continue;
+            }
+            m = ClassObjectBuilder.getMethod(root, "set" + methodName);
+            if(m == null)
+                m = ClassObjectBuilder.getMethod(root, "init" + methodName);
+            if(m == null)
+                continue;
+            try{
+                System.out.println("Found instance setter prop: "+methodName);
+                Class<?> propType = m.getParameters()[0].getType();
+                System.out.println("Property type: "+propType.getSimpleName());
+
+                /* if Resource setter */
+                if(entry.getValue().charAt(0) == '{'
+                        && entry.getValue().charAt(entry.getValue().length() - 1) == '}'
+                )
+                {
+                    String rkey = entry.getValue().substring(1, entry.getValue().length() - 1);
+                    m.invoke(root, this.res.getOrDefault(rkey, null));
+                }
+                else{
+                    m.invoke(root, PrimitiveTypeConverter.castTo(propType, entry.getValue()));
+                }
+
+            } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e){
+                System.out.println(e);
+            }// end try/catch
+        }// end for cycle
+    }//end method
+
+    private void processStaticProperty(String setter, Object root, String val){
+        String fullTypeName = this.type_processor
+                .getAliases()
+                .getOrDefault(setter.substring(0, setter.indexOf('.')), null);
+        if(fullTypeName == null){
+            System.out.println("Cannot find class: '"+setter.substring(0, setter.indexOf('.')) + "'");
+            return;
+        }
+        String setterName = setter.substring(setter.indexOf('.') + 1);
+        try {
+            Class<?> clazz = Class.forName(fullTypeName);
+
+            Method m = ClassObjectBuilder.getClassMethod(clazz, setterName);
+            m = (m == null) ? ClassObjectBuilder.getClassMethod(clazz, "set" + setterName) : m;
+            m = (m == null) ? ClassObjectBuilder.getClassMethod(clazz, "init" + setterName) : m;
+            if(m == null){
+                System.out.println("Cannot find static property setter: '"+ setterName+ "'");
+                return;
+            }
+            /* if Resource setter */
+            if(val.charAt(0) == '{'
+                    && val.charAt(val.length() - 1) == '}'
+            )
+            {
+                String rkey = val.substring(1, val.length() - 1);
+                m.invoke(null, root, this.res.getOrDefault(rkey, null));
+            }
+            else{
+                m.invoke(null, root, PrimitiveTypeConverter.castTo(clazz, val));
+            }
+        } catch (ClassNotFoundException | InvocationTargetException | IllegalArgumentException | IllegalAccessException e){
+            System.out.println(e);
+        }
     }
-
 }
