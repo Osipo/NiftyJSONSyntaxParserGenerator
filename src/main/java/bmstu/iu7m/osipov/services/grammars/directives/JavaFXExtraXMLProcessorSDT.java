@@ -3,7 +3,6 @@ package bmstu.iu7m.osipov.services.grammars.directives;
 import bmstu.iu7m.osipov.services.grammars.xmlMeta.ClassElement;
 import bmstu.iu7m.osipov.services.grammars.xmlMeta.ConstructorElement;
 import bmstu.iu7m.osipov.services.grammars.xmlMeta.ParameterElement;
-import bmstu.iu7m.osipov.services.grammars.xmlMeta.SceneConstructor;
 import bmstu.iu7m.osipov.services.lexers.LanguageSymbol;
 import bmstu.iu7m.osipov.services.lexers.Translation;
 import bmstu.iu7m.osipov.structures.lists.KeyValuePair;
@@ -43,7 +42,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     * 3 - read rootNode of the Scene.
     * 4 - read content of the rootNode of the Scene.
     *   40 - </Scene> was read. All content of the Scene has been created. Awaiting other Resources.
-    *   4o -> 10.
+    *   40 -> 10.
     * 5 - read content of the root Resource
     * 6 - read content of the root Fragment
     * 7 - </Stage> was reached. Nothing to awaits. Finished state.
@@ -117,6 +116,12 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             case "removePrefix":{
                 String clTag = t.getArguments().getOrDefault("pref", null);
                 clTag = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, clTag);
+                if(clTag.equalsIgnoreCase("Scene"))
+                    this.state = 40;
+                else if(clTag.equalsIgnoreCase("Stage.Resources") && this.state == 41)
+                    this.state = 40;
+                else if(clTag.equalsIgnoreCase("Stage.Resources")) //state == 10
+                    this.state = 1;
                 break;
             }//end 'removePrefix'
 
@@ -151,7 +156,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         else if(this.state == 3)
             this.state = 4;
         else if(this.state == 40 && this.curName.equalsIgnoreCase("Stage.Resources"))
-            this.state = 10;
+            this.state = 41;
     }
 
     private void checkState(){
@@ -159,7 +164,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         ConstructorElement meta_ctr = null;
 
         switch (this.state){
-            case 0: case -1:{ //Cannot find Stage at start OR Error.
+            case 0: case 40: case -1:{ //Cannot find Stage at start OR Error.
                 return;
             }
             case 1:{ /* curName = 'Stage' */
@@ -224,6 +229,20 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                     break;
                 this.objects.push(elem_or_layout); //push new root node.
                 processSimpleProperties(elem_or_layout);
+                return;
+            }
+            case 10: case 41: {
+                meta_ctr = getTypeConstructorElement();
+                if(meta_ctr == null)
+                    break;
+                ctr_with_vals = getConstructorWithValues(meta_ctr);
+                if(ctr_with_vals == null)
+                    break;
+                Object elem_or_layout = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
+                if(elem_or_layout == null)
+                    break;
+                processSimpleProperties(elem_or_layout);
+                this.res.put(this.obj_attrs.get("key"), elem_or_layout);
                 return;
             }
         }//end switch
