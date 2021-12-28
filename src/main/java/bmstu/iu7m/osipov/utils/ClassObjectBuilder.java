@@ -1,9 +1,6 @@
 package bmstu.iu7m.osipov.utils;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -142,5 +139,65 @@ public class ClassObjectBuilder {
         m = Arrays.stream(clazz.getMethods()).filter(x -> x.getName().equalsIgnoreCase(name))
                 .findFirst().orElse(null);
         return m;
+    }
+
+    public static Object copy(Object entity) throws IllegalAccessException, InstantiationException {
+        Class<?> clazz = entity.getClass();
+        Object newEntity = entity.getClass().newInstance();
+
+        while (clazz != null) {
+            copyFields(entity, newEntity, clazz);
+            clazz = clazz.getSuperclass();
+        }
+        return newEntity;
+    }
+
+    private static void copyFields(Object entity, Object newEntity, Class<?> clazz) throws IllegalAccessException, InstantiationException {
+        List<Field> fields = new ArrayList<>();
+        for (Field field : clazz.getDeclaredFields()) {
+            fields.add(field);
+        }
+
+        Field modifiersField = null;
+        try{
+            modifiersField = Field.class.getDeclaredField("modifiers");
+        } catch (NoSuchFieldException e){}
+        modifiersField.setAccessible(true);
+
+        for (Field field : fields) {
+            field.setAccessible(true);
+
+            //Skip static final fields.
+            if((field.getModifiers() & Modifier.STATIC) == Modifier.STATIC
+                //&& ((field.getModifiers() & Modifier.FINAL) == Modifier.FINAL)
+            )
+                continue;
+
+            modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
+            field.set(newEntity, field.get(entity));
+            modifiersField.setInt(field, field.getModifiers() | Modifier.FINAL);
+        }
+        fields.clear();
+    }
+
+    public static Object getClone(Object original)  {
+        Method m = null;
+        Class<?> clazz = original.getClass();
+        Object res = null;
+        while(clazz != null && m == null) {
+            try {
+                m = clazz.getDeclaredMethod("clone");
+            } catch (NoSuchMethodException e) {
+                clazz = clazz.getSuperclass();
+            }
+        }
+        m.setAccessible(true);
+        try{
+            res = m.invoke(original);
+        }
+        catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e){
+            System.out.println(e.getCause());
+        }
+        return res;
     }
 }

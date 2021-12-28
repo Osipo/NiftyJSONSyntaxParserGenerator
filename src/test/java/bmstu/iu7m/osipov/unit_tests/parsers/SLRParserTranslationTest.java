@@ -35,6 +35,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
 import java.lang.reflect.*;
 import java.util.Arrays;
@@ -212,6 +213,7 @@ public class SLRParserTranslationTest {
         System.out.println("Translate document according to scheme");
         otree.visit(VisitorMode.PRE, exec2);
         if(elem_actor.getRoot() != null){
+            System.out.println("Translation finished. Launch Stage...");
             Stage s = (Stage) elem_actor.getRoot();
             s.showAndWait();
         }

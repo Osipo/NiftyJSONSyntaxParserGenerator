@@ -25,7 +25,7 @@ import java.util.Map;
 public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     protected Map<String, String> obj_attrs;
     protected Map<String, Object> res;
-    protected Map<String, Object> fragments;
+    protected Map<String, FragmentContainer> fragments;
     protected LinkedStack<Object> objects;
     protected Object root;
     protected String curName;
@@ -38,9 +38,10 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     * 1 - Stage recognized and created. awaiting Scene object or Resources.
     *   10 - recognized Stage.Resources. reading Stage.Resources content
     *   11 - read Resource file (dictionary)
-    *   12 - read Fragment content
-    *   20 - reading Array of items when sequence needed.
-    *   30 - reading List of items when sequence needed.
+    *   12 - create new Fragment
+    *       16 - read Fragment content.
+    *   13 - reading Array of items when sequence needed.
+    *   14 - reading List of items when sequence needed.
     * 2 - read Scene constructor properties.
     * 3 - read rootNode of the Scene. Create scene with rootNode and set it to the Stage.
     * 4 - read content of the rootNode of the Scene.
@@ -49,6 +50,8 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     * 5 - read content of the root Resource
     * 6 - read content of the root Fragment
     * 7 - </Stage> was reached. Nothing to awaits. Finished state.
+    * 8 - read Fragment reference at scene Graph and go back. (8 -> 4)
+    * 20 - read Fragment reference at Fragment content and go back. (20 -> 16)
     */
     protected int state;
 
@@ -132,6 +135,10 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                     this.state = 40;
                 else if(clTag.equalsIgnoreCase("Stage.Resources")) //state == 10
                     this.state = 1;
+                else if(clTag.equalsIgnoreCase("Fragment") && this.state == 20)
+                    this.state = 16;
+                else if(clTag.equalsIgnoreCase("Fragment") && this.state == 8)
+                    this.state = 4;
                 else if(clTag.equalsIgnoreCase("Fragment")) { //</Fragment> tag reached.
                     this.objects.pop();
                     this.state = 10;
@@ -140,7 +147,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                     this.state = 7;
                     this.objects.pop();
                 }
-                else if(this.state == 4 && !clTag.contains("."))
+                else if((this.state == 4 || this.state == 16) && !clTag.contains("."))
                     this.objects.pop();
                 break;
             }//end 'removePrefix'
@@ -168,13 +175,17 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         else if( (this.state == 10 || this.state == 41) && this.curName.equalsIgnoreCase("Fragment"))
             this.state = 12;
         else if(this.state == 10 && this.curName.equalsIgnoreCase("Array"))
-            this.state = 20;
+            this.state = 13;
         else if(this.state == 10 && this.curName.equalsIgnoreCase("List"))
-            this.state = 30;
+            this.state = 14;
         else if(this.state == 2)
             this.state = 3;
         else if(this.state == 3)
             this.state = 4;
+        else if(this.state == 16 && this.curName.equalsIgnoreCase("Fragment"))
+            this.state = 20;
+        else if(this.state == 4 && this.curName.equalsIgnoreCase("Fragment"))
+            this.state = 8;
         else if(this.state == 12) //<Fragment> tag was previously read and created. awaiting children.
             this.state = 16;
         else if(this.state == 40 && this.curName.equalsIgnoreCase("Stage.Resources"))
@@ -187,7 +198,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
 
         switch (this.state){
             case 0: case 40: case -1: { //Cannot find Stage at start OR Error.
-                return;
+                break;
             }
             case 1:{ /* curName = 'Stage' */
                 meta_ctr = getTypeConstructorElement();
@@ -253,6 +264,31 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                     break;
                 this.objects.push(elem_or_layout); //push new root node.
                 return;
+            }
+            case 8: case 20:{ /* Fragment resource reference at Scene graph or inside Fragment definition. */
+                String p = obj_attrs.getOrDefault("key", null);
+                if(p == null || p.length() == 0)
+                    return;
+                FragmentContainer f = this.fragments.getOrDefault(p, null);
+                if(f == null)
+                    return;
+                Object clone = null;
+                for(Object c : f.getChildren()){
+                    /*
+                    try{
+                        clone = ClassObjectBuilder.copy(c);
+                    } catch (IllegalAccessException | InstantiationException e){
+                        System.out.println(e);
+                        this.state = -1;
+                        break;
+                    }*/
+                    if(!processChildren(c)) {
+                        this.state = -1;
+                        System.out.println("cannot add fragment widget");
+                        break; //breaks cycle with error but not switch block.
+                    }
+                }
+                return; //if previous cycle performed 'break' > -1.
             }
             case 10: case 41: { /* parse Stage.Resource objects. */
                 if(curName.equalsIgnoreCase("Stage.Resources")) //skip header.
@@ -357,8 +393,10 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
 
     private boolean processChildren(Object child){
         Object parent = this.objects.top();
-        if(parent == null || child == null)
+        if(parent == null || child == null) {
+            System.out.println("Child or parent is null");
             return false;
+        }
 
         Method m = ClassObjectBuilder.getMethod(parent, "getChildren");
         m = (m == null) ? ClassObjectBuilder.getMethod(parent, "getItems") : m;
@@ -373,11 +411,12 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 | NoSuchMethodException | SecurityException e){
             return false;
         }
+
         if(this.state == 16){
             Method id_getter = ClassObjectBuilder.getMethod(child, "getId");
             Method id_setter = ClassObjectBuilder.getMethod(child, "setId");
             try{
-                Object prev_id = id_getter.invoke(child, new Object[] { null });
+                Object prev_id = id_getter.invoke(child);
                 String id = (prev_id instanceof String) ? (String) prev_id : "";
                 id_setter.invoke(child, this.curFragment + "_" + id);
             } catch (NullPointerException | ClassCastException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e){
