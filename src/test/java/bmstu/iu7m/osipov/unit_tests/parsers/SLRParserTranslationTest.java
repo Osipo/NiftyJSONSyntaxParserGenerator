@@ -4,6 +4,7 @@ import bmstu.iu7m.osipov.configurations.PathStrings;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.grammars.directives.AttributeProcessorSDT;
 import bmstu.iu7m.osipov.services.grammars.directives.ElementProcessorSDT;
+import bmstu.iu7m.osipov.services.grammars.directives.JavaFXExtraXMLProcessorSDT;
 import bmstu.iu7m.osipov.services.grammars.directives.TypeProcessorSDT;
 import bmstu.iu7m.osipov.services.lexers.DFALexer;
 import bmstu.iu7m.osipov.services.lexers.FALexerGenerator;
@@ -189,21 +190,29 @@ public class SLRParserTranslationTest {
         otree.visit(VisitorMode.PRE, new TranslationsAttacher(G, otree.getCount()));
 
         ExecuteTranslationNode exec2 = new ExecuteTranslationNode();
-        AttributeProcessorSDT actor = new AttributeProcessorSDT();
-        ElementProcessorSDT elem_actor = new ElementProcessorSDT(actor, type_actor);
 
-        exec2.putActionParser("createObject", elem_actor);
+//        AttributeProcessorSDT actor = new AttributeProcessorSDT();
+//        ElementProcessorSDT elem_actor = new ElementProcessorSDT(actor, type_actor);
+//
+//        exec2.putActionParser("createObject", elem_actor);
+//        exec2.putActionParser("putAttr", elem_actor);
+//        exec2.putActionParser("putAttr", actor);
+//        exec2.putActionParser("showAttrs", actor);
+//        exec2.putActionParser("addPrefix", actor);
+//        exec2.putActionParser("removePrefix", elem_actor);
+//        exec2.putActionParser("removePrefix", actor);
+
+
+
+        JavaFXExtraXMLProcessorSDT elem_actor = new JavaFXExtraXMLProcessorSDT(type_actor);
         exec2.putActionParser("putAttr", elem_actor);
-        exec2.putActionParser("putAttr", actor);
-        exec2.putActionParser("showAttrs", actor);
-        exec2.putActionParser("addPrefix", actor);
+        exec2.putActionParser("createObject", elem_actor);
         exec2.putActionParser("removePrefix", elem_actor);
-        exec2.putActionParser("removePrefix", actor);
 
         System.out.println("Translate document according to scheme");
         otree.visit(VisitorMode.PRE, exec2);
-        if(elem_actor.getStage() != null){
-            Stage s  =(Stage) elem_actor.getStage();
+        if(elem_actor.getRoot() != null){
+            Stage s = (Stage) elem_actor.getRoot();
             s.showAndWait();
         }
         finish_flag.countDown();

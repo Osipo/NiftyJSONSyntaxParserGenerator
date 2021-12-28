@@ -13,15 +13,13 @@ public class PrimitiveTypeConverter {
      */
     public static Object castTo(Class<?> type, String src){
         Object result = null;
-        if(type.isEnum()){
-            result = Enum.valueOf((Class<? extends Enum>)type, src);
-        }
         switch (type.getSimpleName()){
             case "boolean": case "Boolean":{
                 if(src.equalsIgnoreCase("true"))
                     result = true;
                 else if(src.equalsIgnoreCase("false"))
                     result = false;
+                break;
             }
             case "byte": case "Byte":{
                 result = ProcessNumber.parseNumber(src, type).byteValue();
@@ -47,9 +45,13 @@ public class PrimitiveTypeConverter {
                 result = ProcessNumber.parseNumber(src, type).doubleValue();
                 break;
             }
-            default:{
+            case "String":{
                 result = src;
+                break;
             }
+        }
+        if(type.isEnum()){
+            result = Enum.valueOf((Class<? extends Enum>)type, src);
         }
         return result;
     }

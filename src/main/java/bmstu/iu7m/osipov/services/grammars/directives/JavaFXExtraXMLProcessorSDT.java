@@ -2,6 +2,7 @@ package bmstu.iu7m.osipov.services.grammars.directives;
 
 import bmstu.iu7m.osipov.services.grammars.xmlMeta.ClassElement;
 import bmstu.iu7m.osipov.services.grammars.xmlMeta.ConstructorElement;
+import bmstu.iu7m.osipov.services.grammars.xmlMeta.FragmentContainer;
 import bmstu.iu7m.osipov.services.grammars.xmlMeta.ParameterElement;
 import bmstu.iu7m.osipov.services.lexers.LanguageSymbol;
 import bmstu.iu7m.osipov.services.lexers.Translation;
@@ -28,6 +29,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     protected LinkedStack<Object> objects;
     protected Object root;
     protected String curName;
+    protected String curFragment; //nested fragments are illegal. So fragment can be identified.
 
     /* State initial = 0. */
     /*
@@ -37,12 +39,13 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     *   10 - recognized Stage.Resources. reading Stage.Resources content
     *   11 - read Resource file (dictionary)
     *   12 - read Fragment content
-    *   30 - reading Array of items when sequence needed.
+    *   20 - reading Array of items when sequence needed.
+    *   30 - reading List of items when sequence needed.
     * 2 - read Scene constructor properties.
-    * 3 - read rootNode of the Scene.
+    * 3 - read rootNode of the Scene. Create scene with rootNode and set it to the Stage.
     * 4 - read content of the rootNode of the Scene.
     *   40 - </Scene> was read. All content of the Scene has been created. Awaiting other Resources.
-    *   40 -> 10.
+    *   40 -> 41. (41 -> 40, 10 -> 1).
     * 5 - read content of the root Resource
     * 6 - read content of the root Fragment
     * 7 - </Stage> was reached. Nothing to awaits. Finished state.
@@ -52,13 +55,16 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     // Type meta descriptor.
     private TypeProcessorSDT type_processor;
 
-    public JavaFXExtraXMLProcessorSDT(TypeProcessorSDT type_processor){
+    public JavaFXExtraXMLProcessorSDT(TypeProcessorSDT type_processor, int initialState){
         this.objects = new LinkedStack<>();
         this.obj_attrs = new HashMap<>();
         this.res = new HashMap<>();
         this.fragments = new HashMap<>();
-        this.state = 0;
         this.type_processor = type_processor;
+        this.state = initialState;
+    }
+    public JavaFXExtraXMLProcessorSDT(TypeProcessorSDT type_processor){
+        this(type_processor, 0);
     }
 
     public void restart(){
@@ -67,6 +73,8 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         this.res.clear();
         this.fragments.clear();
         this.root = null;
+        this.curFragment = null;
+        this.curName = null;
         this.state = 0;
     }
 
@@ -84,6 +92,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             return;
         }
         else if(this.state == -1){
+            System.out.println("ParsingXMLError: illegal sequence of elements.");
             restart();
             return;
         }
@@ -114,6 +123,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             }//end 'createObject'
 
             case "removePrefix":{
+                //System.out.println(this.objects.toString());
                 String clTag = t.getArguments().getOrDefault("pref", null);
                 clTag = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, clTag);
                 if(clTag.equalsIgnoreCase("Scene"))
@@ -122,6 +132,16 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                     this.state = 40;
                 else if(clTag.equalsIgnoreCase("Stage.Resources")) //state == 10
                     this.state = 1;
+                else if(clTag.equalsIgnoreCase("Fragment")) { //</Fragment> tag reached.
+                    this.objects.pop();
+                    this.state = 10;
+                }
+                else if(this.state == 40 && clTag.equalsIgnoreCase("Stage")) {
+                    this.state = 7;
+                    this.objects.pop();
+                }
+                else if(this.state == 4 && !clTag.contains("."))
+                    this.objects.pop();
                 break;
             }//end 'removePrefix'
 
@@ -145,16 +165,18 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             this.state = 10;
         else if(this.state == 10 && this.curName.equalsIgnoreCase("Resource"))
             this.state = 11;
-        else if(this.state == 10 && this.curName.equalsIgnoreCase("Fragment"))
+        else if( (this.state == 10 || this.state == 41) && this.curName.equalsIgnoreCase("Fragment"))
             this.state = 12;
-        else if(this.state == 10 && (this.curName.equalsIgnoreCase("Array")
-            || this.curName.equalsIgnoreCase("List")
-        ))
+        else if(this.state == 10 && this.curName.equalsIgnoreCase("Array"))
+            this.state = 20;
+        else if(this.state == 10 && this.curName.equalsIgnoreCase("List"))
             this.state = 30;
         else if(this.state == 2)
             this.state = 3;
         else if(this.state == 3)
             this.state = 4;
+        else if(this.state == 12) //<Fragment> tag was previously read and created. awaiting children.
+            this.state = 16;
         else if(this.state == 40 && this.curName.equalsIgnoreCase("Stage.Resources"))
             this.state = 41;
     }
@@ -164,7 +186,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         ConstructorElement meta_ctr = null;
 
         switch (this.state){
-            case 0: case 40: case -1:{ //Cannot find Stage at start OR Error.
+            case 0: case 40: case -1: { //Cannot find Stage at start OR Error.
                 return;
             }
             case 1:{ /* curName = 'Stage' */
@@ -179,6 +201,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 if(stage == null)
                     break;
                 this.objects.push(stage); //push new root node.
+                this.root = stage; //save root Stage object.
                 processSimpleProperties(stage);
                 return;
             }
@@ -215,7 +238,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 processSimpleProperties(sceneRoot);
                 return;
             }
-            case 4: { /* Scene graph content */
+            case 4: case 16: { /* Scene graph content */
                 meta_ctr = getTypeConstructorElement();
                 if(meta_ctr == null)
                     break;
@@ -225,13 +248,15 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 Object elem_or_layout = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
                 if(elem_or_layout == null)
                     break;
+                processSimpleProperties(elem_or_layout);
                 if(!processChildren(elem_or_layout))
                     break;
                 this.objects.push(elem_or_layout); //push new root node.
-                processSimpleProperties(elem_or_layout);
                 return;
             }
-            case 10: case 41: {
+            case 10: case 41: { /* parse Stage.Resource objects. */
+                if(curName.equalsIgnoreCase("Stage.Resources")) //skip header.
+                    return;
                 meta_ctr = getTypeConstructorElement();
                 if(meta_ctr == null)
                     break;
@@ -243,6 +268,16 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                     break;
                 processSimpleProperties(elem_or_layout);
                 this.res.put(this.obj_attrs.get("key"), elem_or_layout);
+                return;
+            }
+            case 12:{ /* Create container for Fragment object */
+                String p = obj_attrs.getOrDefault("key", null);
+                if(p == null || p.length() == 0)
+                    break;
+                FragmentContainer fr = new FragmentContainer(p); // virtual container for objects.
+                this.objects.push(fr);
+                this.fragments.put(p, fr);
+                this.curFragment = p;
                 return;
             }
         }//end switch
@@ -338,6 +373,17 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 | NoSuchMethodException | SecurityException e){
             return false;
         }
+        if(this.state == 16){
+            Method id_getter = ClassObjectBuilder.getMethod(child, "getId");
+            Method id_setter = ClassObjectBuilder.getMethod(child, "setId");
+            try{
+                Object prev_id = id_getter.invoke(child, new Object[] { null });
+                String id = (prev_id instanceof String) ? (String) prev_id : "";
+                id_setter.invoke(child, this.curFragment + "_" + id);
+            } catch (NullPointerException | ClassCastException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e){
+                return false;
+            }
+        }
         try {
             // WRAP VARARGS WITH Object[] array.
             // Second array may have specific type
@@ -399,7 +445,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 continue;
 
             methodName = entry.getKey();
-            System.out.println("Looking setter for: '" + methodName + "'");
+            //System.out.println("Looking setter for: '" + methodName + "'");
             if (methodName.contains(".")) {
                 processStaticProperty(methodName, root, entry.getValue());
                 continue;
@@ -410,9 +456,9 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             if(m == null)
                 continue;
             try{
-                System.out.println("Found instance setter prop: "+methodName);
+                //System.out.println("Found instance setter prop: "+methodName);
                 Class<?> propType = m.getParameters()[0].getType();
-                System.out.println("Property type: "+propType.getSimpleName());
+                //System.out.println("Property type: "+propType.getSimpleName());
 
                 /* if Resource setter */
                 if(entry.getValue().charAt(0) == '{'
@@ -420,7 +466,8 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 )
                 {
                     String rkey = entry.getValue().substring(1, entry.getValue().length() - 1);
-                    m.invoke(root, this.res.getOrDefault(rkey, null));
+
+                    m.invoke(root, getResourceObject(root, rkey));
                 }
                 else{
                     m.invoke(root, PrimitiveTypeConverter.castTo(propType, entry.getValue()));
@@ -451,19 +498,27 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 System.out.println("Cannot find static property setter: '"+ setterName+ "'");
                 return;
             }
+            Class<?> propType = m.getParameters()[1].getType();
             /* if Resource setter */
             if(val.charAt(0) == '{'
                     && val.charAt(val.length() - 1) == '}'
             )
             {
                 String rkey = val.substring(1, val.length() - 1);
-                m.invoke(null, root, this.res.getOrDefault(rkey, null));
+                m.invoke(null, root, getResourceObject(root, rkey));
             }
             else{
-                m.invoke(null, root, PrimitiveTypeConverter.castTo(clazz, val));
+                m.invoke(null, root, PrimitiveTypeConverter.castTo(propType, val));
             }
+            //System.out.println("Found static setter '"+setterName+"'");
         } catch (ClassNotFoundException | InvocationTargetException | IllegalArgumentException | IllegalAccessException e){
             System.out.println(e);
         }
+    }
+
+
+    private Object getResourceObject(Object owner, String rkey){
+        Object r = this.res.getOrDefault(rkey, null);
+        return r;
     }
 }

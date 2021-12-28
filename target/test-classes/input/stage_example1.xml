@@ -1,11 +1,11 @@
 <Stage>
     <Stage.Resources>
         <Insets key="ok2_top_60" top="120" right="0" bottom="0" left="0"/>
+        <Insets key="ok3_top_20" top="20" bottom="0" right="0" left="0"/>
 
     </Stage.Resources>
-    <Scene width="400" height="500"> # One line comment starts with '#'. See javafx_xml.json 'meta'
+    <Scene> # One line comment starts with '#'. See javafx_xml.json 'meta'
         <HBox spacing="12.5" id="container1" fillHeight="true"
-              alignment="CENTER"
               style="-fx-border-color: red, green;
                      -fx-border-style: solid inside, solid inside;
                      -fx-border-width: 5, 2;
@@ -22,13 +22,9 @@
                      -fx-border-width: 5, 2;
                      -fx-border-insets: 0, 5;
                      -fx-border-radius: 0, 0;">
-                <Button text="OK3" prefheight="60" prefwidth="60" VBox.margin="{ok2_top60}"/>
+                <Button text="OK3" prefheight="60" prefwidth="60" VBox.margin="{ok2_top_60}"/>
 
             </VBox>
         </HBox>
-        <HBox spacing="5" id="container2"  /> # Will be ignored.
     </Scene>
-    <VBox> # Only one unique Scene allowed. Will be Ignored.
-
-    </VBox> # Other objects will be ignored (include new Scene) as the root will be the Stage object.
 </Stage>
