@@ -1,9 +1,6 @@
 package bmstu.iu7m.osipov.services.grammars.directives;
 
-import bmstu.iu7m.osipov.services.grammars.xmlMeta.ClassElement;
-import bmstu.iu7m.osipov.services.grammars.xmlMeta.ConstructorElement;
-import bmstu.iu7m.osipov.services.grammars.xmlMeta.FragmentContainer;
-import bmstu.iu7m.osipov.services.grammars.xmlMeta.ParameterElement;
+import bmstu.iu7m.osipov.services.grammars.xmlMeta.*;
 import bmstu.iu7m.osipov.services.lexers.LanguageSymbol;
 import bmstu.iu7m.osipov.services.lexers.Translation;
 import bmstu.iu7m.osipov.structures.lists.KeyValuePair;
@@ -42,11 +39,15 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     *       16 - read Fragment content.
     *   13 - reading Array of items when sequence needed.
     *   14 - reading List of items when sequence needed.
+    *   15 - creating Map of entries or Style.
+    *       150 - reading entries of the Map (or Style).
     * 2 - read Scene constructor properties.
     * 3 - read rootNode of the Scene. Create scene with rootNode and set it to the Stage.
     * 4 - read content of the rootNode of the Scene.
     *   40 - </Scene> was read. All content of the Scene has been created. Awaiting other Resources.
     *   40 -> 41. (41 -> 40, 10 -> 1).
+    *   41 -> 30 (10 -> 15), 30 -> 300 (15 -> 150).
+    *   41 -> 24 (10 -> 12), 24 -> 32 (12 -> 16), 32 -> 64 (16 -> 20).
     * 5 - read content of the root Resource
     * 6 - read content of the root Fragment
     * 7 - </Stage> was reached. Nothing to awaits. Finished state.
@@ -131,14 +132,34 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 clTag = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, clTag);
                 if(clTag.equalsIgnoreCase("Scene"))
                     this.state = 40;
-                else if(clTag.equalsIgnoreCase("Stage.Resources") && this.state == 41)
+                else if(clTag.equalsIgnoreCase("Stage.Resources") && this.state == 41) // 41 -> 40.
                     this.state = 40;
-                else if(clTag.equalsIgnoreCase("Stage.Resources")) //state == 10
+                else if((clTag.equalsIgnoreCase("Map") || clTag.equalsIgnoreCase("Style")
+                        )  && this.state == 150
+                )
+                {
+                    this.state = 10; //150 -> 10.
+                    this.objects.pop();
+                }
+                else if((clTag.equalsIgnoreCase("Map") || clTag.equalsIgnoreCase("Style")
+                )  && this.state == 300
+                )
+                {
+                    this.state = 41; //300 -> 41.
+                    this.objects.pop();
+                }
+                else if(clTag.equalsIgnoreCase("Stage.Resources")) //state == 10 (10 -> 1).
                     this.state = 1;
-                else if(clTag.equalsIgnoreCase("Fragment") && this.state == 20)
+                else if(clTag.equalsIgnoreCase("Fragment") && this.state == 20) // 20 -> 16
                     this.state = 16;
+                else if(clTag.equalsIgnoreCase("Fragment") && this.state == 64) //64 -> 32
+                    this.state = 32;
                 else if(clTag.equalsIgnoreCase("Fragment") && this.state == 8)
                     this.state = 4;
+                else if(clTag.equalsIgnoreCase("Fragment") && this.state == 32){
+                    this.objects.pop();
+                    this.state = 41;
+                }
                 else if(clTag.equalsIgnoreCase("Fragment")) { //</Fragment> tag reached.
                     this.objects.pop();
                     this.state = 10;
@@ -172,22 +193,40 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             this.state = 10;
         else if(this.state == 10 && this.curName.equalsIgnoreCase("Resource"))
             this.state = 11;
-        else if( (this.state == 10 || this.state == 41) && this.curName.equalsIgnoreCase("Fragment"))
+        else if(this.state == 10 && this.curName.equalsIgnoreCase("Fragment"))
             this.state = 12;
+        else if(this.state == 41 && this.curName.equalsIgnoreCase("Fragment"))
+            this.state = 24;
         else if(this.state == 10 && this.curName.equalsIgnoreCase("Array"))
             this.state = 13;
         else if(this.state == 10 && this.curName.equalsIgnoreCase("List"))
             this.state = 14;
-        else if(this.state == 2)
+        else if(this.state == 10
+                && (this.curName.equalsIgnoreCase("Map") || this.curName.equalsIgnoreCase("Style"))
+        )
+            this.state = 15;
+        else if(this.state == 41
+                && (this.curName.equalsIgnoreCase("Map") || this.curName.equalsIgnoreCase("Style"))
+        )
+            this.state = 30;
+        else if(this.state == 15) //Map -> read map.
+            this.state = 150;
+        else if(this.state == 30) //Map -> read map.
+            this.state = 300;
+        else if(this.state == 2) //read Scene constructor -> read root Node of the Scene.
             this.state = 3;
-        else if(this.state == 3)
+        else if(this.state == 3)//read root Node of the Scene -> read content of the Scene-graph.
             this.state = 4;
         else if(this.state == 16 && this.curName.equalsIgnoreCase("Fragment"))
             this.state = 20;
+        else if(this.state == 32 && this.curName.equalsIgnoreCase("Fragment"))
+            this.state = 64;
         else if(this.state == 4 && this.curName.equalsIgnoreCase("Fragment"))
             this.state = 8;
         else if(this.state == 12) //<Fragment> tag was previously read and created. awaiting children.
             this.state = 16;
+        else if(this.state == 24)//<Fragment> tag read at <Stage.Resources> after <Scene>.
+            this.state = 32; //12 -> 16, 24 -> 32.
         else if(this.state == 40 && this.curName.equalsIgnoreCase("Stage.Resources"))
             this.state = 41;
     }
@@ -249,7 +288,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 processSimpleProperties(sceneRoot);
                 return;
             }
-            case 4: case 16: { /* Scene graph content */
+            case 4: case 16: case 32: { /* Scene graph content */
                 meta_ctr = getTypeConstructorElement();
                 if(meta_ctr == null)
                     break;
@@ -265,7 +304,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 this.objects.push(elem_or_layout); //push new root node.
                 return;
             }
-            case 8: case 20:{ /* Fragment resource reference at Scene graph or inside Fragment definition. */
+            case 8: case 20: case 64: { /* Fragment resource reference at Scene graph or inside Fragment definition. */
                 String p = obj_attrs.getOrDefault("key", null);
                 if(p == null || p.length() == 0)
                     return;
@@ -306,7 +345,40 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 this.res.put(this.obj_attrs.get("key"), elem_or_layout);
                 return;
             }
-            case 12:{ /* Create container for Fragment object */
+            case 15: case 30: { // Create Style or Map resource.
+                meta_ctr = getTypeConstructorElement();
+                if(meta_ctr == null)
+                    break;
+                ctr_with_vals = getConstructorWithValues(meta_ctr);
+                if(ctr_with_vals == null)
+                    break;
+                Object style_or_map = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
+                if(style_or_map == null)
+                    break;
+                if(style_or_map instanceof Style){
+                    Style s = (Style) style_or_map;
+                    Object parent = getResourceObject(s, obj_attrs.getOrDefault("parent", null));
+                    if(obj_attrs.getOrDefault("parent", null) != null && !(parent instanceof Style))
+                        break;
+                    else if(obj_attrs.getOrDefault("parent", null) != null)
+                        s.copyFrom((Style) parent);
+                }
+                this.res.put(this.obj_attrs.get("key"), style_or_map);
+                this.objects.push(style_or_map); // save map into stack.
+                return;
+            }
+            case 150: case 300: {
+                Object m = this.objects.top();
+                if(m instanceof Style){
+                    String k = this.obj_attrs.getOrDefault("property", null);
+                    String v = this.obj_attrs.getOrDefault("value", null);
+                    if(k == null)
+                        break;
+                    ((Style) m).put(k, v);
+                }
+                return;
+            }
+            case 12: case 24: { /* Create container for Fragment object */
                 String p = obj_attrs.getOrDefault("key", null);
                 if(p == null || p.length() == 0)
                     break;
@@ -412,7 +484,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             return false;
         }
 
-        if(this.state == 16){
+        if(this.state == 16 || this.state == 32){
             Method id_getter = ClassObjectBuilder.getMethod(child, "getId");
             Method id_setter = ClassObjectBuilder.getMethod(child, "setId");
             try{
@@ -505,7 +577,6 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 )
                 {
                     String rkey = entry.getValue().substring(1, entry.getValue().length() - 1);
-
                     m.invoke(root, getResourceObject(root, rkey));
                 }
                 else{
@@ -555,9 +626,18 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         }
     }
 
-
     private Object getResourceObject(Object owner, String rkey){
         Object r = this.res.getOrDefault(rkey, null);
-        return r;
+        if(owner instanceof Style) //do not check Style_Resource if Resource owner is also Style.
+            return r;
+        if(r instanceof Style){ //Make Resource-String and return it to the style-attribute.
+            StringBuilder sb = new StringBuilder();
+            for(Map.Entry<String, String> e : ((Style) r).entrySet()){
+                sb.append(e.getKey()).append(" : ").append(e.getValue()).append(";\n");
+            }
+            return sb.toString();
+        }
+
+        return r; //return Resource for owner.
     }
 }

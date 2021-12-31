@@ -1,14 +1,29 @@
+# One line comment starts with '#'. See javafx_xml.json 'meta'
+# Used at SLRParserTranslationTest > test_translations()
 <Stage>
     <Stage.Resources>
         <Insets key="ok2_top_60" top="120" right="0" bottom="0" left="0"/>
         <Insets key="ok3_top_20" top="20" bottom="0" right="0" left="0"/>
+
+        <Style key="border_base_golden">
+            <Item property="-fx-border-color" value="gold, cyan"/>
+            <Item property="-fx-border-style" value="solid inside, solid inside"/>
+            <Item property="-fx-border-width" value="10, 3"/>
+            <Item property="-fx-border-insets" value="0, 5"/>
+            <RandomName property="-fx-border-radius" value="0, 0"/> #Yes, random tag names are allowed here.
+        </Style>
+
+        <Style key="border_red" parent="border_base_golden">
+            <Item property="-fx-border-color" value="red, green"/>
+            <Item property="-fx-border-width" value="5, 2"/>
+        </Style>
+
+        <Style key="border_blue" parent="border_red">
+            <Item property="-fx-border-color" value="blue, black"/>
+        </Style>
+
         <Fragment key="my_fragment">
-            <VBox id="container5" spacing="10" style=
-                    "-fx-border-color: gold, cyan;
-                     -fx-border-style: solid inside, solid inside;
-                     -fx-border-width: 10, 3;
-                     -fx-border-insets: 0, 5;
-                     -fx-border-radius: 0, 0;"
+            <VBox id="container5" spacing="10" style="{border_base_golden}"
                   HBox.hgrow="ALWAYS"
             >
                 <Button text="F1"  maxWidth="MAX_VALUE" prefHeight="40"/>
@@ -19,29 +34,21 @@
             <Button text="OK" maxHeight="MAX_VALUE"/>
         </Fragment>
     </Stage.Resources>
-    <Scene> # One line comment starts with '#'. See javafx_xml.json 'meta'
+    <Scene> # Scene definition. Only one Scene allowed at Stage (also only one Stage can be defined)
         <HBox spacing="12.5" id="container1" fillHeight="true"
-              style="-fx-border-color: red, green;
-                     -fx-border-style: solid inside, solid inside;
-                     -fx-border-width: 5, 2;
-                     -fx-border-insets: 0, 5;
-                     -fx-border-radius: 0, 0;"> # Only one child at Scene.
+              style="{border_red}"> # Only one child at Scene.
             <Button text="OK" maxHeight="MAX_VALUE"/>
             <TextField id="f1" HBox.hgrow="ALWAYS" />
             <Button text="OK2" prefwidth="60" prefHeight="30" HBox.hgrow="ALWAYS"
                 HBox.margin="{ok2_top_60}" # Resource added.
             />
             <VBox spacing="5" id="container3"
-                  style="-fx-border-color: blue, black;
-                     -fx-border-style: solid inside, solid inside;
-                     -fx-border-width: 5, 2;
-                     -fx-border-insets: 0, 5;
-                     -fx-border-radius: 0, 0;">
+                  style="{border_blue}">
                 <Button text="OK3" prefheight="60" prefwidth="60" VBox.margin="{ok2_top_60}"/>
 
             </VBox>
             <Fragment key="my_fragment"/> # add content of the Fragment to here with new objects.
-            <Fragment key="my_fragment_2" />
+            <Fragment key="my_fragment_2" /> # only unique fragments are allowed.
         </HBox>
     </Scene>
 </Stage>

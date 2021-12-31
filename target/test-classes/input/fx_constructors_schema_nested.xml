@@ -140,7 +140,7 @@
             <Insets.Constructors>
                 <Constructor>
                     <Constructor.Params>
-                        <Param name="topRightBottomLeft" type="double" />
+                        <Param name="all" type="double" />
                     </Constructor.Params>
                 </Constructor>
                 <Constructor>
@@ -153,5 +153,13 @@
                 </Constructor>
             </Insets.Constructors>
         </Insets>
+    </Package>
+    <Package name="bmstu.iu7m.osipov.services.grammars.xmlMeta">
+        <Style>
+            <Style.Constructors>
+                <Constructor>
+                </Constructor>
+            </Style.Constructors>
+        </Style>
     </Package>
 </SchemaTypes>
