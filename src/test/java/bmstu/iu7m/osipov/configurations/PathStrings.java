@@ -10,4 +10,5 @@ public interface PathStrings {
     public static final String PARSERS = PathStringUtils.replaceSeparator(Main.PROJECT_DIR + "src\\test\\resources\\grammars\\parsers\\");
     public static final String LLPARSERS = PathStringUtils.replaceSeparator(Main.PROJECT_DIR + "src\\test\\resources\\grammars\\parsers\\LL1\\");
     public static final String PARSER_INPUT = PathStringUtils.replaceSeparator(Main.PROJECT_DIR + "src\\test\\resources\\input\\");
+    public static final String TEST_RESOURCES = PathStringUtils.replaceSeparator(Main.PROJECT_DIR + "src\\test\\resources\\");
 }

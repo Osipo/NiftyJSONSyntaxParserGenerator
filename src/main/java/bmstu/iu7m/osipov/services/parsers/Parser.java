@@ -24,7 +24,11 @@ public abstract class Parser {
 
     public abstract File getImage() throws IOException;
 
-    public abstract LinkedTree<LanguageSymbol> parse(String fname);
+    public LinkedTree<LanguageSymbol> parse(String fname){
+        return parse(new File(fname));
+    }
+
+    public abstract LinkedTree<LanguageSymbol> parse(File f);
 
     public Parser(Grammar G, ILexer lexer) {
         this.lexer = lexer;

@@ -1,5 +1,7 @@
 package bmstu.iu7m.osipov.unit_tests.parsers;
 
+import bmstu.iu7m.osipov.bases.A;
+import bmstu.iu7m.osipov.bases.B;
 import bmstu.iu7m.osipov.configurations.PathStrings;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.grammars.directives.AttributeProcessorSDT;
@@ -24,9 +26,7 @@ import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
-import javafx.scene.Parent;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,8 +35,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.swing.*;
-import java.awt.*;
-import java.io.File;
+import java.io.*;
 import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
@@ -162,14 +161,17 @@ public class SLRParserTranslationTest {
         CNFA nfa = lg.buildNFA(G);
         DFALexer lexer = new DFALexer(new DFA(nfa));
 
-        lexer.getImagefromStr(PathStrings.LEXERS,"I_G_"+norm_grammar);
+        // image file of lexer.
+        //lexer.getImagefromStr(PathStrings.LEXERS,"I_G_"+norm_grammar);
 
         LRParser sa = new LRParser(G, lexer, LRAlgorithm.SLR);
         sa.setParserMode(ParserMode.DEBUG);
 
         LinkedTree<LanguageSymbol> stree = sa.parse(PathStrings.PARSER_INPUT + scheme);
         assert stree != null;
-        Graphviz.fromString(stree.toDot(norm_scheme)).render(Format.PNG).toFile(new File(PathStrings.PARSERS + norm_scheme));
+
+        // image file of syntax tree.
+        //Graphviz.fromString(stree.toDot(norm_scheme)).render(Format.PNG).toFile(new File(PathStrings.PARSERS + norm_scheme));
 
         stree.visit(VisitorMode.PRE, new ReverseChildren());
         stree.visit(VisitorMode.PRE, new TranslationsAttacher(G, stree.getCount()));
@@ -186,25 +188,14 @@ public class SLRParserTranslationTest {
         System.out.println("Schema processed.");
         LinkedTree<LanguageSymbol> otree = sa.parse(PathStrings.PARSER_INPUT + input);
         assert otree != null;
-        Graphviz.fromString(otree.toDot(norm_input)).render(Format.PNG).toFile(new File(PathStrings.PARSERS + norm_input));
+
+        // image file of syntax tree.
+        //Graphviz.fromString(otree.toDot(norm_input)).render(Format.PNG).toFile(new File(PathStrings.PARSERS + norm_input));
+
         otree.visit(VisitorMode.PRE, new ReverseChildren());
         otree.visit(VisitorMode.PRE, new TranslationsAttacher(G, otree.getCount()));
 
         ExecuteTranslationNode exec2 = new ExecuteTranslationNode();
-
-//        AttributeProcessorSDT actor = new AttributeProcessorSDT();
-//        ElementProcessorSDT elem_actor = new ElementProcessorSDT(actor, type_actor);
-//
-//        exec2.putActionParser("createObject", elem_actor);
-//        exec2.putActionParser("putAttr", elem_actor);
-//        exec2.putActionParser("putAttr", actor);
-//        exec2.putActionParser("showAttrs", actor);
-//        exec2.putActionParser("addPrefix", actor);
-//        exec2.putActionParser("removePrefix", elem_actor);
-//        exec2.putActionParser("removePrefix", actor);
-
-
-
         JavaFXExtraXMLProcessorSDT elem_actor = new JavaFXExtraXMLProcessorSDT(type_actor);
         exec2.putActionParser("putAttr", elem_actor);
         exec2.putActionParser("createObject", elem_actor);
@@ -248,27 +239,14 @@ public class SLRParserTranslationTest {
         });
     }
 
-    //Make sure that 'switch' returns value before 'break'
-    //At break it returns -1.
-    private int switcher(int x){
-        switch(x){
-            case 1:{
-                return x * 2;
-            }
-            case 10:{
-                break;
-            }
-        }
-        return -1;
-    }
 
     @Test
-    public void switch_return_instead_of_break(){
-        int x = 1, y = 1;
-        y = switcher(x);
-        assert y == x * 2;
-        x = 10;
-        y = switcher(x);
-        assert y == -1;
+    public void checkHeritage(){
+        A a1 = new B();
+        B b1 = new B();
+        A a2 = new A();
+        a1.M1();
+        b1.M1();
+        a2.M1();
     }
 }

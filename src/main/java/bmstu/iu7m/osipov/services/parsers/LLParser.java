@@ -80,9 +80,11 @@ public class LLParser extends Parser{
         throw new UnsupportedOperationException("LLParser does not support showing of automaton of GOTO");
     }
 
+
     // Algorithm 4.20 with lexer module.
-    public LinkedTree<LanguageSymbol> parse(String fname){
-        try (FileInputStream f = new FileInputStream(new File(fname).getAbsolutePath())){
+    @Override
+    public LinkedTree<LanguageSymbol> parse(File file){
+        try (FileInputStream f = new FileInputStream(file.getAbsolutePath())){
             LinkedStack<LinkedNode<LanguageSymbol>> S = new LinkedStack<>();
             LinkedNode<LanguageSymbol> root = new LinkedNode<>();
             LinkedNode<LanguageSymbol> EOF = new LinkedNode<>();

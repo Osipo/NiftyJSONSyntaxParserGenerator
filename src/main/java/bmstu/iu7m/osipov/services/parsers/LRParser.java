@@ -51,12 +51,13 @@ public class LRParser extends Parser {
         return table.getImageFromDot();
     }
 
+
     @Override
-    public LinkedTree<LanguageSymbol> parse(String fname){
-        if(table == null)
+    public LinkedTree<LanguageSymbol> parse(File file){
+        if(table == null || file == null)
             return null;
         int l,col = 0;
-        try (FileInputStream f  = new FileInputStream(new File(fname).getAbsolutePath())){
+        try (FileInputStream f  = new FileInputStream(file.getAbsolutePath())){
             LinkedStack<LinkedNode<LanguageSymbol>> S = new LinkedStack<>();//symbols.
             LinkedStack<Integer> states = new LinkedStack<>();//states.
             isParsed = true;

@@ -14,6 +14,13 @@ public class LinkedNode<T> extends Node<T> {
         idx = -1;
     }
 
+    public LinkedNode(LinkedNode<T> clone){
+        children = new ArrayList<>(clone.getChildren());
+        idx = clone.idx;
+        value = clone.value;
+        parent = clone.parent;
+    }
+
     public void setParent(LinkedNode<T> parent) {
         this.parent = parent;
     }

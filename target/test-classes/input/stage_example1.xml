@@ -48,7 +48,14 @@
 
             </VBox>
             <Fragment key="my_fragment"/> # add content of the Fragment to here with new objects.
+            <Fragment key="my_fragment"/> # you can reuse the same Fragment. The new objects will be created.
             <Fragment key="my_fragment_2" /> # only unique fragments are allowed.
         </HBox>
     </Scene>
+    <Stage.Resources>
+        # Empty tag with no resources
+    </Stage.Resources>
+    <Stage.Resources>
+        # You can later declare other resources as many times as needed.
+    </Stage.Resources>
 </Stage>

@@ -18,8 +18,9 @@ public class LinkedTree<T> implements Tree<T>, PositionalTree<T> {
     }
 
     public LinkedTree(LinkedNode<T> n){
-        n.setParent(null);
-        _r = n;
+        LinkedNode<T> root = new LinkedNode<>(n);
+        root.setParent(null);
+        _r = root;
         _visitor = new NRSubVisitor<T>();
         _count = 0;
         Node<Integer> nc = new Node<>(_count); //wrapper node to pass _count by ref.

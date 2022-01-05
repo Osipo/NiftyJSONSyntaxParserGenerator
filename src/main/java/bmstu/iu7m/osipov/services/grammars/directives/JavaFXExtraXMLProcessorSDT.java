@@ -1,18 +1,24 @@
 package bmstu.iu7m.osipov.services.grammars.directives;
 
+import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.grammars.xmlMeta.*;
 import bmstu.iu7m.osipov.services.lexers.LanguageSymbol;
 import bmstu.iu7m.osipov.services.lexers.Translation;
 import bmstu.iu7m.osipov.structures.lists.KeyValuePair;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.trees.LinkedNode;
+import bmstu.iu7m.osipov.structures.trees.LinkedTree;
 import bmstu.iu7m.osipov.structures.trees.Node;
+import bmstu.iu7m.osipov.structures.trees.VisitorMode;
+import bmstu.iu7m.osipov.structures.trees.translators.ExecuteTranslationNode;
 import bmstu.iu7m.osipov.utils.ClassObjectBuilder;
 import bmstu.iu7m.osipov.utils.GrammarBuilderUtils;
 import bmstu.iu7m.osipov.utils.PrimitiveTypeConverter;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -23,10 +29,18 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     protected Map<String, String> obj_attrs;
     protected Map<String, Object> res;
     protected Map<String, FragmentContainer> fragments;
+    protected Map<String, LinkedNode<LanguageSymbol>> fragment_roots;
+
+    // only needed to match <Fragment> tag with </Fragment> tag.
+    // because of state 999. (when ignore elements)
+    private LinkedStack<Boolean> _fragment_nesting_ch;
+
     protected LinkedStack<Object> objects;
     protected Object root;
     protected String curName;
     protected String curFragment; //nested fragments are illegal. So fragment can be identified.
+    protected LinkedNode<LanguageSymbol> curNode;
+
 
     /* State initial = 0. */
     /*
@@ -57,14 +71,16 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     protected int state;
 
     // Type meta descriptor.
-    private TypeProcessorSDT type_processor;
+    protected TypeProcessorSDT type_processor;
 
     public JavaFXExtraXMLProcessorSDT(TypeProcessorSDT type_processor, int initialState){
         this.objects = new LinkedStack<>();
         this.obj_attrs = new HashMap<>();
         this.res = new HashMap<>();
         this.fragments = new HashMap<>();
+        this.fragment_roots = new HashMap<>();
         this.type_processor = type_processor;
+        this._fragment_nesting_ch = new LinkedStack<>();
         this.state = initialState;
     }
     public JavaFXExtraXMLProcessorSDT(TypeProcessorSDT type_processor){
@@ -76,14 +92,12 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         this.objects.clear();
         this.res.clear();
         this.fragments.clear();
+        this.fragment_roots.clear();
+        this._fragment_nesting_ch.clear();
         this.root = null;
         this.curFragment = null;
         this.curName = null;
         this.state = 0;
-    }
-
-    protected void setRoot(Object root){
-        this.root = root;
     }
 
     public Object getRoot(){
@@ -103,6 +117,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
 
         String action = t.getActName();
         LinkedNode<LanguageSymbol> l_parent = (LinkedNode<LanguageSymbol>) parent;
+        this.curNode = l_parent;
 
         switch (action){
             case "putAttr": {
@@ -154,11 +169,24 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                     this.state = 16;
                 else if(clTag.equalsIgnoreCase("Fragment") && this.state == 64) //64 -> 32
                     this.state = 32;
-                else if(clTag.equalsIgnoreCase("Fragment") && this.state == 8)
+                else if(clTag.equalsIgnoreCase("Fragment") && this.state == 8) {
                     this.state = 4;
+                }
                 else if(clTag.equalsIgnoreCase("Fragment") && this.state == 32){
                     this.objects.pop();
                     this.state = 41;
+                }
+                else if(clTag.equalsIgnoreCase("Fragment") && this.state == 998){
+                    this._fragment_nesting_ch.pop();
+                    if(this._fragment_nesting_ch.isEmpty()) {
+                        this.state = 10;
+                        //System.out.println("read <Fragment>");
+                    }
+                }
+                else if(clTag.equalsIgnoreCase("Fragment") && this.state == 999){
+                    this._fragment_nesting_ch.pop();
+                    if(this._fragment_nesting_ch.isEmpty())
+                        this.state = 41;
                 }
                 else if(clTag.equalsIgnoreCase("Fragment")) { //</Fragment> tag reached.
                     this.objects.pop();
@@ -176,7 +204,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         }//end switch
     }//end method
 
-    private void changeState(){
+    protected void changeState(){
         if(this.state == -1)
             return;
         if(this.state == 0 && this.curName.equalsIgnoreCase("Stage"))
@@ -217,9 +245,9 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             this.state = 3;
         else if(this.state == 3)//read root Node of the Scene -> read content of the Scene-graph.
             this.state = 4;
-        else if(this.state == 16 && this.curName.equalsIgnoreCase("Fragment"))
+        else if((this.state == 16 || this.state == 12) && this.curName.equalsIgnoreCase("Fragment"))
             this.state = 20;
-        else if(this.state == 32 && this.curName.equalsIgnoreCase("Fragment"))
+        else if((this.state == 32 || this.state == 24) && this.curName.equalsIgnoreCase("Fragment"))
             this.state = 64;
         else if(this.state == 4 && this.curName.equalsIgnoreCase("Fragment"))
             this.state = 8;
@@ -229,12 +257,13 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             this.state = 32; //12 -> 16, 24 -> 32.
         else if(this.state == 40 && this.curName.equalsIgnoreCase("Stage.Resources"))
             this.state = 41;
+        else if((this.state == 999 || this.state == 998) && this.curName.equalsIgnoreCase("Fragment"))
+            this._fragment_nesting_ch.push(true);
     }
 
-    private void checkState(){
+    protected void checkState(){
         KeyValuePair<Constructor<?>, Object[]> ctr_with_vals = null;
         ConstructorElement meta_ctr = null;
-
         switch (this.state){
             case 0: case 40: case -1: { //Cannot find Stage at start OR Error.
                 break;
@@ -308,19 +337,44 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 String p = obj_attrs.getOrDefault("key", null);
                 if(p == null || p.length() == 0)
                     return;
-                FragmentContainer f = this.fragments.getOrDefault(p, null);
-                if(f == null)
-                    return;
+
+                //FragmentContainer f = this.fragments.getOrDefault(p, null);
+                LinkedNode<LanguageSymbol> fn = this.fragment_roots.getOrDefault(p, null);
+                if(fn == null) {
+                    System.out.println("Cannot find fragment '"+p+"'");
+                    break;
+                }
+
+                /*
                 Object clone = null;
                 for(Object c : f.getChildren()){
-                    /*
-                    try{
-                        clone = ClassObjectBuilder.copy(c);
-                    } catch (IllegalAccessException | InstantiationException e){
-                        System.out.println(e);
+
+                    if(!processChildren(c)) {
                         this.state = -1;
-                        break;
-                    }*/
+                        System.out.println("cannot add fragment widget");
+                        break; //breaks cycle with error but not switch block.
+                    }
+                }
+                */
+
+                LinkedTree<LanguageSymbol> sub_tree = new LinkedTree<>(fn);
+
+                //translation actions have been already embedded.
+                ExecuteTranslationNode sub_executor = new ExecuteTranslationNode();
+                JavaFXExtraFragmentProcessorSDT sub_actor = new JavaFXExtraFragmentProcessorSDT(type_processor, fragment_roots, res);
+                sub_executor.putActionParser("putAttr", sub_actor);
+                sub_executor.putActionParser("createObject", sub_actor);
+                sub_executor.putActionParser("removePrefix", sub_actor);
+
+                System.out.println("created sub_tree");
+                sub_tree.visit(VisitorMode.PRE, sub_executor); //perform exec method of sub_actor.
+                if(sub_actor.state != 4) // Not Final State
+                    break;
+                if(!(sub_actor.getRoot() instanceof FragmentContainer))
+                    break;
+                System.out.println("Fragment parsed successful.");
+                FragmentContainer f = (FragmentContainer) sub_actor.getRoot();
+                for(Object c : f.getChildren()){
                     if(!processChildren(c)) {
                         this.state = -1;
                         System.out.println("cannot add fragment widget");
@@ -379,13 +433,27 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 return;
             }
             case 12: case 24: { /* Create container for Fragment object */
+                //System.out.println("here");
                 String p = obj_attrs.getOrDefault("key", null);
                 if(p == null || p.length() == 0)
                     break;
+
+                /*
                 FragmentContainer fr = new FragmentContainer(p); // virtual container for objects.
                 this.objects.push(fr);
                 this.fragments.put(p, fr);
                 this.curFragment = p;
+                 */
+
+                this.fragment_roots.put(p, this.curNode.getParent()); // STAG > ELEMENT
+                System.out.println("add fragment: '"+p+"'");
+                //ignore til </Fragment> reached.
+                this.state = (this.state == 12) ? 998 : 999;
+                this._fragment_nesting_ch.push(true);
+                return;
+            }
+            case 999: case 998: {
+                //System.out.println("ignore");
                 return;
             }
         }//end switch
@@ -487,10 +555,11 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         if(this.state == 16 || this.state == 32){
             Method id_getter = ClassObjectBuilder.getMethod(child, "getId");
             Method id_setter = ClassObjectBuilder.getMethod(child, "setId");
+            String prefix = obj_attrs.getOrDefault("key", "");
             try{
                 Object prev_id = id_getter.invoke(child);
-                String id = (prev_id instanceof String) ? (String) prev_id : "";
-                id_setter.invoke(child, this.curFragment + "_" + id);
+                String prev_id_str = (prev_id instanceof String) ? (String) prev_id : "";
+                id_setter.invoke(child, prefix + "_" + prev_id_str);
             } catch (NullPointerException | ClassCastException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e){
                 return false;
             }
