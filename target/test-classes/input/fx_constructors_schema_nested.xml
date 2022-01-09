@@ -114,6 +114,12 @@
                     </Constructor>
                 </VBox.Constructors>
             </VBox>
+            <BorderPane>
+                <BorderPane.Constructors>
+                    <Constructor>
+                    </Constructor>
+                </BorderPane.Constructors>
+            </BorderPane>
         </Package>
         <Package name="control">
             <Button>

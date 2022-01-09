@@ -16,7 +16,7 @@
         <Style key="border_red" parent="border_base_golden">
             <Item property="-fx-border-color" value="red, green"/>
             <Item property="-fx-border-width" value="5, 2"/>
-        </Style>
+        </Style> # A -> B, B -> A. => _defStyles.
 
         <Style key="border_blue" parent="border_red">
             <Item property="-fx-border-color" value="blue, black"/>
@@ -33,6 +33,8 @@
         <Fragment key="my_fragment_2">
             <Button text="OK" maxHeight="MAX_VALUE"/>
         </Fragment>
+
+        # <Resource src="resources/input/res_example1.xml" /> commented tag. ignored.
     </Stage.Resources>
     <Scene> # Scene definition. Only one Scene allowed at Stage (also only one Stage can be defined)
         <HBox spacing="12.5" id="container1" fillHeight="true"

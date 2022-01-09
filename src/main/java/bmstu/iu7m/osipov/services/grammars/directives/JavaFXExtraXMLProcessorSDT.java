@@ -251,6 +251,12 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             this.state = 64;
         else if(this.state == 4 && this.curName.equalsIgnoreCase("Fragment"))
             this.state = 8;
+        else if(this.state == 4 && this.curName.contains(".")) // <Object.Property> tag.
+            this.state = 44;
+        else if(this.state == 44 && this.curName.contains(".")) // <Object> -> <Object.Property> -> <Object2> -> <Object2.Property> rule.
+            this.state = -1;
+        else if(this.state == 44) //Create object for Property of the Object owner.
+            this.state = 4;
         else if(this.state == 12) //<Fragment> tag was previously read and created. awaiting children.
             this.state = 16;
         else if(this.state == 24)//<Fragment> tag read at <Stage.Resources> after <Scene>.
@@ -317,6 +323,21 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 processSimpleProperties(sceneRoot);
                 return;
             }
+            case 44: { // <Object.Property> tag.
+                String ob_name = this.objects.top().getClass().getSimpleName();
+                String a_name = this.curName.substring(0, this.curName.indexOf('.'));
+                if(!ob_name.equals(this.curName)) //only <Object> -> <Object.Property> valid.
+                    break;
+
+                String prop_name = this.curName.substring(this.curName.indexOf('.') + 1);
+                Method m = ClassObjectBuilder.getMethod(this.objects.top(), "set" + prop_name);
+                m = (m == null)  ? ClassObjectBuilder.getMethod(this.objects.top(), "init" + prop_name) : m;
+                if(m == null)
+                    break;
+
+                this.objects.push(m);
+                return;
+            }
             case 4: case 16: case 32: { /* Scene graph content */
                 meta_ctr = getTypeConstructorElement();
                 if(meta_ctr == null)
@@ -338,24 +359,11 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 if(p == null || p.length() == 0)
                     return;
 
-                //FragmentContainer f = this.fragments.getOrDefault(p, null);
                 LinkedNode<LanguageSymbol> fn = this.fragment_roots.getOrDefault(p, null);
                 if(fn == null) {
                     System.out.println("Cannot find fragment '"+p+"'");
                     break;
                 }
-
-                /*
-                Object clone = null;
-                for(Object c : f.getChildren()){
-
-                    if(!processChildren(c)) {
-                        this.state = -1;
-                        System.out.println("cannot add fragment widget");
-                        break; //breaks cycle with error but not switch block.
-                    }
-                }
-                */
 
                 LinkedTree<LanguageSymbol> sub_tree = new LinkedTree<>(fn);
 
@@ -433,17 +441,11 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 return;
             }
             case 12: case 24: { /* Create container for Fragment object */
-                //System.out.println("here");
                 String p = obj_attrs.getOrDefault("key", null);
                 if(p == null || p.length() == 0)
                     break;
 
-                /*
-                FragmentContainer fr = new FragmentContainer(p); // virtual container for objects.
-                this.objects.push(fr);
-                this.fragments.put(p, fr);
-                this.curFragment = p;
-                 */
+                //Add here check THAT only <Fragment></Fragment> form is well-formed.
 
                 this.fragment_roots.put(p, this.curNode.getParent()); // STAG > ELEMENT
                 System.out.println("add fragment: '"+p+"'");
@@ -452,8 +454,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 this._fragment_nesting_ch.push(true);
                 return;
             }
-            case 999: case 998: {
-                //System.out.println("ignore");
+            case 999: case 998: { //just ignore content.
                 return;
             }
         }//end switch
@@ -536,6 +537,21 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         if(parent == null || child == null) {
             System.out.println("Child or parent is null");
             return false;
+        }
+
+        // 44 -> 4. child is Property value.
+        if(parent instanceof Method){
+            Method m = (Method) parent;
+            Object owner = this.objects.topFrom(1);
+            if(owner == null)
+                return false;
+            try {
+                m.invoke(owner, child);
+            }catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e){
+                return false;
+            }
+            this.objects.pop(); //remove executed setter-method.
+            return true;
         }
 
         Method m = ClassObjectBuilder.getMethod(parent, "getChildren");

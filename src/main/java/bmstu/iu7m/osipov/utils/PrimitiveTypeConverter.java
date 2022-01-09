@@ -1,6 +1,7 @@
 package bmstu.iu7m.osipov.utils;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
 
 public class PrimitiveTypeConverter {
@@ -53,6 +54,13 @@ public class PrimitiveTypeConverter {
         if(type.isEnum()){
             result = Enum.valueOf((Class<? extends Enum>)type, src);
         }
+        if(result != null)
+            return result;
+
+        try{
+            Field f = type.getDeclaredField(src);
+            result = f.get(null);
+        } catch (NoSuchFieldException | NullPointerException | IllegalAccessException e){}
         return result;
     }
 

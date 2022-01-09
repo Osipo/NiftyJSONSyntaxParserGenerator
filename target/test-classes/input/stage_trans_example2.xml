@@ -1,0 +1,61 @@
+# One line comment starts with '#'. See javafx_xml.json 'meta'
+# Used at SLRParserTranslationTest > test_translations()
+<Dungeon> # Stage
+    <Dungeon.Masters> # Stage.Resources
+        <Bondage key="ok2_top_60" top="120" right="0" bottom="0" left="0"/> # Insets
+        <Bondage key="ok3_top_20" top="20" bottom="0" right="0" left="0"/>
+
+        <Latex key="border_base_golden"> # Style
+            <Glove property="-fx-border-color" value="gold, cyan"/> # Item
+            <Glove property="-fx-border-style" value="solid inside, solid inside"/>
+            <Glove property="-fx-border-width" value="10, 3"/>
+            <Glove property="-fx-border-insets" value="0, 5"/>
+            <Glove property="-fx-border-radius" value="0, 0"/>
+        </Latex>
+
+        <Latex key="border_red" parent="border_base_golden">
+            <Glove property="-fx-border-color" value="red, green"/>
+            <Glove property="-fx-border-width" value="5, 2"/>
+        </Latex>
+
+        <Latex key="border_blue" parent="border_red">
+            <Glove property="-fx-border-color" value="blue, black"/>
+        </Latex>
+
+        <Vaaan key="my_fragment"> # Fragment
+            <Stairs id="container5" spacing="10" style="{border_base_golden}"
+                  HBox.hgrow="ALWAYS"
+            > # Stairs = VBox
+                <Boss text="F1"  maxWidth="MAX_VALUE" prefHeight="40"/> # Button
+                <Boss text="F2"  maxWidth="MAX_VALUE" prefHeight="50"/>
+            </Stairs>
+        </Vaaan>
+        <Vaaan key="my_fragment_2">
+            <Boss text="OK" maxHeight="MAX_VALUE"/>
+        </Vaaan>
+    </Dungeon.Masters>
+    <Gym> # Scene definition. Only one Scene allowed at Stage (also only one Stage can be defined)
+        <CatBoxes spacing="12.5" id="container1" fillHeight="true"
+              style="{border_red}"> # HBox
+            <Boss text="OK" maxHeight="MAX_VALUE"/>
+            <WebSite id="f1" HBox.hgrow="ALWAYS" /> # TextField
+            <Boss text="OK2" prefwidth="60" prefHeight="30" HBox.hgrow="ALWAYS"
+                    HBox.margin="{ok2_top_60}" # Resource added.
+            />
+            <Stairs spacing="5" id="container3"
+                  style="{border_blue}">
+                <Button text="OK3" prefheight="60" prefwidth="60" VBox.margin="{ok2_top_60}"/>
+
+            </Stairs>
+            <Vaaan key="my_fragment"/> # add content of the Fragment to here with new objects.
+            <Vaaan key="my_fragment"/> # you can reuse the same Fragment. The new objects will be created.
+            <Vaaan key="my_fragment_2" /> # only unique fragments are allowed.
+        </CatBoxes>
+    </Gym>
+    <Dungeon.Masters>
+        # Empty tag with no resources
+    </Dungeon.Masters>
+    <Dungeon.Masters>
+        # You can later declare other resources as many times as needed.
+    </Dungeon.Masters>
+</Dungeon>

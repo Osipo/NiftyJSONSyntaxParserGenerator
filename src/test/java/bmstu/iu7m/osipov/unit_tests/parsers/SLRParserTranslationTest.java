@@ -2,12 +2,10 @@ package bmstu.iu7m.osipov.unit_tests.parsers;
 
 import bmstu.iu7m.osipov.bases.A;
 import bmstu.iu7m.osipov.bases.B;
+import bmstu.iu7m.osipov.bases.C;
 import bmstu.iu7m.osipov.configurations.PathStrings;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
-import bmstu.iu7m.osipov.services.grammars.directives.AttributeProcessorSDT;
-import bmstu.iu7m.osipov.services.grammars.directives.ElementProcessorSDT;
-import bmstu.iu7m.osipov.services.grammars.directives.JavaFXExtraXMLProcessorSDT;
-import bmstu.iu7m.osipov.services.grammars.directives.TypeProcessorSDT;
+import bmstu.iu7m.osipov.services.grammars.directives.*;
 import bmstu.iu7m.osipov.services.lexers.DFALexer;
 import bmstu.iu7m.osipov.services.lexers.FALexerGenerator;
 import bmstu.iu7m.osipov.services.lexers.LanguageSymbol;
@@ -38,6 +36,8 @@ import javax.swing.*;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -176,12 +176,15 @@ public class SLRParserTranslationTest {
         stree.visit(VisitorMode.PRE, new ReverseChildren());
         stree.visit(VisitorMode.PRE, new TranslationsAttacher(G, stree.getCount()));
         ExecuteTranslationNode act_executor = new ExecuteTranslationNode();
+        DictionaryProcessorSDT act_translate = new DictionaryProcessorSDT();
+
         TypeProcessorSDT type_actor = new TypeProcessorSDT();
         act_executor.putActionParser("putAttr", type_actor);
         act_executor.putActionParser("addPrefix", type_actor);
         act_executor.putActionParser("removePrefix", type_actor);
         act_executor.putActionParser("createObject", type_actor);
         act_executor.putActionParser("showAttrs", type_actor);
+        act_executor.putActionParser("translate", act_translate);
         System.out.println("Translate to schema :");
         stree.visit(VisitorMode.PRE, act_executor);// find and execute.
 
@@ -200,6 +203,7 @@ public class SLRParserTranslationTest {
         exec2.putActionParser("putAttr", elem_actor);
         exec2.putActionParser("createObject", elem_actor);
         exec2.putActionParser("removePrefix", elem_actor);
+        exec2.putActionParser("translate", act_translate);
 
         System.out.println("Translate document according to scheme");
         otree.visit(VisitorMode.PRE, exec2);
@@ -213,34 +217,6 @@ public class SLRParserTranslationTest {
 
 
     @Test
-    public void check_type()  {
-       /* blank code*/
-        String s = "sss";
-        System.out.println(s.toString());
-        Constructor<?> stagectr = null;
-        try{
-            stagectr = Class.forName("javafx.stage.Stage").getDeclaredConstructor(null);
-
-            Method methods = Arrays.stream(Stage.class.getDeclaredMethods()).filter(x -> x.getName().equalsIgnoreCase("initstyle")).findFirst().get();
-            if(methods == null)
-                System.out.println("searching 'initstyle' failed.");
-        } catch (ClassNotFoundException | SecurityException | NoSuchMethodException e){System.out.println(e);}
-
-        Constructor<?> finalStagectr = stagectr;
-
-        /* JavaFX Thread */
-        Platform.runLater(() -> {
-            try {
-                finalStagectr.newInstance(new Object[0]);
-                System.out.println("Stage object created");
-            } catch (InvocationTargetException e){
-                System.out.println(e.getCause().getCause());
-            } catch (InstantiationException | IllegalArgumentException | IllegalAccessException e){ }
-        });
-    }
-
-
-    @Test
     public void checkHeritage(){
         A a1 = new B();
         B b1 = new B();
@@ -248,5 +224,19 @@ public class SLRParserTranslationTest {
         a1.M1();
         b1.M1();
         a2.M1();
+
+        Map<String, String> r = new HashMap<>();
+        r.put("a", "aaa");
+        r.put("a", "bbb");
+        System.out.println(r.getOrDefault("a", null));
+
+        try{
+            Constructor<C> c = C.class.getConstructor(new Class<?>[]{A.class});
+            if(c != null){
+                System.out.println("found by covariance");
+                System.out.println(c.getParameterCount());
+                System.out.println(c.getName());
+            }
+        } catch (NoSuchMethodException e){}
     }
 }
