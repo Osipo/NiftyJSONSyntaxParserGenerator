@@ -1,11 +1,11 @@
 package bmstu.iu7m.osipov.services.grammars.directives;
 
-import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.grammars.xmlMeta.*;
 import bmstu.iu7m.osipov.services.lexers.LanguageSymbol;
 import bmstu.iu7m.osipov.services.lexers.Translation;
 import bmstu.iu7m.osipov.structures.lists.KeyValuePair;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
+import bmstu.iu7m.osipov.structures.lists.Triple;
 import bmstu.iu7m.osipov.structures.trees.LinkedNode;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
 import bmstu.iu7m.osipov.structures.trees.Node;
@@ -268,7 +268,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     }
 
     protected void checkState(){
-        KeyValuePair<Constructor<?>, Object[]> ctr_with_vals = null;
+        Triple<Constructor<?>, Class<?>[], Object[]> ctr_with_vals = null;
         ConstructorElement meta_ctr = null;
         switch (this.state){
             case 0: case 40: case -1: { //Cannot find Stage at start OR Error.
@@ -282,7 +282,8 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 if(ctr_with_vals == null)
                     break;
 
-                Object stage = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
+                //Object stage = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
+                Object stage = ClassObjectBuilder.createInstanceWithCovariance(ctr_with_vals.getV1(), ctr_with_vals.getV2(), ctr_with_vals.getV3(), PrimitiveTypeConverter::convertConstructorArguments, 0);
                 if(stage == null)
                     break;
                 this.objects.push(stage); //push new root node.
@@ -296,8 +297,9 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 meta_ctr = getTypeConstructorElement();
                 if(meta_ctr == null){
                     try {
-                        ctr_with_vals = new KeyValuePair<>(
+                        ctr_with_vals = new Triple<>(
                                 Scene.class.getDeclaredConstructor(Parent.class),
+                                new Class<?>[]{ Parent.class },
                                 new Object[] { null }
                         );
                     } catch (NoSuchMethodException | SecurityException e) { }
@@ -315,7 +317,9 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 ctr_with_vals = getConstructorWithValues(meta_ctr);
                 if(ctr_with_vals == null)
                     break;
-                Object sceneRoot = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
+
+                //Object sceneRoot = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
+                Object sceneRoot = ClassObjectBuilder.createInstanceWithCovariance(ctr_with_vals.getV1(), ctr_with_vals.getV2(), ctr_with_vals.getV3(), PrimitiveTypeConverter::convertConstructorArguments, 0);
                 if(sceneRoot == null)
                     break;
                 if(!processScene(sceneRoot))
@@ -326,7 +330,8 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             case 44: { // <Object.Property> tag.
                 String ob_name = this.objects.top().getClass().getSimpleName();
                 String a_name = this.curName.substring(0, this.curName.indexOf('.'));
-                if(!ob_name.equals(this.curName)) //only <Object> -> <Object.Property> valid.
+
+                if(!ob_name.equals(a_name)) //only <Object> -> <Object.Property> valid.
                     break;
 
                 String prop_name = this.curName.substring(this.curName.indexOf('.') + 1);
@@ -345,7 +350,9 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 ctr_with_vals = getConstructorWithValues(meta_ctr);
                 if(ctr_with_vals == null)
                     break;
-                Object elem_or_layout = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
+
+                //Object elem_or_layout = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
+                Object elem_or_layout = ClassObjectBuilder.createInstanceWithCovariance(ctr_with_vals.getV1(), ctr_with_vals.getV2(), ctr_with_vals.getV3(), PrimitiveTypeConverter::convertConstructorArguments, 0);
                 if(elem_or_layout == null)
                     break;
                 processSimpleProperties(elem_or_layout);
@@ -400,7 +407,9 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 ctr_with_vals = getConstructorWithValues(meta_ctr);
                 if(ctr_with_vals == null)
                     break;
-                Object elem_or_layout = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
+
+                //Object elem_or_layout = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
+                Object elem_or_layout = ClassObjectBuilder.createInstanceWithCovariance(ctr_with_vals.getV1(), ctr_with_vals.getV2(), ctr_with_vals.getV3(), PrimitiveTypeConverter::convertConstructorArguments, 0);
                 if(elem_or_layout == null)
                     break;
                 processSimpleProperties(elem_or_layout);
@@ -414,7 +423,8 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 ctr_with_vals = getConstructorWithValues(meta_ctr);
                 if(ctr_with_vals == null)
                     break;
-                Object style_or_map = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
+                //Object style_or_map = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
+                Object style_or_map = ClassObjectBuilder.createInstanceWithCovariance(ctr_with_vals.getV1(), ctr_with_vals.getV2(), ctr_with_vals.getV3(), PrimitiveTypeConverter::convertConstructorArguments, 0);
                 if(style_or_map == null)
                     break;
                 if(style_or_map instanceof Style){
@@ -505,7 +515,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     }
 
 
-    private KeyValuePair<Constructor<?>, Object[]> getConstructorWithValues(ConstructorElement meta_ctr){
+    private Triple<Constructor<?>, Class<?>[], Object[]> getConstructorWithValues(ConstructorElement meta_ctr){
         int pargs = 0;
         int ii = 0;
         if(!meta_ctr.haveNoParams())//for no-args constructor: getParams() returns null.
@@ -529,7 +539,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             }
         }
 
-        return new KeyValuePair<>(ClassObjectBuilder.getDeclaredConstructor(meta_ctr.getClassName(), ctr_types), vals);
+        return new Triple<>(ClassObjectBuilder.getDeclaredConstructor(meta_ctr.getClassName(), ctr_types), ctr_types, vals);
     }
 
     private boolean processChildren(Object child){
@@ -594,26 +604,27 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     private boolean processScene(Object root){
         if(root == null)
             return false;
-        KeyValuePair<Constructor<?>, Object[]> scene_ctr_with_args = null;
+        Triple<Constructor<?>, Class<?>[], Object[]> scene_ctr_with_args = null;
         try{
-            scene_ctr_with_args = (KeyValuePair<Constructor<?>, Object[]>) this.objects.top();
+            scene_ctr_with_args = (Triple<Constructor<?>, Class<?>[], Object[]>) this.objects.top();
         } catch (ClassCastException | NullPointerException e){
             return false;
         }
-        if(scene_ctr_with_args.getKey() == null)
+        if(scene_ctr_with_args.getV1() == null)
             return false;
-        if(scene_ctr_with_args.getValue() == null)
+        if(scene_ctr_with_args.getV3() == null)
             return false;
         this.objects.pop(); //remove scene constructor from Stack.
 
-        Constructor<?> scene_ctr = scene_ctr_with_args.getKey();
-        Object[] args = scene_ctr_with_args.getValue();
+        Constructor<?> scene_ctr = scene_ctr_with_args.getV1();
+        Object[] args = scene_ctr_with_args.getV3();
         args[0] = root;
         Object stage = this.objects.top(); //extract Stage object
         if(stage == null)
             return false;
 
-        Object scene = ClassObjectBuilder.createInstance(scene_ctr, args, PrimitiveTypeConverter::convertConstructorArguments, 1);
+        //Object scene = ClassObjectBuilder.createInstance(scene_ctr, args, PrimitiveTypeConverter::convertConstructorArguments, 1);
+        Object scene = ClassObjectBuilder.createInstanceWithCovariance(scene_ctr, scene_ctr_with_args.getV2(), args, PrimitiveTypeConverter::convertConstructorArguments, 1);
         if(scene == null)
             return false;
 

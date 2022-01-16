@@ -13,6 +13,8 @@
             <RandomName property="-fx-border-radius" value="0, 0"/> #Yes, random tag names are allowed here.
         </Style>
 
+        # the name of the parent is not surrounded with '{}'
+        # use '{}' notation for widgets.
         <Style key="border_red" parent="border_base_golden">
             <Item property="-fx-border-color" value="red, green"/>
             <Item property="-fx-border-width" value="5, 2"/>
@@ -34,6 +36,14 @@
             <Button text="OK" maxHeight="MAX_VALUE"/>
         </Fragment>
 
+        <CornerRadii radius="10" key="radii_10"/>
+
+        # if attr 'color' has type 'class' and value is 'string'
+        # then consider 'string' as the name of the static field of the class of this attribute.
+        # Color attr has class javafx.scene.paint.Color -> Color.CRIMSON is original value of color.
+        # type of attrs see 'fx_constructors_schema_nested.xml' definition.
+        <BackgroundFill insets="{ok3_top_20}" radius="{radii_10}" color="CRIMSON"/>
+
         # <Resource src="resources/input/res_example1.xml" /> commented tag. ignored.
     </Stage.Resources>
     <Scene> # Scene definition. Only one Scene allowed at Stage (also only one Stage can be defined)
@@ -49,6 +59,15 @@
                 <Button text="OK3" prefheight="60" prefwidth="60" VBox.margin="{ok2_top_60}"/>
 
             </VBox>
+
+            <BorderPane>
+                <BorderPane.Bottom>
+                    <TextField/>
+                </BorderPane.Bottom>
+                <BorderPane.Top>
+                    <TextField/>
+                </BorderPane.Top>
+            </BorderPane>
             <Fragment key="my_fragment"/> # add content of the Fragment to here with new objects.
             <Fragment key="my_fragment"/> # you can reuse the same Fragment. The new objects will be created.
             <Fragment key="my_fragment_2" /> # only unique fragments are allowed.

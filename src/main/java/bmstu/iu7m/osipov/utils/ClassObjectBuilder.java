@@ -40,34 +40,6 @@ public class ClassObjectBuilder {
         return boxedTypes;
     }
 
-    public static Object createInstance(String className, Class<?>[] paramTypes, Object[] paramValues){
-        Class type = null;
-        Object obj = null;
-        try{
-            type = Class.forName(className);
-        }
-        catch (ClassNotFoundException e) { }
-
-        if(type == null)
-            return obj;
-
-        Constructor<?> ctr = null;
-        try {
-            ctr = type.getDeclaredConstructor(paramTypes);
-        } catch (NoSuchMethodException | SecurityException e){}
-        if(ctr == null)
-            return obj;
-
-        try {
-            for(int i = 0; i < paramValues.length; i++){
-                paramValues[i] = PrimitiveTypeConverter.castTo(paramTypes[i], paramValues[i].toString());
-            }
-            obj = ctr.newInstance(paramValues);
-        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException e){}
-
-        return obj;
-    }
 
     public static Constructor<?> getDeclaredConstructor(String className, Class<?>[] paramTypes) {
         Class<?> type = null;
@@ -79,11 +51,44 @@ public class ClassObjectBuilder {
         if (type == null)
             return ctr;
 
-        try {
-            ctr = type.getDeclaredConstructor(paramTypes);
-        } catch (NoSuchMethodException | SecurityException e) {
-            System.out.println(e);
+        //(A, B, B) with (B, C, C) produce matches : 3
+        //(B, C, C) => (B, C, C) produce matches : 4
+
+        Constructor<?>[] cset = type.getConstructors(); //only public constructors!
+        int m = 0;
+        int m_i = 0;
+        int idx = -1;
+        int idx_i = -1;
+        for(Constructor<?> c : cset){
+            idx_i++;
+            m_i = 0;
+            Class<?>[] pTypes = c.getParameterTypes();
+            if( (paramTypes == null || paramTypes.length == 0) && pTypes.length == 0 && idx == -1){
+                idx = idx_i;
+                continue;
+            }
+            else if(paramTypes == null || paramTypes.length == 0)
+                continue;
+
+            for(int i = 0; i < pTypes.length && pTypes.length == paramTypes.length; i++){
+                if(pTypes[i].equals(paramTypes[i]))
+                    m_i++;
+                if(pTypes[i].isAssignableFrom(paramTypes[i])) //covariant type.
+                    m_i++;
+            }
+            if(m_i > m){ //find matching constructor with at least one parameter.
+                m = m_i;
+                idx = idx_i;
+            }
         }
+        ctr = (idx == -1) ? null : cset[idx];
+
+        /*
+        try{
+            ctr = type.getDeclaredConstructor(paramTypes);
+        }
+        catch (NoSuchMethodException | SecurityException e){}
+        */
         return ctr;
     }
 
@@ -112,6 +117,16 @@ public class ClassObjectBuilder {
     )
     {
         return createInstance(constructor, converter.call(constructor, paramValues, offset));
+    }
+
+    public static Object createInstanceWithCovariance(Constructor<?> constructor, Class<?>[] paramTypes,
+                                                      Object[] paramValues,
+                                                      Function4<Constructor<?>, Class<?>[], Object[], Integer, Object[]> converter,
+                                                      int offset
+
+    )
+    {
+        return createInstance(constructor, converter.call(constructor, paramTypes, paramValues, offset));
     }
 
     public static Method getDeclaredMethod(Object obj, String name){

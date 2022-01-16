@@ -32,7 +32,7 @@ public class AttributeProcessorSDT implements SDTParser {
         return elems;
     }
 
-    //called from ElementProcessorSDT.
+
     public void putAttribute(Map<String, String> ob_attrs, String key, String val){
         ob_attrs.put(key, val);
     }

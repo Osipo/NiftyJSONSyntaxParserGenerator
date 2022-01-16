@@ -81,70 +81,6 @@ public class SLRParserTranslationTest {
         finish.await();
     }
 
-    public void test(String grammar, String input) throws Exception {
-        Grammar G = new Grammar(
-                SimpleJsonParserTest.JSON_PARSER.parse(PathStrings.GRAMMARS + grammar)
-        );
-        System.out.println("Source G: ");
-        System.out.println(G);
-
-        String norm_input = input.substring(0, input.indexOf('.'));
-        String norm_grammar = grammar.substring(0, grammar.indexOf('.'));
-
-        FALexerGenerator lg = new FALexerGenerator();
-        CNFA nfa = lg.buildNFA(G);
-        DFALexer lexer = new DFALexer(new DFA(nfa));
-
-        lexer.getImagefromStr(PathStrings.LEXERS,"I_G_"+norm_grammar);
-
-        LRParser sa = new LRParser(G, lexer, LRAlgorithm.SLR);
-        sa.setParserMode(ParserMode.DEBUG);
-
-        LinkedTree<LanguageSymbol> t = sa.parse(PathStrings.PARSER_INPUT + input);
-        assert t != null;
-
-        Graphviz.fromString(t.toDot(norm_input)).render(Format.PNG).toFile(new File(PathStrings.PARSERS + norm_input));
-
-        //t.setVisitor(new RightToLeftNRVisitor<>()); // traverse children right to left
-        t.visit(VisitorMode.PRE, new ReverseChildren()); // or just reverse them.
-
-        //Graphviz.fromString(t.toDot(norm_input)).render(Format.PNG).toFile(new File(PathStrings.PARSERS + norm_input + "Reversed"));
-
-        System.out.println("tree nodes before "+t.getCount());
-        t.visit(VisitorMode.PRE, new TranslationsAttacher(G, t.getCount()));
-        System.out.println("tree nodes after attaching acts "+t.getCount());
-
-        //Graphviz.fromString(t.toDot(norm_input)).render(Format.PNG).toFile(new File(PathStrings.PARSERS + norm_input + "Attached"));
-
-
-        ExecuteTranslationNode act_executor = new ExecuteTranslationNode();
-
-        if(input.equals("stage_example1.xml")) {
-            AttributeProcessorSDT actor = new AttributeProcessorSDT();
-            TypeProcessorSDT type_actor = new TypeProcessorSDT();
-            ElementProcessorSDT elem_actor = new ElementProcessorSDT(actor, type_actor);
-
-            act_executor.putActionParser("createObject", elem_actor);
-            act_executor.putActionParser("putAttr", elem_actor);
-            act_executor.putActionParser("putAttr", actor);
-            act_executor.putActionParser("showAttrs", actor);
-            act_executor.putActionParser("addPrefix", actor);
-            act_executor.putActionParser("removePrefix", actor);
-        }
-        else if(input.equals("fx_constructors_schema_nested.xml")){
-            TypeProcessorSDT type_actor = new TypeProcessorSDT();
-            act_executor.putActionParser("putAttr", type_actor);
-            act_executor.putActionParser("addPrefix", type_actor);
-            act_executor.putActionParser("removePrefix", type_actor);
-            act_executor.putActionParser("createObject", type_actor);
-            act_executor.putActionParser("showAttrs", type_actor);
-        }
-
-        System.out.println("Perform translation... :");
-        t.visit(VisitorMode.PRE, act_executor);// find and execute.
-    }
-
-
     public void testScheme(CountDownLatch finish_flag, String grammar, String scheme, String input) throws Exception {
         Grammar G = new Grammar(
                 SimpleJsonParserTest.JSON_PARSER.parse(PathStrings.GRAMMARS + grammar)
@@ -229,6 +165,10 @@ public class SLRParserTranslationTest {
         r.put("a", "aaa");
         r.put("a", "bbb");
         System.out.println(r.getOrDefault("a", null));
+
+        System.out.println(A.class.isAssignableFrom(B.class));
+        System.out.println(B.class.isAssignableFrom(A.class));
+        System.out.println(A.class.isAssignableFrom(A.class));
 
         try{
             Constructor<C> c = C.class.getConstructor(new Class<?>[]{A.class});

@@ -9,7 +9,7 @@ public class PrimitiveTypeConverter {
     /**
      * Casts Object src to the specified type.
      * @param type return type
-     * @param src source object to be cast.
+     * @param src source string to be cast.
      * @return cast object with target type.
      */
     public static Object castTo(Class<?> type, String src){
@@ -58,7 +58,7 @@ public class PrimitiveTypeConverter {
             return result;
 
         try{
-            Field f = type.getDeclaredField(src);
+            Field f = type.getDeclaredField(src); //get static value of specified property 'src' of the type.
             result = f.get(null);
         } catch (NoSuchFieldException | NullPointerException | IllegalAccessException e){}
         return result;
@@ -70,6 +70,20 @@ public class PrimitiveTypeConverter {
         Parameter[] actual_params = c.getParameters();
         for(int i = offset; i < args.length; i++){
             args[i] = PrimitiveTypeConverter.castTo(actual_params[i].getType(), args[i].toString());
+        }
+        return args;
+    }
+
+    //new version with covariance.
+    public static Object[] convertConstructorArguments(Constructor<?> c, Class<?>[] apTypes, Object[] args, int offset){
+        Class<?>[] pTypes = c.getParameterTypes();
+        Class<?> ptype = null;
+        for(int i = offset; i < args.length; i++){
+            if(pTypes[i].isAssignableFrom(apTypes[i]))
+                ptype = apTypes[i];
+            else
+                ptype = pTypes[i];
+            args[i] = PrimitiveTypeConverter.castTo(ptype, args[i].toString());
         }
         return args;
     }

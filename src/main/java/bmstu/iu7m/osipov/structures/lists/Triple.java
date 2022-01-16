@@ -1,6 +1,6 @@
 package bmstu.iu7m.osipov.structures.lists;
 
-public class Triple<T1,T2,T3> {
+public class Triple<T1, T2, T3> {
     private T1 v1;
     private T2 v2;
     private T3 v3;

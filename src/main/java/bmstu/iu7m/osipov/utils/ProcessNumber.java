@@ -1,7 +1,5 @@
 package bmstu.iu7m.osipov.utils;
 
-import bmstu.iu7m.osipov.services.grammars.directives.ElementProcessorSDT;
-
 //Process octal,hex,binary,decimal scientific literals to decimal number.
 public class ProcessNumber {
 

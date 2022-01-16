@@ -34,6 +34,9 @@
             <Button text="OK" maxHeight="MAX_VALUE"/>
         </Fragment>
 
+        <CornerRadii radius="10" key="radii_10"/>
+        <BackgroundFill insets="{ok3_top_20}" radius="{radii_10}" color="CRIMSON"/>
+
         # <Resource src="resources/input/res_example1.xml" /> commented tag. ignored.
     </Stage.Resources>
     <Scene> # Scene definition. Only one Scene allowed at Stage (also only one Stage can be defined)
@@ -49,6 +52,15 @@
                 <Button text="OK3" prefheight="60" prefwidth="60" VBox.margin="{ok2_top_60}"/>
 
             </VBox>
+
+            <BorderPane>
+                <BorderPane.Bottom>
+                    <TextField/>
+                </BorderPane.Bottom>
+                <BorderPane.Top>
+                    <TextField/>
+                </BorderPane.Top>
+            </BorderPane>
             <Fragment key="my_fragment"/> # add content of the Fragment to here with new objects.
             <Fragment key="my_fragment"/> # you can reuse the same Fragment. The new objects will be created.
             <Fragment key="my_fragment_2" /> # only unique fragments are allowed.
