@@ -148,4 +148,23 @@ public class ProcessNumberTest {
         assertEquals(1.24f, ProcessNumber.parseNumber("1.24", Float.class));
         assertEquals(0.00001, ProcessNumber.parseNumber("0.00001", Double.class));
     }
+
+    @Test
+    public void when_valid_long_number_then_long(){
+        assertEquals(Long.MAX_VALUE, ProcessNumber.parseNumber("MAX_VALUE", Long.class));
+        assertEquals(Long.MAX_VALUE, ProcessNumber.parseNumber("MAX_VALUE", long.class));
+        assertEquals(0x8fffffffL, ProcessNumber.parseNumber("0x8fffffff", Long.class));
+
+        //problem when Inf and type int => 0 (as type is not float or double).
+        assertEquals(0, ProcessNumber.parseNumber("INFINITY", Integer.class));
+        assertTrue(Integer.class.getSuperclass().isAssignableFrom(Number.class));
+
+        System.out.printf("%.2f :: %.2f\n", (1/0.22), (1 / (1/0.22)) );
+    }
+
+    @Test
+    public void when_primitive_then_no_super(){
+        assertNull(float.class.getSuperclass());
+        assertNotNull(Float.class.getSuperclass());
+    }
 }

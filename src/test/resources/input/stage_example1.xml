@@ -28,8 +28,8 @@
             <VBox id="container5" spacing="10" style="{border_base_golden}"
                   HBox.hgrow="ALWAYS"
             >
-                <Button text="F1"  maxWidth="MAX_VALUE" prefHeight="40"/>
-                <Button text="F2"  maxWidth="MAX_VALUE" prefHeight="50"/>
+                <Button text="F1"  maxWidth="MAX_VALUE" prefHeight="2*"/>
+                <Button text="F2"  maxWidth="MAX_VALUE" prefHeight="*"/>
             </VBox>
         </Fragment>
         <Fragment key="my_fragment_2">
@@ -70,7 +70,7 @@
             </BorderPane>
             <Fragment key="my_fragment"/> # add content of the Fragment to here with new objects.
             <Fragment key="my_fragment"/> # you can reuse the same Fragment. The new objects will be created.
-            <Fragment key="my_fragment_2" /> # only unique fragments are allowed.
+            <Fragment key="my_fragment_2" />
         </HBox>
     </Scene>
     <Stage.Resources>

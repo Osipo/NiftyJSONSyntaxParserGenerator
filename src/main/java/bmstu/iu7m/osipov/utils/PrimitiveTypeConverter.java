@@ -1,5 +1,7 @@
 package bmstu.iu7m.osipov.utils;
 
+import bmstu.iu7m.osipov.services.grammars.xmlMeta.SizeRelationItem;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Parameter;
@@ -7,13 +9,33 @@ import java.lang.reflect.Parameter;
 public class PrimitiveTypeConverter {
 
     /**
-     * Casts Object src to the specified type.
+     * Casts String src to the specified type.
      * @param type return type
      * @param src source string to be cast.
      * @return cast object with target type.
      */
     public static Object castTo(Class<?> type, String src){
         Object result = null;
+
+        //If primitive type -> get boxed version.
+        if(ClassObjectBuilder.getBoxedTypes().containsKey(type.getName()))
+            type = ClassObjectBuilder.getBoxedTypes().get(type.getName());
+
+        //Number with suffix '*'. [2*, 35*, *, 1*, 0.25*, ...]
+        if(type.getSuperclass() != null && type.getSuperclass().isAssignableFrom(Number.class)
+            && src.indexOf('*') != -1 && src.lastIndexOf('*') == src.length() - 1
+        )
+        {
+            if(src.indexOf('*') == 0)
+                return new SizeRelationItem(1.0);
+            else if(src.indexOf('*') != src.lastIndexOf('*')) //two stars or more
+                return Double.NaN;
+            src = src.substring(0, src.indexOf('*')); // 5* => 5, 23*4 => 23, * => 1.
+            return new SizeRelationItem(
+                    ((double) PrimitiveTypeConverter.castTo(double.class, src))
+            );
+        }
+
         switch (type.getSimpleName()){
             case "boolean": case "Boolean":{
                 if(src.equalsIgnoreCase("true"))

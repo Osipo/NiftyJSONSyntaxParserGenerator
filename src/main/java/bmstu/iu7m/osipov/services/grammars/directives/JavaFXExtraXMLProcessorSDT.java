@@ -16,23 +16,28 @@ import bmstu.iu7m.osipov.utils.GrammarBuilderUtils;
 import bmstu.iu7m.osipov.utils.PrimitiveTypeConverter;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Control;
+import javafx.scene.layout.Region;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     protected Map<String, String> obj_attrs;
     protected Map<String, Object> res;
-    protected Map<String, FragmentContainer> fragments;
-    protected Map<String, LinkedNode<LanguageSymbol>> fragment_roots;
+    protected Map<String, FragmentContainer> fragments;// built fragments.
+    protected Map<String, LinkedNode<LanguageSymbol>> fragment_roots; //for fragment parser
 
     // only needed to match <Fragment> tag with </Fragment> tag.
-    // because of state 999. (when ignore elements)
+    // because of states 999, 998. (when ignore elements)
     private LinkedStack<Boolean> _fragment_nesting_ch;
 
     protected LinkedStack<Object> objects;
@@ -40,6 +45,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     protected String curName;
     protected String curFragment; //nested fragments are illegal. So fragment can be identified.
     protected LinkedNode<LanguageSymbol> curNode;
+    protected List<SizeRelationItem> size_rels; //size relations between parents and children
 
 
     /* State initial = 0. */
@@ -67,6 +73,9 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     * 7 - </Stage> was reached. Nothing to awaits. Finished state.
     * 8 - read Fragment reference at scene Graph and go back. (8 -> 4)
     * 20 - read Fragment reference at Fragment content and go back. (20 -> 16)
+    * 998, 999 > ignore states at Stage.Resources before Scene and after Scene.
+    * 998, 999 - just skip processing content in <Fragment>...</Fragment>
+    * as it will be processed JavaFXExtraFragmentProcessorSDT class.
     */
     protected int state;
 
@@ -79,6 +88,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         this.res = new HashMap<>();
         this.fragments = new HashMap<>();
         this.fragment_roots = new HashMap<>();
+        this.size_rels = new ArrayList<>();
         this.type_processor = type_processor;
         this._fragment_nesting_ch = new LinkedStack<>();
         this.state = initialState;
@@ -94,10 +104,17 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         this.fragments.clear();
         this.fragment_roots.clear();
         this._fragment_nesting_ch.clear();
+        this.size_rels.clear();
         this.root = null;
         this.curFragment = null;
+        this.curNode = null;
         this.curName = null;
         this.state = 0;
+    }
+
+    //bind and connect relations between sizes of parent and child widgets.
+    public void bindSizes(){
+
     }
 
     public Object getRoot(){
@@ -169,10 +186,10 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                     this.state = 16;
                 else if(clTag.equalsIgnoreCase("Fragment") && this.state == 64) //64 -> 32
                     this.state = 32;
-                else if(clTag.equalsIgnoreCase("Fragment") && this.state == 8) {
+                else if(clTag.equalsIgnoreCase("Fragment") && this.state == 8) { //8 -> 4.
                     this.state = 4;
                 }
-                else if(clTag.equalsIgnoreCase("Fragment") && this.state == 32){
+                else if(clTag.equalsIgnoreCase("Fragment") && this.state == 32){// 32 -> 41, end fragment definiton.
                     this.objects.pop();
                     this.state = 41;
                 }
@@ -389,6 +406,8 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                     break;
                 System.out.println("Fragment parsed successful.");
                 FragmentContainer f = (FragmentContainer) sub_actor.getRoot();
+                this.size_rels.addAll(sub_actor.size_rels); //add size relations from Fragment.
+
                 for(Object c : f.getChildren()){
                     if(!processChildren(c)) {
                         this.state = -1;
@@ -457,7 +476,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
 
                 //Add here check THAT only <Fragment></Fragment> form is well-formed.
 
-                this.fragment_roots.put(p, this.curNode.getParent()); // STAG > ELEMENT
+                this.fragment_roots.put(p, this.curNode.getParent()); // STAG > ELEMENT (<Fragment> </Fragment> subTree)
                 System.out.println("add fragment: '"+p+"'");
                 //ignore til </Fragment> reached.
                 this.state = (this.state == 12) ? 998 : 999;
@@ -641,6 +660,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         return true;
     }
 
+    //root = element
     private void processSimpleProperties(Object root){
         if(root == null)
             return;
@@ -676,7 +696,16 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                     m.invoke(root, getResourceObject(root, rkey));
                 }
                 else{
-                    m.invoke(root, PrimitiveTypeConverter.castTo(propType, entry.getValue()));
+                    Object propVal = PrimitiveTypeConverter.castTo(propType, entry.getValue());
+                    if(propVal instanceof SizeRelationItem){
+                        SizeRelationItem sz_item = (SizeRelationItem) propVal;
+                        sz_item.setChild(root);
+                        sz_item.setParent(this.objects.top());
+                        sz_item.setPropName(methodName);
+                        this.size_rels.add(sz_item);
+                        continue;
+                    }
+                    m.invoke(root, propVal);
                 }
 
             } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e){
@@ -714,7 +743,8 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 m.invoke(null, root, getResourceObject(root, rkey));
             }
             else{
-                m.invoke(null, root, PrimitiveTypeConverter.castTo(propType, val));
+                Object propVal = PrimitiveTypeConverter.castTo(propType, val);
+                m.invoke(null, root, propVal);
             }
             //System.out.println("Found static setter '"+setterName+"'");
         } catch (ClassNotFoundException | InvocationTargetException | IllegalArgumentException | IllegalAccessException e){
@@ -735,5 +765,89 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         }
 
         return r; //return Resource for owner.
+    }
+
+    public void tryApplySizeRelations(){
+        //TODO: set relative size between parent and children nodes with ratio.
+        Map<Object, List<SizeRelationItem>> sizes = null;
+        sizes = size_rels.stream().collect(Collectors.groupingBy(SizeRelationItem::getParent));
+
+        List<SizeRelationItem> ch = null;
+        SizeRelationItem ch_i = null;
+        int count = 0;
+        int s = 0;
+        int s_i = 0;
+        double r = 0.0d;
+        for(Object p : sizes.keySet()){
+            ch = sizes.get(p);
+            count = ch.size();
+            s = 0;
+
+
+            /* Compute common divider */
+            for(int i = 0; i < count; i++){
+                ch_i = ch.get(i);
+                if(ch_i == null || ch_i.getParent() == null || ch_i.getChild() == null)
+                    continue;
+                if(!(ch_i.getParent() instanceof javafx.scene.Node) || !(ch_i.getChild() instanceof javafx.scene.Node))
+                    continue;
+                r = ch_i.getRatio();
+                if(r == Math.floor(r) && !Double.isInfinite(r))
+                    s += r;
+            }
+
+            // first compute relations less than 1 ( < 1.0)
+            for(int i = 0; i < count; i++){
+                ch_i = ch.get(i);
+                if(ch_i == null || ch_i.getParent() == null || ch_i.getChild() == null)
+                    continue;
+                if(!(ch_i.getParent() instanceof javafx.scene.Node) || !(ch_i.getChild() instanceof javafx.scene.Node))
+                    continue;
+
+                r = ch_i.getRatio();
+
+                if(r != 0 && r < 1) {
+                    calculateRelativeSize(ch_i.getChild(), ch_i.getParent(), ch_i.getPropName(), r);
+                }
+                else if(r != 0 && r == Math.floor(r) && !Double.isInfinite(r)){
+                    calculatePropositonSize(ch_i.getChild(), ch_i.getParent(), ch_i.getPropName(), r, s);
+                }
+            }
+        }
+    }
+
+    private void calculatePropositonSize(Object ch, Object par, String propName, double r_i, int s){
+        System.out.println("calculatePropositonSize() : "+propName);
+        if(ch instanceof Region && par instanceof Region){
+            Region p = (Region) par;
+            Region c = (Region) ch;
+            r_i = r_i / s;
+            System.out.println("rel = "+r_i);
+
+            //bind size to relation.
+            if(propName.contains("prefWidth")) {
+                c.prefWidthProperty().bind(p.widthProperty().multiply(r_i));
+            }
+            else if(propName.contains("prefHeight")) {
+                c.prefHeightProperty().bind(p.heightProperty().multiply(r_i));
+            }
+            else if(propName.contains("spacing")){
+                System.out.println("spacing"); //TODO: Add min,max,spacing.
+            }
+            System.out.println(c.prefHeightProperty().getValue());
+        }
+    }
+
+    private void calculateRelativeSize(Object ch, Object par, String propName, double r){
+        // Region type
+        if(ch instanceof Region && par instanceof Region){
+            Region p = (Region) par;
+            Region c = (Region) ch;
+
+            if(propName.contains("prefWidth"))
+                c.prefWidthProperty().bind(p.prefWidthProperty().multiply(r));
+            else if(propName.contains("prefHeight"))
+                c.prefHeightProperty().bind(p.prefHeightProperty().multiply(r));
+        }
     }
 }

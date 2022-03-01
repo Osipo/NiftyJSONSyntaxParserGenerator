@@ -143,6 +143,8 @@ public class SLRParserTranslationTest {
 
         System.out.println("Translate document according to scheme");
         otree.visit(VisitorMode.PRE, exec2);
+
+        elem_actor.tryApplySizeRelations(); //apply relations.
         if(elem_actor.getRoot() != null){
             System.out.println("Translation finished. Launch Stage...");
             Stage s = (Stage) elem_actor.getRoot();

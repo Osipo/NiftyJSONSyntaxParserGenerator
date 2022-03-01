@@ -28,8 +28,8 @@ public class JavaFXExtraFragmentProcessorSDT extends JavaFXExtraXMLProcessorSDT 
     *  Error = -1
     *  Start = 0.
     *  Finish = 4
-    *  <Fragment> tag read -> 1 (process 1) (12, 24)
-    *  16 -> read child of Fragment. (16, 32)
+    *  <Fragment> tag read -> 1 (process 1) (12, 24)  (states in parent class)
+    *  16 -> read child of Fragment. (16, 32) (reference at Fragment to another Fragmet)
     *  20 -> read Fragment ref at Fragment. (20, 64)
     */
     @Override
