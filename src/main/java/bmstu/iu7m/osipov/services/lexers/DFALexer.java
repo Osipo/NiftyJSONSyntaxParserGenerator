@@ -27,6 +27,8 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
     private Map<String,String> aliases;
     private Map<String, List<String>> separators;// symbols that are part of regex but not a part of lexem
 
+    private Set<String> terms; //terms as such lexeme '\n' may be term (even space symbols (e.g. Python language))
+
     /*TODO: Make builder instead of .ctors */
     public DFALexer(DFA dfa, LexerIO io){
         super(dfa,true);
@@ -42,6 +44,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
         this.prevTok = null;
         this.ignore = null;
         this.separators = null;
+        this.terms = null;
     }
 
     public DFALexer(NFA nfa, LexerIO io){
@@ -58,6 +61,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
         this.id = null;
         this.ignore = null;
         this.separators = null;
+        this.terms = null;
     }
 
     public DFALexer(CNFA nfa){
@@ -78,6 +82,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
         this.id = null;
         this.ignore = null;
         this.separators = null;
+        this.terms = null;
     }
 
 
@@ -98,6 +103,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
         this.id = null;
         this.ignore = null;
         this.separators = null;
+        this.terms = null;
     }
 
     public DFALexer(DFA dfa){
@@ -117,6 +123,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
         this.id = null;
         this.ignore = null;
         this.separators = null;
+        this.terms = null;
     }
 
     @Override
@@ -178,6 +185,11 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
         return this.id;
     }
 
+    @Override
+    public void setTerms(Set<String> t){
+        this.terms = t;
+    }
+
     /**
      *
      * @param f stream of symbols.
@@ -191,13 +203,20 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
 
         //If IGNORE IS NOT SET THEN DELETE space symbols at Start of Token
         if(ignore == null || ignore.length == 0) {
-            //System.out.println("Ignore symbols are null");
+            /* faster
             while (cur == ' ' || cur == '\t' || cur == '\n' || cur == '\r') {
                 if (cur == '\n') {
                     io.setCol(0);
                 }
                 cur = (char) io.getch(f);
             }
+            */
+            while(isSkippable(cur)){
+                if(cur == '\n')
+                    io.setCol(0);
+                cur = (char) io.getch(f);
+            }
+
         }
         /* SKIP separators Symbols at Start of Token */
         else {
@@ -353,11 +372,21 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
         }
     }
 
+    //check that standard symbols ' ', '\t' '\n' '\r' are really not terminals (lexemes) of Grammar.
+    private boolean isSkippable(char c){
+
+        return ((c == ' ') || (c == '\t') || (c == '\r') || (c == '\n'))
+                && (terms == null || terms.size() == 0 ||
+                    !(terms.contains(" ") || terms.contains("\t") || terms.contains("\n") || terms.contains("\r")
+                    )
+        );
+    }
+
     /* construct new Token WITH scanning separators */
     protected Token makeToken(String name, String val){
         if(this.separators == null)
             return new Token(name, val, 't', io.getLine(), io.getCol());
-        else if(this.separators.getOrDefault(name, null) == null) {
+        else if(this.separators.getOrDefault(name, null) == null) { //no separators for pattern.
             return new Token(name, val, 't', io.getLine(), io.getCol());
         }
         List<Character> symbols = this.separators.get(name).stream().map(x -> x.charAt(0)).collect(Collectors.toList());
@@ -367,7 +396,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
         for(int i = 0; i < val.length(); i++){
             if(symbols.contains(val.charAt(i)))
                 continue;
-            sb.append(val.charAt(i));
+            sb.append(val.charAt(i)); //exclude separators
         }
         return new Token(name, sb.toString(), 't', io.getLine(), io.getCol());
     }

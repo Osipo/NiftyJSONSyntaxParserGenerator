@@ -24,4 +24,5 @@ public interface ILexer extends AutomatonImage {
     void setMlCommentStart(String mlcS);
     void setMlCommentEnd(String mlcE);
     void setIdName(String id);
+    void setTerms(Set<String> t);
 }

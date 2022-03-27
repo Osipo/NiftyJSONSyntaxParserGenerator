@@ -13,19 +13,19 @@ import bmstu.iu7m.osipov.utils.GrammarBuilderUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TypeProcessorSDT implements SDTParser {
+public class TypeProcessorSDT implements SDTParser, TypeElement {
 
     private HashMap<String, ClassElement> types;
 
     private HashMap<String, String> aliases;
 
-    LinkedStack<Object> objects;
+    private LinkedStack<Object> objects;
 
-    LinkedStack<String> names;
+    private LinkedStack<String> names;
 
-    LinkedStack<String> pkgs;
+    private LinkedStack<String> pkgs;
 
-    Map<String, String> obj_attrs;
+    private Map<String, String> obj_attrs;
 
     public TypeProcessorSDT(){
         this.types = new HashMap<>();
@@ -208,6 +208,9 @@ public class TypeProcessorSDT implements SDTParser {
                 else if(this.names.top().equals("Constructor")){
                     ConstructorElement ctr = new ConstructorElement();
                     this.objects.push(ctr);
+
+                    //read attrs of constructor.
+
                     this.obj_attrs.clear();
                     break;
                 }

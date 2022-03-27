@@ -1,8 +1,5 @@
 package bmstu.iu7m.osipov.unit_tests.parsers;
 
-import bmstu.iu7m.osipov.bases.A;
-import bmstu.iu7m.osipov.bases.B;
-import bmstu.iu7m.osipov.bases.C;
 import bmstu.iu7m.osipov.configurations.PathStrings;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.grammars.directives.*;
@@ -20,8 +17,6 @@ import bmstu.iu7m.osipov.structures.trees.VisitorMode;
 import bmstu.iu7m.osipov.structures.trees.translators.ExecuteTranslationNode;
 import bmstu.iu7m.osipov.structures.trees.translators.TranslationsAttacher;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
-import guru.nidi.graphviz.engine.Format;
-import guru.nidi.graphviz.engine.Graphviz;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.stage.Stage;
@@ -33,11 +28,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.swing.*;
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.TypeVariable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -65,20 +59,100 @@ public class SLRParserTranslationTest {
 
     @Test
     public void test_translations() throws Exception{
-        //test("javafx_xml.json","stage_example1.xml");
-        //test("javafx_xml.json", "fx_constructors_schema_nested.xml");
-        //test("java_meta_objects.json", "java_objects_constructors.txt");
 
         /* execute at JavaFX-Thread */
         final CountDownLatch finish = new CountDownLatch(1);
         Platform.runLater(() -> {
             try {
-                testScheme(finish,"javafx_xml.json", "fx_constructors_schema_nested.xml", "stage_example1.xml");
+                test_yml_type_scheme(finish);
+                //testScheme(finish,"javafx_xml.json", "fx_constructors_schema_nested.xml", "stage_example1.xml");
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
         finish.await();
+    }
+
+    //Check new format of schema.
+    public void test_yml_type_scheme(final CountDownLatch finish) throws Exception {
+
+        //New Grammar for schema.
+        Grammar G = new Grammar(
+                SimpleJsonParserTest.JSON_PARSER.parse(PathStrings.GRAMMARS + "java_meta_objects.json")
+        );
+        System.out.println("Source G: ");
+        System.out.println(G);
+
+        String example = "java_objects_constructors.txt";
+        String norm_example = example.substring(0, example.indexOf('.')); //remove part after '.' inclusive ['.'...]
+
+        String doc = "stage_example1.xml";
+
+        //build lexer.
+        FALexerGenerator lg = new FALexerGenerator();
+        CNFA nfa = lg.buildNFA(G);
+        DFALexer lexer = new DFALexer(new DFA(nfa));
+
+        //build parser.
+        LRParser sa = new LRParser(G, lexer, LRAlgorithm.SLR);
+        sa.setParserMode(ParserMode.DEBUG);
+
+        LinkedTree<LanguageSymbol> stree = sa.parse(PathStrings.PARSER_INPUT + example);
+        assert stree != null;
+
+        //Graphviz.fromString(stree.toDot(norm_example)).render(Format.PNG).toFile(new File(PathStrings.PARSERS + norm_example));
+        stree.visit(VisitorMode.PRE, new ReverseChildren());
+        stree.visit(VisitorMode.PRE, new TranslationsAttacher(G, stree.getCount()));
+
+        TypeProcessorYmlSDT type_actor = new TypeProcessorYmlSDT();
+        ExecuteTranslationNode act_executor = new ExecuteTranslationNode();
+        act_executor.putActionParser("addPkg", type_actor);
+        act_executor.putActionParser("popPkg", type_actor);
+        act_executor.putActionParser("addType", type_actor);
+        act_executor.putActionParser("addCtrParam", type_actor);
+        act_executor.putActionParser("addParamType", type_actor);
+        act_executor.putActionParser("addGenericParamType", type_actor);
+        act_executor.putActionParser("removeInnerGenType", type_actor);
+        stree.visit(VisitorMode.PRE, act_executor);// parse scheme definition.
+
+        System.out.println("scheme parsed.");
+
+        System.out.println("types");
+        System.out.println(type_actor.getTypes().toString());
+        System.out.println("aliases");
+        System.out.println(type_actor.getAliases().toString());
+
+        //Create and parse XML document with provided schema.
+        Grammar G2 = new Grammar(
+                SimpleJsonParserTest.JSON_PARSER.parse(PathStrings.GRAMMARS + "javafx_xml.json")
+        );
+        FALexerGenerator lg2 = new FALexerGenerator();
+        CNFA nfa2 = lg2.buildNFA(G2);
+        DFALexer lexer2 = new DFALexer(new DFA(nfa2));
+        LRParser sa2 = new LRParser(G2, lexer2, LRAlgorithm.SLR);
+        sa2.setParserMode(ParserMode.DEBUG);
+
+        LinkedTree<LanguageSymbol> dtree = sa2.parse(PathStrings.PARSER_INPUT + doc);
+        assert dtree != null;
+        dtree.visit(VisitorMode.PRE, new ReverseChildren());
+        dtree.visit(VisitorMode.PRE, new TranslationsAttacher(G2, dtree.getCount()));
+
+
+        ExecuteTranslationNode exec2 = new ExecuteTranslationNode();
+        JavaFXExtraXMLProcessorSDT elem_actor = new JavaFXExtraXMLProcessorSDT(type_actor);
+        exec2.putActionParser("putAttr", elem_actor);
+        exec2.putActionParser("createObject", elem_actor);
+        exec2.putActionParser("removePrefix", elem_actor);
+
+        dtree.visit(VisitorMode.PRE, exec2);
+
+        elem_actor.tryApplySizeRelations(); //apply relations.
+        if(elem_actor.getRoot() != null){
+            System.out.println("Translation finished. Launch Stage...");
+            Stage s = (Stage) elem_actor.getRoot();
+            s.showAndWait();
+        }
+        finish.countDown();
     }
 
     public void testScheme(CountDownLatch finish_flag, String grammar, String scheme, String input) throws Exception {
@@ -125,6 +199,8 @@ public class SLRParserTranslationTest {
         stree.visit(VisitorMode.PRE, act_executor);// find and execute.
 
         System.out.println("Schema processed.");
+        System.out.println(type_actor.getTypes().toString());
+        System.out.println(type_actor.getAliases().toString());
         LinkedTree<LanguageSymbol> otree = sa.parse(PathStrings.PARSER_INPUT + input);
         assert otree != null;
 
@@ -155,30 +231,43 @@ public class SLRParserTranslationTest {
 
 
     @Test
-    public void checkHeritage(){
-        A a1 = new B();
-        B b1 = new B();
-        A a2 = new A();
-        a1.M1();
-        b1.M1();
-        a2.M1();
+    public void checkStrBldrModfiy(){
+        StringBuilder sb = new StringBuilder();
+        String s1 = sb.toString();
+        System.out.println("s1 = '" + s1 + "'");
 
-        Map<String, String> r = new HashMap<>();
-        r.put("a", "aaa");
-        r.put("a", "bbb");
-        System.out.println(r.getOrDefault("a", null));
+        sb.append("new content");
 
-        System.out.println(A.class.isAssignableFrom(B.class));
-        System.out.println(B.class.isAssignableFrom(A.class));
-        System.out.println(A.class.isAssignableFrom(A.class));
-
-        try{
-            Constructor<C> c = C.class.getConstructor(new Class<?>[]{A.class});
-            if(c != null){
-                System.out.println("found by covariance");
-                System.out.println(c.getParameterCount());
-                System.out.println(c.getName());
-            }
-        } catch (NoSuchMethodException e){}
+        String s2 = sb.toString();
+        System.out.println("s1 = '" + s1 + "'");
+        System.out.println("s2 = '" + s2 + "'");
     }
+
+    /*
+    @Test
+    public void getGenericClass(){
+
+        Class<?> cls = null;
+        try{
+            cls = Class.forName("java.util.ArrayList");
+            Class<?> cl2 = ((List<String>) new ArrayList<String>()).getClass();
+            System.out.println(cls.getName());
+            System.out.println(cls.getSimpleName());
+            System.out.println(cl2.getName());
+            System.out.println(cl2.getSimpleName());
+
+            for(TypeVariable t : cls.getTypeParameters()){
+                System.out.println(t.getName());
+                System.out.println(t.getTypeName());
+            }
+
+            Constructor<?> ctr = cls.getConstructor();
+            System.out.println(ctr.getTypeParameters().length);
+            assert ctr != null;
+        }
+        catch (ClassNotFoundException e){}
+        catch (NoSuchMethodException e) { assert 1 == 0;}
+        assert cls != null;
+    }
+     */
 }

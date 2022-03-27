@@ -65,24 +65,25 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     * 3 - read rootNode of the Scene. Create scene with rootNode and set it to the Stage.
     * 4 - read content of the rootNode of the Scene.
     *   40 - </Scene> was read. All content of the Scene has been created. Awaiting other Resources.
-    *   40 -> 41. (41 -> 40, 10 -> 1).
-    *   41 -> 30 (10 -> 15), 30 -> 300 (15 -> 150).
+    *   40 -> 41. (41 -> 40, 10 -> 1).  (Stage.Resources)
+    *   41 -> 30 (10 -> 15), 30 -> 300 (15 -> 150). (Stage.Resources.Style)
     *   41 -> 24 (10 -> 12), 24 -> 32 (12 -> 16), 32 -> 64 (16 -> 20).
     * 5 - read content of the root Resource
     * 6 - read content of the root Fragment
     * 7 - </Stage> was reached. Nothing to awaits. Finished state.
     * 8 - read Fragment reference at scene Graph and go back. (8 -> 4)
     * 20 - read Fragment reference at Fragment content and go back. (20 -> 16)
-    * 998, 999 > ignore states at Stage.Resources before Scene and after Scene.
+    * 200 - detected complex element. List of items must be read before calling .ctor of complex element.
+    * 998, 999 > ignore states at Stage.Resources.Fragment before Scene and after Scene.
     * 998, 999 - just skip processing content in <Fragment>...</Fragment>
     * as it will be processed JavaFXExtraFragmentProcessorSDT class.
     */
     protected int state;
 
     // Type meta descriptor.
-    protected TypeProcessorSDT type_processor;
+    protected TypeElement type_processor;
 
-    public JavaFXExtraXMLProcessorSDT(TypeProcessorSDT type_processor, int initialState){
+    public JavaFXExtraXMLProcessorSDT(TypeElement type_processor, int initialState){
         this.objects = new LinkedStack<>();
         this.obj_attrs = new HashMap<>();
         this.res = new HashMap<>();
@@ -93,7 +94,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         this._fragment_nesting_ch = new LinkedStack<>();
         this.state = initialState;
     }
-    public JavaFXExtraXMLProcessorSDT(TypeProcessorSDT type_processor){
+    public JavaFXExtraXMLProcessorSDT(TypeElement type_processor){
         this(type_processor, 0);
     }
 
@@ -287,6 +288,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     protected void checkState(){
         Triple<Constructor<?>, Class<?>[], Object[]> ctr_with_vals = null;
         ConstructorElement meta_ctr = null;
+        System.out.println(this.state);
         switch (this.state){
             case 0: case 40: case -1: { //Cannot find Stage at start OR Error.
                 break;
@@ -301,8 +303,11 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
 
                 //Object stage = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
                 Object stage = ClassObjectBuilder.createInstanceWithCovariance(ctr_with_vals.getV1(), ctr_with_vals.getV2(), ctr_with_vals.getV3(), PrimitiveTypeConverter::convertConstructorArguments, 0);
-                if(stage == null)
+
+
+                if(stage == null) {
                     break;
+                }
                 this.objects.push(stage); //push new root node.
                 this.root = stage; //save root Stage object.
                 processSimpleProperties(stage);
@@ -420,14 +425,18 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             case 10: case 41: { /* parse Stage.Resource objects. */
                 if(curName.equalsIgnoreCase("Stage.Resources")) //skip header.
                     return;
-                meta_ctr = getTypeConstructorElement();
+                meta_ctr = getTypeConstructorElement(); //get information from scheme
                 if(meta_ctr == null)
                     break;
-                ctr_with_vals = getConstructorWithValues(meta_ctr);
+
+
+
+                ctr_with_vals = getConstructorWithValues(meta_ctr); //and extract actual constructor of the class.
                 if(ctr_with_vals == null)
                     break;
 
-                //Object elem_or_layout = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
+
+                System.out.println("create resource");
                 Object elem_or_layout = ClassObjectBuilder.createInstanceWithCovariance(ctr_with_vals.getV1(), ctr_with_vals.getV2(), ctr_with_vals.getV3(), PrimitiveTypeConverter::convertConstructorArguments, 0);
                 if(elem_or_layout == null)
                     break;
@@ -490,21 +499,30 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         this.state = -1; //if reached here -> no return operator performed -> 'break' -> Error
     }//end method
 
+    //extract info from scheme by parameter names (not by types)
+    //info contains className and Constructor's parameters
+    //Each parameter has its name and type.
     private ConstructorElement getTypeConstructorElement(){
         //1. get className and its meta data.
         String fullTypeName = this.type_processor
                 .getAliases()
                 .getOrDefault(this.curName, null);
 
+
+
         ClassElement class_meta = this.type_processor
                 .getTypes()
                 .getOrDefault(fullTypeName, null);
+
+
         if(class_meta == null)
             return null;
 
         //2. Find matching constructor.
         int m = 0; //MAX matches
         int m_i = 0; //matches at ctr_i.
+        int p_i = 0; //count of params at ctr_i
+        int p = 0; //MAX(count of params)
         int idx = -1; //ctr index.
         int idx_i = -1;//idx iterator at cycle
         if(class_meta.getConstructors() == null)
@@ -525,9 +543,16 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                     m_i++;
                 }
             }
+            p_i = ctr.getParams().size();
+
             if(m_i > m){
                 m = m_i;
+                p = p_i;
                 idx  = idx_i;
+            }
+            else if(m_i == m && p_i < p){ //if matches equals then select the most matched by params.
+                p = p_i;
+                idx = idx_i;
             }
         }
         return (idx == -1) ? null : class_meta.getConstructors().get(idx);
@@ -543,13 +568,20 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         Class<?>[] ctr_types = (pargs == 0) ? null : new Class[pargs];
         Object[] vals = new Object[pargs];
         if(this.state == 2 && ctr_types != null){
-            ctr_types[0] = Parent.class;
+            ctr_types[0] = Parent.class; //reading Scene tag.
             ii = 1;
         }
         for(;ii < pargs; ii++){
             try {
                 Class<?> ptype = ClassObjectBuilder.getPrimitiveTypes().getOrDefault(meta_ctr.getParams().get(ii).getType(), null);
                 ptype = (ptype != null) ? ptype : Class.forName(meta_ctr.getParams().get(ii).getType());
+
+                //TODO: Parse Generic types such as Collection<String> and etc.
+                ParameterElement param = meta_ctr.getParams().get(ii);
+                if(param instanceof GenericParameterElement){
+                    GenericParameterElement genparam = (GenericParameterElement) param;
+                }
+
                 ctr_types[ii] = ptype;
                 vals[ii] = obj_attrs.getOrDefault(meta_ctr.getParams().get(ii).getName(), null);
                 obj_attrs.remove(meta_ctr.getParams().get(ii).getName());
@@ -672,7 +704,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 continue;
 
             methodName = entry.getKey();
-            //System.out.println("Looking setter for: '" + methodName + "'");
+            System.out.println("Looking setter for: '" + methodName + "'");
             if (methodName.contains(".")) {
                 processStaticProperty(methodName, root, entry.getValue());
                 continue;
@@ -765,6 +797,25 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         }
 
         return r; //return Resource for owner.
+    }
+
+    //TODO: process collectable items.
+    private boolean isCollection(ConstructorElement ctr_meta){
+        //has at least one collection type
+        Class<?>[] pTypes;
+        int pargs = 0;
+        pargs = (ctr_meta.haveNoParams()) ? 0 : ctr_meta.getParams().size();
+        pTypes = new Class<?>[pargs];
+
+        if(ctr_meta.getParams() != null && ctr_meta.getParams().stream().filter(x -> x.isCollectionType()).count() > 0){
+            for(ParameterElement p : ctr_meta.getParams()){
+               if(p.isCollectionType()){
+                   this.state = 200;
+
+               }
+            }
+        }
+        return true;
     }
 
     public void tryApplySizeRelations(){

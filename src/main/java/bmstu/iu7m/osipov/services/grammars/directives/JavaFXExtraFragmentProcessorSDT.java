@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class JavaFXExtraFragmentProcessorSDT extends JavaFXExtraXMLProcessorSDT implements SDTParser {
 
-    public JavaFXExtraFragmentProcessorSDT(TypeProcessorSDT typeProcessor,
+    public JavaFXExtraFragmentProcessorSDT(TypeElement typeProcessor,
                                            Map<String, LinkedNode<LanguageSymbol>> fragment_roots,
                                            Map<String, Object> resources
     )

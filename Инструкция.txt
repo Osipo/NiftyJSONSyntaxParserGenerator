@@ -1,6 +1,10 @@
-Используемый JDK: 1_8_162
-Сборка: bulild.bat - в переменных OPATH и PATH хранится путь к JDK и его бинарникам (JDK dir)/bin.
+Используемый JDK: 1_8_162 (теперь Liberica JDK 11)
+Сборка: build.bat - в переменных OPATH и PATH хранится путь к JDK и его бинарникам (JDK dir)/bin.
 run.bat - запуск ПО. Также через OPATH и PATH идёт переключение JDK.
 show_conf.bat - показать параметры JVM по умолчанию.
+
+Для сборки и запуска через Maven: измените значение следующих тэгов в файле pom.xml на номер соответствующей версии JDK
+<maven.compiler.source>, <maven.compiler.target>, <java.version>. 
+Текущее значение = 11 (JDK 11 версии, для версии 8 = 1.8)
 
 ВАЖНО: Поставьте свой путь к JDK (в OPATH и PATH стоит путь к C:\Program Files\Java = JDK, C:\Program Files\Java\bin = JDK bins).

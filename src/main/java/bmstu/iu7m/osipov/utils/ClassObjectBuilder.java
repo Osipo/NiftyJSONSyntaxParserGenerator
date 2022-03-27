@@ -57,6 +57,8 @@ public class ClassObjectBuilder {
         Constructor<?>[] cset = type.getConstructors(); //only public constructors!
         int m = 0;
         int m_i = 0;
+        int p = 0;
+        int p_i = 0;
         int idx = -1;
         int idx_i = -1;
         for(Constructor<?> c : cset){
@@ -73,7 +75,7 @@ public class ClassObjectBuilder {
             for(int i = 0; i < pTypes.length && pTypes.length == paramTypes.length; i++){
                 if(pTypes[i].equals(paramTypes[i]))
                     m_i++;
-                if(pTypes[i].isAssignableFrom(paramTypes[i])) //covariant type.
+                if(pTypes[i].isAssignableFrom(paramTypes[i])) //covariant type. isParentOf(paramTypes[i])
                     m_i++;
             }
             if(m_i > m){ //find matching constructor with at least one parameter.
@@ -83,12 +85,6 @@ public class ClassObjectBuilder {
         }
         ctr = (idx == -1) ? null : cset[idx];
 
-        /*
-        try{
-            ctr = type.getDeclaredConstructor(paramTypes);
-        }
-        catch (NoSuchMethodException | SecurityException e){}
-        */
         return ctr;
     }
 
@@ -99,7 +95,9 @@ public class ClassObjectBuilder {
         try {
             obj = constructor.newInstance(paramValues);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException e){}
+                | InvocationTargetException e){
+
+        }
 
         return obj;
     }

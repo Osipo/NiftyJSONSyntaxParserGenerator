@@ -380,12 +380,12 @@ public class Grammar {
                                 JsonObject j_action = (JsonObject) symbol;
 
                                 // production with actions: E -> [E, +, T, {act: 'print', str: '+', file: ''}]
-                                HashMap<String, String> act_args = new HashMap<>();
+                                HashMap<String, String> act_args = new HashMap<>(); //all arguments of action except 'act'
                                 String aname = null; //action name [value of 'act' property]
                                 String arg_val = null;
                                 for(String p : j_action.getValue().keySet()){ // for each property of action-object.
                                     if(j_action.getProperty(p) instanceof JsonString){
-                                        arg_val = ((JsonString) j_action.getProperty(p)).getValue();
+                                        arg_val = ((JsonString) j_action.getProperty(p)).getValue(); //extract str value.
                                         if(p.equals("act")) // property 'act': arg_val.
                                             aname = new String(arg_val.toCharArray());
                                         else

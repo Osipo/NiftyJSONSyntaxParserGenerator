@@ -29,8 +29,8 @@ public class Main extends AbstractJavaFxApplication {
     public static String PATH_SEPARATOR_ESC = "\\" + FileSystems.getDefault().getSeparator();
     public static String CWD = System.getProperty("user.dir");
 
-    //tuning PROJECT_DIR for unit tests.
-    public static String PROJECT_DIR = PathStringUtils.replaceSeparator("C:\\Users\\Oleg\\IdeaProjects\\NiftyJSONCompilerGenerator\\");
+    //tuning PROJECT_DIR for unit tests. (!!! REPLACE WITH ACTUAL PROJECT PATH !!!)
+    public static String PROJECT_DIR = PathStringUtils.replaceSeparator("C:/Users/noupk/IdeaProjects/NiftyJSONSyntaxParserGenerator-master/");
 
     @Autowired
     @Qualifier(ControllerBeanNames.ROOT_CTRL)
