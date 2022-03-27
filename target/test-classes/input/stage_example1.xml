@@ -42,7 +42,12 @@
         # then consider 'string' as the name of the static field of the class of this attribute.
         # Color attr has class javafx.scene.paint.Color -> Color.CRIMSON is original value of color.
         # type of attrs see 'fx_constructors_schema_nested.xml' definition.
-        <BackgroundFill insets="{ok3_top_20}" radius="{radii_10}" color="CRIMSON"/>
+
+        <Background key="bg_1">
+            <BackgroundFill insets="{ok3_top_20}" radius="{radii_10}" color="CRIMSON"/>
+            <BackgroundFill insets="{ok3_top_20}" radius="{radii_10}" color="ORANGE"/>
+            <BackgroundFill insets="{ok3_top_20}" radius="{radii_10}" color="BLUE"/>
+        </Background>
 
         # <Resource src="resources/input/res_example1.xml" /> commented tag. ignored.
     </Stage.Resources>
@@ -55,7 +60,7 @@
                 HBox.margin="{ok2_top_60}" # Resource added.
             />
             <VBox spacing="5" id="container3"
-                  style="{border_blue}">
+                  style="{border_blue}" background="{bg_1}"> # style and background passed as resource objects (created and defined at Resource section.
                 <Button text="OK3" prefheight="60" prefwidth="60" VBox.margin="{ok2_top_60}"/>
 
             </VBox>

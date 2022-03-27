@@ -19,6 +19,7 @@ import bmstu.iu7m.osipov.structures.trees.translators.TranslationsAttacher;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
+import javafx.scene.layout.BackgroundFill;
 import javafx.stage.Stage;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -28,6 +29,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.swing.*;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
@@ -231,26 +233,14 @@ public class SLRParserTranslationTest {
 
 
     @Test
-    public void checkStrBldrModfiy(){
-        StringBuilder sb = new StringBuilder();
-        String s1 = sb.toString();
-        System.out.println("s1 = '" + s1 + "'");
-
-        sb.append("new content");
-
-        String s2 = sb.toString();
-        System.out.println("s1 = '" + s1 + "'");
-        System.out.println("s2 = '" + s2 + "'");
-    }
-
-    /*
-    @Test
     public void getGenericClass(){
 
         Class<?> cls = null;
         try{
-            cls = Class.forName("java.util.ArrayList");
+            cls = Class.forName("javafx.scene.layout.Background");
             Class<?> cl2 = ((List<String>) new ArrayList<String>()).getClass();
+
+            ArrayList<String> ar111 = new ArrayList<>();
             System.out.println(cls.getName());
             System.out.println(cls.getSimpleName());
             System.out.println(cl2.getName());
@@ -261,7 +251,10 @@ public class SLRParserTranslationTest {
                 System.out.println(t.getTypeName());
             }
 
-            Constructor<?> ctr = cls.getConstructor();
+            Class<?> type2 = Class.forName("[Ljavafx.scene.layout.BackgroundFill;");
+            System.out.println(type2.isArray());
+            assert type2 != null;
+            Constructor<?> ctr = cls.getConstructor(type2);
             System.out.println(ctr.getTypeParameters().length);
             assert ctr != null;
         }
@@ -269,5 +262,5 @@ public class SLRParserTranslationTest {
         catch (NoSuchMethodException e) { assert 1 == 0;}
         assert cls != null;
     }
-     */
+
 }

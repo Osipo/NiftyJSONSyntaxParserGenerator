@@ -21,6 +21,7 @@ import javafx.scene.layout.Region;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -74,6 +75,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     * 8 - read Fragment reference at scene Graph and go back. (8 -> 4)
     * 20 - read Fragment reference at Fragment content and go back. (20 -> 16)
     * 200 - detected complex element. List of items must be read before calling .ctor of complex element.
+    * 210 - detected complex element at <Stage.Resources>. List of items must be read.
     * 998, 999 > ignore states at Stage.Resources.Fragment before Scene and after Scene.
     * 998, 999 - just skip processing content in <Fragment>...</Fragment>
     * as it will be processed JavaFXExtraFragmentProcessorSDT class.
@@ -216,6 +218,32 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 }
                 else if((this.state == 4 || this.state == 16) && !clTag.contains("."))
                     this.objects.pop();
+                else if(this.state == 200 || this.state == 210){
+                    Object arr = this.objects.top(); //extract arraylist
+                    this.objects.pop();
+                    Constructor<?> ctr = (Constructor<?>) this.objects.top(); //and constructor of complex type.
+                    this.objects.pop();
+
+
+                    try{
+                        Object celem = ctr.newInstance(((ArrayList<Object>) arr).toArray());
+                        ResourceKey k = (ResourceKey) this.objects.top();
+                        this.objects.pop();
+
+                        if(k.getKey() != null){
+                            processSimpleProperties(celem);
+                            this.res.put(k.getKey(), celem);
+                            this.state = k.getPrevState();
+                            break;
+                        }
+                        processChildren(celem);
+                        processSimpleProperties(celem);
+                        this.objects.push(celem);
+                        this.state = k.getPrevState();
+                    }
+                    catch (InvocationTargetException | InstantiationException | IllegalArgumentException | IllegalAccessException e)
+                    {}
+                }
                 break;
             }//end 'removePrefix'
 
@@ -365,10 +393,17 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 this.objects.push(m);
                 return;
             }
-            case 4: case 16: case 32: { /* Scene graph content */
+            case 4: case 16: case 32: case 200: { /* Scene graph content */
                 meta_ctr = getTypeConstructorElement();
                 if(meta_ctr == null)
                     break;
+
+                //check if meta_ctr describes complex type (parameter of constructor is a collection of objects to be created).
+                if(isCollection(meta_ctr)){
+                    createListContainer(meta_ctr);
+                    return;
+                }
+
                 ctr_with_vals = getConstructorWithValues(meta_ctr);
                 if(ctr_with_vals == null)
                     break;
@@ -377,6 +412,11 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 Object elem_or_layout = ClassObjectBuilder.createInstanceWithCovariance(ctr_with_vals.getV1(), ctr_with_vals.getV2(), ctr_with_vals.getV3(), PrimitiveTypeConverter::convertConstructorArguments, 0);
                 if(elem_or_layout == null)
                     break;
+                if(this.state == 200 && processItem(elem_or_layout))
+                    return;
+                if(this.state == 200) //break if NOT processItem() WHEN it is required!
+                    break;
+
                 processSimpleProperties(elem_or_layout);
                 if(!processChildren(elem_or_layout))
                     break;
@@ -422,7 +462,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 }
                 return; //if previous cycle performed 'break' > -1.
             }
-            case 10: case 41: { /* parse Stage.Resource objects. */
+            case 10: case 41: case 210: { /* parse Stage.Resource objects. */
                 if(curName.equalsIgnoreCase("Stage.Resources")) //skip header.
                     return;
                 meta_ctr = getTypeConstructorElement(); //get information from scheme
@@ -430,6 +470,11 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                     break;
 
 
+                //check if meta_ctr describes complex type (parameter of constructor is a collection of objects to be created).
+                if(isCollection(meta_ctr)){
+                    createListContainer(meta_ctr);
+                    return;
+                }
 
                 ctr_with_vals = getConstructorWithValues(meta_ctr); //and extract actual constructor of the class.
                 if(ctr_with_vals == null)
@@ -439,6 +484,11 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 System.out.println("create resource");
                 Object elem_or_layout = ClassObjectBuilder.createInstanceWithCovariance(ctr_with_vals.getV1(), ctr_with_vals.getV2(), ctr_with_vals.getV3(), PrimitiveTypeConverter::convertConstructorArguments, 0);
                 if(elem_or_layout == null)
+                    break;
+
+                if(this.state == 210 && processItem(elem_or_layout))
+                    return;
+                if(this.state == 210) //break if NOT processItem() WHEN it is required!
                     break;
                 processSimpleProperties(elem_or_layout);
                 this.res.put(this.obj_attrs.get("key"), elem_or_layout);
@@ -509,7 +559,6 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 .getOrDefault(this.curName, null);
 
 
-
         ClassElement class_meta = this.type_processor
                 .getTypes()
                 .getOrDefault(fullTypeName, null);
@@ -576,12 +625,6 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 Class<?> ptype = ClassObjectBuilder.getPrimitiveTypes().getOrDefault(meta_ctr.getParams().get(ii).getType(), null);
                 ptype = (ptype != null) ? ptype : Class.forName(meta_ctr.getParams().get(ii).getType());
 
-                //TODO: Parse Generic types such as Collection<String> and etc.
-                ParameterElement param = meta_ctr.getParams().get(ii);
-                if(param instanceof GenericParameterElement){
-                    GenericParameterElement genparam = (GenericParameterElement) param;
-                }
-
                 ctr_types[ii] = ptype;
                 vals[ii] = obj_attrs.getOrDefault(meta_ctr.getParams().get(ii).getName(), null);
                 obj_attrs.remove(meta_ctr.getParams().get(ii).getName());
@@ -591,6 +634,17 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         }
 
         return new Triple<>(ClassObjectBuilder.getDeclaredConstructor(meta_ctr.getClassName(), ctr_types), ctr_types, vals);
+    }
+
+    private boolean processItem(Object child){
+        if(!(this.objects.top() instanceof ArrayList) || child == null){
+            System.out.println("Child or parent is null");
+            return false;
+        }
+        ArrayList<Object> children  = (ArrayList<Object>) this.objects.top();
+        children.add(child);
+        processSimpleProperties(child);
+        return true;
     }
 
     private boolean processChildren(Object child){
@@ -603,7 +657,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         // 44 -> 4. child is Property value.
         if(parent instanceof Method){
             Method m = (Method) parent;
-            Object owner = this.objects.topFrom(1);
+            Object owner = this.objects.topFrom(1); //get second elem from top(). (topFrom(0) == top())
             if(owner == null)
                 return false;
             try {
@@ -615,12 +669,14 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             return true;
         }
 
-        Method m = ClassObjectBuilder.getMethod(parent, "getChildren");
+        Object children = null;
+        Method m = null;
+
+        m = ClassObjectBuilder.getMethod(parent, "getChildren");
         m = (m == null) ? ClassObjectBuilder.getMethod(parent, "getItems") : m;
         if(m == null)
             return false;
 
-        Object children = null;
         try{
             children = m.invoke(parent);
             m = children.getClass().getMethod("addAll", Object[].class);
@@ -801,21 +857,54 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
 
     //TODO: process collectable items.
     private boolean isCollection(ConstructorElement ctr_meta){
-        //has at least one collection type
-        Class<?>[] pTypes;
-        int pargs = 0;
-        pargs = (ctr_meta.haveNoParams()) ? 0 : ctr_meta.getParams().size();
-        pTypes = new Class<?>[pargs];
-
-        if(ctr_meta.getParams() != null && ctr_meta.getParams().stream().filter(x -> x.isCollectionType()).count() > 0){
-            for(ParameterElement p : ctr_meta.getParams()){
-               if(p.isCollectionType()){
-                   this.state = 200;
-
-               }
+        if(ctr_meta.getParams() == null)
+            return false;
+        for(ParameterElement p : ctr_meta.getParams()){
+            if(p.isCollectionType() || p instanceof GenericParameterElement){
+                return true;
             }
         }
-        return true;
+        return false;
+    }
+
+    private void createListContainer(ConstructorElement ctr_meta){
+        System.out.println("createListContainer");
+        ParameterElement cp = ctr_meta.getParams()
+                .stream()
+                .filter(p -> p.isCollectionType())
+                .findFirst().orElse(null);
+        ctr_meta.getParams().remove(cp);
+        if(cp instanceof GenericParameterElement){
+            cp = (ParameterElement) ((GenericParameterElement) cp).getChildParameter(0); //extract first parameter
+        }
+        Class<?> type = null;
+        String ptypename = cp.getType();
+        ptypename = (ptypename.contains("[")) ? "[L" + ptypename.substring(0, ptypename.length() - 2) + ";"
+                : "[L" + ptypename + ";";
+        try {
+            type = Class.forName(ptypename);
+            ArrayList<Object> container = new ArrayList<>(); //create object for array parameter.
+
+            Class<?> container_type = Class.forName(ctr_meta.getClassName());
+            Constructor<?> container_type_ctr = container_type.getConstructor(type); //get ctr for complex type.
+            ResourceKey rk = null;
+            if(this.obj_attrs.getOrDefault("key", null) != null && (this.state == 10 || this.state == 41)){
+                rk = new ResourceKey(this.obj_attrs.get("key"));
+                rk.setPrevState(this.state);
+                this.objects.push(rk);
+                this.state = 210; //at Resource
+            }
+            else{
+                rk = new ResourceKey(null);
+                rk.setPrevState(this.state);
+                this.objects.push(rk);
+                this.state = 200;
+            }
+            this.objects.push(container_type_ctr);
+            this.objects.push(container);
+        }
+        catch (ClassNotFoundException | NoSuchMethodException e)
+        {}
     }
 
     public void tryApplySizeRelations(){

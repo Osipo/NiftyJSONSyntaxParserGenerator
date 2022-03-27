@@ -1,21 +1,25 @@
 {
   "terms": {
-      "id": "[A-Za-z@_][A-Za-z@_0-9]+",
+      "id": "[A-Za-z@_.][A-Za-z@_0-9.]+",
       "(": "(",
       ")": ")",
       ",": ",",
       "<": "<",
-      ">": ">"
+      ">": ">",
+      ":": ":",
+      "-": "-"
   },
-  "nonTerms": ["S", "PKGLIST", "PKG", "CLIST","C","PLIST","P", "PT", "GP", "PTLIST"],
+  "nonTerms": ["S", "PKGLIST", "PKG",  "PKGB", "PKGBI", "C", "PLIST","P", "PT", "GP", "PTLIST"],
   "productions": [
     {"S": ["PKGLIST"]}, {"PKGLIST": ["PKGLIST", "PKG"]}, {"PKGLIST": "PKG"},
-    {"PKG": ["id", ":", "CLIST"]},
-    {"CLIST": ["CLIST", "C"]}, {"CLIST": "C"},
-    {"C": ["id","(","PLIST",")"]}, {"C": ["id","(",")"]},
-    {"PLIST": ["PLIST", ",", "P"]}, {"PLIST": "P"}, {"GP": ["<", "PTLIST", ">"]},
+    {"PKG": ["id", {"act": "addPkg", "pkgname": "$0"}, ":", "PKGB", "-", {"act": "popPkg"}]},
+    {"PKGB": ["PKGB", "PKGBI"]}, {"PKGB": "PKGBI"},
+    {"PKGBI": "C"},{"PKGBI": "PKG"},
+    {"C": ["id", {"act": "addType", "typeName": "$0"}, "(","PLIST",")"]}, {"C": ["id", {"act": "addType", "typeName": "$0"}, "(",")"]},
+    {"PLIST": ["PLIST", ",", "P"]}, {"PLIST": "P"}, {"GP": ["<", "PTLIST", ">", {"act": "removeInnerGenType"}]},
     {"PTLIST": ["PTLIST", ",", "PT"]}, {"PTLIST": "PT"},
-    {"P": ["PT", "id"]}, {"PT": "id"},{"PT": ["id", "GP"]}
+    {"P": ["PT", "id", {"act": "addCtrParam", "paramName": "$1"}]},
+    {"PT": ["id", {"act": "addParamType", "paramType": "$0"}]}, {"PT": ["id", {"act": "addGenericParamType", "genType": "$0"}, "GP"]}
   ],
   "start": "S"
 }

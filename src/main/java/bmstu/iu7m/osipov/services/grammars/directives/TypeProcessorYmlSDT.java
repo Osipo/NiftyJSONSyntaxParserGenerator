@@ -48,6 +48,7 @@ public class TypeProcessorYmlSDT implements SDTParser, TypeElement {
             return;
         String action = t.getActName();
 
+
         LinkedNode<LanguageSymbol> l_parent = (LinkedNode<LanguageSymbol>) parent;
 
         switch (action){
