@@ -105,7 +105,11 @@ public class PrimitiveTypeConverter {
                 ptype = apTypes[i];
             else
                 ptype = pTypes[i];
-            args[i] = PrimitiveTypeConverter.castTo(ptype, args[i].toString());
+
+            //if value is not covariant (for example passed String value of Enum type).
+            //try parse and convert it to the ptype class.
+            if(!(ptype.isAssignableFrom(args[i].getClass())))
+                args[i] = PrimitiveTypeConverter.castTo(ptype, args[i].toString());
         }
         return args;
     }

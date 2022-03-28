@@ -30,7 +30,7 @@ public class Main extends AbstractJavaFxApplication {
     public static String CWD = System.getProperty("user.dir");
 
     //tuning PROJECT_DIR for unit tests. (!!! REPLACE WITH ACTUAL PROJECT PATH !!!)
-    public static String PROJECT_DIR = PathStringUtils.replaceSeparator("C:/Users/noupk/IdeaProjects/NiftyJSONSyntaxParserGenerator-master/");
+    public static String PROJECT_DIR = PathStringUtils.replaceSeparator("C:/Users/noupk/IdeaProjects/NiftyJSONSyntaxParserGenerator/");
 
     @Autowired
     @Qualifier(ControllerBeanNames.ROOT_CTRL)

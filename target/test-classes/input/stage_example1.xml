@@ -5,6 +5,10 @@
         <Insets key="ok2_top_60" top="120" right="0" bottom="0" left="0"/>
         <Insets key="ok3_top_20" top="20" bottom="0" right="0" left="0"/>
 
+        <Insets key="of_10" all="10" />
+        <Insets key="of_20" all="20" />
+        <Insets key="of_30" all="30" />
+
         <Style key="border_base_golden">
             <Item property="-fx-border-color" value="gold, cyan"/>
             <Item property="-fx-border-style" value="solid inside, solid inside"/>
@@ -44,9 +48,9 @@
         # type of attrs see 'fx_constructors_schema_nested.xml' definition.
 
         <Background key="bg_1">
-            <BackgroundFill insets="{ok3_top_20}" radius="{radii_10}" color="CRIMSON"/>
-            <BackgroundFill insets="{ok3_top_20}" radius="{radii_10}" color="ORANGE"/>
-            <BackgroundFill insets="{ok3_top_20}" radius="{radii_10}" color="BLUE"/>
+            <BackgroundFill insets="{of_10}"  radius="{radii_10}" color="CRIMSON"/>
+            <BackgroundFill insets="{of_20}"  radius="{radii_10}" color="ORANGE"/>
+            <BackgroundFill insets="{of_30}" radius="{radii_10}" color="BLUE"/>
         </Background>
 
         # <Resource src="resources/input/res_example1.xml" /> commented tag. ignored.

@@ -17,6 +17,7 @@ import bmstu.iu7m.osipov.utils.PrimitiveTypeConverter;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Control;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Region;
 
 import java.io.File;
@@ -25,10 +26,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JavaFXExtraXMLProcessorSDT implements SDTParser {
@@ -76,9 +74,14 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     * 20 - read Fragment reference at Fragment content and go back. (20 -> 16)
     * 200 - detected complex element. List of items must be read before calling .ctor of complex element.
     * 210 - detected complex element at <Stage.Resources>. List of items must be read.
+    * 200 -> 220. Read item of complex element.
+    * 210 -> 230. Read item of complex element.
     * 998, 999 > ignore states at Stage.Resources.Fragment before Scene and after Scene.
     * 998, 999 - just skip processing content in <Fragment>...</Fragment>
     * as it will be processed JavaFXExtraFragmentProcessorSDT class.
+    * Note: about 200,210,220,230. Complex element is objects such Background(Items[]...)
+    * i.e. constructors which parameter type is only Collection<T> or Array[] or Varargs. (array)
+    *
     */
     protected int state;
 
@@ -162,10 +165,13 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             }//end 'createObject'
 
             case "removePrefix":{
-                //System.out.println(this.objects.toString());
                 String clTag = t.getArguments().getOrDefault("pref", null);
                 clTag = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, clTag);
-                if(clTag.equalsIgnoreCase("Scene"))
+                if(this.state == 220)
+                    this.state = 200;
+                else if(this.state == 230)
+                    this.state = 210;
+                else if(clTag.equalsIgnoreCase("Scene"))
                     this.state = 40;
                 else if(clTag.equalsIgnoreCase("Stage.Resources") && this.state == 41) // 41 -> 40.
                     this.state = 40;
@@ -219,14 +225,24 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 else if((this.state == 4 || this.state == 16) && !clTag.contains("."))
                     this.objects.pop();
                 else if(this.state == 200 || this.state == 210){
-                    Object arr = this.objects.top(); //extract arraylist
+                    Object list = this.objects.top(); //extract arraylist
                     this.objects.pop();
                     Constructor<?> ctr = (Constructor<?>) this.objects.top(); //and constructor of complex type.
                     this.objects.pop();
 
 
                     try{
-                        Object celem = ctr.newInstance(((ArrayList<Object>) arr).toArray());
+                        // Convert ArrayList<Object> into Array<T>
+                        Class<?> item_type = ((ArrayList<Object>) list).get(0).getClass();
+                        int size = ((ArrayList<?>) list).size();
+                        int arr_i = 0;
+                        Iterator<Object> list_itr = ((ArrayList) list).iterator();
+                        Object arr = Array.newInstance(item_type, size);
+                        while(list_itr.hasNext()){
+                            Array.set(arr, arr_i, list_itr.next());
+                            arr_i++;
+                        }
+                        Object celem = ctr.newInstance(arr);
                         ResourceKey k = (ResourceKey) this.objects.top();
                         this.objects.pop();
 
@@ -240,9 +256,10 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                         processSimpleProperties(celem);
                         this.objects.push(celem);
                         this.state = k.getPrevState();
+
                     }
                     catch (InvocationTargetException | InstantiationException | IllegalArgumentException | IllegalAccessException e)
-                    {}
+                    {System.out.println(e.getMessage());}
                 }
                 break;
             }//end 'removePrefix'
@@ -251,6 +268,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
     }//end method
 
     protected void changeState(){
+        System.out.println(this.state);
         if(this.state == -1)
             return;
         if(this.state == 0 && this.curName.equalsIgnoreCase("Stage"))
@@ -311,29 +329,35 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             this.state = 41;
         else if((this.state == 999 || this.state == 998) && this.curName.equalsIgnoreCase("Fragment"))
             this._fragment_nesting_ch.push(true);
+        else if(this.state == 200)
+            this.state = 220;
+        else if(this.state == 210)
+            this.state = 230;
     }
 
     protected void checkState(){
         Triple<Constructor<?>, Class<?>[], Object[]> ctr_with_vals = null;
         ConstructorElement meta_ctr = null;
-        System.out.println(this.state);
-        switch (this.state){
-            case 0: case 40: case -1: { //Cannot find Stage at start OR Error.
+        //System.out.println(this.state);
+        switch (this.state) {
+            case 0:
+            case 40:
+            case -1: { //Cannot find Stage at start OR Error.
                 break;
             }
-            case 1:{ /* curName = 'Stage' */
+            case 1: { /* curName = 'Stage' */
                 meta_ctr = getTypeConstructorElement();
-                if(meta_ctr == null)
+                if (meta_ctr == null)
                     break;
                 ctr_with_vals = getConstructorWithValues(meta_ctr);
-                if(ctr_with_vals == null)
+                if (ctr_with_vals == null)
                     break;
 
                 //Object stage = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
                 Object stage = ClassObjectBuilder.createInstanceWithCovariance(ctr_with_vals.getV1(), ctr_with_vals.getV2(), ctr_with_vals.getV3(), PrimitiveTypeConverter::convertConstructorArguments, 0);
 
 
-                if(stage == null) {
+                if (stage == null) {
                     break;
                 }
                 this.objects.push(stage); //push new root node.
@@ -341,20 +365,20 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 processSimpleProperties(stage);
                 return;
             }
-            case 2:{ /* curName = 'Scene' */
+            case 2: { /* curName = 'Scene' */
 
                 // Extract Scene constructor.
                 meta_ctr = getTypeConstructorElement();
-                if(meta_ctr == null){
+                if (meta_ctr == null) {
                     try {
                         ctr_with_vals = new Triple<>(
                                 Scene.class.getDeclaredConstructor(Parent.class),
-                                new Class<?>[]{ Parent.class },
-                                new Object[] { null }
+                                new Class<?>[]{Parent.class},
+                                new Object[]{null}
                         );
-                    } catch (NoSuchMethodException | SecurityException e) { }
-                }
-                else{
+                    } catch (NoSuchMethodException | SecurityException e) {
+                    }
+                } else {
                     ctr_with_vals = getConstructorWithValues(meta_ctr);
                 }
                 this.objects.push(ctr_with_vals); // save Scene constructor with args.
@@ -362,17 +386,17 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
             }
             case 3: { /* Create Scene. Create root Node of the Scene graph, AND set Scene. */
                 meta_ctr = getTypeConstructorElement();
-                if(meta_ctr == null)
+                if (meta_ctr == null)
                     break;
                 ctr_with_vals = getConstructorWithValues(meta_ctr);
-                if(ctr_with_vals == null)
+                if (ctr_with_vals == null)
                     break;
 
                 //Object sceneRoot = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
                 Object sceneRoot = ClassObjectBuilder.createInstanceWithCovariance(ctr_with_vals.getV1(), ctr_with_vals.getV2(), ctr_with_vals.getV3(), PrimitiveTypeConverter::convertConstructorArguments, 0);
-                if(sceneRoot == null)
+                if (sceneRoot == null)
                     break;
-                if(!processScene(sceneRoot))
+                if (!processScene(sceneRoot))
                     break;
                 processSimpleProperties(sceneRoot);
                 return;
@@ -381,56 +405,61 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 String ob_name = this.objects.top().getClass().getSimpleName();
                 String a_name = this.curName.substring(0, this.curName.indexOf('.'));
 
-                if(!ob_name.equals(a_name)) //only <Object> -> <Object.Property> valid.
+                if (!ob_name.equals(a_name)) //only <Object> -> <Object.Property> valid.
                     break;
 
                 String prop_name = this.curName.substring(this.curName.indexOf('.') + 1);
                 Method m = ClassObjectBuilder.getMethod(this.objects.top(), "set" + prop_name);
-                m = (m == null)  ? ClassObjectBuilder.getMethod(this.objects.top(), "init" + prop_name) : m;
-                if(m == null)
+                m = (m == null) ? ClassObjectBuilder.getMethod(this.objects.top(), "init" + prop_name) : m;
+                if (m == null)
                     break;
 
                 this.objects.push(m);
                 return;
             }
-            case 4: case 16: case 32: case 200: { /* Scene graph content */
+            case 4:
+            case 16:
+            case 32:
+            case 220: { /* Scene graph content */
                 meta_ctr = getTypeConstructorElement();
-                if(meta_ctr == null)
+                if (meta_ctr == null)
                     break;
 
                 //check if meta_ctr describes complex type (parameter of constructor is a collection of objects to be created).
-                if(isCollection(meta_ctr)){
+                if (isCollection(meta_ctr)) {
                     createListContainer(meta_ctr);
                     return;
                 }
 
                 ctr_with_vals = getConstructorWithValues(meta_ctr);
-                if(ctr_with_vals == null)
+                if (ctr_with_vals == null)
                     break;
 
                 //Object elem_or_layout = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
                 Object elem_or_layout = ClassObjectBuilder.createInstanceWithCovariance(ctr_with_vals.getV1(), ctr_with_vals.getV2(), ctr_with_vals.getV3(), PrimitiveTypeConverter::convertConstructorArguments, 0);
-                if(elem_or_layout == null)
+                if (elem_or_layout == null)
                     break;
-                if(this.state == 200 && processItem(elem_or_layout))
+                if (this.state == 220 && processItem(elem_or_layout))
                     return;
-                if(this.state == 200) //break if NOT processItem() WHEN it is required!
+                if (this.state == 220) //break if NOT processItem() WHEN it is required!
                     break;
 
                 processSimpleProperties(elem_or_layout);
-                if(!processChildren(elem_or_layout))
+                if (!processChildren(elem_or_layout))
                     break;
                 this.objects.push(elem_or_layout); //push new root node.
                 return;
             }
-            case 8: case 20: case 64: { /* Fragment resource reference at Scene graph or inside Fragment definition. */
+            case 8:
+            case 20:
+            case 64: { /* Fragment resource reference at Scene graph or inside Fragment definition. */
                 String p = obj_attrs.getOrDefault("key", null);
-                if(p == null || p.length() == 0)
+                if (p == null || p.length() == 0)
                     return;
 
                 LinkedNode<LanguageSymbol> fn = this.fragment_roots.getOrDefault(p, null);
-                if(fn == null) {
-                    System.out.println("Cannot find fragment '"+p+"'");
+                if (fn == null) {
+                    System.out.println("Cannot find fragment '" + p + "'");
                     break;
                 }
 
@@ -445,16 +474,16 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
 
                 System.out.println("created sub_tree");
                 sub_tree.visit(VisitorMode.PRE, sub_executor); //perform exec method of sub_actor.
-                if(sub_actor.state != 4) // Not Final State
+                if (sub_actor.state != 4) // Not Final State
                     break;
-                if(!(sub_actor.getRoot() instanceof FragmentContainer))
+                if (!(sub_actor.getRoot() instanceof FragmentContainer))
                     break;
                 System.out.println("Fragment parsed successful.");
                 FragmentContainer f = (FragmentContainer) sub_actor.getRoot();
                 this.size_rels.addAll(sub_actor.size_rels); //add size relations from Fragment.
 
-                for(Object c : f.getChildren()){
-                    if(!processChildren(c)) {
+                for (Object c : f.getChildren()) {
+                    if (!processChildren(c)) {
                         this.state = -1;
                         System.out.println("cannot add fragment widget");
                         break; //breaks cycle with error but not switch block.
@@ -462,87 +491,93 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 }
                 return; //if previous cycle performed 'break' > -1.
             }
-            case 10: case 41: case 210: { /* parse Stage.Resource objects. */
-                if(curName.equalsIgnoreCase("Stage.Resources")) //skip header.
+            case 10:
+            case 41:
+            case 230: { /* parse Stage.Resource objects. */
+                if (curName.equalsIgnoreCase("Stage.Resources")) //skip header.
                     return;
                 meta_ctr = getTypeConstructorElement(); //get information from scheme
-                if(meta_ctr == null)
+                if (meta_ctr == null)
                     break;
 
-
                 //check if meta_ctr describes complex type (parameter of constructor is a collection of objects to be created).
-                if(isCollection(meta_ctr)){
+                if (isCollection(meta_ctr)) {
                     createListContainer(meta_ctr);
                     return;
                 }
 
                 ctr_with_vals = getConstructorWithValues(meta_ctr); //and extract actual constructor of the class.
-                if(ctr_with_vals == null)
+                if (ctr_with_vals == null)
                     break;
 
 
                 System.out.println("create resource");
                 Object elem_or_layout = ClassObjectBuilder.createInstanceWithCovariance(ctr_with_vals.getV1(), ctr_with_vals.getV2(), ctr_with_vals.getV3(), PrimitiveTypeConverter::convertConstructorArguments, 0);
-                if(elem_or_layout == null)
+                if (elem_or_layout == null)
                     break;
 
-                if(this.state == 210 && processItem(elem_or_layout))
+                System.out.println("resource created");
+                if (this.state == 230 && processItem(elem_or_layout))
                     return;
-                if(this.state == 210) //break if NOT processItem() WHEN it is required!
+                if (this.state == 230) //break if NOT processItem() WHEN it is required!
                     break;
                 processSimpleProperties(elem_or_layout);
                 this.res.put(this.obj_attrs.get("key"), elem_or_layout);
                 return;
             }
-            case 15: case 30: { // Create Style or Map resource.
+            case 15:
+            case 30: { // Create Style or Map resource.
                 meta_ctr = getTypeConstructorElement();
-                if(meta_ctr == null)
+                if (meta_ctr == null)
                     break;
                 ctr_with_vals = getConstructorWithValues(meta_ctr);
-                if(ctr_with_vals == null)
+                if (ctr_with_vals == null)
                     break;
                 //Object style_or_map = ClassObjectBuilder.createInstance(ctr_with_vals.getKey(), ctr_with_vals.getValue(), PrimitiveTypeConverter::convertConstructorArguments, 0);
                 Object style_or_map = ClassObjectBuilder.createInstanceWithCovariance(ctr_with_vals.getV1(), ctr_with_vals.getV2(), ctr_with_vals.getV3(), PrimitiveTypeConverter::convertConstructorArguments, 0);
-                if(style_or_map == null)
+                if (style_or_map == null)
                     break;
-                if(style_or_map instanceof Style){
+                if (style_or_map instanceof Style) {
                     Style s = (Style) style_or_map;
                     Object parent = getResourceObject(s, obj_attrs.getOrDefault("parent", null));
-                    if(obj_attrs.getOrDefault("parent", null) != null && !(parent instanceof Style))
+                    if (obj_attrs.getOrDefault("parent", null) != null && !(parent instanceof Style))
                         break;
-                    else if(obj_attrs.getOrDefault("parent", null) != null)
+                    else if (obj_attrs.getOrDefault("parent", null) != null)
                         s.copyFrom((Style) parent);
                 }
                 this.res.put(this.obj_attrs.get("key"), style_or_map);
                 this.objects.push(style_or_map); // save map into stack.
                 return;
             }
-            case 150: case 300: {
+            case 150:
+            case 300: {
                 Object m = this.objects.top();
-                if(m instanceof Style){
+                if (m instanceof Style) {
                     String k = this.obj_attrs.getOrDefault("property", null);
                     String v = this.obj_attrs.getOrDefault("value", null);
-                    if(k == null)
+                    if (k == null)
                         break;
                     ((Style) m).put(k, v);
                 }
                 return;
             }
-            case 12: case 24: { /* Create container for Fragment object */
+            case 12:
+            case 24: { /* Create container for Fragment object */
                 String p = obj_attrs.getOrDefault("key", null);
-                if(p == null || p.length() == 0)
+                if (p == null || p.length() == 0)
                     break;
 
                 //Add here check THAT only <Fragment></Fragment> form is well-formed.
 
                 this.fragment_roots.put(p, this.curNode.getParent()); // STAG > ELEMENT (<Fragment> </Fragment> subTree)
-                System.out.println("add fragment: '"+p+"'");
+                System.out.println("add fragment: '" + p + "'");
                 //ignore til </Fragment> reached.
                 this.state = (this.state == 12) ? 998 : 999;
                 this._fragment_nesting_ch.push(true);
                 return;
             }
-            case 999: case 998: { //just ignore content.
+            case 999:
+            case 998: { //just ignore content.
                 return;
             }
         }//end switch
@@ -559,15 +594,15 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 .getOrDefault(this.curName, null);
 
 
+
         ClassElement class_meta = this.type_processor
                 .getTypes()
                 .getOrDefault(fullTypeName, null);
 
-
         if(class_meta == null)
             return null;
 
-        //2. Find matching constructor.
+        //2. Find matching constructor. (fix for resource logic)
         int m = 0; //MAX matches
         int m_i = 0; //matches at ctr_i.
         int p_i = 0; //count of params at ctr_i
@@ -591,6 +626,8 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 if(obj_attrs.getOrDefault(param.getName(), null) != null){
                     m_i++;
                 }
+                else if(param.isCollectionType() && this.state == 10 || this.state == 41 || this.state == 220 || this.state == 230)
+                    m_i++;
             }
             p_i = ctr.getParams().size();
 
@@ -627,6 +664,14 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
 
                 ctr_types[ii] = ptype;
                 vals[ii] = obj_attrs.getOrDefault(meta_ctr.getParams().get(ii).getName(), null);
+
+                //check whether value is resource reference.
+                if(vals[ii] instanceof String){
+                    String str_val = (String) vals[ii];
+                    if(str_val.charAt(0) == '{' && str_val.charAt(str_val.length() - 1) == '}'){
+                        vals[ii] = getResourceObject(null, str_val.substring(1, str_val.length() - 1));
+                    }
+                }
                 obj_attrs.remove(meta_ctr.getParams().get(ii).getName());
             } catch (ClassNotFoundException ex){
                 return null;
@@ -873,7 +918,6 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 .stream()
                 .filter(p -> p.isCollectionType())
                 .findFirst().orElse(null);
-        ctr_meta.getParams().remove(cp);
         if(cp instanceof GenericParameterElement){
             cp = (ParameterElement) ((GenericParameterElement) cp).getChildParameter(0); //extract first parameter
         }
