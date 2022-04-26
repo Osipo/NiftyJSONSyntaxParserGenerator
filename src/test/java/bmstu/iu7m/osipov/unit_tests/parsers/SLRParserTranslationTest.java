@@ -103,7 +103,6 @@ public class SLRParserTranslationTest {
         assert stree != null;
 
         //Graphviz.fromString(stree.toDot(norm_example)).render(Format.PNG).toFile(new File(PathStrings.PARSERS + norm_example));
-        stree.visit(VisitorMode.PRE, new ReverseChildren());
         stree.visit(VisitorMode.PRE, new TranslationsAttacher(G, stree.getCount()));
 
         TypeProcessorYmlSDT type_actor = new TypeProcessorYmlSDT();
@@ -136,7 +135,7 @@ public class SLRParserTranslationTest {
 
         LinkedTree<LanguageSymbol> dtree = sa2.parse(PathStrings.PARSER_INPUT + doc);
         assert dtree != null;
-        dtree.visit(VisitorMode.PRE, new ReverseChildren());
+
         dtree.visit(VisitorMode.PRE, new TranslationsAttacher(G2, dtree.getCount()));
 
 

@@ -90,7 +90,7 @@ public class LLParser extends Parser{
             LinkedNode<LanguageSymbol> EOF = new LinkedNode<>();
             int line, col = 0;
             EOF.setValue(new Token("$","$",'t',0,0));
-            root.setValue(new Token(start,start,'n',0,0));
+            root.setValue(new Token(start, start,'n',0,0));
             root.setIdx(1);
             S.push(EOF);
             S.push(root);// Stack: S, $.
@@ -140,7 +140,7 @@ public class LLParser extends Parser{
                     isParsed = false;
                     break;
                 }
-                GrammarString prod = table.get(new Pair<String,String>(X.getValue().getName(),t));
+                GrammarString prod = table.get(new Pair<String, String>(X.getValue().getName(), t));
                 if(prod == null) {
                     if(mode == ParserMode.DEBUG)
                         System.out.println(S+" >>"+t+" action: "+"Error: No Production ");
@@ -153,13 +153,17 @@ public class LLParser extends Parser{
                     List<GrammarSymbol> symbols = prod.getSymbols();
                     S.pop();
                     //LinkedStack<LinkedNode<String>> RS = new LinkedStack<>();//used only to order children YK..Y1 -> Y1..Yk in brace notation
-                    for(int i = symbols.size() - 1; i >= 0; i--){
+                    for(int i = 0; i < symbols.size(); i++){
                         LinkedNode<LanguageSymbol> node = new LinkedNode<>();
                         nidx++;
-                        node.setValue(new Token(symbols.get(i).getVal(),null,symbols.get(i).getType(),line,col));
+                        node.setValue(new Token(symbols.get(i).getVal(),null, symbols.get(i).getType(),line,col));
                         node.setIdx(nidx);
                         node.setParent(X);
-                        X.getChildren().add(node);//ON STACK: Xn..X_1 => X_1..Xn BUT ON TREE: Xn..X_1
+                        X.getChildren().add(node);
+                    }
+
+                    for(int i = symbols.size() - 1; i >= 0; i--){
+                        LinkedNode<LanguageSymbol> node = X.getChildren().get(i);
                         if(!node.getValue().getName().equals(empty))//skip empty rules.
                             S.push(node);
                     }
