@@ -1,6 +1,7 @@
 package bmstu.iu7m.osipov.services.lexers;
 
 
+import bmstu.iu7m.osipov.exceptions.grammar.InvalidRegexSyntaxException;
 import bmstu.iu7m.osipov.structures.automats.*;
 import bmstu.iu7m.osipov.structures.graphs.Vertex;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
@@ -238,6 +239,170 @@ public class AutomatonConstructor {
         result.top().setAlpha(alpha);
         el.setV1(c);
         return result.top();
+    }
+
+    public static String addConcat3(String s, RegexRPNParser parser){
+        StringBuilder sb = new StringBuilder();
+
+        int i = -1, l = s.length() - 1;
+        char c;
+        int paren = 0;
+        int state = 0;
+        while(i < l){
+            i++;
+            c = s.charAt(i);
+            if(c == '@' && i < l) {
+                i++;
+                if(state == 1)
+                    sb.append('^');
+                sb.append('@').append(s.charAt(i));
+                state = 1;
+            }
+            else if(c == '@'){
+                if(state == 1)
+                    sb.append('^');
+                sb.append('@').append('@');
+                i++;
+                state = 1;
+            }
+
+            else if(c == '(') { // ( ) | + * ^
+                paren++;
+                if(state == 1)
+                    sb.append('^');
+                sb.append(c);
+                state = 0;
+            }
+            else if(c == ')'){
+                paren--;
+                sb.append(')');
+                if(paren == 0)
+                    state = 1;
+            }
+            else if((state == 0 || state == 2) && !parser.isOperator(c)){
+                sb.append(c);
+                state = 1;
+            }
+            else if(state == 1 && !parser.isOperator(c))
+                sb.append('^').append(c);
+            else if(state == 1 && c != '|')
+                sb.append(c);
+            else if(state == 1) {
+                sb.append(c);
+                state = 2;
+            }
+        }
+        return sb.toString();
+    }
+
+    public static String replaceBrackets(String s, RegexRPNParser parser){
+        StringBuilder sb = new StringBuilder();
+        int i = -1, l = s.length() - 1;
+        char a = '\u0002', b = '\u0002', min = '\u0002', max = '\uffff';
+        int state = 0;
+        int brackets = 0;
+        LinkedStack<Character> A = new LinkedStack<>();
+        LinkedStack<Integer> S = new LinkedStack<>();
+        while(i < l){
+            i++;
+            char c = s.charAt(i);
+            if(c == '@' && i < l && state == 0) {
+                sb.append('@').append(s.charAt(i + 1));
+                i++;
+                continue;
+            }
+            if(c == '@' && state == 0){
+                sb.append('@').append('@');
+                i++;
+                continue;
+            }
+
+            if(c == '[' && (state == 0 || state == 1)) { //aaa [[[...  [[A]] => [(A)]
+                state = 1;
+                brackets++;
+            }
+            else if(state == 0)
+                sb.append(c);
+            else if(state == 1 && c == ']') { //aaa[]aaa
+                brackets--;
+                if(brackets == 0)
+                    state = 0;
+            }
+            else if((state == 1 || state == 4) && c != ']') { // ( ) | ^ * +
+                if(state == 1)
+                    sb.append('(');
+                if(state == 4)
+                    sb.append('|');
+                if(c == '@'){
+                    sb.append('@');
+                    i++;
+                    c = s.charAt(i);
+                }
+                sb.append(c);
+                A.push(c);
+                state = 2;
+            }
+            else if(state == 2 && c == '-'){// aaa[A-
+                state = 3;
+                S.push(3);
+            }
+            else if((state == 2 || state == 3) && c == '['){// aaa[A[  or aaa[A-[
+                brackets++;
+                state = 4;
+            }
+            else if((state == 2 || state == 4) && c == ']'){ // aaa[A] or aaa[A[] or aaa[A[B] or aaa[A-[B] or aaa[A-[]
+                brackets--;
+                state = 4;
+                if(S.top() != null) {
+                    A.pop();
+                    S.pop();
+                    state = 3;
+                }
+                if(brackets == 0){
+                    state = 0;
+                    sb.append(')');
+                }
+            }
+            else if(state == 2) { // aaa[AB
+                sb.append('|');
+                if(c == '@'){
+                    sb.append(c);
+                    i++;
+                    c = s.charAt(i);
+                }
+                sb.append(c);
+                A.pop();
+                A.push(c);
+            }
+            else {// aaa[A-B
+                boolean isVerbatim = false;
+                if(c == '@'){ //skip verbatim
+                    i++;
+                    c = s.charAt(i);
+                    isVerbatim = true;
+                }
+                b = c;
+                a = A.top();
+                A.pop();
+                S.pop();
+                char t = '\u0002';
+                if(b < a) {
+                    t = a;
+                    a = b;
+                    b = t;
+                }
+                while(a < b){
+                    a++;
+                    if(a == b && isVerbatim)
+                        sb.append('|').append('@').append(a);
+                    else
+                        sb.append('|').append(a);
+                }
+                a = '\u0002'; b = '\uffff';
+                state = 4;
+            }
+        }
+        return sb.toString();
     }
 
     public static String addConcat2(String s, RegexRPNParser parser){

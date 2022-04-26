@@ -37,6 +37,16 @@ public class LinkedQueue<T> implements Collection<T>, Iterable<T> {
             return this._front.getNext().getElement();
     }
 
+    //TAIL(Q)
+    public T tail(){
+        if(isEmpty()){
+            System.out.println("Error. Queue is empty");
+            return null;
+        }
+        else
+            return this._rear.getElement();
+    }
+
     //ENQUEUE(Q)
     public void enqueue(T item){
         this._rear.setNext(new ElementType<T>());//new(rear.next)

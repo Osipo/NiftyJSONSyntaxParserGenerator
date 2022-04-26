@@ -3,6 +3,7 @@ package bmstu.iu7m.osipov.services.grammars;
 import bmstu.iu7m.osipov.exceptions.grammar.InvalidJsonGrammarException;
 import bmstu.iu7m.osipov.exceptions.grammar.InvalidSyntaxDirectedTranslationException;
 import bmstu.iu7m.osipov.services.grammars.directives.SyntaxDirectedTranslation;
+import bmstu.iu7m.osipov.services.parsers.Scope;
 import bmstu.iu7m.osipov.structures.graphs.Pair;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.observable.ObservableHashSet;
@@ -162,7 +163,33 @@ public class Grammar {
             this.meta.setSeparators(separators);
         }
 
-        //SECTION NONTERMINALS
+        /* SECTION meta.aliases */
+        //meta.aliases
+        JsonElement als = jsonG.getElement("meta.aliases");
+        if (als instanceof JsonObject) {
+            JsonObject al = (JsonObject) als;
+            Map<String, String> aliases = new HashMap<>();
+            Set<String> termNames = al.getValue().keySet();
+            for (String t : termNames) {
+                if (!this.T.contains(t) && !this.meta.getKeywords().contains(t))
+                    throw new InvalidJsonGrammarException("Expected String being contained in \"terms\" or \"keywords.\"", null);
+                JsonElement el = al.getProperty(t);
+                if (el instanceof JsonString) {
+                    String val = ((JsonString) el).getValue();
+                    this.T.add(val);
+                    aliases.put(t, val);
+                } else
+                    throw new InvalidJsonGrammarException("Expected String value of property \'meta.aliases." + t + "\' ", null);
+            }
+            this.meta.setAliases(aliases);
+        }
+
+        this.N = new HashSet<>();
+
+        //SECTION NONTERMINALS now computed by production headers and symbols.
+        //each header is non-Terminal (if not defined other)
+        //each symbol that is not in T (terminals) at bodies is non-Terminal N.
+        /*
         JsonElement N = jsonG.getElement("nonTerms");
         if(N instanceof JsonArray){
             this.N = new HashSet<>();
@@ -170,7 +197,7 @@ public class Grammar {
             for(JsonElement e : nterms){
                 //If it is already defined as Terminal => throw exception
                 if(e instanceof JsonString && this.T.contains(((JsonString) e).getValue())){
-                    throw new InvalidJsonGrammarException("Ambiguous String name \"" + ((JsonString) e).getValue() + "\".\n It is also terminal name!", null);
+                    throw new InvalidJsonGrammarException("Ambiguous String name \"" + ((JsonString) e).getValue() + "\".\n It is also terminal/keyword name!", null);
                 }
                 //Else if it is a unique string
                 else if(e instanceof JsonString) {
@@ -182,182 +209,43 @@ public class Grammar {
         }
         else
             throw new InvalidJsonGrammarException("Expected \"nonTerms\" property with list of String names of non-terminals",null);
-
-        /* OPTIONAL META */
-        JsonElement M = jsonG.getElement("meta");
-        if(M instanceof JsonObject){
-            JsonObject o = (JsonObject) M;
-            JsonElement opd = o.getElement("operands");
-            if(opd instanceof JsonArray){
-                Set<String> operands = new HashSet<>();
-                ArrayList<JsonElement> kws = ((JsonArray) opd).getElements();
-                for(JsonElement e : kws){
-                    if(e instanceof JsonString && (this.T.contains(((JsonString) e).getValue()) || meta.getKeywords().contains(((JsonString) e).getValue()) || this.N.contains(((JsonString) e).getValue())) ){
-                        operands.add(((JsonString) e).getValue());
-                    }
-                    else
-                        throw new InvalidJsonGrammarException("Expected String being contained in \"terms\" or \"keywords\" or \"nonTerms.\" Property \'.meta.operands\'",null);
-                }
-                this.meta.setOperands(operands);
-            }
-            //meta.operators
-            JsonElement ops = o.getElement("operators");
-            if(ops instanceof JsonArray){
-                Set<String> operators = new HashSet<>();
-                ArrayList<JsonElement> oprs = ((JsonArray) ops).getElements();
-                for(JsonElement e : oprs){
-                    if(e instanceof JsonString){ //&& (this.T.contains(((JsonString) e).getValue()) || this.keywords.contains(((JsonString) e).getValue()) || this.N.contains(((JsonString) e).getValue())) ){
-                        operators.add(((JsonString) e).getValue());
-                    }
-                    else
-                        throw new InvalidJsonGrammarException("Expected String value of array element at property \'.meta.operators\'",null);
-                }
-                this.meta.setOperators(operators);
-            }
-            //meta.commentLine
-            JsonElement sc = o.getElement("commentLine");
-            if(sc instanceof JsonString){
-                String commentLine = ((JsonString) sc).getValue();
-                if(!this.T.contains(commentLine))
-                    throw new InvalidJsonGrammarException("Value of \'meta.commentLine\' must be the name of term (property-name of \"terms\")!",null);
-                this.meta.setCommentLine(commentLine);
-            }
-            //meta.mlCommentStart
-            sc = o.getElement("mlCommentStart");
-            if(sc instanceof JsonString){
-                String mlStart = ((JsonString) sc).getValue();
-                if(!this.T.contains(mlStart))
-                    throw new InvalidJsonGrammarException("Value of \'meta.mlStart\' must be the name of term (property-name of \"terms\")!",null);
-                this.meta.setMlStart(mlStart);
-                sc = o.getElement("mlCommentEnd");
-                if(sc instanceof JsonString){
-                    String mlEnd = ((JsonString) sc).getValue(); //mlCommentEnd is just a sequence of chars (not a term)
-                    this.meta.setMlEnd(mlEnd);
-                }
-                else
-                    throw new InvalidJsonGrammarException("When \'meta.mlCommentStart\' is defined then \'meta.mlCommentEnd\' must be defined too!",null);
-            }
-            //meta.id
-            sc = o.getElement("id");
-            if(sc instanceof JsonString){
-                String id = ((JsonString) sc).getValue();
-                if(!this.T.contains(id))
-                    throw new InvalidJsonGrammarException("Value of \'meta.id\' must be the name of term (property-name of \"terms\")!",null);
-                this.meta.setId(id);
-            }
-
-
-            //meta.aliases
-            JsonElement als = o.getElement("aliases");
-            if(als instanceof JsonObject){
-                JsonObject al = (JsonObject) als;
-                Map<String,String> aliases = new HashMap<>();
-                Set<String> termNames = al.getValue().keySet();
-                for(String t : termNames){
-                    if(!this.T.contains(t) && !this.meta.getKeywords().contains(t))
-                        throw new InvalidJsonGrammarException("Expected String being contained in \"terms\" or \"keywords.\"",null);
-                    JsonElement el = al.getProperty(t);
-                    if(el instanceof JsonString) {
-                        String val = ((JsonString) el).getValue();
-                        this.T.add(val);
-                        aliases.put(t, val);
-                    }
-                    else
-                        throw new InvalidJsonGrammarException("Expected String value of property \'meta.aliases."+t+"\' ",null);
-                }
-                this.meta.setAliases(aliases);
-            }
-            //meta.types
-            JsonElement types = o.getElement("types");
-            if(types instanceof JsonArray){
-                Set<Pair<String,Integer>> ts = new HashSet<>();
-                ArrayList<JsonElement> arr = ((JsonArray) types).getElements();
-                for(JsonElement e : arr){
-                    if(e instanceof JsonObject){
-                        JsonObject el = (JsonObject)e;
-                        JsonElement ep = el.getElement("name");
-                        Pair<String,Integer> t = new Pair<>();
-                        if(ep instanceof JsonString){
-                            t.setV1(((JsonString) ep).getValue());
-                        }
-                        else
-                            throw new InvalidJsonGrammarException("Expected JsonString value in property \"name\" of element of \"types\"",null);
-                        ep = el.getElement("size");
-                        if(ep instanceof JsonNumber){
-                            t.setV2(((JsonNumber) ep).getValue().intValue());
-                        }
-                        else
-                            throw new InvalidJsonGrammarException("Expected Integer value in property \"size\" of element of \"types\"",null);
-                        ts.add(t);
-                    }
-                    else
-                        throw new InvalidJsonGrammarException("Expected JsonObject element in array \"types\"",null);
-                }
-                this.meta.setTypes(ts);
-            }
-
-            //meta.scopeTypes
-            JsonElement scopeTypes = o.getElement("scopeTypes");
-            if(scopeTypes instanceof JsonArray){
-                Set<String> scopeCats = new HashSet<>();
-                ArrayList<JsonElement> arr = ((JsonArray) scopeTypes).getElements();
-                for(JsonElement e : arr){
-                    if(e instanceof JsonString){
-                        String s = ((JsonString) e).getValue();
-                        scopeCats.add(s);
-                    }
-                }
-                this.meta.setScopeCategories(scopeCats);
-            }
-            //meta.scopeStart
-            JsonElement sStart = o.getElement("scopeStart");
-            if(sStart instanceof JsonString){
-                String s1 = ((JsonString) sStart).getValue();
-                if(this.T.contains(s1))
-                    this.meta.setBegin(s1);
-                else
-                    throw new InvalidJsonGrammarException("The value of \"scopeStart\" must be terminal (the property name of \"terms\")!",null);
-                JsonElement sEnd = o.getElement("scopeEnd");//meta.scopeEnd
-                if(sEnd instanceof JsonString){
-                    String s2 = ((JsonString) sEnd).getValue();
-                    if(this.T.contains(s2))
-                        this.meta.setEnd(s2);
-                    else
-                        throw new InvalidJsonGrammarException("The value of \"scopeEnd\" must be terminal (the property name of \"terms\")!",null);
-                }
-                else
-                    throw new InvalidJsonGrammarException("When defined \"scopeStart\" the \"scopeEnd\" must be defined too.\n Both must be JsonString.\n",null);
-            }
-        }
+        */
+        HashSet<String> real_terms = new HashSet<>();
 
         //SECTION PRODUCTIONS (processed after 'meta')
         JsonElement P = jsonG.getElement("productions");
-        if(P instanceof JsonArray){
+        if(P instanceof JsonArray) {
             this.P = new HashMap<>();
-            HashSet<String> real_terms = new HashSet<>();
+            HashSet<String> NN = new HashSet<>();
             if(this.E != null)
                 real_terms.add(this.E);
             ArrayList<JsonElement> rules = ((JsonArray) P).getElements();
-            for(JsonElement e : rules){
+            for(JsonElement e : rules) {
                 try {
                     JsonObject o = (JsonObject) e;
 
                     //Ignore empty objects.
                     if(o.getValue().keySet().size() == 0)
                         continue;
-                    
+
                     String key = o.getValue().keySet().iterator().next();//get first property of object (name of production)
                     JsonElement rpart = o.Get(key);//get list of grammar symbols related to production.
                     Set<GrammarString> product_rules = this.P.get(key);//try get information about production to identify alternatives
                     if(product_rules == null)
                         product_rules = new HashSet<>();
+                    if(this.T.contains(key))
+                        throw new InvalidJsonGrammarException("Header of production \"" + key + "\" must be Non-Terminal Name!", null);
+
+                    this.N.add(key);
+                    NN.remove(key);
+
                     if(rpart instanceof JsonArray){
                         GrammarSDTString alpha = new GrammarSDTString();
                         ArrayList<JsonElement> symbols = ((JsonArray) rpart).getElements();
                         int s_i = -1;
                         for(JsonElement symbol : symbols){
                             s_i++;
-                            if(symbol instanceof JsonString){
+                            if(symbol instanceof JsonString) {
                                 String X = ((JsonString) symbol).getValue();
                                 GrammarSymbol entity;
                                 //System.out.println(X+" : "+X.length());
@@ -368,9 +256,10 @@ public class Grammar {
                                 else if(this.N.contains(X)) {
                                     entity = new GrammarSymbol('n', X);
                                 }
-                                else
-                                    throw new InvalidJsonGrammarException("Illegal grammar symbol! " +X+
-                                            "\nExpected non-terminal or termnial or keyword of Grammar.",null);
+                                else {
+                                    entity = new GrammarSymbol('n', X);
+                                    NN.add(X);
+                                }
                                 alpha.addSymbol(entity);
                                 alpha.addToAugmentedBody(entity);
                             }
@@ -380,12 +269,12 @@ public class Grammar {
                                 JsonObject j_action = (JsonObject) symbol;
 
                                 // production with actions: E -> [E, +, T, {act: 'print', str: '+', file: ''}]
-                                HashMap<String, String> act_args = new HashMap<>(); //all arguments of action except 'act'
+                                HashMap<String, String> act_args = new HashMap<>();
                                 String aname = null; //action name [value of 'act' property]
                                 String arg_val = null;
                                 for(String p : j_action.getValue().keySet()){ // for each property of action-object.
                                     if(j_action.getProperty(p) instanceof JsonString){
-                                        arg_val = ((JsonString) j_action.getProperty(p)).getValue(); //extract str value.
+                                        arg_val = ((JsonString) j_action.getProperty(p)).getValue();
                                         if(p.equals("act")) // property 'act': arg_val.
                                             aname = new String(arg_val.toCharArray());
                                         else
@@ -417,9 +306,10 @@ public class Grammar {
                         }
                         else if(this.N.contains(X))
                             entity = new GrammarSymbol('n',X);
-                        else
-                            throw new InvalidJsonGrammarException("Illegal grammar symbol! " + X +
-                                    "\nExpected non-terminal or termnial or keyword of Grammar.",null);
+                        else {
+                            entity = new GrammarSymbol('n',X);
+                            NN.add(X);
+                        }
                         alpha.addSymbol(entity);
                         product_rules.add(alpha);
                     }
@@ -437,19 +327,12 @@ public class Grammar {
                     throw new InvalidJsonGrammarException("Production item must be a json object with single property which contains a grammar string!",err);
                 }
             }
-            /* update terms after checks [init T only on those terms that are actually presented in rules] */
-            this.T.clear();
-            this.T = null;
-            this.T = real_terms;
-            if(this.meta.getCommentLine() != null){
-                this.T.add(this.meta.getCommentLine());
-            }
-            if(this.meta.getMlStart() != null){
-                this.T.add(this.meta.getMlStart());
-            }
+            if(NN.size() > 0)
+                throw new InvalidJsonGrammarException("Some Non-terminals have no production!", null);
         }
         else
             throw new InvalidJsonGrammarException("Property \"productions\" is not a list!",null);
+
 
         /* PROCESS START SECTION */
         JsonElement S = jsonG.getElement("start");
@@ -461,6 +344,142 @@ public class Grammar {
             this.S = ((JsonString) S).getValue();
         else
             throw new InvalidJsonGrammarException("Expected \"start\" property with String value!",null);
+
+        /* OPTIONAL META */
+        //operands, operators , comments, id, types, scopes.
+        JsonElement M = jsonG.getElement("meta");
+        if(M instanceof JsonObject) {
+            JsonObject o = (JsonObject) M;
+            JsonElement opd = o.getElement("operands");
+            if (opd instanceof JsonArray) {
+                Set<String> operands = new HashSet<>();
+                ArrayList<JsonElement> kws = ((JsonArray) opd).getElements();
+                for (JsonElement e : kws) {
+                    if (e instanceof JsonString && (this.T.contains(((JsonString) e).getValue()) || meta.getKeywords().contains(((JsonString) e).getValue()) || this.N.contains(((JsonString) e).getValue()))) {
+                        operands.add(((JsonString) e).getValue());
+                    } else
+                        throw new InvalidJsonGrammarException("Expected String being contained in \"terms\" or \"keywords\" or \"nonTerms.\" Property \'.meta.operands\'", null);
+                }
+                this.meta.setOperands(operands);
+            }
+            //meta.operators
+            JsonElement ops = o.getElement("operators");
+            if (ops instanceof JsonArray) {
+                Set<String> operators = new HashSet<>();
+                ArrayList<JsonElement> oprs = ((JsonArray) ops).getElements();
+                for (JsonElement e : oprs) {
+                    if (e instanceof JsonString) { //&& (this.T.contains(((JsonString) e).getValue()) || this.keywords.contains(((JsonString) e).getValue()) || this.N.contains(((JsonString) e).getValue())) ){
+                        operators.add(((JsonString) e).getValue());
+                    } else
+                        throw new InvalidJsonGrammarException("Expected String value of array element at property \'.meta.operators\'", null);
+                }
+                this.meta.setOperators(operators);
+            }
+            //meta.commentLine
+            JsonElement sc = o.getElement("commentLine");
+            if (sc instanceof JsonString) {
+                String commentLine = ((JsonString) sc).getValue();
+                if (!this.T.contains(commentLine))
+                    throw new InvalidJsonGrammarException("Value of \'meta.commentLine\' must be the name of term (property-name of \"terms\")!", null);
+                this.meta.setCommentLine(commentLine);
+            }
+            //meta.mlCommentStart
+            sc = o.getElement("mlCommentStart");
+            if (sc instanceof JsonString) {
+                String mlStart = ((JsonString) sc).getValue();
+                if (!this.T.contains(mlStart))
+                    throw new InvalidJsonGrammarException("Value of \'meta.mlStart\' must be the name of term (property-name of \"terms\")!", null);
+                this.meta.setMlStart(mlStart);
+                sc = o.getElement("mlCommentEnd");
+                if (sc instanceof JsonString) {
+                    String mlEnd = ((JsonString) sc).getValue(); //mlCommentEnd is just a sequence of chars (not a term)
+                    this.meta.setMlEnd(mlEnd);
+                } else
+                    throw new InvalidJsonGrammarException("When \'meta.mlCommentStart\' is defined then \'meta.mlCommentEnd\' must be defined too!", null);
+            }
+            //meta.id
+            sc = o.getElement("id");
+            if (sc instanceof JsonString) {
+                String id = ((JsonString) sc).getValue();
+                if (!this.T.contains(id))
+                    throw new InvalidJsonGrammarException("Value of \'meta.id\' must be the name of term (property-name of \"terms\")!", null);
+                this.meta.setId(id);
+            }
+
+            //meta.types
+            JsonElement types = o.getElement("types");
+            if (types instanceof JsonArray) {
+                Set<Pair<String, Integer>> ts = new HashSet<>();
+                ArrayList<JsonElement> arr = ((JsonArray) types).getElements();
+                for (JsonElement e : arr) {
+                    if (e instanceof JsonObject) {
+                        JsonObject el = (JsonObject) e;
+                        JsonElement ep = el.getElement("name");
+                        Pair<String, Integer> t = new Pair<>();
+                        if (ep instanceof JsonString) {
+                            t.setV1(((JsonString) ep).getValue());
+                        } else
+                            throw new InvalidJsonGrammarException("Expected JsonString value in property \"name\" of element of \"types\"", null);
+                        ep = el.getElement("size");
+                        if (ep instanceof JsonNumber) {
+                            t.setV2(((JsonNumber) ep).getValue().intValue());
+                        } else
+                            throw new InvalidJsonGrammarException("Expected Integer value in property \"size\" of element of \"types\"", null);
+                        ts.add(t);
+                    } else
+                        throw new InvalidJsonGrammarException("Expected JsonObject element in array \"types\"", null);
+                }
+                this.meta.setTypes(ts);
+            }
+        } // meta.end.
+
+
+        // NEW SECTION: meta.scopes
+        JsonElement SCOPES = jsonG.getElement("meta.scopes");
+
+        if(SCOPES != null && !(SCOPES instanceof JsonArray))
+            throw new InvalidJsonGrammarException("Property \"meta.scopes\" must be valid json array of json objects!", null);
+        else if(SCOPES != null){
+            ArrayList<JsonElement> scopearr = ((JsonArray) SCOPES).getElements();
+            for(JsonElement scope : scopearr) {
+                if(!(scope instanceof JsonObject))
+                    throw new InvalidJsonGrammarException("element of \"meta.scopes\" must be valid json object!", null);
+                JsonObject scope_i = (JsonObject) scope;
+
+                String start = null, end = null, body = null;
+
+                for(Map.Entry<String, JsonElement> sc_prop : scope_i.getValue().entrySet()){
+                    if(sc_prop.getKey().equals("start")){
+                        start = ((JsonString) sc_prop.getValue()).getValue();
+                        if(!this.T.contains(start))
+                            throw new InvalidJsonGrammarException("Scope start must be terminal name!", null);
+                    }
+                    if(sc_prop.getKey().equals("end")){
+                        end = ((JsonString) sc_prop.getValue()).getValue();
+                        if(!this.T.contains(end))
+                            throw new InvalidJsonGrammarException("Scope end must be terminal name!", null);
+                    }
+                    if(sc_prop.getKey().equals("body")){
+                        body = ((JsonString) sc_prop.getValue()).getValue();
+                        if(!this.N.contains(body))
+                            throw new InvalidJsonGrammarException("Scope body must be Non-terminal name! (header of production)", null);
+                    }
+                } //scope_i props end
+                this.meta.getScopes().add(new Scope(start, end, body));
+            } // scopearr end
+        } //end of section.
+
+        /* update terms after checks [init T only on those terms that are actually presented in rules] */
+        this.T.clear();
+        this.T = null;
+        this.T = real_terms;
+        if(this.meta.getCommentLine() != null){ // optional terms that specifies start of slc of mlc (comments)
+            this.T.add(this.meta.getCommentLine());
+        }
+        if(this.meta.getMlStart() != null){
+            this.T.add(this.meta.getMlStart());
+        }
+
         computeN_g();
         computeN_e();
     }
@@ -1924,4 +1943,5 @@ public class Grammar {
     public static Grammar getUnion(Grammar g1, Grammar g2){
         return null;
     }
+
 }

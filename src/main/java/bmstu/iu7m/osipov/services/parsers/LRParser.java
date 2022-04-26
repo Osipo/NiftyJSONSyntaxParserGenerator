@@ -1,6 +1,7 @@
 package bmstu.iu7m.osipov.services.parsers;
 
 import bmstu.iu7m.osipov.structures.graphs.Pair;
+import bmstu.iu7m.osipov.structures.lists.LinkedQueue;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.services.grammars.*;
 import bmstu.iu7m.osipov.services.lexers.*;
@@ -19,7 +20,7 @@ import java.io.IOException;
 //CLR parser or LR(1) parser in (CLRParserGenerator class)
 public class LRParser extends Parser {
 
-    private LR_0_Automaton table;
+    protected LR_0_Automaton table;
 
     public LRParser(Grammar G, ILexer lexer){
         this(G, lexer, LRAlgorithm.CLR);
@@ -51,6 +52,9 @@ public class LRParser extends Parser {
         return table.getImageFromDot();
     }
 
+    public boolean isValidTable(){
+        return table != null;
+    }
 
     @Override
     public LinkedTree<LanguageSymbol> parse(File file){
@@ -68,7 +72,7 @@ public class LRParser extends Parser {
             //Skip comments (NULL tokens) and Unrecognized (INVALID lexems)
             while(tok == null || tok.getName().equals("Unrecognized")){
                 if(tok != null) { //NOT COMMENT -> INVALID TOKEN.
-                    System.out.println(tok);
+                    System.out.println(tok); //show all lexical errors.
                     isParsed = false;//TODO: HANDLE LEXICAL ERRORS
                 }
                 tok = lexer.recognize(f);
@@ -84,8 +88,10 @@ public class LRParser extends Parser {
             while(true) {
                 cstate = states.top();
                 Pair<Integer, String> k = new Pair<>(cstate, t);
-                if(mode == ParserMode.DEBUG)
-                    System.out.println(states+" "+S+" >>"+t);
+                if(mode == ParserMode.DEBUG) {
+                    System.out.println(states + " " + S + " >>" + t);
+                    System.out.println("tok = "+tok);
+                }
                 //command =  s_state (shift to the new state)
                 //      | r_header:size (reduce to production with header and size of items)
                 //      | acc
@@ -117,7 +123,7 @@ public class LRParser extends Parser {
                     break;
                 }
                 int argIdx = command.indexOf('_');
-                argIdx = argIdx == -1 ? 1 : argIdx;//in case of ACC or ERR
+                argIdx = argIdx == -1 ? 1 : argIdx;//in case of ACC or ERR return 1.
                 String act = command.substring(0, argIdx);
                 if(act.charAt(0) == 's'){
                     String j = command.substring(argIdx + 1);
@@ -129,6 +135,9 @@ public class LRParser extends Parser {
                     S.push(nc);
                     //get next token
                     tok = lexer.recognize(f);
+                    if(states.top() == 3){
+                        System.out.println("state 3 tok = " + tok);
+                    }
                     while(tok == null || tok.getName().equals("Unrecognized")){
                         if(tok != null) {
                             isParsed = false;//TODO: MAY BE OPTIONAL
@@ -144,15 +153,20 @@ public class LRParser extends Parser {
                     String args = command.substring(argIdx + 1); //args  of reduce command
                     String header = args.substring(0, args.indexOf(':'));
                     int sz = Integer.parseInt(args.substring(args.indexOf(':') + 1));
+                    int sz2 = sz;
                     LinkedNode<LanguageSymbol> parent = new LinkedNode<>();
                     while(sz > 0){
-                        LinkedNode<LanguageSymbol> c = S.top();
-                        S.pop();
+                        LinkedNode<LanguageSymbol> c = S.topFrom(sz - 1); //preserve source order.
                         states.pop();
                         c.setParent(parent);
                         parent.getChildren().add(c);
                         sz--;
                     }
+                    while(sz2 > 0) { //remove nodes from S
+                        S.pop();
+                        sz2--;
+                    }
+
                     parent.setValue(new Token(header, header,'n', l, col));
                     nidx++;
                     parent.setIdx(nidx);

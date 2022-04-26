@@ -20,7 +20,7 @@ public class RegexRPNParser {
     public void setTerminals(char[] t){
         this.terminals = new char[t.length];
         for(int i = 0; i < t.length; i++){
-            if(t[i] != '+' && t[i] != '*' && t[i] != '|' && t[i] != '(' && t[i] != ')' && t[i] != '^' && t[i] != '[' && t[i] != ']' && t[i] != '!')
+            if(t[i] != '+' && t[i] != '*' && t[i] != '|' && t[i] != '(' && t[i] != ')' && t[i] != '^'  && t[i] != '!')
                 this.terminals[i] = t[i];
         }
     }

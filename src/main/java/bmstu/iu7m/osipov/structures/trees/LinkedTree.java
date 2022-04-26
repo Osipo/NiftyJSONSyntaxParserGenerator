@@ -1,5 +1,6 @@
 package bmstu.iu7m.osipov.structures.trees;
 
+import bmstu.iu7m.osipov.structures.lists.LinkedQueue;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 
 import java.util.ArrayList;
@@ -221,7 +222,7 @@ public class LinkedTree<T> implements Tree<T>, PositionalTree<T> {
         STACK.push(root());
         while(!STACK.isEmpty()){
             n = STACK.top();
-            if(hs.contains(n)) {
+            if(hs.contains(n)) { //1 -> 2 -> 3, 4;  5.  {1{2{3}{4}}{5}}
                 STACK.pop();
                 sb.append("}");
             } else {
@@ -253,8 +254,12 @@ public class LinkedTree<T> implements Tree<T>, PositionalTree<T> {
                 String val = n.getValue().toString().replace("\"","\\\"");
                 sb.append(name).append(" [label=\"").append(val).append("\"];");
                 List<Node<T>> children = getChildren(n);
-                for(int c = children.size() - 1; c >= 0; c--){
-                    STACK.push(children.get(c));
+
+                int k = children.size() - 1;
+                for(int c = 0; c < children.size(); c++){ //direct cycle for str digraph
+                    STACK.push(children.get(k - c)); //preserve order of nodes (because of stack)
+
+                    //add directly source node to graph.
                     sb.append(name).append(" -> ").append(children.get(c).getIdx()).append(";");
                 }
             }
@@ -263,3 +268,4 @@ public class LinkedTree<T> implements Tree<T>, PositionalTree<T> {
         return sb.toString();
     }
 }
+// p {p {f{+}} } {pl {t {b} } }

@@ -1,0 +1,100 @@
+{
+  "terms": {
+    "+": "+",
+    "-": "-",
+    "*": "*",
+    "/": "/",
+    "%": "%",
+    "^": "^",
+    "(": "(",
+    ")": ")",
+    "{": "{",
+    "}": "}",
+    "<": "<",
+    "<=": "<=",
+    "=": "=",
+    "==": "==",
+    ">": ">",
+    ">=": ">=",
+    "<>": "<>",
+    ";": ";",
+    "&&" : "&&",
+    "||" : "@|@|",
+    "->": "->",
+    "#": "#",
+    ",": ",",
+    "/*": "/@*",
+    "id": "[A-Za-z@_]([A-Za-z@_0-9]+|empty)",
+    "num": "[0-9]+([@_]+[0-9]+)*",
+    "realNum": "[0-9]+.[0-9]+(((E|e)(-|empty)[0-9]+)|empty)",
+    "ch": "\'_\'",
+    "str": "\"_*\"",
+    "empty": null
+  },
+  "keywords": [
+   "true","false", "not"
+  ],
+  "separators": {
+    "num": "_",
+    "realNum": "_"
+  },
+
+  "nonTerms": ["P", "PL", "E", "T", "F", "UE", "PE", "A"],
+
+  "productions": [
+    {"P": ["{", "PL", "}",
+      {"act": "astNode", "value": "prog", "type": "program", "children": "all"}]},
+    {"PL": ["PL", ";", "P"]}, {"PL": "P"},
+    {"P": ["A"]},
+    {"A": ["id", "=", "E",
+      {"act": "astNode", "value": "$0", "type": "variable"},
+      {"act": "astNode", "value": "$1", "type": "assign", "children": "$1 $1"}
+      ]
+    },
+    {"E": ["E", "+", "T", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1 $1"}]},
+    {"E": ["E", "-", "T", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1 $1"}]},
+    {"E": ["T"]},
+    {"T": ["T", "*", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1 $1"}]},
+    {"T": ["T", "/", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1 $1"}]},
+    {"T": ["F"]},
+    {"F": ["F", "^", "UE", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1 $1"}]},
+    {"F": ["UE"]},
+    {"UE": ["um", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "operator"}]},
+    {"UE": ["up", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "operator"}]},
+    {"UE": ["PE"]},
+    {"PE": ["id", {"act": "astNode", "value": "$0", "type": "variable"}]},
+    {"PE": ["ch", {"act": "astNode", "value": "$0", "type": "char"}]},
+    {"PE": ["str", {"act": "astNode", "value": "$0", "type": "string"}]},
+    {"PE": ["num", {"act": "astNode", "value": "$0", "type": "number"}]},
+    {"PE": ["realNum", {"act": "astNode", "value": "$0", "type": "number"}]},
+    {"PE": ["true", {"act": "astNode", "value": "$0", "type": "boolean"}]},
+    {"PE": ["false", {"act": "astNode", "value": "$0", "type": "boolean"}]},
+    {"PE": ["(", "E",")"]},
+    {"PE": ["not", "(", "E", ")", {"act": "astNode", "value": "$0", "type": "boolean", "children": "$0"}]}
+  ],
+
+  "start": "P",
+
+  "meta": {
+    "commentLine": "#",
+    "mlCommentStart": "/*",
+    "mlCommentEnd": "*/",
+    "id": "id",
+    "aliases": {
+      "-": "um",
+      "+": "up"
+    },
+    "scopes": [
+      {"start": "{", "end": "}", "body": "PL"}
+    ],
+    "operators": [
+      "=",
+      "+",
+      "-",
+      "*",
+      "/",
+      "%",
+      "^"
+    ]
+  }
+}

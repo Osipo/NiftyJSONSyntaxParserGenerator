@@ -12,6 +12,8 @@ public abstract class Parser {
     protected String empty;//empty symbol of grammar.
     protected boolean isParsed;
 
+    protected Grammar G; //add Grammar field.
+
     protected ParserMode mode;
 
     public void setParserMode(ParserMode mode){
@@ -42,7 +44,7 @@ public abstract class Parser {
         lexer.setMlCommentEnd(G.getMlCommentEnd());
         lexer.setIdName(G.getIdName());
         lexer.setSeparators(G.getSeparators());
-        lexer.setTerms(G.getTerminals());
         this.mode = ParserMode.HIDE;
+        this.G = G;
     }
 }

@@ -48,10 +48,11 @@
         # type of attrs see 'fx_constructors_schema_nested.xml' definition.
 
         <Background key="bg_1">
-            <BackgroundFill insets="{of_10}"  radius="{radii_10}" color="CRIMSON"/>
+            <BackgroundFill insets="{of_10}"  radius="{radii_10}" color="MAGENTA"/>
             <BackgroundFill insets="{of_20}"  radius="{radii_10}" color="ORANGE"/>
             <BackgroundFill insets="{of_30}" radius="{radii_10}" color="BLUE"/>
         </Background>
+
 
         # <Resource src="resources/input/res_example1.xml" /> commented tag. ignored.
     </Stage.Resources>

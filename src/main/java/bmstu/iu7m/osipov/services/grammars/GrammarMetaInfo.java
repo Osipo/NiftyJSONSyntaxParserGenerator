@@ -1,5 +1,6 @@
 package bmstu.iu7m.osipov.services.grammars;
 
+import bmstu.iu7m.osipov.services.parsers.Scope;
 import bmstu.iu7m.osipov.structures.graphs.Pair;
 
 import java.util.*;
@@ -33,6 +34,8 @@ public class GrammarMetaInfo {
     //tuning on if it has Syntax Directed Translations/Actions (SDT)
     private boolean hasTranslations = false;
 
+    private Set<Scope> scopes;
+
     public GrammarMetaInfo(){
         this.keywords = new HashSet<>();
         this.operands = new HashSet<>();
@@ -43,6 +46,7 @@ public class GrammarMetaInfo {
         this.separators = new HashMap<>();
         this.begin = "";
         this.end = "";
+        this.scopes = new HashSet<>();
     }
 
     public void setOperands(Set<String> operands) {
@@ -155,6 +159,10 @@ public class GrammarMetaInfo {
 
     public void setScopeCategories(Set<String> scopeCategories) {
         this.scopeCategories = scopeCategories;
+    }
+
+    public Set<Scope> getScopes(){
+        return this.scopes;
     }
 
     public Set<String> getScopeCategories() {

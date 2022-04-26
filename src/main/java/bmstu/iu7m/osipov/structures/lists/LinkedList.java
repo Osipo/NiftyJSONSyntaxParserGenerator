@@ -2,8 +2,6 @@ package bmstu.iu7m.osipov.structures.lists;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
 
 /** Represents Simple Linear List in one direction
  * Position is in [1..count] AND NOT IN [0..count - 1]
@@ -16,10 +14,16 @@ public class LinkedList<T> implements Iterable<T>, Collection<T> {
 
     private int _count;
 
+    private final   ElementType<T> EMPTY_HEAD;
+
+    private final   ElementType<T> EMPTY_TAIL;
+
     public LinkedList() {
         this._count = 0;
         this._head = new ElementType<T>();
         this._tail = new ElementType<T>();
+        EMPTY_HEAD = new ElementType<T>();
+        EMPTY_TAIL = new ElementType<T>();
         this._tail.setNext(null);
     }
 
@@ -79,6 +83,7 @@ public class LinkedList<T> implements Iterable<T>, Collection<T> {
         return val;
     }
 
+    //[0 ... size - 1]
     public T remove(int index) {
         if(index >= 0) {
             int q = -1;
@@ -132,7 +137,11 @@ public class LinkedList<T> implements Iterable<T>, Collection<T> {
         elem.setNext(temp);//p.next.next = temp
         this._count += 1;
     }
-        
+
+    public T tail(){
+        return this._tail.getElement();
+    }
+
     //INSERT.
     public void insert(T item, ElementType<T> position){
         ElementType<T> temp = position.getNext();
@@ -144,10 +153,10 @@ public class LinkedList<T> implements Iterable<T>, Collection<T> {
     }
         
     public void append(T item){
-        add(_count+1,item);//to the end.
+        add(_count+1, item);//to the end.
     }
 
-
+    //2 2 (3, 2)
     public void removeAt(int p){
         int q = 1;
         if(_count == 0)
@@ -157,8 +166,22 @@ public class LinkedList<T> implements Iterable<T>, Collection<T> {
             pp = pp.getNext();
             q+=1;
         }
-        pp.setNext(pp.getNext().getNext());
-        this._count -=1;
+        //[1 -> 2 -> 3] delete 2 (el: 2) => get (1) as pp => pp.next = 3. [1 -> 3].
+        //[1 -> 3] delete 2 (el: 3) => get (1) as pp => pp.next = null.
+        //WHEN DELETE TAIL ELEMENT!
+        if(pp.getNext().getNext() == null && p == this._count) {
+            this._tail = pp;
+            pp.setNext(null);
+            if(_count == 1){
+                _tail = EMPTY_TAIL;
+                _tail.setNext(null);
+                _tail.setElement(null);
+            }
+        }
+        else {
+            pp.setNext(pp.getNext().getNext());
+        }
+        this._count -= 1;
     }
         
     //DELETE

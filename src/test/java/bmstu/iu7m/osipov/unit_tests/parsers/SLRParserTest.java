@@ -71,7 +71,7 @@ public class SLRParserTest {
         FALexerGenerator lg = new FALexerGenerator();
         CNFA nfa = lg.buildNFA(G);
         DFALexer lexer = new DFALexer(new DFA(nfa));
-        lexer.getImagefromStr(PathStrings.LEXERS,"I_G_2_27");
+        //lexer.getImagefromStr(PathStrings.LEXERS,"I_G_2_27");
         LRParser sa = new LRParser(G, lexer, LRAlgorithm.SLR);
         sa.setParserMode(ParserMode.DEBUG);
         LinkedTree<LanguageSymbol> t = sa.parse(PathStrings.PARSER_INPUT + "I_G_2_27.txt");

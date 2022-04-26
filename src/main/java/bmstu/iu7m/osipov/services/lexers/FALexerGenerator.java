@@ -24,6 +24,10 @@ public class FALexerGenerator {
         Elem<Integer> idC = new Elem<>(1);
         List<Vertex> Fs = new ArrayList<>();
         for(String id : terms){
+            if(G.getMeta().getAliases().containsValue(id))
+                continue;
+            if(G.getMeta().getKeywords().contains(id))
+                continue;
             List<String> patterns = rules.get(id);
             StringBuilder sbp = new StringBuilder();
             for(String pat : patterns) {//JUST CONCAT ALL PATTERNS INTO ONE.
@@ -63,7 +67,8 @@ public class FALexerGenerator {
                     parser.setTerminals(p_i.toCharArray());
 
                     //convert [A-Z] classes to (A|B|..|Z) expressions
-                    p_i = AutomatonConstructor.addConcat2(p_i, parser);
+                    //p_i = AutomatonConstructor.addConcat2(p_i, parser);
+                    p_i = AutomatonConstructor.addConcat3(AutomatonConstructor.replaceBrackets(p_i, parser), parser);
                     parser.setTerminals(p_i.toCharArray());
                     rpn = parser.GetInput(p_i);//convert regex to postfix.
                 }
