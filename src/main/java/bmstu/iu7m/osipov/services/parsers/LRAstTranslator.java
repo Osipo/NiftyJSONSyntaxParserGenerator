@@ -102,22 +102,6 @@ public class LRAstTranslator  extends LRParser {
                 argIdx = argIdx == -1 ? 1 : argIdx;//in case of ACC or ERR
                 String act = command.substring(0, argIdx);
                 if (act.charAt(0) == 's') {
-                    //Check scopes.
-                    for(Scope s : this.G.getMeta().getScopes()){
-                        if(s.getStart().equals(tok.getName())) {
-                            scopes.push(AST.size());
-                            break;
-                        }
-
-                        //body was end [{ BODY, >>}, scope: { BODY } => flush current scope.]
-                        if(s.getEnd().equals(tok.getName())
-                                && S.top() != null && S.top().getValue() != null
-                                && S.top().getValue().getName().equals(s.getBody())
-                        ){
-                            removeScope = true; //signal that next reduce removeScope.
-                            break;
-                        }
-                    }
 
                     //add new child (nc) (perform Shift)
                     String j = command.substring(argIdx + 1);
@@ -127,6 +111,30 @@ public class LRAstTranslator  extends LRParser {
                     nidx++;
                     nc.setIdx(nidx);
                     S.push(nc);
+
+                    //Check scopes.
+                    for(Scope s : this.G.getMeta().getScopes()){
+                        int scope_prefix_len = 0;
+                        int scope_prefix_i = s.getStart().size() - 1;
+                        for(String scope_prefix : s.getStart()){
+                            if(S.topFrom(scope_prefix_i).getValue().getName().equals(scope_prefix))
+                                scope_prefix_len++;
+                            scope_prefix_i--;
+                        }
+                        if(scope_prefix_len == s.getStart().size()) {
+                            scopes.push(AST.size());
+                            break;
+                        }
+
+                        //body was end [{ BODY }] >>}, scope: { BODY } => flush current scope.]
+                        if(s.getEnd().equals(tok.getName())
+                                && S.topFrom(1) != null && S.topFrom(1).getValue() != null
+                                && S.topFrom(1).getValue().getName().equals(s.getBody())
+                        ){
+                            removeScope = true; //signal that next reduce removeScope.
+                            break;
+                        }
+                    }
 
                     //get next token
                     tok = lexer.recognize(f);

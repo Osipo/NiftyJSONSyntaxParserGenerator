@@ -447,12 +447,26 @@ public class Grammar {
                 JsonObject scope_i = (JsonObject) scope;
 
                 String start = null, end = null, body = null;
-
+                Set<String> starts = new LinkedHashSet<>();
                 for(Map.Entry<String, JsonElement> sc_prop : scope_i.getValue().entrySet()){
                     if(sc_prop.getKey().equals("start")){
-                        start = ((JsonString) sc_prop.getValue()).getValue();
-                        if(!this.T.contains(start))
-                            throw new InvalidJsonGrammarException("Scope start must be terminal name!", null);
+                        if(sc_prop.getValue() instanceof JsonString) {
+                            start = ((JsonString) sc_prop.getValue()).getValue();
+                            if (!this.T.contains(start))
+                                throw new InvalidJsonGrammarException("Scope start must be terminal name!", null);
+                            starts.add(start);
+                        }
+                        else if(sc_prop.getValue() instanceof JsonArray){
+                            ArrayList<JsonElement> arr_in_1 = ((JsonArray) sc_prop.getValue()).getElements();
+                            for(JsonElement el_in : arr_in_1){
+                                if(!(el_in instanceof JsonString))
+                                    throw new InvalidJsonGrammarException("Elements of scope.start must be Strings!", null);
+                                String el_in_val = ((JsonString) el_in).getValue();
+                                if (!this.T.contains(el_in_val))
+                                    throw new InvalidJsonGrammarException("Scope start must be terminal name!", null);
+                                starts.add(el_in_val);
+                            }
+                        }
                     }
                     if(sc_prop.getKey().equals("end")){
                         end = ((JsonString) sc_prop.getValue()).getValue();
@@ -465,7 +479,7 @@ public class Grammar {
                             throw new InvalidJsonGrammarException("Scope body must be Non-terminal name! (header of production)", null);
                     }
                 } //scope_i props end
-                this.meta.getScopes().add(new Scope(start, end, body));
+                this.meta.getScopes().add(new Scope(starts, end, body));
             } // scopearr end
         } //end of section.
 

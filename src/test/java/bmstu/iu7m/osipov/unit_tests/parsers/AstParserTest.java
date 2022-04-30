@@ -120,7 +120,7 @@ public class AstParserTest {
 
         Graphviz.fromString(t.toDot("astbefore")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "syntax_before_ast2"));
 
-        //TODO: process Scopes
+
         LinkedTree<AstSymbol> ast = sa.translate(new File(PathStrings.PARSER_INPUT + "ast\\ast_input2.txt"));
         assert ast != null;
         Graphviz.fromString(ast.toDot("astafter")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "semantics_after_ast2"));

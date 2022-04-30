@@ -130,7 +130,7 @@
     "scopes": [
       {"start": "{", "end": "}", "body": "SL"},
       {"start": "[", "end": "]", "body": "LITEMS"},
-      {"start": "(", "end": ")", "body": "ARGS"}
+      {"start": ["id", "("], "end": ")", "body": "ARGS"}
     ]
   }
 }
