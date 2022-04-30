@@ -36,6 +36,8 @@ public class LR_0_Automaton implements AutomatonImage {
     //old Start symbol of Grammar.
     protected String S0;
 
+    protected String empty;
+
     protected boolean hasErr;
 
     //ONLY FOR LR_1_Automaton and other subclasses.
@@ -47,6 +49,7 @@ public class LR_0_Automaton implements AutomatonImage {
         this.S = nS;
         this.follow = LLParserGenerator.followTable(G, firstTable); //firstTable is already Transformed at CLRParserGenerator.
         this.hasErr = false;
+        this.empty = G.getEmpty();
         System.out.println("FIRST");
         System.out.println(firstTable);
     }
@@ -80,6 +83,8 @@ public class LR_0_Automaton implements AutomatonImage {
         System.out.println(oF);
         //System.out.println(follow);
         this.hasErr = false;
+
+        this.empty = G.getEmpty();
         initActions();
         System.out.println("ACTION and GOTO are built.");
     }
@@ -134,11 +139,12 @@ public class LR_0_Automaton implements AutomatonImage {
                         actionTable.put(new Pair<Integer,String>(i,"$"),"err");
                         continue;
                     }
-                    Set<String> t = follow.get(item.getHeader());
-                    //System.out.println(item.getHeader() + ": "+t);
-                    //System.out.println(i+": "+item);
+                    Set<String> t = follow.get(item.getHeader()); //FOLLOW(A)
+
+                    //item  [A -> y.]
                     for(String term : t){
                         Pair<Integer, String> k = new Pair<Integer, String>(i, term);
+
                         if(!actionTable.containsKey(k))//RECORD IS NOT FILLED?
                             actionTable.put(k, "r_" + item.getHeader()+":"+item.getSymbols().size());
                         else{
@@ -152,6 +158,14 @@ public class LR_0_Automaton implements AutomatonImage {
                             System.out.println("\tConflict detected! "+conftype+" Grammar is not SLR(1)!");
                         }
                     }
+
+                    //[A -> empty.]
+                    /*
+                    if(item.getSymbols().size() == 1 && item.getSymbols().get(0).getVal().equals(empty)){
+                        Pair<Integer, String> k = new Pair<Integer, String>(i, empty);
+                        actionTable.put(k, "r_" + item.getHeader()+":"+item.getSymbols().size());
+                    }
+                    */
                 }
             }
         }

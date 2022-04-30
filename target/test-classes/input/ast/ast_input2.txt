@@ -1,6 +1,7 @@
 {
     a = 1 * 2; //a = 1 -> a = PE -> a = UE -> a = F -> a = F * 2 -> a = F * T -> a = T -> a = E -> ASSIGN
     b = 2;
+    list = [1, 2 * 2, a, 'c', calc(3 - 2, calc(a, b))];
     if(a == b)
         while(a == b) b = b + 1;
     else {

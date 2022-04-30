@@ -60,6 +60,76 @@ public class LLParserGenerator {
         return table;
     }
 
+    //FIRST_1 function for each symbol X of Grammar G.
+    /*
+    public static Map<String, Set<String>> firstTable_1(Grammar G){
+        Set<String> N_e = G.getN_e(); // Non-terminals with rules N -> e.
+        G = Grammar.deleteLeftRecursion(G);
+        Set<String> T = G.getTerminals();
+        Set<String> NT = G.getNonTerminals();
+        HashMap<String, Set<String>> res = new HashMap<String, Set<String>>();
+        LinkedStack<String> S = new LinkedStack<>();
+
+        for(String t : T){
+            HashSet<String> f = new HashSet<>();
+            f.add(t);
+            res.put(t, f);
+        }
+        Set<String> nonIndexed = NT.stream()
+                .filter(x -> N_e.contains( x.substring(0, x.indexOf('_')) ) )
+                .collect(Collectors.toSet());
+
+        for(String N_i : nonIndexed){
+            HashSet<String> ef = new HashSet<>();// FIRST = { e } (e == empty)
+            ef.add(G.getEmpty());
+            res.put(N_i, ef);
+        }
+
+        List<String> N = new ArrayList<>(NT);
+        N.sort((x,y) -> {
+            String s_x = x.split("_")[1];
+            String s_y = y.split("_")[1];
+            int x_i = Integer.parseInt( s_x.substring(0, s_x.indexOf('\'') != -1 ? s_x.indexOf('\'') : s_x.length() ) );
+            int y_i = Integer.parseInt( s_y.substring(0, s_y.indexOf('\'') != -1 ? s_y.indexOf('\'') : s_y.length() ) );
+            return Integer.compare(y_i, x_i); //reverse order (descention)
+        });
+
+        System.out.println(G);
+
+        //PE_23 = { um, up, str, num, realNum, ch, true, false, (, id, not }
+        //UE_22 = PE_23
+        //F_21' = { ^ }
+        //F_21 =  UE_22
+        //T_20' = { /  * }
+        //T_20 = { F_21 }
+        //ARG_14 = { [, id, B_5 }
+
+        for(String N_i : N){
+            Set<String> N_first = res.getOrDefault(N_i, new HashSet<>());
+            System.out.println(N_i);
+            Set<GrammarString> rules = G.getProductions().get(N_i);
+            for(GrammarString rule : rules){
+                for(GrammarSymbol s : rule.getSymbols()){
+                    if(s.getType() == 't' || s.getVal().equals(G.getEmpty())){
+                        N_first.add(s.getVal());
+                        break;
+                    }
+                    else {
+                        Set<String> Y_i = res.get(s.getVal());
+                        N_first.addAll(Y_i);
+                        if(!Y_i.contains(G.getEmpty()))
+                            break;
+                    }
+                } // end symbols at rule s
+            } //end rules for header N_i
+            res.put(N_i, N_first);
+        }
+        System.out.println("end");
+
+        return res;
+    }
+    */
+
     //FIRST function for each symbol X of grammar G.
     public static Map<String, Set<String>> firstTable2(Grammar G){
         Set<String> N_e = G.getN_e(); // Non-terminals with rules N -> e.
@@ -75,6 +145,9 @@ public class LLParserGenerator {
             f.add(t);
             res.put(t, f);
         }
+
+        //N_e is  set before indexing.
+
         Set<String> nonIndexed = NT.stream()
                 .filter(x -> N_e.contains( x.substring(0, x.indexOf('_')) ) )
                 .collect(Collectors.toSet());
@@ -108,10 +181,6 @@ public class LLParserGenerator {
                 // IF previously computed.
                 if(cache.containsKey(body) && N.equals( cache.get(body) ) ) {
                     first_n.addAll( res.get( cache.get(body) ) );
-                    if(!first_n.contains(G.getEmpty()))
-                        break;
-                    else
-                        continue;
                 }
                 // System.out.println(N + " -> "+ body);
                 for(GrammarSymbol s_i : body.getSymbols()){
@@ -143,7 +212,7 @@ public class LLParserGenerator {
     }
 
     //Compute FIRST for GrammarString str. (list of GrammarSymbols)
-    public static Set<String> first(GrammarString str, Map<String,Set<String>> firstTable,String eps){
+    public static Set<String> first(GrammarString str, Map<String, Set<String>> firstTable, String eps){
         Set<String> res = new HashSet<>();
         int ec = 0;
         for(GrammarSymbol s : str.getSymbols()){
@@ -206,6 +275,13 @@ public class LLParserGenerator {
                 }
             }
         }
+
+        //debug
+        /*
+        for(String k : res.keySet()){
+            System.out.println(k + " = " + res.get(k));
+        }
+        */
         return res;
     }
 }

@@ -33,7 +33,7 @@ public class FALexerGenerator {
             for(String pat : patterns) {//JUST CONCAT ALL PATTERNS INTO ONE.
                 sbp.append(pat);
             }
-            System.out.println(id+": "+sbp.toString());
+            //System.out.println(id+": "+sbp.toString()); debug
             if(!id.equals(G.getEmpty())){
                 /* BEGIN PATTERN PROCESSING */
                 String pattern = sbp.toString();
@@ -87,11 +87,11 @@ public class FALexerGenerator {
         CNFA comboNFA = new CNFA();
         comboNFA.setComboStart(vs);
         comboNFA.setFinished(Fs);
-        System.out.println(comboNFA.getFinished());
+        //System.out.println(comboNFA.getFinished()); // debug
         alpha.remove((char)1);//empty-character is not part of the alpha.
-        System.out.println("Alpha: "+alpha);
+        //System.out.println("Alpha: "+alpha); //debug
         comboNFA.setAlpha(alpha);//alpha will include zero-character code (char)0 for any-character symbol.
-        System.out.println("States of NFA: "+comboNFA.getCountOfStates());
+        System.out.println("States of NFA: "+comboNFA.getCountOfStates()); //debug
         return comboNFA;
     }
 }

@@ -19,11 +19,12 @@ public class SLRParserGenerator {
             G.extendStart(S1);
         }
         catch (Exception e){
+            System.out.println("cannot extend");
             System.out.println(e.getMessage());
             throw new Exception("Cannot extend Grammar");
         }
 
-        Map<String, Set<String>> firstTable = LLParserGenerator.firstTable2(G);
+        Map<String, Set<String>> firstTable =  LLParserGenerator.firstTable2(G); // LLParserGenerator.firstTable_1(G);
 
         GrammarString start = new GrammarString();
         start.addSymbol(new GrammarSymbol('n', S0));

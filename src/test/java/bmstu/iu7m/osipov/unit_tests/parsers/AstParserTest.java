@@ -5,6 +5,7 @@ import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.lexers.*;
 import bmstu.iu7m.osipov.services.parsers.*;
+import bmstu.iu7m.osipov.services.parsers.generators.LLParserGenerator;
 import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.automats.CNFA;
 import bmstu.iu7m.osipov.structures.automats.DFA;
@@ -100,7 +101,9 @@ public class AstParserTest {
         CNFA nfa = lg.buildNFA(G);
         DFALexer lexer = new DFALexer(new DFA(nfa));
 
-        lexer.showTranTable();
+        //LLParserGenerator.firstTable_1(G);
+
+        //lexer.showTranTable();
 
         //make parser
         LRAstTranslator sa = new LRAstTranslator(G, lexer, LRAlgorithm.SLR);
@@ -117,6 +120,7 @@ public class AstParserTest {
 
         Graphviz.fromString(t.toDot("astbefore")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "syntax_before_ast2"));
 
+        //TODO: process Scopes
         LinkedTree<AstSymbol> ast = sa.translate(new File(PathStrings.PARSER_INPUT + "ast\\ast_input2.txt"));
         assert ast != null;
         Graphviz.fromString(ast.toDot("astafter")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "semantics_after_ast2"));

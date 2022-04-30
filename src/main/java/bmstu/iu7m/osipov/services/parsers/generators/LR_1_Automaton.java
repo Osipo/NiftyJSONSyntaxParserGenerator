@@ -14,8 +14,8 @@ import java.util.Set;
 //Inherits from LR_0_Automaton:
 //      GOTO table with oldStart (S0) newStart (S1), FOLLOW set and empty actionTable
 public class LR_1_Automaton extends LR_0_Automaton {
-    private Map<String,Set<String>> firstTable;
-    private Map<Integer,Set<LR1GrammarItem>> C1;
+    private Map<String, Set<String>> firstTable;
+    private Map<Integer, Set<LR1GrammarItem>> C1;
     //then follow, S0, S, gotoTable, actionTable.
 
     public LR_1_Automaton(Grammar G, String oldS, String ns, Map<Integer,Set<LR1GrammarItem>> C1, Map<Pair<Integer,String>,Integer> g, Map<String, Set<String>> firstTable){
@@ -95,16 +95,16 @@ public class LR_1_Automaton extends LR_0_Automaton {
                 else {//item like [A -> y.]
                     //item [S' -> S., $]
                     if(item.getHeader().equals(S) && item.getSymbols().get(0).getVal().equals(S0) && item.getTerm().equals("$")){
-                        actionTable.put(new Pair<Integer,String>(i,"$"),"acc");
+                        actionTable.put(new Pair<Integer,String>(i, "$"),"acc");
                         continue;
                     }
                     //item [S' -> y.]
                     else if(item.getHeader().equals(S)){
-                        actionTable.put(new Pair<Integer,String>(i,item.getTerm()),"err");
+                        actionTable.put(new Pair<Integer,String>(i, item.getTerm()),"err");
                         continue;
                     }
-                    Pair<Integer,String> k = new Pair<Integer,String>(i,item.getTerm());
-                    if(!actionTable.containsKey(k))//RECORD IS NOT FILLED?
+                    Pair<Integer,String> k = new Pair<Integer,String>(i, item.getTerm()); //[A -> y., {a}]
+                    if(!actionTable.containsKey(k)) //RECORD IS NOT FILLED?
                         actionTable.put(k,"r_"+item.getHeader()+":"+item.getSymbols().size());
                     else{
                         hasErr = true;

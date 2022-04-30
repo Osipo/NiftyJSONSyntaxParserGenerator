@@ -78,7 +78,7 @@ public class SLRParserTest {
         assert t != null;
 
         //t.setVisitor(new RightToLeftNRVisitor<>()); // traverse children right to left
-        t.visit(VisitorMode.PRE, new ReverseChildren()); // or just reverse them.
+        //t.visit(VisitorMode.PRE, new ReverseChildren()); // or just reverse them.
 
 
         System.out.println("tree nodes before "+t.getCount());
@@ -93,7 +93,7 @@ public class SLRParserTest {
         System.out.println("Perform translation... :");
 
         //prefix notation: = + * + a a a a = - * 23.2 2 2 = 2000000.2e-10
-        //postfix notation: a a + a * a + = 23.2 2 * 2 - = 2000000.2e-10 =
+        //postfix notation: a a + a * a + = 23.2 2 * 2 - c = 2000000.2e-10 c =
 
         t.visit(VisitorMode.PRE, act_executor); //postfix notation.
         System.out.println(); //make new line.
@@ -143,7 +143,6 @@ public class SLRParserTest {
         assert t != null;
         Graphviz.fromString(t.toDot("I_XML_4th")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "I_XML_4th"));
 
-        t.setVisitor(new RightToLeftNRVisitor<>());
 
         DeleteUselessSyntaxNode a1 = new DeleteUselessSyntaxNode(G);
         BreakChainNode a2 = new BreakChainNode();

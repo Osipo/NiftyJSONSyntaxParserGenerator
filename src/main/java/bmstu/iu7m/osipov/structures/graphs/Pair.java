@@ -50,4 +50,9 @@ public class Pair<T,R> {
                 getV2().toString();
         return b.hashCode();
     }
+
+    @Override
+    public String toString(){
+        return "( " + v1.toString() + ", " + v2.toString() + ")";
+    }
 }

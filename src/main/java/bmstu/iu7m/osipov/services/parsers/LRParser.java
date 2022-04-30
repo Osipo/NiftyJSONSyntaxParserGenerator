@@ -90,7 +90,7 @@ public class LRParser extends Parser {
                 Pair<Integer, String> k = new Pair<>(cstate, t);
                 if(mode == ParserMode.DEBUG) {
                     System.out.println(states + " " + S + " >>" + t);
-                    System.out.println("tok = "+tok);
+                    System.out.println("tok = "+ tok);
                 }
                 //command =  s_state (shift to the new state)
                 //      | r_header:size (reduce to production with header and size of items)
@@ -105,7 +105,7 @@ public class LRParser extends Parser {
                 if(command == null){ //if where is a empty symbol, try get command at [state, empty]
                     command = table.getActionTable().get(new Pair<Integer, String>(cstate, empty));
                     System.out.println("Command for ["+ cstate +", empty] = " + command);
-                    if(command != null){ // apply shift empty symbol if presence. (Rule like A -> e)
+                    if(command != null && command.charAt(0) == 's'){ // apply shift empty symbol if presence. (Rule like A -> e)
                         String j = command.substring(command.indexOf('_') + 1);
                         states.push(Integer.parseInt(j));
                         LinkedNode<LanguageSymbol> nc = new LinkedNode<>();
@@ -115,15 +115,17 @@ public class LRParser extends Parser {
                         S.push(nc);
                         continue;
                     }
-                    isParsed = false;
-                    break;
+                    else if(command == null) {
+                        isParsed = false;
+                        break;
+                    }
                 }
                 if(command.equals("err")){
                     isParsed = false;
                     break;
                 }
                 int argIdx = command.indexOf('_');
-                argIdx = argIdx == -1 ? 1 : argIdx;//in case of ACC or ERR return 1.
+                argIdx = argIdx == -1 ? 1 : argIdx;//in case of ACC or ERR return 1. (for s_ and r_ returns 0)
                 String act = command.substring(0, argIdx);
                 if(act.charAt(0) == 's'){
                     String j = command.substring(argIdx + 1);
@@ -133,11 +135,9 @@ public class LRParser extends Parser {
                     nidx++;
                     nc.setIdx(nidx);
                     S.push(nc);
+
                     //get next token
                     tok = lexer.recognize(f);
-                    if(states.top() == 3){
-                        System.out.println("state 3 tok = " + tok);
-                    }
                     while(tok == null || tok.getName().equals("Unrecognized")){
                         if(tok != null) {
                             isParsed = false;//TODO: MAY BE OPTIONAL
@@ -150,6 +150,7 @@ public class LRParser extends Parser {
                     col = tok.getColumn();
                 }
                 else if(act.charAt(0) == 'r'){
+
                     String args = command.substring(argIdx + 1); //args  of reduce command
                     String header = args.substring(0, args.indexOf(':'));
                     int sz = Integer.parseInt(args.substring(args.indexOf(':') + 1));

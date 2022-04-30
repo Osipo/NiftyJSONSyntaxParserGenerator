@@ -71,7 +71,7 @@ public class RegexRPNParser {
 
 
     public LinkedStack<Character> GetInput(String s){
-        System.out.println("total regex: "+s);
+        //System.out.println("total regex: "+s); //debug
         LinkedStack<Character> ops = new LinkedStack<Character>();
         LinkedStack<Character> rpn = new LinkedStack<Character>();
         for(int i = 0; i < s.length(); i++){

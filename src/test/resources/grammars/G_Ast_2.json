@@ -60,7 +60,7 @@
     {"ELS": ["empty",
       {"act": "astNode", "type": "else", "value": "pass"}
     ]},
-    {"S": ["while","(","B",")","S",
+    {"S": ["while", "(","B",")","S",
       {"act": "astNode", "value": "$0", "type": "loop", "children": "$1 $1"}
     ]},
     {"OP": ["id", "=", "EXP",
@@ -70,7 +70,21 @@
     {"OP": "EXP"},
     {"EXP": "B"},
     {"EXP": "LIST"},
-    {"LIST": ["[", "]"]},
+    {"EXP": "CALL"},
+    {"CALL": ["id", "(", "ARGS", ")",
+      {"act": "astNode", "type": "items", "value": "items", "children": "all"}
+    ]},
+    {"ARGS": ["ARGS", ",", "ARG"]},
+    {"ARGS": "ARG"},
+    {"ARG": "EXP"},
+    {"ARGS": "empty"},
+    {"LIST": ["[", "LITEMS", "]"
+    , {"act": "astNode", "type": "items", "value": "items", "children": "all"}
+    ]},
+    {"LITEMS": ["LITEMS", ",", "LITEM"]},
+    {"LITEMS": "LITEM"},
+    {"LITEMS": "empty"},
+    {"LITEM": "EXP"},
     {"RELOP": "<"},{"RELOP": "<="},{"RELOP": ">"},{"RELOP": ">="},{"RELOP": "=="},{"RELOP": "<>"},
     {"B": ["B","->","DISJ", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1 $1"}]},
     {"B": "DISJ"},
@@ -114,7 +128,9 @@
       "+": "up"
     },
     "scopes": [
-      {"start": "{", "end": "}", "body": "SL"}
+      {"start": "{", "end": "}", "body": "SL"},
+      {"start": "[", "end": "]", "body": "LITEMS"},
+      {"start": "(", "end": ")", "body": "ARGS"}
     ]
   }
 }
