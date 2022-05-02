@@ -38,7 +38,7 @@
     "empty": null
   },
   "keywords": [
-    "true","false", "not", "if", "else", "while", "lambda"
+    "true","false", "not", "if", "else", "while", "lambda", "pass"
   ],
   "separators": {
     "num": "_",
@@ -47,6 +47,7 @@
 
   "productions": [
     {"P": ["{", "SL", "}",
+      {"act": "astNode", "value": "endprog", "type": "end"},
       {"act": "astNode", "value": "prog", "type": "program", "children": "all"}
     ]},
     {"SL": ["SL", "S"]}, {"SL": "S"},
@@ -75,8 +76,14 @@
     {"LAMBDA": ["lambda", "LHEADER", "->", "S",
       {"act": "astNode", "type": "lambda", "value": "lambda", "children": "$1"}
     ]},
-    {"LHEADER": ["(", "ARGS", ")",
-      {"act": "astNode", "type": "args", "value": "items", "children": "all"}
+    {"LHEADER": ["(", "PARGS", ")",
+      {"act": "astNode", "type": "params", "value": "items", "children": "all"}
+    ]},
+    {"PARGS": ["PARGS", ",", "PARG"]},
+    {"PARGS": "PARG"},
+    {"PARGS": "empty"},
+    {"PARG": ["id",
+      {"act": "astNode", "type": "variable", "value": "$0"}
     ]},
     {"CALL": ["id", "(", "ARGS", ")",
       {"act": "astNode", "type": "args", "value": "items", "children": "all"},
@@ -87,7 +94,7 @@
     {"ARGS": "empty"},
     {"ARG": "EXP"},
     {"LIST": ["[", "LITEMS", "]"
-    , {"act": "astNode", "type": "items", "value": "items", "children": "all"}
+    , {"act": "astNode", "type": "list", "value": "items", "children": "all"}
     ]},
     {"LITEMS": ["LITEMS", ",", "LITEM"]},
     {"LITEMS": "LITEM"},
@@ -139,7 +146,7 @@
       {"start": "{", "end": "}", "body": "SL"},
       {"start": "[", "end": "]", "body": "LITEMS"},
       {"start": ["id", "("], "end": ")", "body": "ARGS"},
-      {"start": ["lambda", "("], "end": ")", "body": "ARGS"}
+      {"start": ["lambda", "("], "end": ")", "body": "PARGS"}
     ]
   }
 }

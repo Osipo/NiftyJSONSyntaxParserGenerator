@@ -296,7 +296,7 @@ public class LRAstTranslator  extends LRParser {
                 c_i.setParent(ast);
             }
         }
-        
+
         //finaly add node.
         System.out.println("AST size before: "+AST.size());
         AST.append(ast);

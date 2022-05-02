@@ -102,7 +102,7 @@ public class NRSubVisitor<T> extends NRVisitor<T> implements SubVisitor<T> {
                 act.perform(STACK.top());
                 if(!noCount)
                     c++;
-                m = tree.rightSibling(STACK.top());//RIGHT_SIBLING(TOP(S),TREE) where TOP(S) is node
+                m = tree.rightSibling(STACK.top());//RIGHT_SIBLING(TOP(S), TREE) where TOP(S) is node
                 STACK.pop();//POP(S)
             }
         }

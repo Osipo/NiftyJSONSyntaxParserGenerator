@@ -5,11 +5,9 @@ import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.lexers.*;
 import bmstu.iu7m.osipov.services.parsers.*;
-import bmstu.iu7m.osipov.services.parsers.generators.LLParserGenerator;
 import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.automats.CNFA;
 import bmstu.iu7m.osipov.structures.automats.DFA;
-import bmstu.iu7m.osipov.structures.trees.LinkedNode;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
 import guru.nidi.graphviz.engine.Format;
@@ -22,12 +20,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
-//Changed classes: LinkedList<T>, LinkedTree<T>, Grammar, Parser, LRParser
-// FALexerGenerator DFALexer
+import java.lang.invoke.StringConcatFactory;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(
@@ -116,13 +109,19 @@ public class AstParserTest {
 
         LinkedTree<LanguageSymbol> t = sa.parse(PathStrings.PARSER_INPUT + "ast\\ast_input2.txt");
         assert t != null;
-        //System.out.println(t);
 
         Graphviz.fromString(t.toDot("astbefore")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "syntax_before_ast2"));
 
-
+        //phase 1 - 3 completed. (AST tree has been built.)
         LinkedTree<AstSymbol> ast = sa.translate(new File(PathStrings.PARSER_INPUT + "ast\\ast_input2.txt"));
         assert ast != null;
+
         Graphviz.fromString(ast.toDot("astafter")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "semantics_after_ast2"));
+
+        System.out.println("AST nodes: " + ast.getCount());
+        System.out.println("Parsing tree nodes: " + t.getCount());
+
+        //TODO: phase 4. (interpretation).
+
     }
 }
