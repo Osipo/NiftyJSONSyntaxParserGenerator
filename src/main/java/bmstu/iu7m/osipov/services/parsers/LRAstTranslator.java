@@ -268,32 +268,35 @@ public class LRAstTranslator  extends LRParser {
         System.out.println("children: " + children);
         LinkedNode<AstSymbol> c_i = null;
         int l = AST.size();
-        int dl  = l - (l - astAllPos) + 1;
+        int dl  = l - (l - astAllPos) + 1; //[1,2,3,4, 5..] => dl = 5 - (5 - 4) + 1 => 5.
 
-        if(children != null) {
-            for (String split : children.split("\\s+")) {
-                System.out.println(split);
-                if (split.charAt(0) == '$') {
-                    pos = Integer.parseInt(split.substring(1), 10);
-                    c_i = AST.get(l - pos);
-                    System.out.println("pos del: " + (l - pos - 1));
-                    AST.remove(l - pos - 1);
-                    System.out.println("after delete: "+AST);
-                    if (c_i == null)
-                        continue;
-                    ast.getChildren().add(c_i);
-                    c_i.setParent(ast);
-                } else if (split.equals("all")) {
-                    while (l != astAllPos) {
-                        c_i = AST.get(dl);
-                        ast.getChildren().add(c_i);
-                        c_i.setParent(ast);
-                        AST.remove(dl - 1);
-                        l--;
-                    }
-                }
+        if(children == null){} // just skip else-branches.
+        else if(children.equals("all")){ //var children is not null
+            while (l != astAllPos) {
+                c_i = AST.get(dl);
+                ast.getChildren().add(c_i);
+                c_i.setParent(ast);
+                AST.remove(dl - 1); //for remove index range starts from 0 [0..4] for size = 5.
+                l--;
             }
         }
+        else {
+            //skip '$' at '$num' string.
+            int ptr = l - Integer.parseInt(children.substring(1)); // (l - pos)
+            int ptr_i = ptr;
+            while(ptr_i <= l){
+                ptr_i++;
+                c_i = AST.get(ptr);
+                AST.remove(ptr - 1); //l - pos - 1
+
+                System.out.println("after delete: "+AST); // debug
+                if(c_i == null)
+                    continue;
+                ast.getChildren().add(c_i);
+                c_i.setParent(ast);
+            }
+        }
+        
         //finaly add node.
         System.out.println("AST size before: "+AST.size());
         AST.append(ast);
