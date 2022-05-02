@@ -43,6 +43,7 @@
 
   "productions": [
     {"P": ["{", "PL", "}",
+      {"act": "astNode", "value": "endprog", "type": "end"},
       {"act": "astNode", "value": "prog", "type": "program", "children": "all"}]},
     {"PL": ["PL", ";", "P"]}, {"PL": "P"},
     {"P": ["A"]},

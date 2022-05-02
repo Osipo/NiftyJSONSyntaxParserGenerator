@@ -2,21 +2,20 @@ package bmstu.iu7m.osipov.services.interpret;
 
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
-import bmstu.iu7m.osipov.structures.hashtables.STable;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.trees.Node;
 import bmstu.iu7m.osipov.structures.trees.PositionalTree;
 import bmstu.iu7m.osipov.structures.trees.VisitorMode;
-import com.kitfox.svg.A;
+import bmstu.iu7m.osipov.utils.ProcessNumber;
 
 import java.util.concurrent.atomic.AtomicReference;
 
 public class BaseInterpreter {
 
-    public void interpret(PositionalTree<AstSymbol> ast){
+    public void interpret(PositionalTree<AstSymbol> ast) throws Exception {
         AtomicReference<Env> env = new AtomicReference<>();
         env.set(new Env(null));
-        LinkedStack<Variable> exp = new LinkedStack<>();
+        LinkedStack<String> exp = new LinkedStack<>();
         Elem<Long> ids = new Elem<>(0l);
 
         // anonymous function.
@@ -27,13 +26,14 @@ public class BaseInterpreter {
                 env.set(env.get().getPrev());
             else if(n.getValue().getType().equals("assign"))
                 ast.visitFrom(VisitorMode.POST, (c) -> {
-                    applyOperation(ast, env.get(), c, exp);
+                    try {
+                        applyOperation(ast, env.get(), c, exp);
+                    } catch (Exception e){System.err.println(e);}
                 }, n);
         });
     }
 
-    private void applyOperation(PositionalTree<AstSymbol> ast, Env context, Node<AstSymbol> cur, LinkedStack<Variable> exp)
-    {
+    private void applyOperation(PositionalTree<AstSymbol> ast, Env context, Node<AstSymbol> cur, LinkedStack<String> exp) throws Exception {
         if (context == null || cur == null || cur.getValue() == null)
             return;
 
@@ -41,9 +41,7 @@ public class BaseInterpreter {
         String nodeVal = cur.getValue().getValue();
         switch (opType){
             case "number": {
-                Variable temp = new Variable("temp");
-                temp.setStrVal(nodeVal); //node.value.value -> ast.value
-                exp.push(temp);
+                exp.push(nodeVal);
                 break;
             }
             case "variable":{
@@ -51,17 +49,55 @@ public class BaseInterpreter {
                 if(ast.parent(cur).getValue().getType().equals("assign")){ //variable parent is assign
                     v = new Variable(nodeVal); //ast.value (variable name)
                     context.add(v);
+                    v.setStrVal(exp.top());
+                    exp.pop();
                     break;
                 }
                 v = context.get(nodeVal);
-                exp.push(v);
+                if(v == null)
+                    throw new Exception("Cannot find variable with name \'" + nodeVal + "\'. Define variable before use it!");
+                exp.push(v.getStrVal());
+                break;
             }
             case "operator": {
-                String t1 = exp.top().getStrVal();
+                String t1 = exp.top();
                 exp.pop();
-                String t2 = exp.top().getStrVal();
+                String t2 = exp.top();
                 exp.pop();
-            }
-        }
-    }
-}
+
+                double d1 = ProcessNumber.parseNumber(t1);
+                double d2 = ProcessNumber.parseNumber(t2);
+                switch (nodeVal){
+                    case "*":{
+                        d1 = d1 * d2;
+                        break;
+                    }
+                    case "/":{
+                        d1 = d1 / d2;
+                        break;
+                    }
+                    case "+":{
+                        d1 = d1 + d2;
+                        break;
+                    }
+                    case "-":{
+                        d1 = d1 - d2;
+                        break;
+                    }
+                    case "%":{
+                        d1 = d1 % d2;
+                        break;
+                    }
+                    case "^":{
+                        d1 = Math.pow(d1, d2);
+                        break;
+                    }
+                } //end inner switch of nodeVal
+
+                exp.push(Double.toString(d1));
+                break;
+            } // end operator
+        } //end switch of nodeType
+    } //end method
+
+} //end class

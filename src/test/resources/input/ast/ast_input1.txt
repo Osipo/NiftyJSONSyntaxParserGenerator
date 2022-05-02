@@ -1,7 +1,7 @@
 {
     a = 1 * 2; # a = 1 -> a = PE -> a = UE -> a = F -> a = F * 2 -> a = F * T -> a = T -> a = E -> ASSIGN
     b = 2;
-    c = 3;
+    c = 3 ^ 5;
     {
         { c = c + b * 3; d = (a + b) * 10 };
         d = 4
