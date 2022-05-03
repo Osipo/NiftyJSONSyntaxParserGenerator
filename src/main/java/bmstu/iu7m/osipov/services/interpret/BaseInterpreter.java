@@ -12,11 +12,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class BaseInterpreter {
 
-    public void interpret(PositionalTree<AstSymbol> ast) throws Exception {
+    public void interpret(PositionalTree<AstSymbol> ast) {
         AtomicReference<Env> env = new AtomicReference<>();
         env.set(new Env(null));
         LinkedStack<String> exp = new LinkedStack<>();
-        Elem<Long> ids = new Elem<>(0l);
 
         // anonymous function.
         ast.visit(VisitorMode.PRE, (n) -> {
@@ -24,12 +23,15 @@ public class BaseInterpreter {
                 env.set(new Env(env.get()));
             else if(n.getValue().getType().equals("end"))
                 env.set(env.get().getPrev());
-            else if(n.getValue().getType().equals("assign"))
+            else if(n.getValue().getType().equals("assign")) {
                 ast.visitFrom(VisitorMode.POST, (c) -> {
                     try {
                         applyOperation(ast, env.get(), c, exp);
-                    } catch (Exception e){System.err.println(e);}
+                    } catch (Exception e) {
+                        System.err.println(e);
+                    }
                 }, n);
+            }
         });
     }
 
@@ -50,6 +52,7 @@ public class BaseInterpreter {
                     v = new Variable(nodeVal); //ast.value (variable name)
                     context.add(v);
                     v.setStrVal(exp.top());
+                    System.out.println(nodeVal + " = " + v.getStrVal());
                     exp.pop();
                     break;
                 }
@@ -65,8 +68,8 @@ public class BaseInterpreter {
                 String t2 = exp.top();
                 exp.pop();
 
-                double d1 = ProcessNumber.parseNumber(t1);
-                double d2 = ProcessNumber.parseNumber(t2);
+                double d2 = ProcessNumber.parseNumber(t1);
+                double d1 = ProcessNumber.parseNumber(t2);
                 switch (nodeVal){
                     case "*":{
                         d1 = d1 * d2;

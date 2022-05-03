@@ -116,14 +116,16 @@ public class LRAstTranslator  extends LRParser {
                     for(Scope s : this.G.getMeta().getScopes()){
                         int scope_prefix_len = 0;
                         int scope_prefix_i = s.getStart().size() - 1;
-                        for(String scope_prefix : s.getStart()){
-                            if(S.topFrom(scope_prefix_i).getValue().getName().equals(scope_prefix))
-                                scope_prefix_len++;
-                            scope_prefix_i--;
-                        }
-                        if(scope_prefix_len == s.getStart().size()) {
-                            scopes.push(AST.size());
-                            break;
+                        if(s.getStart().size() <= S.size()) {
+                            for (String scope_prefix : s.getStart()) {
+                                if (S.topFrom(scope_prefix_i).getValue().getName().equals(scope_prefix))
+                                    scope_prefix_len++;
+                                scope_prefix_i--;
+                            }
+                            if (scope_prefix_len == s.getStart().size()) {
+                                scopes.push(AST.size());
+                                break;
+                            }
                         }
 
                         //body was end [{ BODY }] >>}, scope: { BODY } => flush current scope.]

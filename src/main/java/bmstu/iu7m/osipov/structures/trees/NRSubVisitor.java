@@ -6,6 +6,7 @@ public class NRSubVisitor<T> extends NRVisitor<T> implements SubVisitor<T> {
     @Override
     public void preOrder(Tree<T> tree, Action<Node<T>> act, Node<T> node){
         Node<T> m = node;
+        Node<T> subRoot = m;
 
         if(act == null){
             act = (n) -> System.out.print(tree.value(n).toString()+" ");
@@ -13,6 +14,8 @@ public class NRSubVisitor<T> extends NRVisitor<T> implements SubVisitor<T> {
 
         LinkedStack<Node<T>> STACK = new LinkedStack<>();
         long c  = 0;
+        if(m == null)
+            return;
 
         while(true){
             if(m != null){
@@ -26,6 +29,10 @@ public class NRSubVisitor<T> extends NRVisitor<T> implements SubVisitor<T> {
                 if(STACK.isEmpty()){
                     if(!noCount)
                         System.out.println("Visited: "+c);
+                    return;
+                }
+                if(STACK.top().getIdx() == subRoot.getIdx()){ //only till SubRoot.
+                    STACK.pop();
                     return;
                 }
                 m = tree.rightSibling(STACK.top());//RIGHT_SIBLING(TOP(S),TREE) where TOP(S) is node
@@ -81,12 +88,16 @@ public class NRSubVisitor<T> extends NRVisitor<T> implements SubVisitor<T> {
     @Override
     public void postOrder(Tree<T> tree, Action<Node<T>> act, Node<T> node) {
         Node<T> m = node;
-
+        Node<T> subRoot = m;
         if(act == null){
             act = (n) -> System.out.print(tree.value(n).toString()+" ");
         }
 
         LinkedStack<Node<T>> STACK = new LinkedStack<>();
+
+        if(m == null)
+            return;
+
         long c  = 0;
         while(true){
             if(m != null){
@@ -102,6 +113,10 @@ public class NRSubVisitor<T> extends NRVisitor<T> implements SubVisitor<T> {
                 act.perform(STACK.top());
                 if(!noCount)
                     c++;
+                if(STACK.top().getIdx() == subRoot.getIdx()){
+                    STACK.pop();
+                    return;
+                }
                 m = tree.rightSibling(STACK.top());//RIGHT_SIBLING(TOP(S), TREE) where TOP(S) is node
                 STACK.pop();//POP(S)
             }
