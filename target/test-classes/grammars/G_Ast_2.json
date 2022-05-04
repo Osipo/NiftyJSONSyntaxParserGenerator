@@ -41,8 +41,6 @@
     "realNum": "_"
   },
 
-  "nonTerms": ["P", "PL", "E", "T", "F", "UE", "PE", "A"],
-
   "productions": [
     {"P": ["{", "PL", "}",
       {"act": "astNode", "value": "endprog", "type": "end"},
@@ -51,13 +49,21 @@
     {"P": ["A"]},
     {"A": ["id", "ACLIST", "=", "EXP",
       {"act": "astNode", "value": "$0", "type": "variable"},
-      {"act": "astNode", "value": "$2", "type": "assign", "children": "$1"}
+      {"act": "astNode", "value": "$2", "type": "assign", "children": "$2"}
     ]
     },
-    {"ACLIST": ["ACLIST", "LINDEX"]},
-    {"ACLIST": "LINDEX"},
-    {"ACLIST": "empty"},
-    {"LINDEX": ["[", "num", "]"]},
+    {"A": ["id", "=", "EXP",
+      {"act": "astNode", "value": "$0", "type": "variable"},
+      {"act": "astNode", "value": "$1", "type": "assign", "children": "$1"}
+    ]
+    },
+    {"ACLIST": ["RANGES",
+      {"act": "astNode", "type": "access", "value": "indices", "children": "all"}
+    ]},
+    {"RANGES": ["LINDICES"]},
+    {"LINDICES": ["LINDICES", "LINDEX"]},
+    {"LINDICES": "LINDEX"},
+    {"LINDEX": ["LIST"]},
     {"EXP": "E"},
     {"EXP": "LIST"},
     {"LIST": ["[", "LITEMS", "]",
@@ -78,6 +84,10 @@
     {"UE": ["um", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "operator"}]},
     {"UE": ["up", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "operator"}]},
     {"UE": ["PE"]},
+    {"PE": ["id", "ACLIST",
+      {"act": "astNode", "value": "$0", "type": "variable"},
+      {"act": "astNode", "type": "access", "value": "list", "children": "$1"}
+    ]},
     {"PE": ["id", {"act": "astNode", "value": "$0", "type": "variable"}]},
     {"PE": ["ch", {"act": "astNode", "value": "$0", "type": "char"}]},
     {"PE": ["str", {"act": "astNode", "value": "$0", "type": "string"}]},
@@ -102,7 +112,8 @@
     },
     "scopes": [
       {"start": "{", "end": "}", "body": "PL"},
-      {"start": "[", "end": "]", "body": "LITEMS"}
+      {"start": "[", "end": "]", "body": "LITEMS"},
+      {"start": ["id", "["], "body": "RANGES"}
     ],
     "operators": [
       "=",

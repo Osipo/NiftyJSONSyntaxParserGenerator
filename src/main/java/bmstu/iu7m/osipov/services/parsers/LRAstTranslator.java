@@ -112,6 +112,10 @@ public class LRAstTranslator  extends LRParser {
                     nc.setIdx(nidx);
                     S.push(nc);
 
+                    int scope_i = 0;
+                    int scope_s = -1;
+                    int scope_mi = 0;
+
                     //Check scopes.
                     for(Scope s : this.G.getMeta().getScopes()){
                         int scope_prefix_len = 0;
@@ -122,21 +126,33 @@ public class LRAstTranslator  extends LRParser {
                                     scope_prefix_len++;
                                 scope_prefix_i--;
                             }
-                            if (scope_prefix_len == s.getStart().size()) {
+                            if (scope_prefix_len == s.getStart().size() && scope_mi < scope_prefix_len) {
+                                scope_mi = scope_prefix_len;
                                 scopes.push(AST.size());
-                                break;
+                                scope_s = scope_i;
                             }
                         }
+                        if(scope_s != -1)
+                            continue;
 
+                        if(s.getEnd() == null
+                                && S.topFrom(0) != null && S.topFrom(0).getValue() != null
+                                && S.topFrom(0).getValue().getName().equals(s.getBody())
+                        ){
+                            removeScope = true;
+                            break;
+                        }
                         //body was end [{ BODY }] >>}, scope: { BODY } => flush current scope.]
-                        if(s.getEnd().equals(tok.getName())
+                        else if(s.getEnd() != null && s.getEnd().equals(tok.getName())
                                 && S.topFrom(1) != null && S.topFrom(1).getValue() != null
                                 && S.topFrom(1).getValue().getName().equals(s.getBody())
                         ){
                             removeScope = true; //signal that next reduce removeScope.
                             break;
                         }
+                        scope_i++;
                     }
+                    //END Scan Scopes.
 
                     //get next token
                     tok = lexer.recognize(f);
@@ -151,6 +167,26 @@ public class LRAstTranslator  extends LRParser {
                     l = tok.getLine();
                     col = tok.getColumn();
                 } else if (act.charAt(0) == 'r') {
+
+                    //CHECK Scopes
+                    for(Scope s : this.G.getMeta().getScopes()) {
+                        if (s.getEnd() == null
+                                && S.topFrom(0) != null && S.topFrom(0).getValue() != null
+                                && S.topFrom(0).getValue().getName().equals(s.getBody())
+                        ) {
+                            removeScope = true;
+                            break;
+                        }
+                        //body was end [{ BODY }], scope: { BODY } => flush current scope.
+                        else if(s.getEnd() != null && S.top() != null && s.getEnd().equals(S.top().getValue().getName())
+                                && S.topFrom(1) != null && S.topFrom(1).getValue() != null
+                                && S.topFrom(1).getValue().getName().equals(s.getBody())
+                        ){
+                            removeScope = true; //signal that next reduce removeScope.
+                            break;
+                        }
+                    }
+                    //END CHECK Scopes
 
                     String args = command.substring(argIdx + 1); //args  of reduce command
                     String header = args.substring(0, args.indexOf(':'));
@@ -178,6 +214,7 @@ public class LRAstTranslator  extends LRParser {
 
                     //TODO: Make ast nodes.
                     List<SyntaxDirectedTranslation> astdefs = extractEachTranslation(extractSDT(g, header));
+                    //System.out.println(astdefs);
                     if(astdefs != null) {
                         for(SyntaxDirectedTranslation astdef : astdefs) {
                             if (astdef != null && astdef.getActName().equals("astNode")) {
@@ -266,8 +303,11 @@ public class LRAstTranslator  extends LRParser {
         ast.setIdx(idx.getV1());
         idx.setV1(idx.getV1() + 1);
 
-        System.out.println("AST: "+AST);
-        System.out.println("children: " + children);
+        if(mode == ParserMode.DEBUG) {
+            System.out.println("AST: " + AST);
+            System.out.println("children: " + children);
+        }
+
         LinkedNode<AstSymbol> c_i = null;
         int l = AST.size();
         int dl  = l - (l - astAllPos) + 1; //[1,2,3,4, 5..] => dl = 5 - (5 - 4) + 1 => 5.
@@ -291,7 +331,9 @@ public class LRAstTranslator  extends LRParser {
                 c_i = AST.get(ptr);
                 AST.remove(ptr - 1); //l - pos - 1
 
-                System.out.println("after delete: "+AST); // debug
+                if(mode == ParserMode.DEBUG)
+                    System.out.println("after delete: "+AST); // debug
+
                 if(c_i == null)
                     continue;
                 ast.getChildren().add(c_i);
@@ -300,8 +342,11 @@ public class LRAstTranslator  extends LRParser {
         }
 
         //finaly add node.
-        System.out.println("AST size before: "+AST.size());
+        if(mode == ParserMode.DEBUG)
+            System.out.println("AST size before: "+AST.size());
         AST.append(ast);
-        System.out.println("AST size after: "+AST.size());
+
+        if(mode == ParserMode.DEBUG)
+            System.out.println("AST size after: "+AST.size());
     }
 }

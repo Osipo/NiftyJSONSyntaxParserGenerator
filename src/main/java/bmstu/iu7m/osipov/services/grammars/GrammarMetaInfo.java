@@ -34,7 +34,7 @@ public class GrammarMetaInfo {
     //tuning on if it has Syntax Directed Translations/Actions (SDT)
     private boolean hasTranslations = false;
 
-    private Set<Scope> scopes;
+    private List<Scope> scopes;
 
     public GrammarMetaInfo(){
         this.keywords = new HashSet<>();
@@ -46,7 +46,7 @@ public class GrammarMetaInfo {
         this.separators = new HashMap<>();
         this.begin = "";
         this.end = "";
-        this.scopes = new HashSet<>();
+        this.scopes = new ArrayList<>();
     }
 
     public void setOperands(Set<String> operands) {
@@ -161,7 +161,7 @@ public class GrammarMetaInfo {
         this.scopeCategories = scopeCategories;
     }
 
-    public Set<Scope> getScopes(){
+    public List<Scope> getScopes(){
         return this.scopes;
     }
 

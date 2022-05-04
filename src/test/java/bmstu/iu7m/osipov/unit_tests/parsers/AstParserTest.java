@@ -120,8 +120,8 @@ public class AstParserTest {
         Graphviz.fromString(ast.toDot("astafter")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "semantics_after_ast2"));
 
         //Phase 4. Interpret ast nodes.
-        BaseInterpreter inter = new BaseInterpreter();
-        inter.interpret(ast);
+        //BaseInterpreter inter = new BaseInterpreter();
+        //inter.interpret(ast);
     }
 
     @Test
