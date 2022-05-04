@@ -70,7 +70,7 @@
     ]},
     {"OP": "EXP"},
     {"EXP": "B"},
-    {"EXP": ["LIST", {"act": "astNode", "type": "start", "value": "item", "child": "$0"}]},
+    {"EXP": ["LIST"]},
     {"EXP": "CALL"},
     {"EXP": "LAMBDA"},
     {"LAMBDA": ["lambda", "LHEADER", "->", "S",
@@ -94,7 +94,8 @@
     {"ARGS": "empty"},
     {"ARG": "EXP"},
     {"LIST": ["[", "LITEMS", "]"
-    , {"act": "astNode", "type": "list", "value": "items", "children": "all"}
+    , {"act": "astNode", "type": "list", "value": "items", "children": "all"},
+      {"act": "astNode", "type": "start", "value": "item", "child": "$0"}
     ]},
     {"LITEMS": ["LITEMS", ",", "LITEM"]},
     {"LITEMS": "LITEM"},

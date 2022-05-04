@@ -63,13 +63,12 @@
     {"RANGES": ["LINDICES"]},
     {"LINDICES": ["LINDICES", "LINDEX"]},
     {"LINDICES": "LINDEX"},
-    {"LINDEX": ["LIST",  {"act": "astNode", "type": "start", "value": "item", "child": "$0"}]},
+    {"LINDEX": ["LIST"]},
     {"EXP": "E"},
-    {"EXP": ["LIST",
-      {"act": "astNode", "type": "start", "value": "item", "child": "$0"}
-    ]},
+    {"EXP": ["LIST"]},
     {"LIST": ["[", "LITEMS", "]",
-      {"act": "astNode", "type": "list", "value": "items", "children": "all"}
+      {"act": "astNode", "type": "list", "value": "items", "children": "all"},
+      {"act": "astNode", "type": "start", "value": "item", "child": "$0"}
     ]},
     {"LITEMS": ["LITEMS", ",", "LITEM"]},
     {"LITEMS": "LITEM"},

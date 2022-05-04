@@ -8,7 +8,7 @@ import java.util.List;
 public class Variable implements Value<String> {
     private final String name;
     private String strVal;
-    private List<String> items;
+    private List<Object> items;
 
     public Variable(String name){
         this.name = name;
@@ -23,11 +23,11 @@ public class Variable implements Value<String> {
         this.strVal = strVal;
     }
 
-    public void setItems(List<String> items){
+    public void setItems(List<Object> items){
         this.items = new ArrayList<>(items);
     }
 
-    public List<String> getItems() {
+    public List<Object> getItems() {
         return items;
     }
 
