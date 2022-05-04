@@ -70,7 +70,7 @@
     ]},
     {"OP": "EXP"},
     {"EXP": "B"},
-    {"EXP": "LIST"},
+    {"EXP": ["LIST", {"act": "astNode", "type": "start", "value": "item", "child": "$0"}]},
     {"EXP": "CALL"},
     {"EXP": "LAMBDA"},
     {"LAMBDA": ["lambda", "LHEADER", "->", "S",

@@ -63,9 +63,11 @@
     {"RANGES": ["LINDICES"]},
     {"LINDICES": ["LINDICES", "LINDEX"]},
     {"LINDICES": "LINDEX"},
-    {"LINDEX": ["LIST"]},
+    {"LINDEX": ["LIST",  {"act": "astNode", "type": "start", "value": "item", "child": "$0"}]},
     {"EXP": "E"},
-    {"EXP": "LIST"},
+    {"EXP": ["LIST",
+      {"act": "astNode", "type": "start", "value": "item", "child": "$0"}
+    ]},
     {"LIST": ["[", "LITEMS", "]",
       {"act": "astNode", "type": "list", "value": "items", "children": "all"}
     ]},

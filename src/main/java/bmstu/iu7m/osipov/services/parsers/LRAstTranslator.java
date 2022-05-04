@@ -221,9 +221,10 @@ public class LRAstTranslator  extends LRParser {
                                 String arg1 = astdef.getArguments().getOrDefault("type", null);
                                 String arg2 = astdef.getArguments().getOrDefault("value", null);
                                 String arg3 = astdef.getArguments().getOrDefault("children", null);
+                                String arg4 = astdef.getArguments().getOrDefault("child", null);
                                 int astAllPos = scopes.top() != null ? scopes.top() : 0;
                                 System.out.println("scopes: "+scopes);
-                                createAstNode(arg1, arg2, arg3, parent, AST, aidx, astAllPos);
+                                createAstNode(arg1, arg2, arg3, arg4, parent, AST, aidx, astAllPos);
                             }
                         }
                     }
@@ -285,7 +286,7 @@ public class LRAstTranslator  extends LRParser {
     }
 
     /* Choose right structure for collection of astNodes (Deck)*/
-    private void createAstNode(String type, String value, String children,
+    private void createAstNode(String type, String value, String children, String child,
                                LinkedNode<LanguageSymbol> parent,
                                LinkedList<LinkedNode<AstSymbol>> AST,
                                Elem<Integer> idx,
@@ -312,7 +313,14 @@ public class LRAstTranslator  extends LRParser {
         int l = AST.size();
         int dl  = l - (l - astAllPos) + 1; //[1,2,3,4, 5..] => dl = 5 - (5 - 4) + 1 => 5.
 
-        if(children == null){} // just skip else-branches.
+        //child is available only when children are not specified (null)!
+        //if children are specified > child is ignored!
+        if(children == null && child != null){
+            int child_num = Integer.parseInt(child.substring(1)); //skip '$'
+            AST.get(AST.size()).getChildren().add(child_num, ast); //children property is ArrayList.
+            return;
+        }
+        else if(children == null){} // just skip else-branches.
         else if(children.equals("all")){ //var children is not null
             while (l != astAllPos) {
                 c_i = AST.get(dl);

@@ -6,9 +6,9 @@
        list = [1, 2, 'c', "hello", [5, [6]]];
 
        list[0] = 3 * 2;
-       list[1] = 10000;
-       list[list[2]] = 'q';
+       list[1, 2] = 10000;
+       list[list[1]] = 'q';
 
-       d = list[0] * list[1] + list[4][1][0]
+       d = list[0] * list[1] + list[3 + 1][1][0]
     }
 }
