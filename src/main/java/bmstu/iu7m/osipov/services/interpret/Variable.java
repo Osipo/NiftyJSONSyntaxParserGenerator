@@ -1,5 +1,6 @@
 package bmstu.iu7m.osipov.services.interpret;
 
+import bmstu.iu7m.osipov.structures.graphs.Elem;
 import bmstu.iu7m.osipov.utils.Value;
 
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import java.util.List;
 public class Variable implements Value<String> {
     private final String name;
     private String strVal;
-    private List<Object> items;
+    private List<Elem<Object>> items;
 
     public Variable(String name){
         this.name = name;
@@ -23,11 +24,11 @@ public class Variable implements Value<String> {
         this.strVal = strVal;
     }
 
-    public void setItems(List<Object> items){
+    public void setItems(List<Elem<Object>> items){
         this.items = new ArrayList<>(items);
     }
 
-    public List<Object> getItems() {
+    public List<Elem<Object>> getItems() {
         return items;
     }
 

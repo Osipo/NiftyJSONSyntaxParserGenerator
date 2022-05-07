@@ -14,4 +14,9 @@ public class Elem<T> {
     public T getV1() {
         return v1;
     }
+
+    @Override
+    public String toString(){
+        return v1.toString();
+    }
 }

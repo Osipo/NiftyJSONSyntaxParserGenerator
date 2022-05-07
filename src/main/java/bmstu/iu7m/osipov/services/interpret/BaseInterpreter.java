@@ -1,6 +1,7 @@
 package bmstu.iu7m.osipov.services.interpret;
 
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
+import bmstu.iu7m.osipov.structures.graphs.Elem;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.trees.Node;
 import bmstu.iu7m.osipov.structures.trees.PositionalTree;
@@ -8,7 +9,6 @@ import bmstu.iu7m.osipov.structures.trees.VisitorMode;
 import bmstu.iu7m.osipov.utils.ProcessNumber;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -18,8 +18,8 @@ public class BaseInterpreter {
         AtomicReference<Env> env = new AtomicReference<>();
         env.set(new Env(null));
         LinkedStack<String> exp = new LinkedStack<>();
-        LinkedStack<List<Object>> lists = new LinkedStack<>();
-        ArrayList<List<Object>> indices = new ArrayList<>();
+        LinkedStack<List<Elem<Object>>> lists = new LinkedStack<>();
+        ArrayList<List<Elem<Object>>> indices = new ArrayList<>();
 
         // anonymous function.
         ast.visit(VisitorMode.PRE, (n) -> {
@@ -39,7 +39,7 @@ public class BaseInterpreter {
         });
     }
 
-    private void applyOperation(PositionalTree<AstSymbol> ast, Env context, Node<AstSymbol> cur, LinkedStack<String> exp, LinkedStack<List<Object>> lists, ArrayList<List<Object>> indices) throws Exception {
+    private void applyOperation(PositionalTree<AstSymbol> ast, Env context, Node<AstSymbol> cur, LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists, ArrayList<List<Elem<Object>>> indices) throws Exception {
         if (context == null || cur == null || cur.getValue() == null)
             return;
 
@@ -51,19 +51,20 @@ public class BaseInterpreter {
                 break;
             }
             case "start":{
-                ArrayList<Object> items = new ArrayList<>();
+                ArrayList<Elem<Object>> items = new ArrayList<>();
                 lists.push(items);
+                System.out.println("start: " + lists);
                 break;
             }
             case "list": {
                 if(ast.parent(cur).getValue().getType().equals("list")){
                     //inner list
-                    List<Object> inner = lists.top();
+                    List<Elem<Object>> inner = lists.top();
                     lists.pop(); //remove inner list from stack.
-                    lists.top().add(inner); //add list as single item instead of addAll of its items.
+                    lists.top().add(new Elem<>(inner)); //add list as single item instead of addAll of its items.
                 }
                 else if(ast.parent(cur).getValue().getType().equals("access")){
-                    ArrayList<Object> idx_items = new ArrayList<>(lists.top()); //move list from lists to indices
+                    ArrayList<Elem<Object>> idx_items = new ArrayList<>(lists.top()); //move list from lists to indices
                     lists.pop();
                     indices.add(idx_items); //lists > indices.
                 }
@@ -115,62 +116,65 @@ public class BaseInterpreter {
         } //end switch of nodeType
     } //end method
 
-    private void checkAssign(PositionalTree<AstSymbol> ast, Node<AstSymbol> cur, Env context, String nType, String nVal, LinkedStack<String> exp, LinkedStack<List<Object>> lists, ArrayList<List<Object>> indices) throws Exception {
+    private void checkAssign(PositionalTree<AstSymbol> ast, Node<AstSymbol> cur, Env context, String nType, String nVal, LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists, ArrayList<List<Elem<Object>>> indices) throws Exception {
         Variable v = null;
         if(ast.parent(cur).getValue().getType().equals("assign")){ //variable parent is assign
-            v = new Variable(nVal); //ast.value (variable name)
-            context.add(v);
-            if(lists.top() != null){
+            if(lists.top() != null){ //list expression.
+                v = new Variable(nVal); //ast.value (variable name)
+                context.add(v);
                 v.setItems(lists.top());
                 v.setStrVal(v.getItems().toString());
                 System.out.println(nVal + " = " + v.getStrVal());
                 lists.pop();
                 return;
             } //end list expression.
-            else if(indices.size() != 0){
-                List<Object> idxs = null;
-                ArrayList<Object> id_lists = null;
-                //l = [12, [34, 35]]; => l[0, 1][0, 1] => [12, [34, 35]] => [12, [34, 35].
-                //l = [1, [2, [3]]] => l[1][0] => [3].
+            else if(indices.size() != 0){ //access expression with assign operator. (a[idx] = exp)
+                v = context.get(nVal); //get root list.
+                if(v == null)
+                    throw new Exception("Cannot find variable with name \'" + nVal + "\'. Define variable before use it!");
 
-                //[1, [2, 3, [4]], 5]  l[0, 1][1, 2][0] = 99 => [99, [2, 99, [99]], 5]
+                ArrayList<Elem<Object>> content = new ArrayList<>(); //extracted content.
+                List<Elem<Object>> prev_list = new ArrayList<>(v.getItems());
 
+                for (int i = 0; i < indices.size(); i++) {
 
-                List<List<Object>> ls = new ArrayList<>();
-
-                for(int i = 0; i < indices.size(); i++) {
-                    idxs = indices.get(i);
-                    for (int p = 0; p < idxs.size(); p++) {
-                        Object idx_i = idxs.get(p);
+                    //extract each ptr (number in brackets [])
+                    for(Elem<Object> ptr : indices.get(i)){
                         Integer j = null;
-                        if (idx_i instanceof String)
-                            j = Integer.parseInt((String) idx_i);
-                        else if (idx_i instanceof Integer)
-                            j = (Integer) idx_i;
+                        if(ptr.getV1() instanceof String)
+                            j = Integer.parseInt((String) ptr.getV1());
+                        else if(ptr.getV1() instanceof Integer)
+                            j = (Integer) ptr.getV1();
 
-                        if(i == 0){
-                            Object item = v.getItems().get(j);
-                            if(item instanceof List)
-                                ls.add((List) item);
-                            else
-                                v.getItems().set(j, exp.top());
+
+                        if(i > 0 && prev_list.size() == 1 && prev_list.get(0).getV1() instanceof List){
+                            Object j_item = ((List) prev_list.get(0).getV1()).get(j); //extract j_item of list.
+                            if(j_item instanceof Elem)
+                                content.add((Elem) j_item);
                         }
-                        else{
-                            List<Object> ls_i = ls.get(p);
-                            Object item = ls.get(j);
-                            if(item instanceof List)
-                                ls.set(p, (List) item);
-                            else
-                                ls_i.set(j, exp.top());
-                        }
-                    } //end current index set.
-                    idxs.clear();
-                } //end indices sets
-                indices.clear();
-                exp.pop();
+                        else
+                            content.add(prev_list.get(j));
+
+                        if(!(content.get(content.size() - 1).getV1() instanceof List))
+                            content.get(content.size() - 1).setV1(exp.top());
+                    }
+                    prev_list.clear();
+                    prev_list.addAll(content); //switch to current extracted content after iteration.
+                    content.clear();
+
+                    //next iteration content will be scanned.
+
+                    indices.get(i).clear(); //remove read ptr
+                }
+
+                indices.clear(); //remove read access.
+                exp.pop(); //remove expression to be assigned for each list item.
+                System.out.println(nVal + " = " + v.getStrVal());
                 return;
             } //end indices.
-            else {
+            else { //simple expression. (nor access nor list [a = exp])
+                v = new Variable(nVal); //ast.value (variable name)
+                context.add(v);
                 v.setStrVal(exp.top());
                 System.out.println(nVal + " = " + v.getStrVal());
                 exp.pop();
@@ -183,16 +187,16 @@ public class BaseInterpreter {
         checkAccess(ast, cur, v, context, exp, lists, indices);
     }
 
-    private void checkAccess(PositionalTree<AstSymbol> ast, Node<AstSymbol> cur, Variable v, Env context,  LinkedStack<String> exp, LinkedStack<List<Object>> lists, ArrayList<List<Object>> indices) throws Exception {
+    private void checkAccess(PositionalTree<AstSymbol> ast, Node<AstSymbol> cur, Variable v, Env context,  LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists, ArrayList<List<Elem<Object>>> indices) throws Exception {
         Node<AstSymbol> parent = ast.parent(cur);
         if(parent.getValue().getType().equals("access")){ //variable > access.
-            ArrayList<Object> content = new ArrayList<>();
-            for(Object ob_i : indices.get(indices.size() - 1)){ //get current index.
+            ArrayList<Elem<Object>> content = new ArrayList<>();
+            for(Elem<Object> ob_i : indices.get(indices.size() - 1)){ //get current index.
                 Integer i = null;
-                if(ob_i instanceof String)
-                    i = Integer.parseInt((String) ob_i);
-                else if(ob_i instanceof Integer)
-                    i = (Integer) ob_i;
+                if(ob_i.getV1() instanceof String)
+                    i = Integer.parseInt((String) ob_i.getV1());
+                else if(ob_i.getV1() instanceof Integer)
+                    i = (Integer) ob_i.getV1();
                 content.add(v.getItems().get(i));
             }
 
@@ -201,16 +205,19 @@ public class BaseInterpreter {
             if(ast.parent(parent).getValue().getType().equals("list")){ //variable > access > list
                 lists.top().addAll(content);
             }
-            else
-                exp.push(content.get(0).toString()); //get first elem
+            else if(content.size() == 1)
+                exp.push(content.get(0).getV1().toString()); //get first elem
+            else if(content.size() > 1) //list expression.
+                lists.push(content);
             return;
         }
         exp.push(v.getStrVal());
     }
 
-    private void checkList(Node<AstSymbol> parent, Env context, String nType, String nVal, LinkedStack<String> exp, LinkedStack<List<Object>> lists) throws Exception {
+    private void checkList(Node<AstSymbol> parent, Env context, String nType, String nVal, LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists) throws Exception {
+        System.out.println("checkList(): " + nVal);
         if(parent.getValue().getType().equals("list"))
-            lists.top().add(nVal);
+            lists.top().add(new Elem<>(nVal));
         else
             exp.push(nVal);
     }

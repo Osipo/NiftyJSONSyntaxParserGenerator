@@ -82,6 +82,9 @@ public class AstParserTest {
         assert ast != null;
         Graphviz.fromString(ast.toDot("astafter")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "semantics_after_ast1"));
 
+        System.out.println("AST nodes: " + ast.getCount());
+        System.out.println("Parsing tree nodes: " + t.getCount());
+
         //Phase 4. Interpret ast nodes.
         BaseInterpreter inter = new BaseInterpreter();
         inter.interpret(ast);
@@ -120,9 +123,12 @@ public class AstParserTest {
         assert ast != null;
         Graphviz.fromString(ast.toDot("astafter")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "semantics_after_ast2"));
 
+        System.out.println("AST nodes: " + ast.getCount());
+        System.out.println("Parsing tree nodes: " + t.getCount());
+
         //Phase 4. Interpret ast nodes.
-        //BaseInterpreter inter = new BaseInterpreter();
-        //inter.interpret(ast);
+        BaseInterpreter inter = new BaseInterpreter();
+        inter.interpret(ast);
     }
 
     @Test

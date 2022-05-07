@@ -3,16 +3,20 @@
     b = 2;
     c = 3 ^ 5;
     {
-       list = [1, 2, 'c', "hello", [5, [6]]];
+       list = [1, 0, 'c', "hello", [5, [6]]];
 
        list[0] = 3 * 2;
-       list[1, 2] = 10000;
+       list[1, 2] = 2;
        list[list[1]] = 'q'; # list[2] = 'q';
 
-       list[5 - 1][0] = list[0] / list[1];
+       list[0, 5 - 1][1][0] = list[0] / list[1]; # list[4][0] =  6 / 2 = 3.
 
-       list[3] = list[0] * list[1] + 1000;
+       list[3] = list[0] * list[1] + 1000;  # 6  * 2 + 1000 = 1012.
 
-       d = list[0] * list[1] + list[3 + 1][1][0]
+       d = list[0] * list[1] + list[3 + 1][1][0] # 6 * 2 + 6 = 18.
     }
 }
+
+# a[0,1][1] => [el1, el2]. => el2.
+# comment
+# a[0][0] => [el1][0] => if el1 list => el1[0] else error
