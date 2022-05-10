@@ -121,6 +121,8 @@ public class BaseInterpreter {
 
     private void checkAssign(PositionalTree<AstSymbol> ast, Node<AstSymbol> cur, Env context, String nType, String nVal, LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists, ArrayList<List<Elem<Object>>> indices) throws Exception {
         Variable v = null;
+        //System.out.println("expr = " + exp.top() + " / " + nVal);
+        //System.out.println("Parent: " + ast.parent(cur).getValue());
         if(ast.parent(cur).getValue().getType().equals("assign")){ //variable parent is assign
             if(lists.top() != null){ //list expression.
                 v = new Variable(nVal); //ast.value (variable name)
@@ -197,9 +199,12 @@ public class BaseInterpreter {
 
     private void checkAccess(PositionalTree<AstSymbol> ast, Node<AstSymbol> cur, Variable v, Env context,  LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists, ArrayList<List<Elem<Object>>> indices) throws Exception {
         Node<AstSymbol> parent = ast.parent(cur);
-        if(parent.getValue().getType().equals("access")){ //variable > access.
-            ArrayList<Elem<Object>> content = new ArrayList<>();
-            for(Elem<Object> ob_i : indices.get(indices.size() - 1)){ //get current index.
+        if(parent.getValue().getType().equals("access")){ //variable > access
+
+            int offset = ast.getChildren(ast.leftMostChild(parent)).size(); //access/list > access/indices > count(children)
+            List<Elem<Object>> content = scanAccess(v, indices, offset);
+            /*
+            for(Elem<Object> ob_i : indices.get(0)){ //get current index.
                 Integer i = null;
                 if(ob_i.getV1() instanceof String)
                     i = Integer.parseInt((String) ob_i.getV1());
@@ -208,7 +213,9 @@ public class BaseInterpreter {
                 content.add(v.getItems().get(i));
             }
 
-            indices.remove(indices.size() - 1); //delete current index.
+            indices.remove(0); //delete current index.
+            */
+
 
             if(ast.parent(parent).getValue().getType().equals("list")){ //variable > access > list
                 lists.top().addAll(content);
@@ -219,6 +226,8 @@ public class BaseInterpreter {
                 lists.push(content);
             return;
         }
+
+
         exp.push(v.getStrVal());
     }
 
@@ -227,6 +236,44 @@ public class BaseInterpreter {
             lists.top().add(new Elem<>(nVal));
         else
             exp.push(nVal);
+    }
+
+    private List<Elem<Object>> scanAccess(Variable v, ArrayList<List<Elem<Object>>> indices, int offset){
+        ArrayList<Elem<Object>> content = new ArrayList<>(); //extracted content.
+        List<Elem<Object>> prev_list = new ArrayList<>(v.getItems());
+
+        int i = indices.size() - offset;
+        int delStart = i;
+        for (; i < indices.size(); i++) {
+
+            //extract each ptr (number in brackets [])
+            for(Elem<Object> ptr : indices.get(i)){
+                Integer j = null;
+                if(ptr.getV1() instanceof String)
+                    j = Integer.parseInt((String) ptr.getV1());
+                else if(ptr.getV1() instanceof Integer)
+                    j = (Integer) ptr.getV1();
+
+
+                if(i > 0 && prev_list.size() == 1 && prev_list.get(0).getV1() instanceof List){
+                    Object j_item = ((List) prev_list.get(0).getV1()).get(j); //extract j_item of list.
+                    if(j_item instanceof Elem)
+                        content.add((Elem) j_item);
+                }
+                else
+                    content.add(prev_list.get(j));
+
+            }
+            prev_list.clear();
+            prev_list.addAll(content); //switch to current extracted content after iteration.
+            content.clear();
+
+            //next iteration content will be scanned.
+
+            indices.get(i).clear(); //remove read ptrs at current index.
+        }
+        indices.subList(delStart, indices.size()).clear(); //remove all elements at [delStart...indices.size() - 1]
+        return prev_list;
     }
 
 } //end class

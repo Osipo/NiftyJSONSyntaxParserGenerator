@@ -129,7 +129,7 @@ public class AstParserTest {
         System.out.println("AST nodes: " + ast.getCount());
         System.out.println("Parsing tree nodes: " + t.getCount());
 
-        //ast.visit(VisitorMode.PRE, null);
+        //ast.visit(VisitorMode.POST, null);
 
         //Phase 4. Interpret ast nodes.
         BaseInterpreter inter = new BaseInterpreter();
