@@ -53,7 +53,6 @@ public class BaseInterpreter {
             case "start":{
                 ArrayList<Elem<Object>> items = new ArrayList<>();
                 lists.push(items);
-                System.out.println("start: " + lists);
                 break;
             }
             case "list": {
@@ -109,7 +108,11 @@ public class BaseInterpreter {
                     }
                 } //end inner switch of nodeVal
 
-                String val = Double.toString(d1);
+                String val = null;
+                if(Math.floor(d1) == d1) //is integer [4.0, 5.0]
+                    val = Integer.toString((int)d1);
+                else
+                    val = Double.toString(d1); //double [4.0001]
                 checkList(ast.parent(cur), context, opType, val, exp, lists);
                 break;
             } // end operator
@@ -155,8 +158,11 @@ public class BaseInterpreter {
                         else
                             content.add(prev_list.get(j));
 
-                        if(!(content.get(content.size() - 1).getV1() instanceof List))
+                        if(!(content.get(content.size() - 1).getV1() instanceof List)) {
                             content.get(content.size() - 1).setV1(exp.top());
+                            //System.out.println("expr = " + exp.top());
+                            //System.out.println("changed: " + nVal + v.getStrVal());
+                        }
                     }
                     prev_list.clear();
                     prev_list.addAll(content); //switch to current extracted content after iteration.
@@ -169,7 +175,9 @@ public class BaseInterpreter {
 
                 indices.clear(); //remove read access.
                 exp.pop(); //remove expression to be assigned for each list item.
-                System.out.println(nVal + " = " + v.getStrVal());
+
+                v.setStrVal(v.getItems().toString());
+                System.out.println("access: " + nVal + " = " + v.getStrVal());
                 return;
             } //end indices.
             else { //simple expression. (nor access nor list [a = exp])
@@ -215,7 +223,6 @@ public class BaseInterpreter {
     }
 
     private void checkList(Node<AstSymbol> parent, Env context, String nType, String nVal, LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists) throws Exception {
-        System.out.println("checkList(): " + nVal);
         if(parent.getValue().getType().equals("list"))
             lists.top().add(new Elem<>(nVal));
         else

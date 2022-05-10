@@ -9,9 +9,9 @@
        list[1, 2] = 2;
        list[list[1]] = 'q'; # list[2] = 'q';
 
-       list[0, 5 - 1][1][0] = list[0] / list[1]; # list[4][0] =  6 / 2 = 3.
+       list[0, 5 - 1][1][0] = list[0] / list[1]; # list[4][0] union list[0] =  6 / 2 = 3.
 
-       list[3] = list[0] * list[1] + 1000;  # 6  * 2 + 1000 = 1012.
+       list[3] = list[0] * list[1] + 1000;  # 3 * 2 + 1000 = 1012.
 
        d = list[0] * list[1] + list[3 + 1][1][0] # 6 * 2 + 6 = 18.
     }

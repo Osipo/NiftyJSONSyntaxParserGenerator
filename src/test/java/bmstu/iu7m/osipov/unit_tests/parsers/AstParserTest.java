@@ -10,7 +10,9 @@ import bmstu.iu7m.osipov.services.parsers.*;
 import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.automats.CNFA;
 import bmstu.iu7m.osipov.structures.automats.DFA;
+import bmstu.iu7m.osipov.structures.graphs.Elem;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
+import bmstu.iu7m.osipov.structures.trees.VisitorMode;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
@@ -24,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.StringConcatFactory;
 import java.util.ArrayList;
+import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(
@@ -126,6 +129,8 @@ public class AstParserTest {
         System.out.println("AST nodes: " + ast.getCount());
         System.out.println("Parsing tree nodes: " + t.getCount());
 
+        //ast.visit(VisitorMode.PRE, null);
+
         //Phase 4. Interpret ast nodes.
         BaseInterpreter inter = new BaseInterpreter();
         inter.interpret(ast);
@@ -174,5 +179,22 @@ public class AstParserTest {
 
         //TODO: phase 4. (interpretation).
 
+    }
+
+    @Test
+    public void testList(){
+        List<Elem<String>> l = new ArrayList<>();
+        l.add(new Elem<>("1"));
+        l.add(new Elem<>("2"));
+
+        System.out.println("l = " + l); //original list.
+        List<Elem<String>> cl = new ArrayList<>(l); //wrapper Elem  allow change content between lists.
+
+        cl.get(0).setV1("1000");
+
+        System.out.println("cl = " + cl);
+        assert cl.get(0).equals(l.get(0));
+        cl.clear();
+        System.out.println("l = " + l);
     }
 }

@@ -318,6 +318,7 @@ public class LRAstTranslator  extends LRParser {
         if(children == null && child != null){
             int child_num = Integer.parseInt(child.substring(1)); //skip '$'
             AST.get(AST.size()).getChildren().add(child_num, ast); //children property is ArrayList.
+            ast.setParent(AST.get(AST.size())); //attach to parent.
             return;
         }
         else if(children == null){} // just skip else-branches.

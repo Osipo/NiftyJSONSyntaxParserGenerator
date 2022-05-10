@@ -23,6 +23,6 @@ public class AstNode implements AstSymbol {
 
     @Override
     public String toString() {
-        return type + "/" + value;
+        return type + "/" + value + "\n";
     }
 }
