@@ -5,7 +5,7 @@ import bmstu.iu7m.osipov.structures.lists.LinkedList;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LinkedNode<T> extends Node<T> {
+public class LinkedNode<T> extends Node<T>  {
     private List<LinkedNode<T>> children;
     private LinkedNode<T> parent;
 

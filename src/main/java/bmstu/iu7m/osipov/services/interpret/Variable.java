@@ -8,11 +8,20 @@ import java.util.List;
 
 public class Variable implements Value<String> {
     private final String name;
-    private String strVal;
-    private List<Elem<Object>> items;
+    private String strVal; //expression (primitive)
+    private List<Elem<Object>> items; //list expression (non-primitive -> list)
+    private FunctionInterpreter function; //function expression.
+
+    private int category = 0; // 0 = simple, 1 = parameter.
+
+    public Variable(String name, int category){
+        this.name = name;
+        this.category = category;
+    }
 
     public Variable(String name){
         this.name = name;
+        this.category = 0;
     }
 
     @Override
@@ -38,5 +47,18 @@ public class Variable implements Value<String> {
 
     public boolean isList(){
         return items != null;
+    }
+
+    public int getCategory(){
+        return this.category;
+    }
+
+    public void setFunction(FunctionInterpreter function) {
+        this.function = function;
+        this.function.setFunName(this.name);
+    }
+
+    public FunctionInterpreter getFunction() {
+        return function;
     }
 }

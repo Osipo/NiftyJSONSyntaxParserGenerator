@@ -150,10 +150,6 @@ public class AstParserTest {
         CNFA nfa = lg.buildNFA(G);
         DFALexer lexer = new DFALexer(new DFA(nfa));
 
-        //LLParserGenerator.firstTable_1(G);
-
-        //lexer.showTranTable();
-
         //make parser
         LRAstTranslator sa = new LRAstTranslator(G, lexer, LRAlgorithm.SLR);
         sa.setParserMode(ParserMode.DEBUG);
@@ -165,14 +161,61 @@ public class AstParserTest {
 
         LinkedTree<LanguageSymbol> t = sa.parse(PathStrings.PARSER_INPUT + "ast\\ast_input3.txt");
         assert t != null;
+        //System.out.println(t);
 
         Graphviz.fromString(t.toDot("astbefore")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "syntax_before_ast3"));
 
-        //phase 1 - 3 completed. (AST tree has been built.)
         LinkedTree<AstSymbol> ast = sa.translate(new File(PathStrings.PARSER_INPUT + "ast\\ast_input3.txt"));
         assert ast != null;
-
         Graphviz.fromString(ast.toDot("astafter")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "semantics_after_ast3"));
+
+        System.out.println("AST nodes: " + ast.getCount());
+        System.out.println("Parsing tree nodes: " + t.getCount());
+
+        //ast.visit(VisitorMode.POST, null);
+
+        //Phase 4. Interpret ast nodes.
+        //BaseInterpreter inter = new BaseInterpreter();
+        //inter.interpret(ast);
+    }
+
+    @Test
+    public void test_ast4_valid_lr_parser() throws IOException {
+        JsonObject G_OBJ = SimpleJsonParserTest.JSON_PARSER.parse(PathStrings.GRAMMARS + "G_Ast_4.json");
+        Grammar G = new Grammar(
+                G_OBJ
+        );
+        System.out.println("Source G: ");
+        System.out.println(G);
+
+        //make lexer.
+        FALexerGenerator lg = new FALexerGenerator();
+        CNFA nfa = lg.buildNFA(G);
+        DFALexer lexer = new DFALexer(new DFA(nfa));
+
+        //LLParserGenerator.firstTable_1(G);
+
+        //lexer.showTranTable();
+
+        //make parser
+        LRAstTranslator sa = new LRAstTranslator(G, lexer, LRAlgorithm.SLR);
+        sa.setParserMode(ParserMode.DEBUG);
+
+        lexer.getImagefromStr(PathStrings.LEXERS,"ast4_right_lexer");
+
+        //Can make parser from Grammar?
+        assert sa.isValidTable();
+
+        LinkedTree<LanguageSymbol> t = sa.parse(PathStrings.PARSER_INPUT + "ast\\ast_input4.txt");
+        assert t != null;
+
+        Graphviz.fromString(t.toDot("astbefore")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "syntax_before_ast4"));
+
+        //phase 1 - 3 completed. (AST tree has been built.)
+        LinkedTree<AstSymbol> ast = sa.translate(new File(PathStrings.PARSER_INPUT + "ast\\ast_input4.txt"));
+        assert ast != null;
+
+        Graphviz.fromString(ast.toDot("astafter")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "semantics_after_ast4"));
 
         System.out.println("AST nodes: " + ast.getCount());
         System.out.println("Parsing tree nodes: " + t.getCount());

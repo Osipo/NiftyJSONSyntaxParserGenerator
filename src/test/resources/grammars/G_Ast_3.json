@@ -19,26 +19,23 @@
     ">": ">",
     ">=": ">=",
     "<>": "<>",
+    "=>": "=>",
     ";": ";",
-    "&&": "&&",
-    "||": "@|@|",
+    "&&" : "&&",
+    "||" : "@|@|",
     "->": "->",
-    "//": "//",
+    "#": "#",
     ",": ",",
     "/*": "/@*",
     "id": "[A-Za-z@_]([A-Za-z@_0-9]+|empty)",
     "num": "[0-9]+([@_]+[0-9]+)*",
-    "Exp": "(E|e)",
-    "Sign": "(-|empty)",
-    "ExpPart": ["(","Exp", "Sign", "num", ")"],
-    "ExpPartOpt": ["(", "ExpPart", "|", "empty", ")"],
-    "realNum": ["num", ".", "num", "ExpPartOpt"],
+    "realNum": "[0-9]+.[0-9]+(((E|e)(-|empty)[0-9]+)|empty)",
     "ch": "\'_\'",
     "str": "\"_*\"",
     "empty": null
   },
   "keywords": [
-    "true","false", "not", "if", "else", "while", "lambda", "pass"
+    "true","false", "not", "lambda"
   ],
   "separators": {
     "num": "_",
@@ -52,28 +49,39 @@
     ]},
     {"SL": ["SL", "S"]}, {"SL": "S"},
     {"S": ["OP", ";"]}, {"S": ["P"]},
-    {"S": ["if","(","B",")","S","ELS",
-      {"act": "astNode", "value": "$0", "type": "if", "children": "$2"}
-    ]},
-    {"ELS": ["else","S",
-      {"act": "astNode", "value": "$0", "type": "else", "children": "$0"}
-    ]},
-    {"ELS": ["empty",
-      {"act": "astNode", "type": "else", "value": "pass"}
-    ]},
-    {"S": ["while", "(","B",")","S",
-      {"act": "astNode", "value": "$0", "type": "loop", "children": "$1"}
-    ]},
-    {"OP": ["id", "=", "EXP",
+    {"OP": "A"},
+    {"OP": "EXP"},
+    {"A": ["id", "ACLIST", "=", "EXP",
+      {"act": "astNode", "value": "$0", "type": "variable"},
+      {"act": "astNode", "value": "$2", "type": "assign", "children": "$2"}
+    ]
+    },
+    {"A": ["id", "=", "EXP",
       {"act": "astNode", "value": "$0", "type": "variable"},
       {"act": "astNode", "value": "$1", "type": "assign", "children": "$1"}
+    ]
+    },
+    {"ACLIST": ["RANGES",
+      {"act": "astNode", "type": "access", "value": "indices", "children": "all"}
     ]},
-    {"OP": "EXP"},
-    {"EXP": "B"},
+    {"RANGES": ["LINDICES"]},
+    {"LINDICES": ["LINDICES", "LINDEX"]},
+    {"LINDICES": "LINDEX"},
+    {"LINDEX": ["LIST"]},
+    {"EXP": "E"},
     {"EXP": ["LIST"]},
-    {"EXP": "CALL"},
-    {"EXP": "LAMBDA"},
-    {"LAMBDA": ["lambda", "LHEADER", "->", "S",
+    {"LIST": ["[", "LITEMS", "]",
+      {"act": "astNode", "type": "list", "value": "items", "children": "all"},
+      {"act": "astNode", "type": "start", "value": "item", "child": "$0"}
+    ]},
+    {"LITEMS": ["LITEMS", ",", "LITEM"]},
+    {"LITEMS": "LITEM"},
+    {"LITEMS": "empty"},
+    {"LITEM": "EXP"},
+
+
+    {"EXP": ["LAMBDA"]},
+    {"LAMBDA": ["lambda", "LHEADER", "=>", "S",
       {"act": "astNode", "type": "lambda", "value": "lambda", "children": "$1"}
     ]},
     {"LHEADER": ["(", "PARGS", ")",
@@ -85,6 +93,8 @@
     {"PARG": ["id",
       {"act": "astNode", "type": "variable", "value": "$0"}
     ]},
+
+    {"EXP": ["CALL"]},
     {"CALL": ["id", "(", "ARGS", ")",
       {"act": "astNode", "type": "args", "value": "items", "children": "all"},
       {"act": "astNode", "type": "call", "value": "$0", "children": "$0"}
@@ -93,49 +103,37 @@
     {"ARGS": "ARG"},
     {"ARGS": "empty"},
     {"ARG": "EXP"},
-    {"LIST": ["[", "LITEMS", "]"
-    , {"act": "astNode", "type": "list", "value": "items", "children": "all"},
-      {"act": "astNode", "type": "start", "value": "item", "child": "$0"}
-    ]},
-    {"LITEMS": ["LITEMS", ",", "LITEM"]},
-    {"LITEMS": "LITEM"},
-    {"LITEMS": "empty"},
-    {"LITEM": "EXP"},
-    {"RELOP": "<"},{"RELOP": "<="},{"RELOP": ">"},{"RELOP": ">="},{"RELOP": "=="},{"RELOP": "<>"},
-    {"B": ["B","->","DISJ", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
-    {"B": "DISJ"},
-    {"DISJ": ["DISJ","||","CONJ",  {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
-    {"DISJ": "CONJ"},
-    {"CONJ": ["CONJ","&&","E", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
-    {"CONJ": "E"},
-    {"E": ["AE","RELOP","AE", {"act": "astNode", "value": "$1_0", "type": "relop", "children": "$1"}]},
-    {"E": "AE"},
-    {"AE": ["AE","+","T", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
-    {"AE": ["AE","-","T",{"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
-    {"AE": "T"},
+
+    {"E": ["E", "+", "T", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"E": ["E", "-", "T", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"E": ["T"]},
     {"T": ["T", "*", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"T": ["T", "/", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"T": ["F"]},
-    {"F": ["F", "^", "UE", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"F": ["UE", "^", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"F": ["UE"]},
     {"UE": ["um", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "operator"}]},
     {"UE": ["up", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "operator"}]},
     {"UE": ["PE"]},
+    {"PE": ["id", "ACLIST",
+      {"act": "astNode", "value": "$0", "type": "variable"},
+      {"act": "astNode", "type": "access", "value": "list", "children": "$1"}
+    ]},
     {"PE": ["id", {"act": "astNode", "value": "$0", "type": "variable"}]},
-    {"PE": ["str", {"act": "astNode", "value": "$0", "type": "string"}]},
     {"PE": ["ch", {"act": "astNode", "value": "$0", "type": "char"}]},
+    {"PE": ["str", {"act": "astNode", "value": "$0", "type": "string"}]},
     {"PE": ["num", {"act": "astNode", "value": "$0", "type": "number"}]},
     {"PE": ["realNum", {"act": "astNode", "value": "$0", "type": "number"}]},
     {"PE": ["true", {"act": "astNode", "value": "$0", "type": "boolean"}]},
     {"PE": ["false", {"act": "astNode", "value": "$0", "type": "boolean"}]},
-    {"PE": ["(", "B",")"]},
-    {"PE": ["not", "(", "B", ")", {"act": "astNode", "value": "$0", "type": "boolean", "children": "$0"}]}
+    {"PE": ["(", "E",")"]},
+    {"PE": ["not", "(", "E", ")", {"act": "astNode", "value": "$0", "type": "boolean", "children": "$0"}]}
   ],
 
   "start": "P",
 
   "meta": {
-    "commentLine": "//",
+    "commentLine": "#",
     "mlCommentStart": "/*",
     "mlCommentEnd": "*/",
     "id": "id",
@@ -146,8 +144,18 @@
     "scopes": [
       {"start": "{", "end": "}", "body": "SL"},
       {"start": "[", "end": "]", "body": "LITEMS"},
+      {"start": ["id", "["], "body": "RANGES"},
       {"start": ["id", "("], "end": ")", "body": "ARGS"},
       {"start": ["lambda", "("], "end": ")", "body": "PARGS"}
+    ],
+    "operators": [
+      "=",
+      "+",
+      "-",
+      "*",
+      "/",
+      "%",
+      "^"
     ]
   }
 }

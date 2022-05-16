@@ -476,7 +476,7 @@ public class Grammar {
                     if(sc_prop.getKey().equals("body")){
                         body = ((JsonString) sc_prop.getValue()).getValue();
                         if(!this.N.contains(body))
-                            throw new InvalidJsonGrammarException("Scope body must be Non-terminal name! (header of production)", null);
+                            throw new InvalidJsonGrammarException("Scope body \'" + body + "\' must be Non-terminal name! (header of production)", null);
                     }
                 } //scope_i props end
                 this.meta.getScopes().add(new Scope(starts, end, body));

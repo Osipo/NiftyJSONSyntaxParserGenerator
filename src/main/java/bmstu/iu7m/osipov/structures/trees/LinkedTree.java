@@ -93,6 +93,23 @@ public class LinkedTree<T> implements Tree<T>, PositionalTree<T> {
         return new LinkedTree<T>(ln);
     }
 
+    @Override
+    public void attachTo(Node<T> n, Node<T> parent) {
+        LinkedNode<T> ln = (LinkedNode<T>) n;
+        LinkedNode<T> lp = (LinkedNode<T>) parent;
+        ln.setParent(lp);
+    }
+
+    @Override
+    public void detachNode(Node<T> n) {
+        LinkedNode<T> ln = (LinkedNode<T>) n;
+        if(ln.getParent() == null)
+            return;
+
+        ln.getParent().getChildren().remove(ln);
+        ln.setParent(null);
+    }
+
     public void visit(VisitorMode order, Action<Node<T>> act){
         Node<Integer> nc = new Node<>(0);//Some actions MAY MODIFY count of TREE_NODES.
         switch(order){

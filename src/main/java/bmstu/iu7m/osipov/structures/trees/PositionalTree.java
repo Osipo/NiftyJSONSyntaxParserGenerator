@@ -6,4 +6,8 @@ public interface PositionalTree<T> extends Tree<T> {
     void addTo(Node<T> n, T item);
     Node<T> rightMostChild(Node<T> n);
     PositionalTree<T> getSubTree(Node<T> n);
+
+    void attachTo(Node<T> n, Node<T> parent);
+
+    void detachNode(Node<T> n);
 }

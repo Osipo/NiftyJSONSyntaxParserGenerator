@@ -2,6 +2,8 @@ package bmstu.iu7m.osipov.services.interpret;
 
 import bmstu.iu7m.osipov.structures.hashtables.STable;
 
+import java.util.function.Predicate;
+
 public class Env {
     protected Env prev;
     protected STable table;
@@ -23,6 +25,15 @@ public class Env {
         for(Env e = this; e != null; e = e.prev){
             Variable found = e.table.get(s);
             if(found != null)
+                return found;
+        }
+        return null;
+    }
+
+    public Variable get(String s, Predicate<Variable> condition){
+        for(Env e = this; e != null; e = e.prev){
+            Variable found = e.table.get(s);
+            if(found != null && condition.test(found))
                 return found;
         }
         return null;
