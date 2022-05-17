@@ -3,7 +3,6 @@ package bmstu.iu7m.osipov.services.interpret;
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
-import bmstu.iu7m.osipov.structures.trees.LinkedNode;
 import bmstu.iu7m.osipov.structures.trees.Node;
 import bmstu.iu7m.osipov.structures.trees.PositionalTree;
 import bmstu.iu7m.osipov.structures.trees.VisitorMode;
@@ -24,7 +23,7 @@ public class BaseInterpreter {
 
         ArrayList<Variable> params = new ArrayList<>();
         LinkedStack<FunctionInterpreter> functions = new LinkedStack<>();
-        ArrayList<Object> args = new ArrayList<>();
+        LinkedStack<ArrayList<Object>> args = new LinkedStack<ArrayList<Object>>();
 
         // anonymous function.
         ast.visit(VisitorMode.PRE, (n) -> {
@@ -54,14 +53,17 @@ public class BaseInterpreter {
 
         ArrayList<Variable> params = new ArrayList<>();
         LinkedStack<FunctionInterpreter> functions = new LinkedStack<>();
-        ArrayList<Object> args = new ArrayList<>();
+        LinkedStack<ArrayList<Object>> args = new LinkedStack<ArrayList<Object>>();
 
         ast.visitFrom(VisitorMode.PRE, p -> {
             if(p.getValue().getType().equals("program"))
                 env.set(new Env(env.get()));
             else if(p.getValue().getType().equals("end"))
                 env.set(env.get().getPrev());
-            else if(p.getValue().getType().equals("assign")) {
+            else if ( (ast.parent(p) != null && ast.parent(p).getValue().getType().equals("program")) ||
+                      (ast.parent(p) == null) //is root.
+            )
+            {
                 ast.visitFrom(VisitorMode.POST, (c) -> {
                     try {
                         applyOperation(ast, env, c, exp, lists, indices, params, functions, args);
@@ -77,7 +79,7 @@ public class BaseInterpreter {
                                 LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists,
                                 ArrayList<List<Elem<Object>>> indices, ArrayList<Variable> params,
                                 LinkedStack<FunctionInterpreter> functions,
-                                ArrayList<Object> args) throws Exception {
+                                LinkedStack<ArrayList<Object>> args) throws Exception {
         if (context == null || cur == null || cur.getValue() == null)
             return;
 
@@ -89,8 +91,14 @@ public class BaseInterpreter {
                 break;
             }
             case "start":{
-                ArrayList<Elem<Object>> items = new ArrayList<>();
-                lists.push(items);
+                if(ast.parent(cur).getValue().getType().equals("list")) { //start > list
+                    ArrayList<Elem<Object>> items = new ArrayList<>();
+                    lists.push(items);
+                }
+                else if(ast.parent(cur).getValue().getType().equals("args")){ //start > args
+                    ArrayList<Object> args_i = new ArrayList<>();
+                    args.push(args_i);
+                }
                 break;
             }
             case "list": {
@@ -137,13 +145,21 @@ public class BaseInterpreter {
                 }
                 break;
             }
-            case "args": {
+            case "args": { //args > call/functionName
                 if(ast.parent(cur).getValue().getType().equals("call")){
-                    int al = ast.getChildren(cur).size();
+                    ArrayList<Object> args_i = args.top();
                     FunctionInterpreter f = context.get().get(ast.parent(cur).getValue().getValue(), v -> v.getFunction() != null).getFunction();
-                    f.bindArguments(args); //throw Exception if cannot bind.
-                    args.clear();// flush processed args.
+                    f.bindArguments(args_i); //throw Exception if cannot bind.
+                    args_i.clear();// flush processed args.
+                    args.pop();
                     execFunction(f, ast, exp);
+                    System.out.println("call " + f.getFunctionName() + " = " + exp.top());
+
+                    // args > call > args (function call is expression of argument of another function call)
+                    if(ast.parent(ast.parent(cur)).getValue().getType().equals("args")){
+                        args.top().add(exp.top());
+                        exp.pop();
+                    }
                 }
                 break;
             }
@@ -200,12 +216,12 @@ public class BaseInterpreter {
                              LinkedStack<List<Elem<Object>>> lists,
                              ArrayList<List<Elem<Object>>> indices,
                              LinkedStack<FunctionInterpreter> functions,
-                             ArrayList<Object> args) throws Exception {
+                             LinkedStack<ArrayList<Object>> args) throws Exception {
         Variable v = null;
         //System.out.println("expr = " + exp.top() + " / " + nVal);
         //System.out.println("Parent: " + ast.parent(cur).getValue());
 
-        if(ast.parent(cur).getValue().getType().equals("assign")){ //variable parent is assign
+        if(ast.parent(cur).getValue().getType().equals("assign") && ast.rightSibling(cur) == null){ //variable parent is assign and it is lvalue (exp = var)
             if(lists.top() != null){ //list expression.
                 v = new Variable(nVal); //ast.value (variable name)
                 context.add(v);
@@ -297,7 +313,7 @@ public class BaseInterpreter {
     private void checkAccess(PositionalTree<AstSymbol> ast, Node<AstSymbol> cur, Variable v,
                              Env context,  LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists,
                              ArrayList<List<Elem<Object>>> indices, LinkedStack<FunctionInterpreter> functions,
-                             ArrayList<Object> args) throws Exception
+                             LinkedStack<ArrayList<Object>> args) throws Exception
     {
         Node<AstSymbol> parent = ast.parent(cur);
         if(parent.getValue().getType().equals("access")){ //variable > access
@@ -309,7 +325,7 @@ public class BaseInterpreter {
                 lists.top().addAll(content);
             }
             else if(ast.parent(parent).getValue().getType().equals("args")) { //variable > access > args
-                args.add(content);
+                args.top().add(content);
             }
             else if(content.size() == 1 && content.get(0).getV1() instanceof FunctionInterpreter){ //function element
                 functions.push((FunctionInterpreter) content.get(0).getV1());
@@ -323,16 +339,16 @@ public class BaseInterpreter {
         else if (parent.getValue().getType().equals("list")) // variable > list.
             lists.top().add(new Elem<>(v.getStrVal()));
         else if(parent.getValue().getType().equals("args")) // variable > args.
-            args.add(v);
+            args.top().add(v);
         else
             exp.push(v.getStrVal());
     }
 
-    private void checkList(Node<AstSymbol> parent, Env context, String nType, String nVal, LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists, ArrayList<Object> args) throws Exception {
+    private void checkList(Node<AstSymbol> parent, Env context, String nType, String nVal, LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists, LinkedStack<ArrayList<Object>> args) throws Exception {
         if(parent.getValue().getType().equals("list"))
             lists.top().add(new Elem<>(nVal));
         else if(parent.getValue().getType().equals("args"))
-            args.add(nVal);
+            args.top().add(nVal);
         else
             exp.push(nVal);
     }

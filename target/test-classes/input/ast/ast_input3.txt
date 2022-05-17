@@ -1,16 +1,23 @@
 {
     a = 15;
-    b = a * 2 ^ 2 ^ 3;
+    b = a * 2 ^ 2 ^ 3; # 3840.
     {
         list = [1, 2, 'c', lambda (x) => { x = 10; lambda(y) => x * y;;}, "hello world", [5, 6, [7, "end"], 10], 100];
 
-        list[1] = lambda (a, b) => { a + b; };  # first ; close function body, second ; close whole operator (assign stmt)
+        list[1] = lambda (a, b) => { a = a; b = b; a + b; };  # first ; close function body, second ; close whole operator (assign stmt)
 
         f = list[1];
         g = lambda (x) => lambda(y) => y * x;;;
         list[0] = f(a * 2, f(10, 20)); # 60.
-        q = f(a, b);
-        q2 = f(list[0], f);
+        q = f(a, b); # 15 + 3840 = 3855
+        q2 = f(list[0], 0); # 1 + 0 = 1.
+
+        a2 = g(4);
+        a3 = a2(10); # 4 * 10 = 40.
+
+        b2 = list[3]; # get function.
+        b3 = b2(999); # x = 10. so 999 is skipped.
+        b4 = b3(1); # 1 * 10 = 10.
     }
 }
 

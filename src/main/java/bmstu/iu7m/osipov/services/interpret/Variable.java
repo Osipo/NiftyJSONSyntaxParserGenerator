@@ -55,10 +55,15 @@ public class Variable implements Value<String> {
 
     public void setFunction(FunctionInterpreter function) {
         this.function = function;
-        this.function.setFunName(this.name);
+        this.function.setFunName(this.name, this);
     }
 
     public FunctionInterpreter getFunction() {
         return function;
+    }
+
+    @Override
+    public String toString(){
+        return this.name + ": " + this.strVal;
     }
 }

@@ -1,6 +1,5 @@
 package bmstu.iu7m.osipov.unit_tests.parsers;
 
-import bmstu.iu7m.osipov.bases.B;
 import bmstu.iu7m.osipov.configurations.PathStrings;
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
@@ -12,7 +11,6 @@ import bmstu.iu7m.osipov.structures.automats.CNFA;
 import bmstu.iu7m.osipov.structures.automats.DFA;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
-import bmstu.iu7m.osipov.structures.trees.VisitorMode;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
@@ -24,7 +22,6 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.invoke.StringConcatFactory;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -175,8 +172,8 @@ public class AstParserTest {
         //ast.visit(VisitorMode.POST, null);
 
         //Phase 4. Interpret ast nodes.
-        //BaseInterpreter inter = new BaseInterpreter();
-        //inter.interpret(ast);
+        BaseInterpreter inter = new BaseInterpreter();
+        inter.interpret(ast);
     }
 
     @Test

@@ -97,6 +97,7 @@
     {"EXP": ["CALL"]},
     {"CALL": ["id", "(", "ARGS", ")",
       {"act": "astNode", "type": "args", "value": "items", "children": "all"},
+      {"act": "astNode", "type": "start", "value": "item", "child": "$0"},
       {"act": "astNode", "type": "call", "value": "$0", "children": "$0"}
     ]},
     {"ARGS": ["ARGS", ",", "ARG"]},

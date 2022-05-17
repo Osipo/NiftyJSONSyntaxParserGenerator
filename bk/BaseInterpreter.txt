@@ -277,3 +277,8 @@ public class BaseInterpreter {
     }
 
 } //end class
+
+
+// assign -> (post, assign, processor1)
+// list -> (post, list, processor2)
+// lambda -> (pre, lambda, processor3)

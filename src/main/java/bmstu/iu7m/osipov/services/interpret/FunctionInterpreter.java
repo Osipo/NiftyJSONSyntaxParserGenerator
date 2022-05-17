@@ -1,6 +1,7 @@
 package bmstu.iu7m.osipov.services.interpret;
 
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
+import bmstu.iu7m.osipov.structures.graphs.Elem;
 import bmstu.iu7m.osipov.structures.trees.Node;
 
 
@@ -23,20 +24,36 @@ public class FunctionInterpreter {
     }
 
 
-    public void setFunName(String name){
+    public void setFunName(String name, Variable self){
         this.funName = name;
+        this.context.add(self); //add reference to self in the context.
     }
 
     public void bindArguments(List<Object> args) throws Exception {
+        //System.out.println("expected: " + this.params.size());
+        //System.out.println("actual: " + args.size());
         if(args.size() != this.params.size())
-            throw new Exception("Arguments length mismatch with parameters of function '" + funName + "'");
+            throw new Exception("Arguments length mismatches with count of parameters of function '" + funName + "'");
         for(int i = 0; i < args.size(); i++){
             Object a = args.get(i);
             Variable p_i = this.params.get(i);
+
             if(a instanceof String)
                 p_i.setStrVal((String) a);
+
+            else if(a instanceof Elem){
+                a = ((Elem<?>) a).getV1();
+                if(a instanceof String)
+                    p_i.setStrVal((String) a);
+            }
+
+            else if(a instanceof Variable){
+                p_i = (Variable) a;
+            }
+
             this.context.add(p_i);
         }
+        System.out.println(params);
     }
 
     public Node<AstSymbol> getRoot() {
@@ -47,7 +64,7 @@ public class FunctionInterpreter {
         return context;
     }
 
-    public String getFunName() {
+    public String getFunctionName() {
         return funName;
     }
 }
