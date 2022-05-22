@@ -32,6 +32,8 @@ public abstract class Parser {
 
     public abstract LinkedTree<LanguageSymbol> parse(File f);
 
+    public abstract void showMessage(String body);
+
     public Parser(Grammar G, ILexer lexer) {
         this.lexer = lexer;
         this.isParsed = true;

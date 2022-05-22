@@ -110,8 +110,7 @@ public class LLParser extends Parser{
             int nidx = 1;//counter of elements (tree nodes)
             while(!X.getValue().getName().equals("$")) {
                 if(X.getValue().getName().equals(t)){//S.Top() == X && X == t
-                    if(mode == ParserMode.DEBUG)
-                        System.out.println(S+" >>"+t+" action: "+"Remove from stack "+t);
+                    showMessage(S+" >>"+t+" action: "+"Remove from stack "+t);
 
                     ((Token)S.top().getValue()).setLexem(tok.getLexeme()); //convert Token name to the lexeme.
                     S.pop();
@@ -130,26 +129,23 @@ public class LLParser extends Parser{
                     continue;
                 }
                 else if(X.getValue().getName().equals("Unrecognized")){
-                    System.out.println(X.getValue().getLexeme());
+                    System.out.println(X.getValue());
                     isParsed = false;
                     break;
                 }
                 else if(this.T.contains(X.getValue().getName())) {
-                    if(mode == ParserMode.DEBUG)
-                        System.out.println(S+" >>"+t+" action: "+"Error: Unmatched terms!");
+                    showMessage(S+" >>"+t+" action: "+"Error: Unmatched terms!");
                     isParsed = false;
                     break;
                 }
                 GrammarString prod = table.get(new Pair<String, String>(X.getValue().getName(), t));
                 if(prod == null) {
-                    if(mode == ParserMode.DEBUG)
-                        System.out.println(S+" >>"+t+" action: "+"Error: No Production ");
+                    showMessage(S+" >>"+t+" action: "+"Error: No Production ");
                     isParsed = false;
                     break;
                 }
                 else{
-                    if(mode == ParserMode.DEBUG)
-                        System.out.println(S+" >>"+t+" action: "+"Produce "+X.getValue().toString()+" -> "+ prod );
+                    showMessage(S+" >>"+t+" action: "+"Produce "+X.getValue().toString()+" -> "+ prod );
                     List<GrammarSymbol> symbols = prod.getSymbols();
                     S.pop();
                     //LinkedStack<LinkedNode<String>> RS = new LinkedStack<>();//used only to order children YK..Y1 -> Y1..Yk in brace notation
@@ -193,5 +189,11 @@ public class LLParser extends Parser{
             System.out.println("File is not available now.");
             return null;
         }
+    }
+
+    @Override
+    public void showMessage(String body) {
+        if(this.mode == ParserMode.DEBUG)
+            System.out.println(body);
     }
 }

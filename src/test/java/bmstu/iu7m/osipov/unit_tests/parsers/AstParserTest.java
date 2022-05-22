@@ -149,7 +149,7 @@ public class AstParserTest {
 
         //make parser
         LRAstTranslator sa = new LRAstTranslator(G, lexer, LRAlgorithm.SLR);
-        sa.setParserMode(ParserMode.DEBUG);
+        sa.setParserMode(ParserMode.HIDE);
 
         lexer.getImagefromStr(PathStrings.LEXERS,"ast3_right_lexer");
 

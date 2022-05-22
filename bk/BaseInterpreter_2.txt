@@ -154,7 +154,7 @@ public class BaseInterpreter {
                     execFunction(f, ast, exp, functions);
 
                     if(exp.top() == null) {
-                        System.out.println("Function '" + f.getFunctionName() + "' returns new lambda function");
+                        System.out.println("Function '" + f.getFunctionName() + "' returns new function '" + functions.top().getFunctionName() + "'");
                         System.out.println(functions);
                         break;
                     }
@@ -163,11 +163,6 @@ public class BaseInterpreter {
                     // args > call > args (function call is expression of argument of another function call)
                     if(ast.parent(ast.parent(cur)).getValue().getType().equals("args")){
                         args.top().add(exp.top());
-                        exp.pop();
-                    }
-                    //args > call > list
-                    else if(ast.parent(ast.parent(cur)).getValue().getType().equals("list")){
-                        lists.top().add(new Elem<>(exp.top()));
                         exp.pop();
                     }
                 }

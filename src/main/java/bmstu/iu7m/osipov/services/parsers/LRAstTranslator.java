@@ -66,21 +66,22 @@ public class LRAstTranslator  extends LRParser {
             while (true) {
                 cstate = states.top();
                 Pair<Integer, String> k = new Pair<>(cstate, t);
-                if (mode == ParserMode.DEBUG)
-                    System.out.println(states + " " + S + " >>" + t);
+                showMessage(states + " " + S + " >>" + t);
                 //command =  s_state (shift to the new state)
                 //      | r_header:size (reduce to production with header and size of items)
                 //      | acc
                 //      | err
                 command = table.getActionTable().get(k);
-                System.out.println(command);
+                //System.out.println(command);
+                showMessage(command);
                 if (command == null && empty == null) {//if where are no any command and no empty.
                     isParsed = false;
                     break;
                 }
                 if (command == null) { //if where is a empty symbol, try get command at [state, empty]
                     command = table.getActionTable().get(new Pair<Integer, String>(cstate, empty));
-                    System.out.println("Command for [" + cstate + ", empty] = " + command);
+                    //System.out.println("Command for [" + cstate + ", empty] = " + command);
+                    showMessage("Command for [" + cstate + ", empty] = " + command);
                     if (command != null) { // apply shift empty symbol if presence. (Rule like A -> e)
                         String j = command.substring(command.indexOf('_') + 1);
                         states.push(Integer.parseInt(j));
@@ -223,7 +224,8 @@ public class LRAstTranslator  extends LRParser {
                                 String arg3 = astdef.getArguments().getOrDefault("children", null);
                                 String arg4 = astdef.getArguments().getOrDefault("child", null);
                                 int astAllPos = scopes.top() != null ? scopes.top() : 0;
-                                System.out.println("scopes: "+scopes);
+                                //System.out.println("scopes: "+scopes);
+                                showMessage("scopes: " + scopes);
                                 createAstNode(arg1, arg2, arg3, arg4, parent, AST, aidx, astAllPos);
                             }
                         }
@@ -304,10 +306,7 @@ public class LRAstTranslator  extends LRParser {
         ast.setIdx(idx.getV1());
         idx.setV1(idx.getV1() + 1);
 
-        if(mode == ParserMode.DEBUG) {
-            System.out.println("AST: " + AST);
-            System.out.println("children: " + children);
-        }
+        showMessage("AST: " + AST + "\n" + "children: " + children);
 
         LinkedNode<AstSymbol> c_i = null;
         int l = AST.size();
@@ -340,8 +339,7 @@ public class LRAstTranslator  extends LRParser {
                 c_i = AST.get(ptr);
                 AST.remove(ptr - 1); //l - pos - 1
 
-                if(mode == ParserMode.DEBUG)
-                    System.out.println("after delete: "+AST); // debug
+                showMessage("after delete: "+AST);
 
                 if(c_i == null)
                     continue;
@@ -350,12 +348,9 @@ public class LRAstTranslator  extends LRParser {
             }
         }
 
-        //finaly add node.
-        if(mode == ParserMode.DEBUG)
-            System.out.println("AST size before: "+AST.size());
+        //finally add node.
+        showMessage("AST size before: "+AST.size());
         AST.append(ast);
-
-        if(mode == ParserMode.DEBUG)
-            System.out.println("AST size after: "+AST.size());
+        showMessage("AST size after: "+AST.size());
     }
 }

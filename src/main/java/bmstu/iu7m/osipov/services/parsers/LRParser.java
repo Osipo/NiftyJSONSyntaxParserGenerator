@@ -88,23 +88,22 @@ public class LRParser extends Parser {
             while(true) {
                 cstate = states.top();
                 Pair<Integer, String> k = new Pair<>(cstate, t);
-                if(mode == ParserMode.DEBUG) {
-                    System.out.println(states + " " + S + " >>" + t);
-                    System.out.println("tok = "+ tok);
-                }
+                showMessage(states + " " + S + " >>" + t + "\ntok = " + tok);
                 //command =  s_state (shift to the new state)
                 //      | r_header:size (reduce to production with header and size of items)
                 //      | acc
                 //      | err
                 command = table.getActionTable().get(k);
-                System.out.println(command);
+                showMessage(command);
+                //System.out.println(command);
                 if(command == null && empty == null){//if where are no any command and no empty.
                     isParsed = false;
                     break;
                 }
                 if(command == null){ //if where is a empty symbol, try get command at [state, empty]
                     command = table.getActionTable().get(new Pair<Integer, String>(cstate, empty));
-                    System.out.println("Command for ["+ cstate +", empty] = " + command);
+                    //System.out.println("Command for ["+ cstate +", empty] = " + command);
+                    showMessage("Command for ["+ cstate +", empty] = " + command);
                     if(command != null && command.charAt(0) == 's'){ // apply shift empty symbol if presence. (Rule like A -> e)
                         String j = command.substring(command.indexOf('_') + 1);
                         states.push(Integer.parseInt(j));
@@ -195,5 +194,11 @@ public class LRParser extends Parser {
             System.out.println("File is not available now.");
             return null;
         }
+    }
+
+    @Override
+    public void showMessage(String body) {
+        if(this.mode == ParserMode.DEBUG)
+            System.out.println(body);
     }
 }

@@ -48,7 +48,7 @@ public class FunctionInterpreter {
             }
 
             else if(a instanceof Variable){
-                p_i = (Variable) a;
+                p_i.setStrVal(((Variable) a).getStrVal());
             }
 
             this.context.add(p_i);
