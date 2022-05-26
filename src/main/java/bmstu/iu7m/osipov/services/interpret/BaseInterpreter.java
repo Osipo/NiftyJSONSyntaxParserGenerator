@@ -2,10 +2,12 @@ package bmstu.iu7m.osipov.services.interpret;
 
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
+import bmstu.iu7m.osipov.structures.graphs.Pair;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.trees.Node;
 import bmstu.iu7m.osipov.structures.trees.PositionalTree;
 import bmstu.iu7m.osipov.structures.trees.VisitorMode;
+import bmstu.iu7m.osipov.structures.trees.VisitorsNextIteration;
 import bmstu.iu7m.osipov.utils.ProcessNumber;
 
 import java.util.ArrayList;
@@ -13,6 +15,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class BaseInterpreter {
+
+    private boolean skip = false;
 
     public void interpret(PositionalTree<AstSymbol> ast) {
         AtomicReference<Env> env = new AtomicReference<>();
@@ -25,25 +29,26 @@ public class BaseInterpreter {
         LinkedStack<FunctionInterpreter> functions = new LinkedStack<>();
         LinkedStack<ArrayList<Object>> args = new LinkedStack<ArrayList<Object>>();
 
-        // anonymous function.
+        VisitorsNextIteration<AstSymbol> nextItr = new VisitorsNextIteration<>();
+
         ast.visit(VisitorMode.PRE, (n) -> {
             if(n.getValue().getType().equals("program"))
                 env.set(new Env(env.get()));
             else if(n.getValue().getType().equals("end"))
                 env.set(env.get().getPrev());
             else if(n.getValue().getType().equals("assign")) {
-                ast.visitFrom(VisitorMode.POST, (c) -> {
+                ast.visitFrom(VisitorMode.POST, (c, next) -> {
                     try {
-                        applyOperation(ast, env, c, exp, lists, indices, params, functions, args);
+                        applyOperation(ast, env, c, exp, lists, indices, params, functions, args, nextItr);
                     } catch (Exception e) {
                         System.err.println(e);
                     }
-                }, n);
+                }, n, nextItr);
             }
         });
     }
 
-    private void execFunction(FunctionInterpreter f, PositionalTree<AstSymbol> ast, LinkedStack<String> exp, LinkedStack<FunctionInterpreter> functions){
+    private void execFunction(FunctionInterpreter f, PositionalTree<AstSymbol> ast, LinkedStack<String> exp, LinkedStack<FunctionInterpreter> functions, VisitorsNextIteration<AstSymbol> nextItr){
         AtomicReference<Env> env2 = new AtomicReference<>();
         env2.set(f.getContext());
         Node<AstSymbol> root = f.getRoot();
@@ -63,13 +68,13 @@ public class BaseInterpreter {
                       (ast.parent(p) == null) //is root.
             )
             {
-                ast.visitFrom(VisitorMode.POST, (c) -> {
+                ast.visitFrom(VisitorMode.POST, (c, next) -> {
                     try {
-                        applyOperation(ast, env2, c, exp, lists, indices, params, functions, args);
+                        applyOperation(ast, env2, c, exp, lists, indices, params, functions, args, nextItr);
                     } catch (Exception e) {
                         System.err.println(e);
                     }
-                }, p);
+                }, p, nextItr);
             }
         }, root);
     }
@@ -78,14 +83,20 @@ public class BaseInterpreter {
                                 LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists,
                                 ArrayList<List<Elem<Object>>> indices, ArrayList<Variable> params,
                                 LinkedStack<FunctionInterpreter> functions,
-                                LinkedStack<ArrayList<Object>> args) throws Exception {
+                                LinkedStack<ArrayList<Object>> args,
+                                VisitorsNextIteration<AstSymbol> nextIteration) throws Exception {
         if (context == null || cur == null || cur.getValue() == null)
             return;
 
         String opType = cur.getValue().getType();
         String nodeVal = cur.getValue().getValue();
         switch (opType){
-            case "number": case "char": case "string": {
+            case "char": case "string": {
+                checkList(ast.parent(cur), context.get(), opType, nodeVal, exp, lists, args);
+                break;
+            }
+            case "number":{
+                nodeVal = ProcessNumber.parseNumber(nodeVal) + ""; //get parsed double as str.
                 checkList(ast.parent(cur), context.get(), opType, nodeVal, exp, lists, args);
                 break;
             }
@@ -126,9 +137,11 @@ public class BaseInterpreter {
 
                 Node<AstSymbol> f_body = ast.rightSibling(cur);
 
-                //delete connection with f_body
-                ast.detachNode(f_body);
+                //delete connection of f_body with lambda node.
+                //ast.detachNode(f_body);
 
+                //skip next iteration for f_body node.
+                nextIteration.setOpts(1); //just skip siblings.
 
                 //and create function of first order.
                 FunctionInterpreter fun = new FunctionInterpreter(f_body, context.get(), params);
@@ -140,8 +153,10 @@ public class BaseInterpreter {
             case "lambda": {
                 if(ast.parent(cur) != null && ast.parent(cur).getValue().getType().equals("list")){ //lambda in list/items.
                     lists.top().add(new Elem<>(functions.top())); //move lambda from stack to list.
+                    //System.out.println("lambda function added to list");
                     functions.pop();
                 }
+                nextIteration.setOpts(0); //flush skip flag.
                 break;
             }
             case "args": { //args > call/functionName
@@ -151,9 +166,24 @@ public class BaseInterpreter {
                     f.bindArguments(args_i); //throw Exception if cannot bind.
                     args_i.clear();// flush processed args.
                     args.pop();
-                    execFunction(f, ast, exp, functions);
+                    execFunction(f, ast, exp, functions, nextIteration);
 
-                    if(exp.top() == null) {
+                    //get next arguments caller. (args + args)
+                    if(exp.top() == null && ast.rightSibling(cur) != null && ast.rightSibling(cur).getValue().getType().equals("args")){
+                        System.out.println("Function '" + f.getFunctionName() + "' returns new lambda function");
+
+                        Variable f_2 = new Variable("0$_" + f.getFunctionName());
+                        f_2.setFunction(functions.top());
+                        functions.pop();
+                        context.get().add(f_2); //add generated variable (name is illegal for input) of N + 1 function
+
+                        System.out.println("Call anonymous returned function: " + f_2.getValue());
+
+                        ast.parent(cur).getValue().setValue(f_2.getValue()); //change current call node of args to anonymous func
+
+                        break;
+                    }
+                    else if(exp.top() == null) {
                         System.out.println("Function '" + f.getFunctionName() + "' returns new lambda function");
                         System.out.println(functions);
                         break;
@@ -173,6 +203,40 @@ public class BaseInterpreter {
                 }
                 break;
             }
+            // unary operators (such as sign ('-', '+') or inc, dec ('++', '--').
+            case "unaryop":{
+                String t1 = exp.top();
+                exp.pop();
+                double d1 = ProcessNumber.parseNumber(t1);
+                switch (nodeVal){
+                    case "-":{
+                        d1 = -d1; //negate.
+                    }
+                    case "+":{
+                        break;
+                    }
+                    case "++":{
+                        d1 += 1;
+                        break;
+                    }
+                    case "--":{
+                        d1 -= 1;
+                        break;
+                    }
+                }
+                String val = null;
+                if(Math.floor(d1) == d1) //is integer [4.0, 5.0]
+                    val = Integer.toString((int)d1);
+                else
+                    val = Double.toString(d1); //double [4.0001]
+
+                if(ast.parent(cur) == null)
+                    exp.push(val);
+                else
+                    checkList(ast.parent(cur), context.get(), opType, val, exp, lists, args);
+                break;
+            }
+
             case "operator": {
                 String t1 = exp.top();
                 exp.pop();
@@ -260,7 +324,7 @@ public class BaseInterpreter {
                     for(Elem<Object> ptr : indices.get(i)){
                         Integer j = null;
                         if(ptr.getV1() instanceof String)
-                            j = Integer.parseInt((String) ptr.getV1());
+                            j = (Integer) ProcessNumber.parseNumber((String) ptr.getV1(), Integer.class);//Integer.parseInt((String) ptr.getV1());
                         else if(ptr.getV1() instanceof Integer)
                             j = (Integer) ptr.getV1();
 
@@ -382,7 +446,7 @@ public class BaseInterpreter {
             for(Elem<Object> ptr : indices.get(i)){
                 Integer j = null;
                 if(ptr.getV1() instanceof String)
-                    j = Integer.parseInt((String) ptr.getV1());
+                    j = (Integer) ProcessNumber.parseNumber((String) ptr.getV1(), Integer.class);//Integer.parseInt((String) ptr.getV1());
                 else if(ptr.getV1() instanceof Integer)
                     j = (Integer) ptr.getV1();
 

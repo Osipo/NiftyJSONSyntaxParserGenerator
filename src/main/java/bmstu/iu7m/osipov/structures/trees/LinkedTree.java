@@ -138,6 +138,26 @@ public class LinkedTree<T> implements Tree<T>, PositionalTree<T> {
         }
     }
 
+    public void visit(VisitorMode order, Action2<Node<T>, VisitorsNextIteration<T>> act, VisitorsNextIteration<T> nextItrStrategy){
+        Node<Integer> nc = new Node<>(0);//Some actions MAY MODIFY count of TREE_NODES.
+        switch(order){
+            case PRE:
+                _visitor.preOrder(this, act, nextItrStrategy);
+                __ComputeC(nc);
+                _count = nc.getValue();
+                break;
+            case POST:
+                _visitor.postOrder(this, act, nextItrStrategy);
+                __ComputeC(nc);
+                _count = nc.getValue();
+                break;
+            default:
+                break;
+        }
+    }
+
+
+
     @Override
     public <R extends Node<T>> void visitFrom(VisitorMode order, Action<Node<T>> act,R node){
         Node<Integer> nc = new Node<>(0);//Some actions MAY MODIFY count of TREE_NODES.
@@ -159,6 +179,25 @@ public class LinkedTree<T> implements Tree<T>, PositionalTree<T> {
                 break;
             case NONE:
                 act.perform(node);//NONE => perform action on the root.
+                __ComputeC(nc);
+                _count = nc.getValue();
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public <R extends Node<T>> void visitFrom(VisitorMode order, Action2<Node<T>, VisitorsNextIteration<T>> act, R node, VisitorsNextIteration<T> nextIterationStrategy){
+        Node<Integer> nc = new Node<>(0);//Some actions MAY MODIFY count of TREE_NODES.
+        switch(order){
+            case PRE:
+                _visitor.preOrder(this,act,node, nextIterationStrategy);
+                __ComputeC(nc);
+                _count = nc.getValue();
+                break;
+            case POST:
+                _visitor.postOrder(this,act,node, nextIterationStrategy);
                 __ComputeC(nc);
                 _count = nc.getValue();
                 break;

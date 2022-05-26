@@ -377,8 +377,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
 
         return ((c == ' ') || (c == '\t') || (c == '\r') || (c == '\n'))
                 && (terms == null || terms.size() == 0 ||
-                    !(terms.contains(" ") || terms.contains("\t") || terms.contains("\n") || terms.contains("\r")
-                    )
+                    !(terms.contains(c + ""))
         );
     }
 

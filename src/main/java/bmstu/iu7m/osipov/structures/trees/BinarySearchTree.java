@@ -231,6 +231,22 @@ public class BinarySearchTree<T> implements Tree<T> {
             case IN:
                 _visitor.inOrder(this,act);
                 break;
+            case NONE:
+                act.perform(_r);//NONE => perform action on the root.
+                break;
+            default:
+                break;
+        }
+    }
+
+    public void visit(VisitorMode order, Action2<Node<T>, VisitorsNextIteration<T>> act, VisitorsNextIteration<T> nextItrStrategy){
+        switch(order){
+            case PRE:
+                _visitor.preOrder(this, act, nextItrStrategy);
+                break;
+            case POST:
+                _visitor.postOrder(this, act, nextItrStrategy);
+                break;
             default:
                 break;
         }
@@ -238,7 +254,6 @@ public class BinarySearchTree<T> implements Tree<T> {
 
     @Override
     public <R extends Node<T>> void visitFrom(VisitorMode order, Action<Node<T>> act,R node){
-        Node<Integer> nc = new Node<>(0);//Some actions MAY MODIFY count of TREE_NODES.
         switch(order){
             case PRE:
                 _visitor.preOrder(this,act,node);
@@ -251,6 +266,20 @@ public class BinarySearchTree<T> implements Tree<T> {
                 break;
             case NONE:
                 act.perform(node);//NONE => perform action on the root.
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    public <R extends Node<T>> void visitFrom(VisitorMode order, Action2<Node<T>, VisitorsNextIteration<T>> act, R node, VisitorsNextIteration<T> nextIterationStrategy){
+        switch(order){
+            case PRE:
+                _visitor.preOrder(this,act,node, nextIterationStrategy);
+                break;
+            case POST:
+                _visitor.postOrder(this,act,node, nextIterationStrategy);
                 break;
             default:
                 break;

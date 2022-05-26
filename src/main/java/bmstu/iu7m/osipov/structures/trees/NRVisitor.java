@@ -127,4 +127,81 @@ public class NRVisitor<T> implements Visitor<T> {
             }
         }
     }
+
+    //SAME METHODS WITH Action (2nd param) with 2 ARGS, WHERE 2 ARG IS NextIterationStrategy. (3rd param of these methods)
+    @Override
+    public void preOrder(Tree<T> tree, Action2<Node<T>, VisitorsNextIteration<T>> act, VisitorsNextIteration<T> nextItrStrategy){
+        Node<T> m = tree.root();//ROOT(T)
+
+        if(act == null){
+            act = (n, nextItr) -> System.out.print(tree.value(n).toString()+" ");
+        }
+
+        LinkedStack<Node<T>> STACK = new LinkedStack<>();
+        long c  = 0;
+
+        while(true){
+            if(m != null){
+                if(!noCount)
+                    c++;
+
+                act.perform(m, nextItrStrategy);//LABEL(node,TREE)
+                STACK.push(m);
+                if(nextItrStrategy.getOpts() == 0) {
+                    m = tree.leftMostChild(m);//LEFTMOST_CHILD(node,TREE)
+                }
+                else{
+                    m = null;
+                }
+            }
+            else{
+                if(STACK.isEmpty()){
+                    if(!noCount)
+                        System.out.println("Visited: "+c);
+                    return;
+                }
+
+                if(nextItrStrategy.getOpts() == 0) {
+                    m = tree.rightSibling(STACK.top());//RIGHT_SIBLING(TOP(S),TREE) where TOP(S) is node
+                }
+                STACK.pop();//POP(S)
+            }
+        }
+    }
+
+
+    @Override
+    public  void postOrder(Tree<T> tree, Action2<Node<T>, VisitorsNextIteration<T>> act, VisitorsNextIteration<T> nextItrStrategy) {
+        Node<T> m = tree.root();//ROOT(T)
+
+        if(act == null){
+            act = (n, nextItr) -> System.out.print(tree.value(n).toString()+" ");
+        }
+
+        LinkedStack<Node<T>> STACK = new LinkedStack<>();
+        long c  = 0;
+        while(true){
+            if(m != null){
+                STACK.push(m);
+                m = tree.leftMostChild(m);
+            }
+            else{
+                if(STACK.isEmpty()){
+                    if(!noCount)
+                        System.out.println("Visited: "+c);
+                    return;
+                }
+                act.perform(STACK.top(), nextItrStrategy);
+
+                if(!noCount)
+                    c++;
+
+                if(nextItrStrategy.getOpts() == 0) {
+                    m = tree.rightSibling(STACK.top());//RIGHT_SIBLING(TOP(S),TREE) where TOP(S) is node
+                }
+
+                STACK.pop();//POP(S)
+            }
+        }
+    }
 }

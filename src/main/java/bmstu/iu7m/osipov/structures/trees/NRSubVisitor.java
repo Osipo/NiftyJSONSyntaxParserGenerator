@@ -122,4 +122,91 @@ public class NRSubVisitor<T> extends NRVisitor<T> implements SubVisitor<T> {
             }
         }
     }
+
+
+    //SAME METHODS WITH Action (2nd param) with 2 ARGS, WHERE 2 ARG IS NextIterationStrategy. (4th param of these methods)
+    @Override
+    public void preOrder(Tree<T> tree, Action2<Node<T>, VisitorsNextIteration<T>> act, Node<T> node, VisitorsNextIteration<T> nextItr){
+        Node<T> m = node;
+        Node<T> subRoot = m;
+
+        if(act == null){
+            act = (n, itr) -> System.out.print(tree.value(n).toString()+" ");
+        }
+
+        LinkedStack<Node<T>> STACK = new LinkedStack<>();
+        long c  = 0;
+        if(m == null)
+            return;
+
+        while(true){
+            if(m != null){
+                if(!noCount)
+                    c++;
+                act.perform(m, nextItr);
+                STACK.push(m);
+                m = tree.leftMostChild(m);//LEFTMOST_CHILD(node,TREE)
+            }
+            else{
+                if(STACK.isEmpty()){
+                    if(!noCount)
+                        System.out.println("Visited: "+c);
+                    return;
+                }
+                if(STACK.top().getIdx() == subRoot.getIdx()){ //only till SubRoot.
+                    STACK.pop();
+                    return;
+                }
+
+                if(nextItr.getOpts() == 0) {
+                    m = tree.rightSibling(STACK.top());//RIGHT_SIBLING(TOP(S),TREE) where TOP(S) is node
+                }
+                STACK.pop();//POP(S)
+            }
+        }
+    }
+
+    @Override
+    public void postOrder(Tree<T> tree, Action2<Node<T>, VisitorsNextIteration<T>> act, Node<T> node, VisitorsNextIteration<T> nextItr) {
+        Node<T> m = node;
+        Node<T> subRoot = m;
+        if(act == null){
+            act = (n, itr) -> System.out.print(tree.value(n).toString()+" ");
+        }
+
+        LinkedStack<Node<T>> STACK = new LinkedStack<>();
+
+        if(m == null)
+            return;
+
+        long c  = 0;
+        while(true){
+            if(m != null){
+                STACK.push(m);
+                m = tree.leftMostChild(m);//LEFTMOST_CHILD(node,TREE)
+            }
+            else{
+                if(STACK.isEmpty()){
+                    if(!noCount)
+                        System.out.println("Visited: "+c);
+                    return;
+                }
+                act.perform(STACK.top(), nextItr);
+                if(!noCount)
+                    c++;
+
+
+                if(STACK.top().getIdx() == subRoot.getIdx()){
+                    STACK.pop();
+                    return;
+                }
+
+                if(nextItr.getOpts() == 0){
+                    m = tree.rightSibling(STACK.top());//RIGHT_SIBLING(TOP(S), TREE) where TOP(S) is node
+                }
+                STACK.pop();//POP(S)
+            }
+        }
+    }
+
 }

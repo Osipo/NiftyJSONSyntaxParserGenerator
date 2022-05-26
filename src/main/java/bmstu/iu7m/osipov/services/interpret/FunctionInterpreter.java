@@ -26,7 +26,7 @@ public class FunctionInterpreter {
 
     public void setFunName(String name, Variable self){
         this.funName = name;
-        this.context.add(self); //add reference to self in the context.
+        this.context.add(self); //add reference to self in its context.
     }
 
     public void bindArguments(List<Object> args) throws Exception {

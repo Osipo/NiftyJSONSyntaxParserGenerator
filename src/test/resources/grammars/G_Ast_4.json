@@ -118,8 +118,8 @@
     {"T": ["F"]},
     {"F": ["F", "^", "UE", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"F": ["UE"]},
-    {"UE": ["um", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "operator"}]},
-    {"UE": ["up", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "operator"}]},
+    {"UE": ["um", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "unaryop"}]},
+    {"UE": ["up", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "unaryop"}]},
     {"UE": ["PE"]},
     {"PE": ["id", {"act": "astNode", "value": "$0", "type": "variable"}]},
     {"PE": ["str", {"act": "astNode", "value": "$0", "type": "string"}]},
@@ -143,6 +143,7 @@
       "-": "um",
       "+": "up"
     },
+    "operands": ["id", "num", "realNum", "ch", "str", "true", "false"],
     "scopes": [
       {"start": "{", "end": "}", "body": "SL"},
       {"start": "[", "end": "]", "body": "LITEMS"},

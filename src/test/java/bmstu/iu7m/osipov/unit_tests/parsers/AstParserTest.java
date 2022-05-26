@@ -10,6 +10,7 @@ import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.automats.CNFA;
 import bmstu.iu7m.osipov.structures.automats.DFA;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
+import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
 import guru.nidi.graphviz.engine.Format;
@@ -236,5 +237,11 @@ public class AstParserTest {
         assert cl.get(0).equals(l.get(0));
         cl.clear();
         System.out.println("l = " + l);
+
+        Elem<String> elem = l.get(0);
+        LinkedStack<String> s = new LinkedStack<>();
+        s.push(elem.getV1());
+        elem.setV1(null);
+        System.out.println(s);
     }
 }

@@ -452,8 +452,8 @@ public class Grammar {
                     if(sc_prop.getKey().equals("start")){
                         if(sc_prop.getValue() instanceof JsonString) {
                             start = ((JsonString) sc_prop.getValue()).getValue();
-                            if (!this.T.contains(start))
-                                throw new InvalidJsonGrammarException("Scope start must be terminal name!", null);
+                            if (!this.T.contains(start) && !this.N.contains(start))
+                                throw new InvalidJsonGrammarException("Scope start must be grammar symbol!", null);
                             starts.add(start);
                         }
                         else if(sc_prop.getValue() instanceof JsonArray){
@@ -462,8 +462,8 @@ public class Grammar {
                                 if(!(el_in instanceof JsonString))
                                     throw new InvalidJsonGrammarException("Elements of scope.start must be Strings!", null);
                                 String el_in_val = ((JsonString) el_in).getValue();
-                                if (!this.T.contains(el_in_val))
-                                    throw new InvalidJsonGrammarException("Scope start must be terminal name!", null);
+                                if (!this.T.contains(el_in_val) && !this.N.contains(el_in_val))
+                                    throw new InvalidJsonGrammarException("Scope start must be grammar symbol!", null);
                                 starts.add(el_in_val);
                             }
                         }

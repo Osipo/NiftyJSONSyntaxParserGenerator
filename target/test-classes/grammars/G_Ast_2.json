@@ -82,8 +82,8 @@
     {"T": ["F"]},
     {"F": ["UE", "^", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"F": ["UE"]},
-    {"UE": ["um", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "operator"}]},
-    {"UE": ["up", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "operator"}]},
+    {"UE": ["um", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "unaryop"}]},
+    {"UE": ["up", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "unaryop"}]},
     {"UE": ["PE"]},
     {"PE": ["id", "ACLIST",
       {"act": "astNode", "value": "$0", "type": "variable"},
@@ -116,6 +116,7 @@
       {"start": "[", "end": "]", "body": "LITEMS"},
       {"start": ["id", "["], "body": "RANGES"}
     ],
+    "operands": ["id", "num", "realNum", "ch", "str", "true", "false"],
     "operators": [
       "=",
       "+",

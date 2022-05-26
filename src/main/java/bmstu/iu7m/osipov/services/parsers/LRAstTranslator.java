@@ -113,10 +113,9 @@ public class LRAstTranslator  extends LRParser {
                     nc.setIdx(nidx);
                     S.push(nc);
 
-                    int scope_i = 0;
-                    int scope_s = -1;
-                    int scope_mi = 0;
-
+                    int scope_i = 0; //iteration through scopes
+                    int scope_s = -1; //flag that scope start found
+                    int scope_mi = 0; //max length of prefix (start of the scope)
                     //Check scopes.
                     for(Scope s : this.G.getMeta().getScopes()){
                         int scope_prefix_len = 0;
@@ -127,7 +126,7 @@ public class LRAstTranslator  extends LRParser {
                                     scope_prefix_len++;
                                 scope_prefix_i--;
                             }
-                            if (scope_prefix_len == s.getStart().size() && scope_mi < scope_prefix_len) {
+                            if (scope_prefix_len == s.getStart().size() && scope_mi <= scope_prefix_len) {
                                 scope_mi = scope_prefix_len;
                                 scopes.push(AST.size());
                                 scope_s = scope_i;
