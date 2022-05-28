@@ -19,6 +19,7 @@
     ">": ">",
     ">=": ">=",
     "<>": "<>",
+    "=>": "=>",
     ";": ";",
     "&&" : "&&",
     "||" : "@|@|",
@@ -27,27 +28,33 @@
     ",": ",",
     "/*": "/@*",
     "id": "[A-Za-z@_]([A-Za-z@_0-9]+|empty)",
-    "num": "[0-9]+([@_]+[0-9]+)*",
-    "realNum": "[0-9]+.[0-9]+(((E|e)(-|empty)[0-9]+)|empty)",
+    "nonZeroNum": "[1-9]",
+    "zero": "0",
+    "nums": "([@_]*[0-9]+)",
+    "num": ["(", "nonZeroNum", "nums", "*", ")", "|", "zero"],
+    "signedNum": ["(", "(-|empty)", "num", ")"],
+    "realNum": ["signedNum", ".", "[0-9]", "nums", "*", "(((E|e)", "signedNum", ")|empty)"],
     "ch": "\'_\'",
     "str": "\"_*\"",
     "empty": null
   },
   "keywords": [
-    "true","false", "not"
+    "true","false", "not", "lambda"
   ],
   "separators": {
-    "num": "_",
+    "signedNum": "_",
     "realNum": "_"
   },
 
   "productions": [
-    {"P": ["{", "PL", "}",
+    {"P": ["{", "SL", "}",
       {"act": "astNode", "value": "prog", "type": "program", "children": "all"},
       {"act": "astNode", "value": "prog", "type": "start", "child": "$0"}
     ]},
-    {"PL": ["PL", ";", "P"]}, {"PL": "P"},
-    {"P": ["A"]},
+    {"SL": ["SL", "S"]}, {"SL": "S"},
+    {"S": ["OP", ";"]}, {"S": ["P"]},
+    {"OP": "A"},
+    {"OP": "EXP"},
     {"A": ["id", "ACLIST", "=", "EXP",
       {"act": "astNode", "value": "$0", "type": "variable"},
       {"act": "astNode", "value": "$2", "type": "assign", "children": "$2"}
@@ -75,6 +82,39 @@
     {"LITEMS": "LITEM"},
     {"LITEMS": "empty"},
     {"LITEM": "EXP"},
+
+
+    {"EXP": ["LAMBDA"]},
+    {"LAMBDA": ["lambda", "LHEADER", "=>", "S",
+      {"act": "astNode", "type": "lambda", "value": "$0", "children": "$1"}
+    ]},
+    {"LHEADER": ["(", "PARGS", ")",
+      {"act": "astNode", "type": "params", "value": "items", "children": "all"}
+    ]},
+    {"PARGS": ["PARGS", ",", "PARG"]},
+    {"PARGS": "PARG"},
+    {"PARGS": "empty"},
+    {"PARG": ["id",
+      {"act": "astNode", "type": "variable", "value": "$0"}
+    ]},
+
+    {"EXP": ["CALL"]},
+    {"CALL": ["id", "CALLEE",
+      {"act": "astNode", "type": "call", "value": "$0", "children": "all"}
+    ]},
+    {"ARGS": ["ARGS", ",", "ARG"]},
+    {"ARGS": "ARG"},
+    {"ARGS": "empty"},
+    {"ARG": "EXP"},
+
+    {"CALLEE": ["CALLERS"]},
+    {"CALLERS": ["CALLERS", "CALLER"]},
+    {"CALLERS": "CALLER"},
+    {"CALLER": ["(", "ARGS", ")",
+      {"act": "astNode", "type": "args", "value": "items", "children": "all"},
+      {"act": "astNode", "type": "start", "value": "item", "child": "$0"}
+    ]},
+
     {"E": ["E", "+", "T", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"E": ["E", "-", "T", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"E": ["T"]},
@@ -93,7 +133,7 @@
     {"PE": ["id", {"act": "astNode", "value": "$0", "type": "variable"}]},
     {"PE": ["ch", {"act": "astNode", "value": "$0", "type": "char"}]},
     {"PE": ["str", {"act": "astNode", "value": "$0", "type": "string"}]},
-    {"PE": ["num", {"act": "astNode", "value": "$0", "type": "number"}]},
+    {"PE": ["signedNum", {"act": "astNode", "value": "$0", "type": "number"}]},
     {"PE": ["realNum", {"act": "astNode", "value": "$0", "type": "number"}]},
     {"PE": ["true", {"act": "astNode", "value": "$0", "type": "boolean"}]},
     {"PE": ["false", {"act": "astNode", "value": "$0", "type": "boolean"}]},
@@ -113,11 +153,14 @@
       "+": "up"
     },
     "scopes": [
-      {"start": "{", "end": "}", "body": "PL"},
+      {"start": "{", "end": "}", "body": "SL"},
       {"start": "[", "end": "]", "body": "LITEMS"},
-      {"start": ["id", "["], "body": "RANGES"}
+      {"start": ["id", "["], "body": "RANGES"},
+      {"start": ["id", "("], "body": "CALLEE"},
+      {"start": ["id", "("], "end": ")", "body": "ARGS"},
+      {"start": ["CALLERS", "("], "end": ")", "body": "ARGS"},
+      {"start": ["lambda", "("], "end": ")", "body": "PARGS"}
     ],
-    "operands": ["id", "num", "realNum", "ch", "str", "true", "false"],
     "operators": [
       "=",
       "+",

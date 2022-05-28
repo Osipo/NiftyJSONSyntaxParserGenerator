@@ -48,7 +48,7 @@ public class BaseInterpreter {
         });
     }
 
-    private void execFunction(FunctionInterpreter f, PositionalTree<AstSymbol> ast, LinkedStack<String> exp, LinkedStack<FunctionInterpreter> functions, VisitorsNextIteration<AstSymbol> nextItr){
+    protected void execFunction(FunctionInterpreter f, PositionalTree<AstSymbol> ast, LinkedStack<String> exp, LinkedStack<FunctionInterpreter> functions, VisitorsNextIteration<AstSymbol> nextItr){
         AtomicReference<Env> env2 = new AtomicReference<>();
         env2.set(f.getContext());
         Node<AstSymbol> root = f.getRoot();
@@ -79,7 +79,7 @@ public class BaseInterpreter {
         }, root);
     }
 
-    private void applyOperation(PositionalTree<AstSymbol> ast, AtomicReference<Env> context, Node<AstSymbol> cur,
+    protected void applyOperation(PositionalTree<AstSymbol> ast, AtomicReference<Env> context, Node<AstSymbol> cur,
                                 LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists,
                                 ArrayList<List<Elem<Object>>> indices, ArrayList<Variable> params,
                                 LinkedStack<FunctionInterpreter> functions,
@@ -287,7 +287,7 @@ public class BaseInterpreter {
         } //end switch of nodeType
     } //end method
 
-    private void checkAssign(PositionalTree<AstSymbol> ast, Node<AstSymbol> cur, Env context,
+    protected void checkAssign(PositionalTree<AstSymbol> ast, Node<AstSymbol> cur, Env context,
                              String nType,
                              String nVal,
                              LinkedStack<String> exp,
@@ -388,7 +388,7 @@ public class BaseInterpreter {
         checkAccess(ast, cur, v, context, exp, lists, indices, functions, args);
     }
 
-    private void checkAccess(PositionalTree<AstSymbol> ast, Node<AstSymbol> cur, Variable v,
+    protected void checkAccess(PositionalTree<AstSymbol> ast, Node<AstSymbol> cur, Variable v,
                              Env context,  LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists,
                              ArrayList<List<Elem<Object>>> indices, LinkedStack<FunctionInterpreter> functions,
                              LinkedStack<ArrayList<Object>> args) throws Exception
@@ -425,7 +425,7 @@ public class BaseInterpreter {
             exp.push(v.getStrVal());
     }
 
-    private void checkList(Node<AstSymbol> parent, Env context, String nType, String nVal, LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists, LinkedStack<ArrayList<Object>> args) throws Exception {
+    protected void checkList(Node<AstSymbol> parent, Env context, String nType, String nVal, LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists, LinkedStack<ArrayList<Object>> args) throws Exception {
         if(parent.getValue().getType().equals("list"))
             lists.top().add(new Elem<>(nVal));
         else if(parent.getValue().getType().equals("args"))
@@ -434,7 +434,7 @@ public class BaseInterpreter {
             exp.push(nVal);
     }
 
-    private List<Elem<Object>> scanAccess(Variable v, ArrayList<List<Elem<Object>>> indices, int offset){
+    protected List<Elem<Object>> scanAccess(Variable v, ArrayList<List<Elem<Object>>> indices, int offset){
         ArrayList<Elem<Object>> content = new ArrayList<>(); //extracted content.
         List<Elem<Object>> prev_list = new ArrayList<>(v.getItems());
 

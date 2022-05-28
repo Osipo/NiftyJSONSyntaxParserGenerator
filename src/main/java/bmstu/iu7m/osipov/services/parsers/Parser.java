@@ -40,6 +40,7 @@ public abstract class Parser {
         this.empty = G.getEmpty();
         lexer.setKeywords(G.getKeywords());
         lexer.setOperands(G.getOperands());
+        lexer.setOperators(G.getOperators());
         lexer.setAliases(G.getAliases());
         lexer.setCommentLine(G.getCommentLine());
         lexer.setMlCommentStart(G.getMlCommentStart());

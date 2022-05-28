@@ -43,8 +43,9 @@
 
   "productions": [
     {"P": ["{", "PL", "}",
-      {"act": "astNode", "value": "endprog", "type": "end"},
-      {"act": "astNode", "value": "prog", "type": "program", "children": "all"}]},
+      {"act": "astNode", "value": "prog", "type": "program", "children": "all"},
+      {"act": "astNode", "value": "prog", "type": "start", "child": "$0"}
+    ]},
     {"PL": ["PL", ";", "P"]}, {"PL": "P"},
     {"P": ["A"]},
     {"A": ["id", "ACLIST", "=", "EXP",

@@ -24,8 +24,10 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
     private String id;
     private Set<String> keywords;
     private Set<String> operands;
+    private Set<String> operators; //operators tokens.
     private Map<String,String> aliases;
     private Map<String, List<String>> separators;// symbols that are part of regex but not a part of lexem
+
 
     private Set<String> terms; //terms as such lexeme '\n' may be term (even space symbols (e.g. Python language))
 
@@ -36,6 +38,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
         this.io = io;
         this.keywords = new HashSet<>();
         this.operands = new HashSet<>();
+        this.operators = new HashSet<>();
         this.aliases = new HashMap<>();
         this.commentStart = null;
         this.mlcStart = null;
@@ -53,6 +56,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
         this.io = io;
         this.keywords = new HashSet<>();
         this.operands = new HashSet<>();
+        this.operators = new HashSet<>();
         this.aliases = new HashMap<>();
         this.prevTok = null;
         this.commentStart = null;
@@ -64,6 +68,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
         this.terms = null;
     }
 
+    /* MAIN CONSTRUCTOR THAT MUST BE USED! */
     public DFALexer(CNFA nfa){
         super(nfa);
         this.deleteDeadState();
@@ -74,6 +79,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
         this.io = new LookAheadBufferedLexer();
         this.keywords = new HashSet<>();
         this.operands = new HashSet<>();
+        this.operators = new HashSet<>();
         this.aliases = new HashMap<>();
         this.prevTok = null;
         this.commentStart = null;
@@ -95,6 +101,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
         this.io = new LookAheadBufferedLexer(bsize);
         this.keywords = new HashSet<>();
         this.operands = new HashSet<>();
+        this.operators = new HashSet<>();
         this.aliases = new HashMap<>();
         this.prevTok = null;
         this.commentStart = null;
@@ -115,6 +122,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
         this.io = new LookAheadBufferedLexer();
         this.keywords = new HashSet<>();
         this.operands = new HashSet<>();
+        this.operators = new HashSet<>();
         this.aliases = new HashMap<>();
         this.prevTok = null;
         this.commentStart = null;
@@ -145,6 +153,10 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
     public void setOperands(Set<String> operands) {
         this.operands = operands;
     }
+
+    @Override
+    public void setOperators(Set<String> operators){this.operators = operators;}
+
 
     @Override
     public Set<String> getOperands() {
@@ -218,7 +230,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
             }
 
         }
-        /* SKIP separators Symbols at Start of Token */
+        /* SKIP ignorable Symbols at Start of Token */
         else {
             while(Arrays.binarySearch(ignore, cur) >= 0 && ((int)cur) != 65535){
                 if(cur == '\n')
@@ -241,7 +253,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
                 String err = sb.toString();
                 while(s == null || !s.isFinish()){
                     if(sb.length() == 0) {
-                        prevTok =  new Token("Unrecognized", "Lexical error at (" + io.getLine() + ":" + io.getCol() + ") :: Unrecognized token: " + err + "\n", 'e',io.getLine(),io.getCol());
+                        prevTok =  new Token("Unrecognized", "Lexical error at (" + io.getLine() + ":" + io.getCol() + ") :: Unrecognized token: " + err + "\n", 'e', io.getLine(),io.getCol());
                         while(pl > 0){
                             pl--;
                             io.getch(f);//skip unrecognized word.
@@ -285,21 +297,27 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
                     }
                     return new Token("$", "$", 't', io.getLine(), io.getCol());
                 } /* REGION_END_COMMENTS */
-                /* KEYWORD (comment first condition at predicate if needed)*/
+
+                /* KEYWORD (if 'Id' token was recognized and there are keywords -> check whether 'Id' lexeme matches with keyword)*/
                 if((s.getValue().equals(this.id) || this.id == null) && keywords.size() > 0 && keywords.contains(sb.toString())) {
-                    prevTok = makeToken(sb.toString(), sb.toString());//new Token(sb.toString(), sb.toString(), 't',io.getLine(),io.getCol());
+                    prevTok = makeToken(sb.toString(), sb.toString()); //name, lexeme, 't', line, column
                     return prevTok;
                 }
+
+                //It is first token or previous token is operand -> current token is operator.
                 else if(prevTok == null || (operands.size() > 0 && operands.contains(prevTok.getName())) ){
-                    prevTok =  makeToken(s.getValue(), sb.toString());//new Token(s.getValue(), sb.toString(), 't',io.getLine(),io.getCol());
+                    prevTok =  makeToken(s.getValue(), sb.toString());
                     return prevTok;
                 }
-                else if(prevTok != null && operands.size() > 0){
-                    prevTok = makeToken(aliases.getOrDefault(s.getValue(), s.getValue()), sb.toString());//new Token(aliases.getOrDefault(s.getValue(),s.getValue()), sb.toString(), 't',io.getLine(),io.getCol());
+
+                //previous token is operator -> that is the current token is operand.
+                //Current token MUST BE operand before prevTok operator ->
+                else if(prevTok != null && operators.size() > 0 && operators.contains(prevTok.getName())){
+                    prevTok = makeToken(aliases.getOrDefault(s.getValue(), s.getValue()), sb.toString());//name, lexeme, 't', line, col
                     return prevTok;
                 }
                 else {
-                    prevTok =  makeToken(s.getValue(), sb.toString());//new Token(s.getValue(), sb.toString(), 't',io.getLine(),io.getCol());
+                    prevTok =  makeToken(s.getValue(), sb.toString()); //return token 'AS IS'
                     return prevTok;
                 }
             }
@@ -310,7 +328,7 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
             }
         }
         if(sb.length() > 0){
-            //System.out.println("Lexeme at ("+io.getLine()+":"+io.getCol()+") :: "+sb.toString());
+            // read something.
             if((int)cur == 65535)
                 sb.deleteCharAt(sb.length() - 1);//remove redundant read EOF ch.
             if(s.isFinish()) {
@@ -343,17 +361,23 @@ public class DFALexer extends DFA implements ILexer, ILexerConfiguration {
                     }
                     return new Token("$","$",'t',io.getLine(),io.getCol());
                 }/* REGION_END_COMMENTS */
-                /* KEYWORD (comment first condition at predicate if needed)*/
+
+                /* KEYWORD (if token is 'Id') or there are keywords -> check whether lexeme matches with some keyword */
                 if((s.getValue().equals(this.id) || this.id == null) && keywords.size() > 0 && keywords.contains(sb.toString())) {
-                    prevTok = makeToken(sb.toString(), sb.toString());//new Token(sb.toString(), sb.toString(), 't',io.getLine(),io.getCol());
+                    prevTok = makeToken(sb.toString(), sb.toString());
                     return prevTok;
                 }
+
+                //First token or prevToken is operand.
                 else if(prevTok == null || (operands.size() > 0 && operands.contains(prevTok.getName())) ){
-                    prevTok =  makeToken(s.getValue(), sb.toString());//new Token(s.getValue(), sb.toString(), 't',io.getLine(),io.getCol());
+                    prevTok =  makeToken(s.getValue(), sb.toString());
                     return prevTok;
                 }
-                else if(prevTok != null && operands.size() > 0){
-                    prevTok = makeToken(aliases.getOrDefault(s.getValue(),s.getValue()), sb.toString());//new Token(aliases.getOrDefault(s.getValue(),s.getValue()), sb.toString(), 't',io.getLine(),io.getCol());
+
+                //PrevToken is not operand -> prevTok is operator
+                //Current token MUST BE operand before prevTok operator
+                else if(prevTok != null  && operators.size() > 0 && operators.contains(prevTok.getName())){
+                    prevTok = makeToken(aliases.getOrDefault(s.getValue(), s.getValue()), sb.toString());
                     return prevTok;
                 }
                 else {

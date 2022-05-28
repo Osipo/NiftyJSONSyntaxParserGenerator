@@ -8,9 +8,11 @@ import java.util.*;
 //Meta information of Grammar for semantic actions
 public class GrammarMetaInfo {
     private Set<String> keywords;//for some words like: if, while else, etc.
+
     private Set<String> operands;//for operator precedence grammar (operands, operators, aliases)
     private Set<String> operators;
     private Map<String,String> aliases;
+
     private Map<String, List<String>> separators; /* symbols that are not part of lexem rather than a separators which included in regex pattern */
 
     //Comments

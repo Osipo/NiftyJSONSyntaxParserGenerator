@@ -16,6 +16,7 @@ public interface ILexer extends AutomatonImage {
     void setKeywords(Set<String> s);
     Set<String> getKeywords();
     void setOperands(Set<String> ops);
+    void setOperators(Set<String> operators);
     Set<String> getOperands();
     void setAliases(Map<String, String> aliases);
     void setSeparators(Map<String, List<String>> ignorable);
