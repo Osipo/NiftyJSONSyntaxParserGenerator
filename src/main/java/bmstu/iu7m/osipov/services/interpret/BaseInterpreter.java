@@ -438,8 +438,12 @@ public class BaseInterpreter {
                 return;
             } //end indices.
             else { //simple expression. (nor access nor list [a = exp])
-                v = new Variable(nVal); //ast.value (variable name)
-                context.add(v);
+                v = context.get(nVal);
+                if(v == null) {
+                    v = new Variable(nVal); //ast.value (variable name)
+                    context.add(v);
+                }
+                
                 if(!functions.isEmpty()){ //expression is function [a = function]
                     v.setFunction(functions.top());
                     functions.pop();
