@@ -196,7 +196,12 @@ public class NRVisitor<T> implements Visitor<T> {
                 if(!noCount)
                     c++;
 
-                if(nextItrStrategy.getOpts() == 0) {
+                if(nextItrStrategy.getNextNode() != null){
+                    m = nextItrStrategy.getNextNode();
+                    nextItrStrategy.setNextNode(null);
+                    continue;
+                }
+                else if(nextItrStrategy.getOpts() == 0) {
                     m = tree.rightSibling(STACK.top());//RIGHT_SIBLING(TOP(S),TREE) where TOP(S) is node
                 }
                 else if(nextItrStrategy.getOpts() == 2){

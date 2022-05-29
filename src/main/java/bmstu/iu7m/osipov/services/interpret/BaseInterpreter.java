@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class BaseInterpreter {
 
-    private boolean skip = false;
+    private boolean loop = false;
 
     public void interpret(PositionalTree<AstSymbol> ast) {
         AtomicReference<Env> env = new AtomicReference<>();
@@ -100,6 +100,14 @@ public class BaseInterpreter {
             }
             case "pass": {
                 nextIteration.setOpts(3); //skip siblings add detach node.
+                break;
+            }
+            case "loop": { //loop while
+                if(loop){ //passed one iteration -> check condition again.
+                    Node<AstSymbol> cond_node = ast.leftMostChild(cur);
+                    nextIteration.setNextNode(cond_node);
+                    this.loop = false;
+                }
                 break;
             }
             case "start": {
@@ -518,12 +526,13 @@ public class BaseInterpreter {
         }
         else if(parent.getValue().getType().equals("loop") && ast.leftMostChild(parent).equals(cur) && nVal.equals("1")){ //condition true.
             //while true
-            //continue loop.
+            this.loop = true;
             return;
         }
         else if(parent.getValue().getType().equals("loop") && ast.leftMostChild(parent).equals(cur) && nVal.equals("0")){
             //while false
             nextItr.setOpts(2);  //0 => default, 1 => skip all siblings, 2 => skip one sibling.
+            this.loop = false;
         }
         else
             exp.push(nVal); //part of expr or expr itself -> add to expression stack.

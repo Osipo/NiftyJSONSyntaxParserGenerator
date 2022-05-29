@@ -32,10 +32,37 @@ public class BottomUpInterpreter extends BaseInterpreter {
         //Totally POST_ORDER. (start nodes -> leaf nodes that indicate start of the new scope).
         ast.visit(VisitorMode.POST, (n, next) -> {
 
+            //skip start/prog at while/if/else parent nodes.
+            if(n.getValue().getType().equals("start") && n.getValue().getValue().equals("prog")
+                    && ast.parent(n) != null && ast.parent(ast.parent(n)) != null
+                    && ast.parent(ast.parent(n)).getValue().getType().equals("loop")
+            )
+                return;
+
+            if (n.getValue().getType().equals("start") && n.getValue().getValue().equals("prog")
+                    && ast.parent(n) != null && ast.parent(ast.parent(n)) != null
+                    && ast.parent(ast.parent(n)).getValue().getType().equals("if")
+            )
+                return;
+
+            if (n.getValue().getType().equals("start") && n.getValue().getValue().equals("prog")
+                    && ast.parent(n) != null && ast.parent(ast.parent(n)) != null
+                    && ast.parent(ast.parent(n)).getValue().getType().equals("else")
+            )
+                return;
+
+
             //start new prog (scope)
             if(n.getValue().getType().equals("start") && n.getValue().getValue().equals("prog"))
                 env.set(new Env(env.get()));
 
+            else if(n.getValue().getType().equals("program") && ast.parent(n) != null && ast.parent(n).getValue().getType().equals("loop"))
+                return;
+
+            else if(n.getValue().getType().equals("program") && ast.parent(n) != null && ast.parent(n).getValue().getType().equals("if"))
+                return;
+            else if(n.getValue().getType().equals("program") && ast.parent(n) != null && ast.parent(n).getValue().getType().equals("else"))
+                return;
             //end of program (remove current scope and get previous)
             else if(n.getValue().getType().equals("program"))
                 env.set(env.get().getPrev());
@@ -64,11 +91,39 @@ public class BottomUpInterpreter extends BaseInterpreter {
 
         ast.visitFrom(VisitorMode.POST, (c, next) -> {
 
+            //skip start/prog at while/if/else parent nodes.
+            if(c.getValue().getType().equals("start") && c.getValue().getValue().equals("prog")
+                    && ast.parent(c) != null && ast.parent(ast.parent(c)) != null
+                    && ast.parent(ast.parent(c)).getValue().getType().equals("loop")
+            )
+                return;
+
+            if (c.getValue().getType().equals("start") && c.getValue().getValue().equals("prog")
+                    && ast.parent(c) != null && ast.parent(ast.parent(c)) != null
+                    && ast.parent(ast.parent(c)).getValue().getType().equals("if")
+            )
+                return;
+
+            if (c.getValue().getType().equals("start") && c.getValue().getValue().equals("prog")
+                    && ast.parent(c) != null && ast.parent(ast.parent(c)) != null
+                    && ast.parent(ast.parent(c)).getValue().getType().equals("else")
+            )
+                return;
+
             //start new prog (scope)
             if(c.getValue().getType().equals("start") && c.getValue().getValue().equals("prog"))
                 env2.set(new Env(env2.get()));
 
-                //end of program (remove current scope and get previous)
+
+            else if(c.getValue().getType().equals("program") && ast.parent(c) != null && ast.parent(c).getValue().getType().equals("loop"))
+                return;
+
+            else if(c.getValue().getType().equals("program") && ast.parent(c) != null && ast.parent(c).getValue().getType().equals("if"))
+                return;
+            else if(c.getValue().getType().equals("program") && ast.parent(c) != null && ast.parent(c).getValue().getType().equals("else"))
+                return;
+
+            //end of program (remove current scope and get previous)
             else if(c.getValue().getType().equals("program"))
                 env2.set(env2.get().getPrev());
 
