@@ -169,6 +169,7 @@ public class BaseInterpreter {
                     args_i.clear();// flush processed args.
                     args.pop();
                     execFunction(f, ast, exp, functions, nextIteration);
+                    f.setContext(f.getContext().getPrev()); //set context.
 
                     //get next arguments caller. (args + args)
                     if(exp.top() == null && ast.rightSibling(cur) != null && ast.rightSibling(cur).getValue().getType().equals("args")){

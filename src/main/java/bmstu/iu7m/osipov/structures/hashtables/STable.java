@@ -47,7 +47,7 @@ public class STable {
         if(rec == null){
             rec = new BinarySearchTree<Variable>(new StringContainerComparator<Variable>());
             rec.add(entry);
-            this.table.set(h,rec);
+            this.table.set(h, rec);
         }
         else{
             rec.add(entry);
