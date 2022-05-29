@@ -247,8 +247,10 @@ public class LRAstTranslator  extends LRParser {
             lexer.reset();
             if (isParsed) {
                 return new LinkedTree<AstSymbol>(AST.tail());
-            } else
+            } else {
+                System.err.println(tok.getName() + " " + tok.getVal() + " at (" + tok.getLine() + ", " + tok.getColumn() + ")");
                 return null;
+            }
         } catch (FileNotFoundException e) {
             lexer.reset();
             System.out.println("File not found. Specify file to read");

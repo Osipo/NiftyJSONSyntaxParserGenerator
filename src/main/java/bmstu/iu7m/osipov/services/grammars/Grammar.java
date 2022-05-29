@@ -327,8 +327,9 @@ public class Grammar {
                     throw new InvalidJsonGrammarException("Production item must be a json object with single property which contains a grammar string!",err);
                 }
             }
-            if(NN.size() > 0)
-                throw new InvalidJsonGrammarException("Some Non-terminals have no production!", null);
+            if(NN.size() > 0) {
+                throw new InvalidJsonGrammarException("Some Non-terminals have no production!\n" + NN, null);
+            }
         }
         else
             throw new InvalidJsonGrammarException("Property \"productions\" is not a list!",null);

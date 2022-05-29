@@ -27,19 +27,24 @@ public class LRParser extends Parser {
     }
 
     public LRParser(Grammar G, ILexer lexer, LRAlgorithm alg) {
-        super(G,lexer);
+        super(G, lexer);
         try {
             if (alg == LRAlgorithm.SLR) {
                 this.table = SLRParserGenerator.buildLRAutomaton(G);//LR(0) or SLR(1).
             } else {
                 this.table = CLRParserGenerator.buildLRAutomaton(G);//LR(1)
             }
-            System.out.println(table);
+            //System.out.println(table);
         }
         catch (Exception e){
             System.out.println("Cannot build");
             System.out.println(e.getMessage());
         }
+    }
+
+    @Override
+    public boolean isValidGrammar() {
+        return this.table.noConflicts();
     }
 
     @Override
@@ -182,8 +187,10 @@ public class LRParser extends Parser {
             if(isParsed){
                 return new LinkedTree<LanguageSymbol>(S.top());
             }
-            else
+            else {
+                System.err.println(tok.getName() + " " + tok.getVal() + " at (" + tok.getLine() + ", " + tok.getColumn() + ")");
                 return null;
+            }
         }
         catch (FileNotFoundException e){
             lexer.reset();

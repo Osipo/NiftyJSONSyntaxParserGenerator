@@ -34,6 +34,8 @@ public abstract class Parser {
 
     public abstract void showMessage(String body);
 
+    public abstract boolean isValidGrammar();
+
     public Parser(Grammar G, ILexer lexer) {
         this.lexer = lexer;
         this.isParsed = true;

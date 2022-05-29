@@ -18,5 +18,6 @@ public interface Tree<T> {
     <R extends Node<T>> void visitFrom(VisitorMode order, Action2<Node<T>, VisitorsNextIteration<T>> act, R subTree, VisitorsNextIteration<T> arg2);
 
     int getCount();
+    void detachNode(Node<T> n);
     void clear();//FROM ICollection<T>
 }

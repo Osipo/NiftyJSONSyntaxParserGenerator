@@ -204,6 +204,15 @@ public class NRSubVisitor<T> extends NRVisitor<T> implements SubVisitor<T> {
                 if(nextItr.getOpts() == 0){
                     m = tree.rightSibling(STACK.top());//RIGHT_SIBLING(TOP(S), TREE) where TOP(S) is node
                 }
+                else if(nextItr.getOpts() == 2){
+                    m = tree.rightSibling(tree.rightSibling(STACK.top())); //skip first right sibling (get second right)
+                    nextItr.setOpts(0);
+                }
+                else if(nextItr.getOpts() == 3){
+                    nextItr.setOpts(0);
+                    STACK.top().setValue(null);
+                    tree.detachNode(STACK.top());
+                }
                 STACK.pop();//POP(S)
             }
         }

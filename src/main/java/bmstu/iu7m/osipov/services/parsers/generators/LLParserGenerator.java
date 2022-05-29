@@ -57,6 +57,9 @@ public class LLParserGenerator {
                     }
             }
         }
+        if(hasErr){
+            table.put(new Pair<>("", ""), new GrammarString());
+        }
         return table;
     }
 

@@ -13,6 +13,7 @@
 
         f = list[1];
         g = lambda (x) => lambda(y) => y * x;;;
+        gg = lambda(x) => lambda(y) => lambda(z) => x + y * z;;;;
         list[0] = f(a * 2, f(10, 20)); # 10 + 20 + 15 * 2 = 60.
         q = f(a, b); # 15 + 3840 = 3855
         qq = list[0];
@@ -28,12 +29,8 @@
 
         list[2] = a2(a2(4)); # 4 * 4 * 4 = 64.
 
-        list_2 = [list[0], list[list[0] - 58], f(0, 1) ];
+        list_2 = [list[0], list[list[0] - 58], f(0, 1), gg(7)(3)(9), f(10, 5) + f(2, f(10, 2)) - 1 ]; # 60, 64, 1, 34, 28
 
         a10 = g(7)(6); # 7 * 6 = 42.
     }
 }
-
-# f = lambda(x) => lambda(y) => x * y;;;
-# g = f(x);
-# r = g(y);

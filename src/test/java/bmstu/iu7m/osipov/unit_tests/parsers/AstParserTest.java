@@ -11,6 +11,7 @@ import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.automats.CNFA;
 import bmstu.iu7m.osipov.structures.automats.DFA;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
+import bmstu.iu7m.osipov.structures.lists.LinkedList;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
@@ -38,7 +39,9 @@ public class AstParserTest {
     public void test_langs_interpretation() {
         //assert test_lang_interpret("G_Ast_1.json", "ast\\ast_input1.txt", "ast11");
         //assert test_lang_interpret("G_Ast_2.json", "ast\\ast_input2.txt", "ast21");
-        assert test_lang_interpret("G_Ast_31.json", "ast\\ast_input3.txt", "ast31");
+        //assert test_lang_interpret("G_Ast_31.json", "ast\\ast_input3.txt", "ast31");
+        assert test_lang_interpret("G_Ast_41.json", "ast\\ast_input41.txt", "ast411");
+
     }
 
 
@@ -67,6 +70,8 @@ public class AstParserTest {
 
         LRAstTranslator parser = new LRAstTranslator(G, lexer, LRAlgorithm.SLR);
         parser.setParserMode(ParserMode.HIDE);
+        System.out.println("Determined Grammar: " + parser.isValidGrammar());
+
 
         LinkedTree<LanguageSymbol> t = parser.parse(input);
         assert t != null;
@@ -83,8 +88,21 @@ public class AstParserTest {
         System.out.println("AST nodes: " + ast.getCount());
         System.out.println("Parsing tree nodes: " + t.getCount());
 
+
         //Phase 4. Interpret ast nodes.
         BottomUpInterpreter inter = new BottomUpInterpreter();
         inter.interpret(ast);
+    }
+
+    @Test
+    public void testList(){
+        List<String> l = new ArrayList<>();
+        l.add("item1");
+        l.add("item2");
+        l.add("item3");
+
+        l.add(2, "itempass");
+        System.out.println(Math.floor(1.0) == 1.0);
+        System.out.println(l);
     }
 }

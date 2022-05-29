@@ -88,6 +88,12 @@ public class LinkedTree<T> implements Tree<T>, PositionalTree<T> {
     }
 
     @Override
+    public List<LinkedNode<T>> getRealChildren(Node<T> n){
+        LinkedNode<T> c = (LinkedNode<T>) n;
+        return c.getChildren() == null ? null : c.getChildren();
+    }
+
+    @Override
     public PositionalTree<T> getSubTree(Node<T> n){
         LinkedNode<T> ln = (LinkedNode<T>) n;
         return new LinkedTree<T>(ln);

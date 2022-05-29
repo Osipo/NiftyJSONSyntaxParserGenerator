@@ -1,13 +1,11 @@
 package bmstu.iu7m.osipov.services.interpret;
 
+import bmstu.iu7m.osipov.services.grammars.AstNode;
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
 import bmstu.iu7m.osipov.structures.graphs.Pair;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
-import bmstu.iu7m.osipov.structures.trees.Node;
-import bmstu.iu7m.osipov.structures.trees.PositionalTree;
-import bmstu.iu7m.osipov.structures.trees.VisitorMode;
-import bmstu.iu7m.osipov.structures.trees.VisitorsNextIteration;
+import bmstu.iu7m.osipov.structures.trees.*;
 import bmstu.iu7m.osipov.utils.ProcessNumber;
 
 import java.util.ArrayList;
@@ -92,15 +90,19 @@ public class BaseInterpreter {
         String nodeVal = cur.getValue().getValue();
         switch (opType){
             case "char": case "string": {
-                checkList(ast.parent(cur), context.get(), opType, nodeVal, exp, lists, args);
+                checkList(ast, ast.parent(cur), cur, context.get(), opType, nodeVal, exp, lists, args, nextIteration);
                 break;
             }
-            case "number":{
+            case "number": {
                 nodeVal = ProcessNumber.parseNumber(nodeVal) + ""; //get parsed double as str.
-                checkList(ast.parent(cur), context.get(), opType, nodeVal, exp, lists, args);
+                checkList(ast, ast.parent(cur), cur, context.get(), opType, nodeVal, exp, lists, args, nextIteration);
                 break;
             }
-            case "start":{
+            case "pass": {
+                nextIteration.setOpts(3); //skip siblings add detach node.
+                break;
+            }
+            case "start": {
                 if(ast.parent(cur).getValue().getType().equals("list")) { //start > list
                     ArrayList<Elem<Object>> items = new ArrayList<>();
                     lists.push(items);
@@ -233,10 +235,69 @@ public class BaseInterpreter {
                 if(ast.parent(cur) == null)
                     exp.push(val);
                 else
-                    checkList(ast.parent(cur), context.get(), opType, val, exp, lists, args);
+                    checkList(ast, ast.parent(cur), cur, context.get(), opType, val, exp, lists, args, nextIteration);
                 break;
             }
 
+            //boolean expressions -> nodes: relop, boolop
+            case "relop": case "boolop": {
+                String t1 = exp.top();
+                exp.pop();
+                String t2 = exp.top();
+                exp.pop();
+
+                double d2 = ProcessNumber.parseNumber(t1); //because of STACK exp.
+                double d1 = ProcessNumber.parseNumber(t2);
+
+                switch (nodeVal){
+                    case "<":{
+                        d1 = (d1 < d2) ? 1 : 0;
+                        break;
+                    }
+                    case "<=":{
+                        d1 = (d1 <= d2) ? 1 : 0;
+                        break;
+                    }
+                    case ">":{
+                        d1 = (d1 > d2) ? 1 : 0;
+                        break;
+                    }
+                    case ">=":{
+                        d1 = (d1 >= d2) ? 1 : 0;
+                        break;
+                    }
+                    case "==":{
+                        d1 = (d1 == d2) ? 1 : 0;
+                        break;
+                    }
+                    case "<>":{
+                        d1 = (d1 != d2) ? 1 : 0;
+                        break;
+                    }
+                    case "&&": {
+                        d1 = (d1 >= 1 && d2 >= 1) ? 1 : 0;
+                        break;
+                    }
+                    case "||": {
+                        d1 = (d1 >= 1 || d2 >= 1) ? 1 : 0;
+                        break;
+                    }
+                } //end inner switch relop.
+
+                String val = null;
+                if(Math.floor(d1) == d1) //is integer [4.0, 5.0]
+                    val = Integer.toString((int)d1);
+                else
+                    val = Double.toString(d1); //double [4.0001]
+
+                if(ast.parent(cur) == null)
+                    exp.push(val);
+                else
+                    checkList(ast, ast.parent(cur), cur, context.get(), opType, val, exp, lists, args, nextIteration);
+                break;
+            }
+
+            //SAME CODE FOR Arithmetic operators
             case "operator": {
                 String t1 = exp.top();
                 exp.pop();
@@ -281,7 +342,7 @@ public class BaseInterpreter {
                 if(ast.parent(cur) == null)
                     exp.push(val);
                 else
-                    checkList(ast.parent(cur), context.get(), opType, val, exp, lists, args);
+                    checkList(ast, ast.parent(cur), cur, context.get(), opType, val, exp, lists, args, nextIteration);
                 break;
             } // end operator
         } //end switch of nodeType
@@ -425,13 +486,46 @@ public class BaseInterpreter {
             exp.push(v.getStrVal());
     }
 
-    protected void checkList(Node<AstSymbol> parent, Env context, String nType, String nVal, LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists, LinkedStack<ArrayList<Object>> args) throws Exception {
+    //Check what is expression part of (whole itself, part of expr, list item, arg item, as if condition, as while condition)
+    protected void checkList(PositionalTree<AstSymbol> ast, Node<AstSymbol> parent, Node<AstSymbol> cur, Env context,
+                             String nType, String nVal,
+                             LinkedStack<String> exp,
+                             LinkedStack<List<Elem<Object>>> lists,
+                             LinkedStack<ArrayList<Object>> args,
+                             VisitorsNextIteration<AstSymbol> nextItr) throws Exception {
+
         if(parent.getValue().getType().equals("list"))
             lists.top().add(new Elem<>(nVal));
+
         else if(parent.getValue().getType().equals("args"))
             args.top().add(nVal);
+
+        else if(parent.getValue().getType().equals("if") && ast.leftMostChild(parent).equals(cur) && nVal.equals("1")){
+            //if true -> goto if.
+            LinkedNode<AstSymbol> node_pass = new LinkedNode<>();
+            node_pass.setValue(new AstNode("pass", "pass")); //add pass before else_node.
+            node_pass.setIdx(ast.getCount() + 3);
+            node_pass.setParent((LinkedNode<AstSymbol>) parent); //ERROR: SubType is fixed! Make it flexible!!!
+            //System.out.println("ast_before: " + ast.getChildren(parent).size());
+            ast.getRealChildren(parent).add(2, node_pass);
+            //System.out.println("ast_after: " + ast.getChildren(parent).size());
+        }
+        else if(parent.getValue().getType().equals("if") && ast.leftMostChild(parent).equals(cur) && nVal.equals("0")){
+            //if false -> goto else.
+            nextItr.setOpts(2); //0 => default, 1 => skip all siblings, 2 => skip one sibling.
+            // => got else node (second right sibling of cond) :: ( ->condition, if, else)
+        }
+        else if(parent.getValue().getType().equals("loop") && ast.leftMostChild(parent).equals(cur) && nVal.equals("1")){ //condition true.
+            //while true
+            //continue loop.
+            return;
+        }
+        else if(parent.getValue().getType().equals("loop") && ast.leftMostChild(parent).equals(cur) && nVal.equals("0")){
+            //while false
+            nextItr.setOpts(2);  //0 => default, 1 => skip all siblings, 2 => skip one sibling.
+        }
         else
-            exp.push(nVal);
+            exp.push(nVal); //part of expr or expr itself -> add to expression stack.
     }
 
     protected List<Elem<Object>> scanAccess(Variable v, ArrayList<List<Elem<Object>>> indices, int offset){

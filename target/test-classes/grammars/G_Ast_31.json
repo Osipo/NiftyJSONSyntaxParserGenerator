@@ -98,7 +98,6 @@
       {"act": "astNode", "type": "variable", "value": "$0"}
     ]},
 
-    {"EXP": ["CALL"]},
     {"CALL": ["id", "CALLEE",
       {"act": "astNode", "type": "call", "value": "$0", "children": "all"}
     ]},
@@ -138,6 +137,7 @@
     {"PE": ["true", {"act": "astNode", "value": "$0", "type": "boolean"}]},
     {"PE": ["false", {"act": "astNode", "value": "$0", "type": "boolean"}]},
     {"PE": ["(", "E",")"]},
+    {"PE": "CALL"},
     {"PE": ["not", "(", "E", ")", {"act": "astNode", "value": "$0", "type": "boolean", "children": "$0"}]}
   ],
 
@@ -161,6 +161,7 @@
       {"start": ["CALLERS", "("], "end": ")", "body": "ARGS"},
       {"start": ["lambda", "("], "end": ")", "body": "PARGS"}
     ],
+    "operands": ["id", "signedNum", "realNum", "ch", "str", "true", "false"],
     "operators": [
       "=",
       "+",

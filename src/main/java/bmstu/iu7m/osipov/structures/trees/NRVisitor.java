@@ -199,7 +199,15 @@ public class NRVisitor<T> implements Visitor<T> {
                 if(nextItrStrategy.getOpts() == 0) {
                     m = tree.rightSibling(STACK.top());//RIGHT_SIBLING(TOP(S),TREE) where TOP(S) is node
                 }
-
+                else if(nextItrStrategy.getOpts() == 2){
+                    m = tree.rightSibling(tree.rightSibling(STACK.top())); //skip first right sibling (get second right)
+                    nextItrStrategy.setOpts(0);
+                }
+                else if(nextItrStrategy.getOpts() == 3){
+                    nextItrStrategy.setOpts(0);
+                    STACK.top().setValue(null);
+                    tree.detachNode(STACK.top());
+                }
                 STACK.pop();//POP(S)
             }
         }

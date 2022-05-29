@@ -196,4 +196,10 @@ public class LLParser extends Parser{
         if(this.mode == ParserMode.DEBUG)
             System.out.println(body);
     }
+
+    @Override
+    public boolean isValidGrammar() {
+        GrammarString ERR = this.table.get(new Pair<>("", ""));
+        return ERR != null && ERR.getSymbols().size() == 0;
+    }
 }

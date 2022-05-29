@@ -170,6 +170,11 @@ public class BinarySearchTree<T> implements Tree<T> {
     }
 
     @Override
+    public void detachNode(Node<T> n) {
+        throw new UnsupportedOperationException("Cannot delete node. Illegal modification of the BS-Tree");
+    }
+
+    @Override
     public void clear(){
         this._count = 0;
         this._h = 0;
