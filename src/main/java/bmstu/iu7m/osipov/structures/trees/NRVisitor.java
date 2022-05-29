@@ -213,6 +213,8 @@ public class NRVisitor<T> implements Visitor<T> {
                     STACK.top().setValue(null);
                     tree.detachNode(STACK.top());
                 }
+                else if(nextItrStrategy.getOpts() == -1)
+                    return;
                 STACK.pop();//POP(S)
             }
         }

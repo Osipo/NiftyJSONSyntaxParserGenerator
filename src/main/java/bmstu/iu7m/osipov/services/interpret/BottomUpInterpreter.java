@@ -72,7 +72,9 @@ public class BottomUpInterpreter extends BaseInterpreter {
                     applyOperation(ast, env, n, exp, lists, indices, params, functions, args, nextItr);
                 }
                 catch (Exception e){
-                    System.err.println(e);
+                    System.err.println(e); //if error -> break execution.
+                    nextItr.setNextNode(null);
+                    nextItr.setOpts(-1);
                 }
         }, nextItr);
     }
@@ -132,7 +134,9 @@ public class BottomUpInterpreter extends BaseInterpreter {
                     applyOperation(ast, env2, c, exp, lists, indices, params, functions, args, nextItr);
                 }
                 catch (Exception e){
-                    System.err.println(e);
+                    System.err.println(e); //if error -> break execution.
+                    nextItr.setNextNode(null);
+                    nextItr.setOpts(-1);
                 }
         }, root, nextItr);
     }

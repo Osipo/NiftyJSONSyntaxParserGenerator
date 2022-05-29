@@ -40,8 +40,8 @@ public class AstParserTest {
         //assert test_lang_interpret("G_Ast_1.json", "ast\\ast_input1.txt", "ast11");
         //assert test_lang_interpret("G_Ast_2.json", "ast\\ast_input2.txt", "ast21");
         //assert test_lang_interpret("G_Ast_31.json", "ast\\ast_input3.txt", "ast31");
-        assert test_lang_interpret("G_Ast_41.json", "ast\\ast_input41.txt", "ast411");
-
+        //assert test_lang_interpret("G_Ast_41.json", "ast\\ast_input41.txt", "ast411");
+        assert test_lang_interpret("G_Ast_5.json", "ast\\ast_input41.txt", "ast411");
     }
 
 

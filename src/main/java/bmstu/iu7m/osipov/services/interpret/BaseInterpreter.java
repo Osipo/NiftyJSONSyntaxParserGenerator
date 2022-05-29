@@ -181,26 +181,26 @@ public class BaseInterpreter {
 
                     //get next arguments caller. (args + args)
                     if(exp.top() == null && ast.rightSibling(cur) != null && ast.rightSibling(cur).getValue().getType().equals("args")){
-                        System.out.println("Function '" + f.getFunctionName() + "' returns new lambda function");
+                        //System.out.println("Function '" + f.getFunctionName() + "' returns new lambda function");
 
                         Variable f_2 = new Variable("0$_" + f.getFunctionName());
                         f_2.setFunction(functions.top());
                         functions.pop();
                         context.get().add(f_2); //add generated variable (name is illegal for input) of N + 1 function
 
-                        System.out.println("Call anonymous returned function: " + f_2.getValue());
+                        //System.out.println("Call anonymous returned function: " + f_2.getValue());
 
                         ast.parent(cur).getValue().setValue(f_2.getValue()); //change current call node of args to anonymous func
 
                         break;
                     }
                     else if(exp.top() == null) {
-                        System.out.println("Function '" + f.getFunctionName() + "' returns new lambda function");
-                        System.out.println(functions);
+                        //System.out.println("Function '" + f.getFunctionName() + "' returns new lambda function");
+                        //System.out.println(functions);
                         break;
                     }
 
-                    System.out.println("call " + f.getFunctionName() + " = " + exp.top());
+                    //System.out.println("call " + f.getFunctionName() + " = " + exp.top());
                     // args > call > args (function call is expression of argument of another function call)
                     if(ast.parent(ast.parent(cur)).getValue().getType().equals("args")){
                         args.top().add(exp.top());
@@ -232,6 +232,10 @@ public class BaseInterpreter {
                     }
                     case "--":{
                         d1 -= 1;
+                        break;
+                    }
+                    case "not":{
+                        d1 = (d1 >= 1) ? 0 : 1; //negate 1 to 0 and vice versa.
                         break;
                     }
                 }
@@ -291,6 +295,10 @@ public class BaseInterpreter {
                         d1 = (d1 >= 1 || d2 >= 1) ? 1 : 0;
                         break;
                     }
+                    case "=>":{
+                        d1 = (d1 >= 1 && d2 <= 1) ? 0 : 1; //(1, 0) -> 0, else -> 1.
+                        break;
+                    }
                 } //end inner switch relop.
 
                 String val = null;
@@ -303,6 +311,62 @@ public class BaseInterpreter {
                     exp.push(val);
                 else
                     checkList(ast, ast.parent(cur), cur, context.get(), opType, val, exp, lists, args, nextIteration);
+                break;
+            }
+
+            case "range": {
+                String t1 = null;
+                String t2 = null;
+                double d1 = 0;
+                double d2 = 0;
+                if(nodeVal.equals("range")){
+                    t1 = exp.top();
+                    exp.pop();
+                    t2 = exp.top();
+                    exp.pop();
+                    d2 = ProcessNumber.parseNumber(t1); //because of STACK exp.
+                    d1 = ProcessNumber.parseNumber(t2);
+                }
+                else if (nodeVal.equals("rangeStart") || nodeVal.equals("rangeEnd")){
+                    t1 = exp.top();
+                    exp.pop();
+                    d1 = ProcessNumber.parseNumber(t1);
+                }
+
+                if(nodeVal.equals("rangeEnd")){
+                    d2 = d1;
+                    d1 = 0; // [0..d1]
+                }
+
+                //range > list > access.
+                boolean isAccess = ast.parent(cur).getValue().getType().equals("list") && ast.parent(ast.parent(cur)).getValue().getType().equals("access");
+
+                if(nodeVal.equals("rangeStart") && isAccess)
+                {
+                    List<Node<AstSymbol>> chl = ast.getChildren(ast.parent(ast.parent(ast.parent(cur)))); // range > list > access > parent (assing/aclist)
+                    String listName = chl.get(chl.size() - 1).getValue().getValue();
+                    Variable v = context.get().get(listName);
+                    if(v == null || v.getItems() == null)
+                        throw new Exception("Variable '" + listName + "' is not defined as list!");
+
+                    d2 = v.getItems().size() - 1; //[d1..size - 1]
+                }
+                else if(nodeVal.equals("rangeStart")) //[d1..]
+                {
+                    throw new Exception("the end range-index is not belongs to the access list expression!");
+                }
+
+                d1 = Math.floor(d1);
+                d2 = Math.floor(d2);
+                ArrayList<Elem<Object>> vals = new ArrayList<>();
+                if(d1 > d2){
+                    for(int i = (int)d1; i >= (int)d2; i--)
+                        lists.top().add(new Elem<>(i));
+                }
+                else {
+                    for(int i = (int)d1; i <= (int)d2; i++)
+                        lists.top().add(new Elem<>(i));
+                }
                 break;
             }
 
@@ -443,7 +507,7 @@ public class BaseInterpreter {
                     v = new Variable(nVal); //ast.value (variable name)
                     context.add(v);
                 }
-                
+
                 if(!functions.isEmpty()){ //expression is function [a = function]
                     v.setFunction(functions.top());
                     functions.pop();
