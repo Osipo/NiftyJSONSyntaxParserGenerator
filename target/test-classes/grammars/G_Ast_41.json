@@ -40,7 +40,8 @@
     "empty": null
   },
   "keywords": [
-    "true","false", "not", "lambda", "if", "else", "while", "pass"
+    "true","false", "not", "lambda", "if", "else", "while", "pass",
+    "and", "or"
   ],
   "separators": {
     "signedNum": "_",

@@ -287,11 +287,11 @@ public class BaseInterpreter {
                         d1 = (d1 != d2) ? 1 : 0;
                         break;
                     }
-                    case "&&": {
+                    case "&&": case "and": {
                         d1 = (d1 >= 1 && d2 >= 1) ? 1 : 0;
                         break;
                     }
-                    case "||": {
+                    case "||": case "or": {
                         d1 = (d1 >= 1 || d2 >= 1) ? 1 : 0;
                         break;
                     }
@@ -464,12 +464,17 @@ public class BaseInterpreter {
 
 
                         if(i > 0 && prev_list.size() == 1 && prev_list.get(0).getV1() instanceof List){ //prev index got list.
-                            Object j_item = ((List) prev_list.get(0).getV1()).get(j); //extract j_item of list.
+
+                            List inner_li =  ((List) prev_list.get(0).getV1());
+                            Object j_item = inner_li.get( ((j < 0) ? inner_li.size() + j : j)  ); //extract j_item of list.
+
                             if(j_item instanceof Elem)
                                 content.add((Elem) j_item);
                         }
-                        else
+                        else {
+                            j = (j < 0) ? prev_list.size() + j : j;
                             content.add(prev_list.get(j));
+                        }
 
                         if(!functions.isEmpty()){
                             content.get(content.size() - 1).setV1(functions.top());
@@ -592,12 +597,25 @@ public class BaseInterpreter {
             nextItr.setOpts(2); //0 => default, 1 => skip all siblings, 2 => skip one sibling.
             // => got else node (second right sibling of cond) :: ( ->condition, if, else)
         }
-        else if(parent.getValue().getType().equals("loop") && ast.leftMostChild(parent).equals(cur) && nVal.equals("1")){ //condition true.
+        else if(parent.getValue().getType().equals("loop") && ast.leftMostChild(parent).equals(cur)
+                && (
+                        (nVal.equals("1") && parent.getValue().getValue().equals("while"))
+                    ||  (nVal.equals("0") && parent.getValue().getValue().equals("until"))
+                )
+        )
+        {
             //while true
             this.loop = true;
             return;
         }
-        else if(parent.getValue().getType().equals("loop") && ast.leftMostChild(parent).equals(cur) && nVal.equals("0")){
+        else if(parent.getValue().getType().equals("loop") && ast.leftMostChild(parent).equals(cur)
+                &&
+                (
+                        (nVal.equals("0") && parent.getValue().getValue().equals("while"))
+                    ||  (nVal.equals("1") && parent.getValue().getValue().equals("until"))
+                )
+        )
+        {
             //while false
             nextItr.setOpts(2);  //0 => default, 1 => skip all siblings, 2 => skip one sibling.
             this.loop = false;
@@ -622,15 +640,16 @@ public class BaseInterpreter {
                 else if(ptr.getV1() instanceof Integer)
                     j = (Integer) ptr.getV1();
 
-
                 if(i > 0 && prev_list.size() == 1 && prev_list.get(0).getV1() instanceof List){
-                    Object j_item = ((List) prev_list.get(0).getV1()).get(j); //extract j_item of list.
+                    List inner_list = ((List) prev_list.get(0).getV1());        //extract j_item of list.
+                    Object j_item = inner_list.get( ((j < 0) ? inner_list.size() + j : j) );
                     if(j_item instanceof Elem)
                         content.add((Elem) j_item);
                 }
-                else
+                else {
+                    j = (j < 0) ? prev_list.size() + j : j;
                     content.add(prev_list.get(j));
-
+                }
             }
             prev_list.clear();
             prev_list.addAll(content); //switch to current extracted content after iteration.

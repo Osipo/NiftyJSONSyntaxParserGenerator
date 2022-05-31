@@ -41,7 +41,8 @@
     "empty": null
   },
   "keywords": [
-    "true","false", "not", "lambda", "if", "else", "while", "pass"
+    "true","false", "not", "lambda", "if", "else", "while", "pass",
+    "and", "or", "until"
   ],
   "separators": {
     "signedNum": "_",
@@ -68,6 +69,9 @@
       {"act": "astNode", "type": "else", "value": "pass"}
     ]},
     {"S": ["while", "(","B",")","S",
+      {"act": "astNode", "value": "$0", "type": "loop", "children": "$1"}
+    ]},
+    {"S": ["until", "(", "B", ")", "S",
       {"act": "astNode", "value": "$0", "type": "loop", "children": "$1"}
     ]},
 
@@ -141,11 +145,11 @@
     ]},
 
     {"EXP": "B"},
-    {"B": ["B","->","DISJ", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
+    {"B": ["B","=>","DISJ", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
     {"B": "DISJ"},
-    {"DISJ": ["DISJ","||","CONJ",  {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
+    {"DISJ": ["DISJ","or","CONJ",  {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
     {"DISJ": "CONJ"},
-    {"CONJ": ["CONJ","&&","E", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
+    {"CONJ": ["CONJ","and","E", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
     {"CONJ": "E"},
 
     {"E": ["AE","RELOP","AE", {"act": "astNode", "value": "$1_0", "type": "relop", "children": "$1"}]},
