@@ -32,7 +32,7 @@ public class BottomUpInterpreter extends BaseInterpreter {
         //Totally POST_ORDER. (start nodes -> leaf nodes that indicate start of the new scope).
         ast.visit(VisitorMode.POST, (n, next) -> {
 
-            //skip start/prog at while/if/else parent nodes.
+            //skip start/prog at while/until/if/else parent nodes.
             if(n.getValue().getType().equals("start") && n.getValue().getValue().equals("prog")
                     && ast.parent(n) != null && ast.parent(ast.parent(n)) != null
                     && ast.parent(ast.parent(n)).getValue().getType().equals("loop")

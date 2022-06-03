@@ -5,6 +5,7 @@ import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.interpret.BaseInterpreter;
 import bmstu.iu7m.osipov.services.interpret.BottomUpInterpreter;
+import bmstu.iu7m.osipov.services.interpret.optimizers.FunctionOptimizer;
 import bmstu.iu7m.osipov.services.lexers.*;
 import bmstu.iu7m.osipov.services.parsers.*;
 import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
@@ -83,7 +84,16 @@ public class AstParserTest {
         assert ast != null;
 
         //show semantic AST
-        Graphviz.fromString(ast.toDot("astafter")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "semantics_after_" + suffix));
+        //Graphviz.fromString(ast.toDot("astafter")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "semantics_after_" + suffix));
+
+        //remove tail_recursion.
+        FunctionOptimizer remove_tail_recusrive_call = new FunctionOptimizer();
+        remove_tail_recusrive_call.optimize(ast);
+
+
+        //show semantic after tail_recursion eliminating AST
+        Graphviz.fromString(ast.toDot("astafter")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "semantics_after_tail_" + suffix));
+
 
         System.out.println("AST nodes: " + ast.getCount());
         System.out.println("Parsing tree nodes: " + t.getCount());

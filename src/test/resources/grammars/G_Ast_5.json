@@ -21,6 +21,7 @@
     "=": "=",
     "=>": "=>",
     ";": ";",
+    ":": ":",
     "&&" : "&&",
     "||" : "@|@|",
     "->": "->",
@@ -42,7 +43,7 @@
   },
   "keywords": [
     "true","false", "not", "lambda", "if", "else", "while", "pass",
-    "and", "or", "until"
+    "and", "or", "until", "goto"
   ],
   "separators": {
     "signedNum": "_",
@@ -54,8 +55,15 @@
       {"act": "astNode", "value": "prog", "type": "program", "children": "all"},
       {"act": "astNode", "value": "prog", "type": "start", "child": "$0"}
     ]},
-    {"SL": ["SL", "S"]}, {"SL": "S"},
-    {"S": ["OP", ";"]}, {"S": ["P"]},
+    {"SL": ["SL", "SM"]}, {"SL": "SM"},
+
+    {"SM": ["LABEL", "S"]},
+    {"SM": "S"},
+    {"S": ["OP", ";"]},
+    {"S": ["P"]},
+    {"LABEL": ["id", ":",
+      {"act": "astNode", "type": "label", "value": "$0"}
+    ]},
 
     {"S": ["if","(","B",")","S", "ELS",
       {"act": "astNode", "value": "$0", "type": "if", "children": "$2"}
@@ -77,6 +85,9 @@
 
     {"OP": "A"},
     {"OP": "EXP"},
+    {"OP": ["goto", "id",
+      {"act": "astNode", "value": "$1", "type": "goto"}
+    ]},
     {"A": ["id", "ACLIST", "=", "EXP",
       {"act": "astNode", "value": "$0", "type": "variable"},
       {"act": "astNode", "value": "$2", "type": "assign", "children": "$2"}

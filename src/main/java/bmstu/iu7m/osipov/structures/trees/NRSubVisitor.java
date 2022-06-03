@@ -144,6 +144,14 @@ public class NRSubVisitor<T> extends NRVisitor<T> implements SubVisitor<T> {
                 if(!noCount)
                     c++;
                 act.perform(m, nextItr);
+                if(nextItr.getNextNode() != null){
+                    m = nextItr.getNextNode();
+                    nextItr.setNextNode(null);
+                    continue;
+                }
+                else if(nextItr.getOpts() == -1)
+                    return;
+
                 STACK.push(m);
                 m = tree.leftMostChild(m);//LEFTMOST_CHILD(node,TREE)
             }
@@ -201,7 +209,14 @@ public class NRSubVisitor<T> extends NRVisitor<T> implements SubVisitor<T> {
                     return;
                 }
 
-                if(nextItr.getNextNode() != null){
+                if(nextItr.getNextNode() != null && nextItr.getOpts() == 10){
+                    m = nextItr.getNextNode();
+                    nextItr.setNextNode(null);
+                    nextItr.setOpts(0);
+                    STACK.pop();
+                    continue;
+                }
+                else if(nextItr.getNextNode() != null){
                     m = nextItr.getNextNode();
                     nextItr.setNextNode(null);
                     continue;

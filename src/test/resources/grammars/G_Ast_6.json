@@ -43,7 +43,7 @@
   },
   "keywords": [
     "true","false", "not", "lambda", "if", "else", "while", "pass",
-    "and", "or", "until", "goto"
+    "and", "or", "until", "goto", "for", "in"
   ],
   "separators": {
     "signedNum": "_",
@@ -125,8 +125,41 @@
       {"act": "astNode", "type": "range", "value": "rangeEnd", "children": "$0"}
     ]},
 
+    {"LITEM": "VECTOR"},
+    {"VECTOR": [ "EXPRS", "for", "VARS",
+      {"act": "astNode", "type": "matrix", "value": "$1", "children": "$1"}
+    ]},
+
+    {"EXPRS": ["EXPLIST",
+      {"act": "astNode", "type": "vector", "value": "expressions", "children": "all"}
+    ]},
+    {"EXPLIST": ["EXPLIST", ",", "EXP"]},
+    {"EXPLIST": ["EXP",
+      {"act": "astNode", "type": "expression", "value": "expression", "children": "$0"}
+    ]},
+    {"EXPLIST": ["empty",
+      {"act": "astNode", "type": "expression", "value": "expression"}
+    ]},
+
+    {"VARS": ["VARLIST",
+      {"act": "astNode", "type": "sequences", "value": "items", "children": "all"}
+    ]},
+    {"VARLIST": ["VARLIST", ",", "VARITEM"
+    ]},
+    {"VARLIST": ["VARITEM"
+    ]},
+    {"VARITEM": ["id",
+      {"act": "astNode", "type": "seqitem", "value": "$0"}
+    ]},
+    {"VARITEM": ["id", "SEQUENCE",
+      {"act": "astNode", "type": "seqitem", "value": "$0"},
+      {"act": "astNode", "type": "sequence", "value": "items", "children": "all"}
+    ]},
+    {"SEQUENCE": ["in", "RANGE"]},
+    {"SEQUENCE": ["in", "LIST"]},
+
     {"EXP": ["LAMBDA"]},
-    {"LAMBDA": ["lambda", "LHEADER", "=>", "S",
+    {"LAMBDA": ["lambda", "LHEADER", "S",
       {"act": "astNode", "type": "lambda", "value": "$0", "children": "$1"}
     ]},
     {"LHEADER": ["(", "PARGS", ")",

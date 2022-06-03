@@ -38,4 +38,13 @@ public class Env {
         }
         return null;
     }
+
+    public Variable getAtCurrent(String s){
+        return this.table.get(s);
+    }
+
+    public Variable getAtCurrent(String s, Predicate<Variable> condition){
+        Variable v = this.table.get(s);
+        return (v != null && condition.test(v)) ? v : null;
+    }
 }

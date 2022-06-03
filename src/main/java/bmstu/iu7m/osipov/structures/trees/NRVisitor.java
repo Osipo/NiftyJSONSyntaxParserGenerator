@@ -146,6 +146,14 @@ public class NRVisitor<T> implements Visitor<T> {
                     c++;
 
                 act.perform(m, nextItrStrategy);//LABEL(node,TREE)
+                if(nextItrStrategy.getNextNode() != null){
+                    m = nextItrStrategy.getNextNode();
+                    nextItrStrategy.setNextNode(null);
+                    continue;
+                }
+                else if(nextItrStrategy.getOpts() == -1)
+                    return;
+
                 STACK.push(m);
                 if(nextItrStrategy.getOpts() == 0) {
                     m = tree.leftMostChild(m);//LEFTMOST_CHILD(node,TREE)
@@ -196,7 +204,14 @@ public class NRVisitor<T> implements Visitor<T> {
                 if(!noCount)
                     c++;
 
-                if(nextItrStrategy.getNextNode() != null){
+                if(nextItrStrategy.getNextNode() != null && nextItrStrategy.getOpts() == 10){
+                    m = nextItrStrategy.getNextNode();
+                    nextItrStrategy.setNextNode(null);
+                    nextItrStrategy.setOpts(0);
+                    STACK.pop();
+                    continue;
+                }
+                else if(nextItrStrategy.getNextNode() != null){
                     m = nextItrStrategy.getNextNode();
                     nextItrStrategy.setNextNode(null);
                     continue;

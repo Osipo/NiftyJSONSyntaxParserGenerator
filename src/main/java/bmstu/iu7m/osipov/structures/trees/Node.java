@@ -2,7 +2,7 @@ package bmstu.iu7m.osipov.structures.trees;
 
 public class Node<T> {
     protected T value;
-    protected int idx;
+    protected int idx; //internal Id.
 
     public void setValue(T val) {
         this.value = val;

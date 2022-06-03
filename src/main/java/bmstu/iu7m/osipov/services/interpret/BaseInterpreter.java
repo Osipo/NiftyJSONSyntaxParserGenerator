@@ -12,70 +12,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class BaseInterpreter {
+public abstract class BaseInterpreter {
 
     private boolean loop = false;
 
-    public void interpret(PositionalTree<AstSymbol> ast) {
-        AtomicReference<Env> env = new AtomicReference<>();
-        env.set(new Env(null));
-        LinkedStack<String> exp = new LinkedStack<>();
-        LinkedStack<List<Elem<Object>>> lists = new LinkedStack<>();
-        ArrayList<List<Elem<Object>>> indices = new ArrayList<>();
+    public abstract void interpret(PositionalTree<AstSymbol> ast);
 
-        ArrayList<Variable> params = new ArrayList<>();
-        LinkedStack<FunctionInterpreter> functions = new LinkedStack<>();
-        LinkedStack<ArrayList<Object>> args = new LinkedStack<ArrayList<Object>>();
-
-        VisitorsNextIteration<AstSymbol> nextItr = new VisitorsNextIteration<>();
-
-        ast.visit(VisitorMode.PRE, (n) -> {
-            if(n.getValue().getType().equals("program"))
-                env.set(new Env(env.get()));
-            else if(n.getValue().getType().equals("end"))
-                env.set(env.get().getPrev());
-            else if(n.getValue().getType().equals("assign")) {
-                ast.visitFrom(VisitorMode.POST, (c, next) -> {
-                    try {
-                        applyOperation(ast, env, c, exp, lists, indices, params, functions, args, nextItr);
-                    } catch (Exception e) {
-                        System.err.println(e);
-                    }
-                }, n, nextItr);
-            }
-        });
-    }
-
-    protected void execFunction(FunctionInterpreter f, PositionalTree<AstSymbol> ast, LinkedStack<String> exp, LinkedStack<FunctionInterpreter> functions, VisitorsNextIteration<AstSymbol> nextItr){
-        AtomicReference<Env> env2 = new AtomicReference<>();
-        env2.set(f.getContext());
-        Node<AstSymbol> root = f.getRoot();
-
-        LinkedStack<List<Elem<Object>>> lists = new LinkedStack<>();
-        ArrayList<List<Elem<Object>>> indices = new ArrayList<>();
-
-        ArrayList<Variable> params = new ArrayList<>();
-        LinkedStack<ArrayList<Object>> args = new LinkedStack<ArrayList<Object>>();
-
-        ast.visitFrom(VisitorMode.PRE, p -> {
-            if(p.getValue().getType().equals("program"))
-                env2.set(new Env(env2.get()));
-            else if(p.getValue().getType().equals("end"))
-                env2.set(env2.get().getPrev());
-            else if ( (ast.parent(p) != null && ast.parent(p).getValue().getType().equals("program")) ||
-                      (ast.parent(p) == null) //is root.
-            )
-            {
-                ast.visitFrom(VisitorMode.POST, (c, next) -> {
-                    try {
-                        applyOperation(ast, env2, c, exp, lists, indices, params, functions, args, nextItr);
-                    } catch (Exception e) {
-                        System.err.println(e);
-                    }
-                }, p, nextItr);
-            }
-        }, root);
-    }
+    protected abstract void execFunction(FunctionInterpreter f, PositionalTree<AstSymbol> ast, LinkedStack<String> exp, LinkedStack<FunctionInterpreter> functions, VisitorsNextIteration<AstSymbol> nextItr);
 
     protected void applyOperation(PositionalTree<AstSymbol> ast, AtomicReference<Env> context, Node<AstSymbol> cur,
                                 LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists,
@@ -88,6 +31,7 @@ public class BaseInterpreter {
 
         String opType = cur.getValue().getType();
         String nodeVal = cur.getValue().getValue();
+        //System.out.println(opType + "/" + nodeVal);
         switch (opType){
             case "char": case "string": {
                 checkList(ast, ast.parent(cur), cur, context.get(), opType, nodeVal, exp, lists, args, nextIteration);
@@ -99,7 +43,7 @@ public class BaseInterpreter {
                 break;
             }
             case "pass": {
-                nextIteration.setOpts(3); //skip siblings add detach node.
+                nextIteration.setOpts(3); //3 => skip siblings add detach node.
                 break;
             }
             case "loop": { //loop while
@@ -108,6 +52,26 @@ public class BaseInterpreter {
                     nextIteration.setNextNode(cond_node);
                     this.loop = false;
                 }
+                break;
+            }
+            case "label": { //label declaration
+
+                //double label declaration -> just ignore it.
+                if(context.get().getAtCurrent(">l_" + nodeVal, (v) -> v.getCategory() == 2) != null)
+                    break;
+                    //throw new Exception("Multiple label declaration '" + nodeVal + "' at current context!");
+
+                Variable lv = new Variable(">l_" + nodeVal, 2); //label.
+                lv.setNextNode(ast.rightSibling(cur)); //save next command.
+                context.get().add(lv);
+                break;
+            }
+            case "goto": { //goto to specified label.
+                Variable label = context.get().get(">l_" + nodeVal, (v) -> v.getCategory() == 2);
+                if(label == null || label.getNext() == null)
+                    throw new Exception("Cannot find label '" + nodeVal + "'! The label must be declared at first!");
+                nextIteration.setNextNode(label.getNext());
+                nextIteration.setOpts(10);
                 break;
             }
             case "start": {
@@ -146,9 +110,6 @@ public class BaseInterpreter {
             case "params": { //move all vars from params to context.
 
                 Node<AstSymbol> f_body = ast.rightSibling(cur);
-
-                //delete connection of f_body with lambda node.
-                //ast.detachNode(f_body);
 
                 //skip next iteration for f_body node.
                 nextIteration.setOpts(1); //just skip siblings.
@@ -588,9 +549,7 @@ public class BaseInterpreter {
             node_pass.setValue(new AstNode("pass", "pass")); //add pass before else_node.
             node_pass.setIdx(ast.getCount() + 3);
             node_pass.setParent((LinkedNode<AstSymbol>) parent); //ERROR: SubType is fixed! Make it flexible!!!
-            //System.out.println("ast_before: " + ast.getChildren(parent).size());
-            ast.getRealChildren(parent).add(2, node_pass);
-            //System.out.println("ast_after: " + ast.getChildren(parent).size());
+            ast.getRealChildren(parent).add(2, node_pass); //add before else.
         }
         else if(parent.getValue().getType().equals("if") && ast.leftMostChild(parent).equals(cur) && nVal.equals("0")){
             //if false -> goto else.
