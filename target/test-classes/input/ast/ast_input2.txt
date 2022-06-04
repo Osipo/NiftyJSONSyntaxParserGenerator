@@ -6,7 +6,7 @@
        list = [1, 0, 'c', "hello", [5, [6]], c];
 
        list[0] = list[0] - 1 + 1; # 1.
-       list[1, 2] = 2;
+       list[1, 2] = 2;  /* multiple items at index means that index returns list of items that will be modified at this stmt. */
        list[list[list[1 - 1]]] = 'q'; # list[2] = 'q';
 
        list[0] = 6;

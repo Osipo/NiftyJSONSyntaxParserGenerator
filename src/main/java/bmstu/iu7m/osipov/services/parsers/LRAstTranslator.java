@@ -177,10 +177,17 @@ public class LRAstTranslator  extends LRParser {
                             removeScope = true;
                             break;
                         }
-                        //body was end [{ BODY }], scope: { BODY } => flush current scope.
+                        //BODY reduced and token end was read. [{ BODY }], scope: { BODY } => flush current scope.
                         else if(s.getEnd() != null && S.top() != null && s.getEnd().equals(S.top().getValue().getName())
                                 && S.topFrom(1) != null && S.topFrom(1).getValue() != null
                                 && S.topFrom(1).getValue().getName().equals(s.getBody())
+                        ){
+                            removeScope = true; //signal that next reduce removeScope.
+                            break;
+                        }
+                        //BODY reduced and current token is END [{ BODY ] >>} ( end = '}')
+                        else if(s.getEnd() != null && s.getEnd().equals(tok.getName())
+                            && S.top() != null && S.top().getValue() != null && S.top().getValue().getName().equals(s.getBody())
                         ){
                             removeScope = true; //signal that next reduce removeScope.
                             break;
