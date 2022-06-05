@@ -58,7 +58,7 @@
     };
 
     n_fact_2 = lambda(n) => {
-        n_fact_tail(n + 1, 1); // side effect of elimination of tail recursion (make eval of args in temp vars before assigning)
+        n_fact_tail(n, 1);
     };
 
     x = lambda(x, b) => {
