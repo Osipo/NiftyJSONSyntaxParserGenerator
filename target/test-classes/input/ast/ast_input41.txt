@@ -58,7 +58,7 @@
     };
 
     n_fact_2 = lambda(n) => {
-        n_fact_tail(n + 1, 1); // as n - 1 stmt executed before accumulation (tail recursion) we need plus 1.
+        n_fact_tail(n + 1, 1); // side effect of elimination of tail recursion (make eval of args in temp vars before assigning)
     };
 
     x = lambda(x, b) => {
@@ -115,6 +115,6 @@
 
     zero = to_zero(10); //from 10 to 0.
 
-    nr = n_fact(12);
-    //nt = n_fact_2(12); // 6 => 720,  12 => 479_001_600
+    //nr = n_fact(12);
+    nt = n_fact_2(12); // 6 => 720,  12 => 479_001_600
 }

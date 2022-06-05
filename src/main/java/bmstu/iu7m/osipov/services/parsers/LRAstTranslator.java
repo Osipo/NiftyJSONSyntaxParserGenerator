@@ -168,8 +168,43 @@ public class LRAstTranslator  extends LRParser {
                     col = tok.getColumn();
                 } else if (act.charAt(0) == 'r') {
 
+                    int scope_i = -1;
+                    int scope_s = -1;
+                    int scope_mi = 0;
                     //CHECK Scopes
                     for(Scope s : this.G.getMeta().getScopes()) {
+                        //Check scope starts.
+                        scope_i++;
+
+                        int scope_prefix_len = 0;
+                        int scope_prefix_i = s.getStart().size() - 2;
+                        if(s.getStart().size() <= S.size() - 1 && s.isReduce()) {
+                            String last_elem = s.getStart().stream().skip(s.getStart().size() - 1).findFirst().get();
+                            for (String scope_prefix : s.getStart()){
+                                if(scope_prefix_len == s.getStart().size() - 1 || scope_prefix_i < 0)
+                                    break; //end inner for.
+
+                                if (S.topFrom(scope_prefix_i).getValue().getName().equals(scope_prefix))
+                                    scope_prefix_len++;
+                                scope_prefix_i--;
+                            }
+                            if(S.top().getValue().getName().equals("VARITEMSEQ2") && last_elem.equals(",")
+                                    && last_elem.equals(tok.getName())){
+                                System.out.println("new scope" + scope_prefix_len);
+                            }
+                            if (scope_prefix_len == s.getStart().size() - 1
+                                    && scope_mi <= scope_prefix_len && s.isReduce()
+                                    && tok.getName().equals(last_elem)
+                            ) {
+                                scope_mi = scope_prefix_len;
+                                scopes.push(AST.size());
+                                scope_s = scope_i;
+                            }
+                        }
+                        if(scope_s != -1) //do not close when new scope found.
+                            break;
+                        //end check.
+
                         if (s.getEnd() == null
                                 && S.topFrom(0) != null && S.topFrom(0).getValue() != null
                                 && S.topFrom(0).getValue().getName().equals(s.getBody())

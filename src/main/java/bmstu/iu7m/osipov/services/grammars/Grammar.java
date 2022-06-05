@@ -448,6 +448,7 @@ public class Grammar {
                 JsonObject scope_i = (JsonObject) scope;
 
                 String start = null, end = null, body = null;
+                boolean isReduce = false;
                 Set<String> starts = new LinkedHashSet<>();
                 for(Map.Entry<String, JsonElement> sc_prop : scope_i.getValue().entrySet()){
                     if(sc_prop.getKey().equals("start")){
@@ -479,8 +480,13 @@ public class Grammar {
                         if(!this.N.contains(body))
                             throw new InvalidJsonGrammarException("Scope body \'" + body + "\' must be Non-terminal name! (header of production)", null);
                     }
+                    if(sc_prop.getKey().equals("reduce")){
+                        isReduce = ((JsonString) sc_prop.getValue()).getValue().equals("1");
+                    }
                 } //scope_i props end
-                this.meta.getScopes().add(new Scope(starts, end, body));
+                Scope scope1 = new Scope(starts, end, body);
+                scope1.setReduce(isReduce);
+                this.meta.getScopes().add(scope1);
             } // scopearr end
         } //end of section.
 

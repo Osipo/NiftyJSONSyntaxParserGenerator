@@ -84,6 +84,7 @@ public class FunctionOptimizer {
                 Node<AstSymbol> call_parent = ast.parent(call_node);
 
                 int IdxOfCall = PositionalTreeUtils.indexOfChild(ast, call_parent, call_node);
+                String tempVar = "";
 
                 LinkedStack<LinkedNode<AstSymbol>> REVERSE_ARGS = new LinkedStack<>();
                 for(int i = 0, j = 1; i < f.getParamNames().size(); i++, j++){
@@ -91,8 +92,9 @@ public class FunctionOptimizer {
                     assign_node.setValue(new AstNode("assign", "="));
                     assign_node.setIdx(last_id++);
 
+                    tempVar = "$_" + last_id;
                     LinkedNode<AstSymbol> var_node = new LinkedNode<>();
-                    var_node.setValue(new AstNode("variable", f.getParamNames().get(i)));
+                    var_node.setValue(new AstNode("variable", tempVar));
                     var_node.setIdx(last_id++);
 
                     LinkedNode<AstSymbol> exp_node = ast.getRealChildren(args).get(j); //argument expression
@@ -102,11 +104,31 @@ public class FunctionOptimizer {
                     exp_node.setParent(assign_node);
                     var_node.setParent(assign_node);
                     assign_node.getChildren().add(exp_node);
-                    assign_node.getChildren().add(var_node);
+                    assign_node.getChildren().add(var_node); //tempVar = expr
 
                     //attach assign node before call_node.
                     assign_node.setParent((LinkedNode<AstSymbol>) call_parent);
+
+                    //evaluate at temps to remove side effect of evaluation.
+                    LinkedNode<AstSymbol> assing_node2 = new LinkedNode<>();
+                    assing_node2.setValue(new AstNode("assign", "="));
+                    assing_node2.setIdx(last_id++);
+                    LinkedNode<AstSymbol> tempvar_node = new LinkedNode<>();
+                    tempvar_node.setValue(new AstNode("variable", tempVar));
+                    tempvar_node.setIdx(last_id++);
+                    LinkedNode<AstSymbol> var_node2 = new LinkedNode<>();
+                    var_node2.setValue(new AstNode("variable", f.getParamNames().get(i)));
+                    var_node2.setIdx(last_id++);
+
+                    var_node2.setParent(assing_node2);
+                    tempvar_node.setParent(assing_node2);
+                    assing_node2.getChildren().add(tempvar_node);
+                    assing_node2.getChildren().add(var_node2); //variable = expr
+
+                    assing_node2.setParent((LinkedNode<AstSymbol>) call_parent);
+
                     REVERSE_ARGS.push(assign_node);
+                    REVERSE_ARGS.push(assing_node2); //t = exp, v = t.
                 }
 
                 //preserve same order of argument list via usage of Stack.

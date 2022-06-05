@@ -7,11 +7,13 @@ public class Scope {
     private final Set<String> start;
     private final String end;
     private final String body;
+    private boolean isReduce;
 
     public Scope(Set<String> start, String end, String body){
         this.start = start;
         this.end = end;
         this.body = body;
+        this.isReduce = false;
     }
 
     public Set<String> getStart() {
@@ -26,12 +28,21 @@ public class Scope {
         return body;
     }
 
+    public boolean isReduce() {
+        return isReduce;
+    }
+
+    public void setReduce(boolean reduce) {
+        isReduce = reduce;
+    }
+
     @Override
     public String toString() {
         return "{" +
                 "\"start\" : \"" + start + '\"' +
                 ",\"end\" : \"" + end + '\"' +
                 ",\"body\" : \"" + body + '\"' +
-                '}';
+                ",\"reduce\" : \"" + isReduce + '\"' +
+                 '}';
     }
 }

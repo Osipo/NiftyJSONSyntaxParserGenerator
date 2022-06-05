@@ -147,10 +147,13 @@
     ]},
     {"VARLIST": ["VARITEM"
     ]},
-    {"VARITEM": ["id",
+
+    {"VARITEM": ["VARITEMSEQ1"]},
+    {"VARITEM": ["VARITEMSEQ2"]},
+    {"VARITEMSEQ1": ["id",
       {"act": "astNode", "type": "seqitem", "value": "$0"}
     ]},
-    {"VARITEM": ["id", "SEQUENCE",
+    {"VARITEMSEQ2": ["id", "SEQUENCE",
       {"act": "astNode", "type": "seqitem", "value": "$0", "child": "$0"}
     ]},
     {"SEQUENCE": ["SEQUENCEIN",
@@ -244,7 +247,7 @@
       {"start": "gen", "end": "for", "body": "EXPRSIN"},
       {"start": "for", "end": "end", "body": "VARSIN"},
       {"start": ["for", "id"], "body": "SEQUENCEIN"},
-      {"start": ["SEQUENCE", "id"], "body": "SEQUENCEIN"},
+      {"start": ["VARITEMSEQ2", ","], "body": "SEQUENCEIN", "reduce": "1"},
       {"start": ["id", "["], "body": "RANGES"},
       {"start": ["id", "("], "body": "CALLEE"},
       {"start": ["id", "("], "end": ")", "body": "ARGS"},
