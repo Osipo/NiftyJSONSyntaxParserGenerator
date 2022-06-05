@@ -13,6 +13,8 @@ import java.util.List;
 
 public class FunctionOptimizer {
 
+    private int l_id = 0;
+
     public void optimize(PositionalTree<AstSymbol> ast){
         VisitorsNextIteration<AstSymbol> nextItr = new VisitorsNextIteration<>();
         List<FunctionEntry> funs = new ArrayList<>();
@@ -171,7 +173,7 @@ public class FunctionOptimizer {
 
                 //replace call_node with goto_node.
                 LinkedNode<AstSymbol> goto_node = new LinkedNode<>();
-                goto_node.setValue(new AstNode("goto", ">$1"));
+                goto_node.setValue(new AstNode("goto", ">$" + l_id));
                 goto_node.setIdx(last_id++);
 
                 IdxOfCall = PositionalTreeUtils.indexOfChild(ast, call_parent, call_node);
@@ -181,12 +183,13 @@ public class FunctionOptimizer {
                 //attach label node to f_body.
 
                 LinkedNode<AstSymbol> label_node = new LinkedNode<>();
-                label_node.setValue(new AstNode("label", ">$1"));
+                label_node.setValue(new AstNode("label", ">$" + l_id));
                 label_node.setIdx(last_id++);
 
                 label_node.setParent((LinkedNode<AstSymbol>) f.getBody());
                 ast.getRealChildren(f.getBody()).add(1, label_node); //add label after start node in program.
 
+                l_id++; //increment label id for next function.
             } //one caller (with args)
         } //end for.
     }

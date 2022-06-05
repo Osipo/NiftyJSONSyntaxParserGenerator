@@ -11,10 +11,15 @@ import bmstu.iu7m.osipov.utils.ProcessNumber;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public abstract class BaseInterpreter {
 
     private boolean loop = false;
+
+    protected int blocks = 0;
+
+    protected List<Pair<Node<AstSymbol>, Integer>> labels;
 
     public abstract void interpret(PositionalTree<AstSymbol> ast);
 
@@ -54,6 +59,33 @@ public abstract class BaseInterpreter {
                 }
                 break;
             }
+            case "goto": {
+                String finalNodeVal = nodeVal;
+                int block_i = blocks;
+                Pair<Node<AstSymbol>, Integer>  lentry = null;
+                List<Pair<Node<AstSymbol>, Integer>> lentries = this.labels
+                        .stream()
+                        .filter(x -> x.getV1().getValue().getValue().equals(finalNodeVal)
+                                && x.getV2() <= this.blocks
+                        ).sorted((x, y) -> y.getV2() - x.getV2()).collect(Collectors.toList());
+                while(block_i > 0){
+                    for(int ii = 0; ii < lentries.size(); ii++){ //for labels with name (nodeVal)
+                        if(lentries.get(ii).getV2() == block_i){
+                            lentry = lentries.get(ii);
+                            block_i = -1;
+                            break; //end for.
+                        }
+                    }
+                    block_i--;
+                }
+                if(lentry == null)
+                    throw new Exception("Cannot find label '" + nodeVal + "' The label must be declared within current context and only once.");
+
+                nextIteration.setNextNode(lentry.getV1());
+                nextIteration.setOpts(10);
+                break;
+            }
+            /*
             case "label": { //label declaration
 
                 //double label declaration -> just ignore it.
@@ -74,6 +106,7 @@ public abstract class BaseInterpreter {
                 nextIteration.setOpts(10);
                 break;
             }
+            */
             case "start": {
                 if(ast.parent(cur).getValue().getType().equals("list")) { //start > list
                     ArrayList<Elem<Object>> items = new ArrayList<>();

@@ -117,4 +117,13 @@
 
     //nr = n_fact(12);
     nt = n_fact_2(12); // 6 => 720,  12 => 479_001_600
+
+    bef = "Before goto terminate stmt";
+
+    goto terminate;
+
+    aft = "After goto stmt"; // this stmt will be skipped.
+
+    terminate:
+    last = 999;
 }

@@ -2,6 +2,7 @@ package bmstu.iu7m.osipov.services.interpret;
 
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
+import bmstu.iu7m.osipov.structures.graphs.Pair;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.trees.Node;
 import bmstu.iu7m.osipov.structures.trees.PositionalTree;
@@ -13,6 +14,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class BottomUpInterpreter extends BaseInterpreter {
+
+    public BottomUpInterpreter(){
+        this.labels = new ArrayList<>();
+        this.blocks = 0;
+    }
 
     @Override
     public void interpret(PositionalTree<AstSymbol> ast) {
@@ -28,6 +34,62 @@ public class BottomUpInterpreter extends BaseInterpreter {
 
         VisitorsNextIteration<AstSymbol> nextItr = new VisitorsNextIteration<>();
         nextItr.setOpts(0);
+
+        /* Collect all labels with context.*/
+        ast.visit(VisitorMode.POST, (n, next) ->{
+            //skip start/prog at while/until/if/else parent nodes.
+            if(n.getValue().getType().equals("start") && n.getValue().getValue().equals("prog")
+                    && ast.parent(n) != null && ast.parent(ast.parent(n)) != null
+                    && ast.parent(ast.parent(n)).getValue().getType().equals("loop")
+            )
+                return;
+
+            if (n.getValue().getType().equals("start") && n.getValue().getValue().equals("prog")
+                    && ast.parent(n) != null && ast.parent(ast.parent(n)) != null
+                    && ast.parent(ast.parent(n)).getValue().getType().equals("if")
+            )
+                return;
+
+            if (n.getValue().getType().equals("start") && n.getValue().getValue().equals("prog")
+                    && ast.parent(n) != null && ast.parent(ast.parent(n)) != null
+                    && ast.parent(ast.parent(n)).getValue().getType().equals("else")
+            )
+                return;
+
+
+            //start new prog (scope)
+            if(n.getValue().getType().equals("start") && n.getValue().getValue().equals("prog")) {
+                this.blocks++;
+            }
+
+            else if(n.getValue().getType().equals("program") && ast.parent(n) != null && ast.parent(n).getValue().getType().equals("loop"))
+                return;
+
+            else if(n.getValue().getType().equals("program") && ast.parent(n) != null && ast.parent(n).getValue().getType().equals("if"))
+                return;
+            else if(n.getValue().getType().equals("program") && ast.parent(n) != null && ast.parent(n).getValue().getType().equals("else"))
+                return;
+                //end of program (remove current scope and get previous)
+            else if(n.getValue().getType().equals("program")) {
+                this.blocks--;
+            }
+
+            else if(n.getValue().getType().equals("label")){
+                Pair<Node<AstSymbol>, Integer> label_entry = new Pair<>(n, this.blocks);
+                if(labels.contains(label_entry)){
+                    nextItr.setOpts(-1);
+                }
+                this.labels.add(label_entry);
+            }
+        }, nextItr);
+
+        System.out.println(labels);
+
+        /* If dublicate labels then error */
+        if(nextItr.getOpts() == -1){
+            System.err.println("Dublicate labels at the same context!");
+            return;
+        }
 
         //Totally POST_ORDER. (start nodes -> leaf nodes that indicate start of the new scope).
         ast.visit(VisitorMode.POST, (n, next) -> {
@@ -53,8 +115,10 @@ public class BottomUpInterpreter extends BaseInterpreter {
 
 
             //start new prog (scope)
-            if(n.getValue().getType().equals("start") && n.getValue().getValue().equals("prog"))
+            if(n.getValue().getType().equals("start") && n.getValue().getValue().equals("prog")) {
                 env.set(new Env(env.get()));
+                this.blocks++;
+            }
 
             else if(n.getValue().getType().equals("program") && ast.parent(n) != null && ast.parent(n).getValue().getType().equals("loop"))
                 return;
@@ -64,8 +128,10 @@ public class BottomUpInterpreter extends BaseInterpreter {
             else if(n.getValue().getType().equals("program") && ast.parent(n) != null && ast.parent(n).getValue().getType().equals("else"))
                 return;
             //end of program (remove current scope and get previous)
-            else if(n.getValue().getType().equals("program"))
+            else if(n.getValue().getType().equals("program")) {
                 env.set(env.get().getPrev());
+                this.blocks--;
+            }
 
             else
                 try{
@@ -113,8 +179,10 @@ public class BottomUpInterpreter extends BaseInterpreter {
                 return;
 
             //start new prog (scope)
-            if(c.getValue().getType().equals("start") && c.getValue().getValue().equals("prog"))
+            if(c.getValue().getType().equals("start") && c.getValue().getValue().equals("prog")) {
                 env2.set(new Env(env2.get()));
+                this.blocks++;
+            }
 
 
             else if(c.getValue().getType().equals("program") && ast.parent(c) != null && ast.parent(c).getValue().getType().equals("loop"))
@@ -126,8 +194,10 @@ public class BottomUpInterpreter extends BaseInterpreter {
                 return;
 
             //end of program (remove current scope and get previous)
-            else if(c.getValue().getType().equals("program"))
+            else if(c.getValue().getType().equals("program")) {
                 env2.set(env2.get().getPrev());
+                this.blocks--;
+            }
 
             else
                 try{
