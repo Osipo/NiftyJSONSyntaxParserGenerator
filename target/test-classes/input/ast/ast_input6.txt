@@ -1,5 +1,5 @@
 {
     a = 12;
     l1 = [1..5, 6, 7, 8, 9, 10, 5..1];
-    lg = [1000, gen x + x, x * x for x, y in l1, z in l1 end, 1000]; // =, =, num, exprs(=, *), seqs(seq(x,y at l1), seq(z at l1))
+    lg = [1000, gen x + x, x * x for x, y in l1, z in l1 end, 1000]; // =, =, num, matrix{ exprs(=, *), seqs(seq(x,y at l1), seq(z at l1)) }
 }

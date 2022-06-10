@@ -108,8 +108,23 @@
         if(x <= 0)
             x;
         else{
-            x = x - 1;
-            goto top;
+            {
+                x = x - 1;
+                goto top;
+            }
+        }
+    };
+
+    to_zero_tail2 = lambda (x) => {
+        top:
+        if(x <= 0)
+            x;
+        else{
+
+            {
+                x = x - 1;
+                goto top;
+            }
         }
     };
 
@@ -126,4 +141,6 @@
 
     terminate:
     last = 999;
+
+    last2 = to_zero_tail2(15);
 }

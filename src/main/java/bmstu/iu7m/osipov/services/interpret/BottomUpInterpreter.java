@@ -4,6 +4,7 @@ import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
 import bmstu.iu7m.osipov.structures.graphs.Pair;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
+import bmstu.iu7m.osipov.structures.lists.Triple;
 import bmstu.iu7m.osipov.structures.trees.Node;
 import bmstu.iu7m.osipov.structures.trees.PositionalTree;
 import bmstu.iu7m.osipov.structures.trees.VisitorMode;
@@ -74,8 +75,10 @@ public class BottomUpInterpreter extends BaseInterpreter {
                 this.blocks--;
             }
 
-            else if(n.getValue().getType().equals("label")){
-                Pair<Node<AstSymbol>, Integer> label_entry = new Pair<>(n, this.blocks);
+            //add new label node.
+            //Replace Pair with Triple<Parent, LabelNode, block>
+            else if(n.getValue().getType().equals("label")) {
+                Triple<Node<AstSymbol>, Node<AstSymbol>, Integer> label_entry = new Triple<>(ast.parent(n), n, this.blocks);
                 if(labels.contains(label_entry)){
                     nextItr.setOpts(-1);
                 }

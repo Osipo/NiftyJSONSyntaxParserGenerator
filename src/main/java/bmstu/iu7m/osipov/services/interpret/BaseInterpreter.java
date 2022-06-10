@@ -5,6 +5,7 @@ import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
 import bmstu.iu7m.osipov.structures.graphs.Pair;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
+import bmstu.iu7m.osipov.structures.lists.Triple;
 import bmstu.iu7m.osipov.structures.trees.*;
 import bmstu.iu7m.osipov.utils.ProcessNumber;
 
@@ -19,7 +20,9 @@ public abstract class BaseInterpreter {
 
     protected int blocks = 0;
 
-    protected List<Pair<Node<AstSymbol>, Integer>> labels;
+    protected SequencesInterpreter curSequence = null;
+
+    protected List<Triple<Node<AstSymbol>, Node<AstSymbol>, Integer>> labels;
 
     public abstract void interpret(PositionalTree<AstSymbol> ast);
 
@@ -62,51 +65,31 @@ public abstract class BaseInterpreter {
             case "goto": {
                 String finalNodeVal = nodeVal;
                 int block_i = blocks;
-                Pair<Node<AstSymbol>, Integer>  lentry = null;
-                List<Pair<Node<AstSymbol>, Integer>> lentries = this.labels
+                Triple<Node<AstSymbol>, Node<AstSymbol>, Integer>  lentry = null;
+                List<Triple<Node<AstSymbol>, Node<AstSymbol>, Integer>> lentries = this.labels
                         .stream()
-                        .filter(x -> x.getV1().getValue().getValue().equals(finalNodeVal)
-                                && x.getV2() <= this.blocks
-                        ).sorted((x, y) -> y.getV2() - x.getV2()).collect(Collectors.toList());
+                        .filter(x -> x.getV2().getValue().getValue().equals(finalNodeVal)
+                                && PositionalTreeUtils.isAncestorOf(ast, x.getV1(), cur)
+                        ).sorted((x, y) -> y.getV3() - x.getV3()).collect(Collectors.toList());
+
                 while(block_i > 0){
                     for(int ii = 0; ii < lentries.size(); ii++){ //for labels with name (nodeVal)
-                        if(lentries.get(ii).getV2() == block_i){
+                        if(lentries.get(ii).getV3() == block_i){
                             lentry = lentries.get(ii);
-                            block_i = -1;
+                            block_i = -1; //break while.
                             break; //end for.
                         }
                     }
                     block_i--;
                 }
+
                 if(lentry == null)
                     throw new Exception("Cannot find label '" + nodeVal + "' The label must be declared within current context and only once.");
 
-                nextIteration.setNextNode(lentry.getV1());
+                nextIteration.setNextNode(lentry.getV2());
                 nextIteration.setOpts(10);
                 break;
             }
-            /*
-            case "label": { //label declaration
-
-                //double label declaration -> just ignore it.
-                if(context.get().getAtCurrent(">l_" + nodeVal, (v) -> v.getCategory() == 2) != null)
-                    break;
-                    //throw new Exception("Multiple label declaration '" + nodeVal + "' at current context!");
-
-                Variable lv = new Variable(">l_" + nodeVal, 2); //label.
-                lv.setNextNode(ast.rightSibling(cur)); //save next command.
-                context.get().add(lv);
-                break;
-            }
-            case "goto": { //goto to specified label.
-                Variable label = context.get().get(">l_" + nodeVal, (v) -> v.getCategory() == 2);
-                if(label == null || label.getNext() == null)
-                    throw new Exception("Cannot find label '" + nodeVal + "'! The label must be declared at first!");
-                nextIteration.setNextNode(label.getNext());
-                nextIteration.setOpts(10);
-                break;
-            }
-            */
             case "start": {
                 if(ast.parent(cur).getValue().getType().equals("list")) { //start > list
                     ArrayList<Elem<Object>> items = new ArrayList<>();
@@ -116,6 +99,18 @@ public abstract class BaseInterpreter {
                     ArrayList<Object> args_i = new ArrayList<>();
                     args.push(args_i);
                 }
+
+                // start/vector node at expressions (start > expressions > matrix)
+                else if(nodeVal.equals("vector")){
+                    nextIteration.setOpts(1); //skip all siblings.
+                    this.curSequence = new SequencesInterpreter(ast, ast.parent(cur), ast.rightSibling(ast.parent(cur)), context.get());
+                }
+                break;
+            }
+            case "matrix": {
+                nextIteration.setOpts(0);
+                this.curSequence.generateItems(ast.parent(cur)); //parent of matrix is always list/items.
+                this.curSequence = null;
                 break;
             }
             case "list": {

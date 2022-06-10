@@ -20,6 +20,8 @@ public class PositionalTreeUtils {
         return rightMostLeafOf(tree, subParent, (val) -> false); //false predicate cause search until leaf.
     }
 
+    //Returns index of child node in parent children if presented else -1.
+    //The nodes must be in specified tree.
     public static <T> int indexOfChild(PositionalTree<T> tree, Node<T> parent, Node<T> child){
         int i = -1;
         List<LinkedNode<T>> children = tree.getRealChildren(parent);
@@ -31,5 +33,19 @@ public class PositionalTreeUtils {
             }
         }
         return i;
+    }
+
+    //Is node ancestor for node n at tree.
+    public static <T> boolean isAncestorOf(PositionalTree<T> tree, Node<T> ancestor, Node<T> n){
+        if(tree == null || ancestor == null || n == null)
+            return false;
+
+        Node<T> cparent = tree.parent(n); //ancestor is not self n.
+        while(cparent != null){
+            if(ancestor.equals(cparent)) //parent_i of n is equal to ancestor.
+                return true;
+            cparent = tree.parent(cparent);
+        }
+        return false;
     }
 }

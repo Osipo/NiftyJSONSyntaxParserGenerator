@@ -131,7 +131,8 @@
     ]},
 
     {"EXPRS":["EXPRSIN",
-      {"act": "astNode", "type": "vector", "value": "expressions", "children": "all"}
+      {"act": "astNode", "type": "vector", "value": "expressions", "children": "all"},
+      {"act": "astNode", "type": "start", "value": "vector", "child": "$0"}
     ]},
 
     {"EXPRSIN": ["EXPLIST"]},
