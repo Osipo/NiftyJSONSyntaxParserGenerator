@@ -3,7 +3,7 @@ package bmstu.iu7m.osipov.services.interpret;
 import bmstu.iu7m.osipov.services.grammars.AstNode;
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
-import bmstu.iu7m.osipov.structures.graphs.Pair;
+import bmstu.iu7m.osipov.structures.lists.LinkedList;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.lists.Triple;
 import bmstu.iu7m.osipov.structures.trees.*;
@@ -11,6 +11,7 @@ import bmstu.iu7m.osipov.utils.ProcessNumber;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -26,14 +27,24 @@ public abstract class BaseInterpreter {
 
     public abstract void interpret(PositionalTree<AstSymbol> ast);
 
-    protected abstract void execFunction(FunctionInterpreter f, PositionalTree<AstSymbol> ast, LinkedStack<String> exp, LinkedStack<FunctionInterpreter> functions, VisitorsNextIteration<AstSymbol> nextItr);
+    protected abstract void execFunction(FunctionInterpreter f,
+                                         PositionalTree<AstSymbol> ast,
+                                         LinkedStack<String> exp,
+                                         LinkedStack<FunctionInterpreter> functions,
+                                         VisitorsNextIteration<AstSymbol> nextItr,
+                                         LinkedList<Elem<?>> vector_i,
+                                         Map<String, Integer> vnames_idxs,
+                                         int vector_len);
 
     protected void applyOperation(PositionalTree<AstSymbol> ast, AtomicReference<Env> context, Node<AstSymbol> cur,
-                                LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists,
-                                ArrayList<List<Elem<Object>>> indices, ArrayList<Variable> params,
-                                LinkedStack<FunctionInterpreter> functions,
-                                LinkedStack<ArrayList<Object>> args,
-                                VisitorsNextIteration<AstSymbol> nextIteration) throws Exception {
+                                  LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists,
+                                  ArrayList<List<Elem<Object>>> indices, ArrayList<Variable> params,
+                                  LinkedStack<FunctionInterpreter> functions,
+                                  LinkedStack<ArrayList<Object>> args,
+                                  VisitorsNextIteration<AstSymbol> nextIteration,
+                                  LinkedList<Elem<?>> vector_i,
+                                  Map<String, Integer> vnames_idxs,
+                                  int vector_len) throws Exception {
         if (context == null || cur == null || cur.getValue() == null)
             return;
 
@@ -42,12 +53,12 @@ public abstract class BaseInterpreter {
         //System.out.println(opType + "/" + nodeVal);
         switch (opType){
             case "char": case "string": {
-                checkList(ast, ast.parent(cur), cur, context.get(), opType, nodeVal, exp, lists, args, nextIteration);
+                checkList(ast, ast.parent(cur), cur, context.get(), opType, nodeVal, exp, lists, args, nextIteration, vector_i);
                 break;
             }
             case "number": {
                 nodeVal = ProcessNumber.parseNumber(nodeVal) + ""; //get parsed double as str.
-                checkList(ast, ast.parent(cur), cur, context.get(), opType, nodeVal, exp, lists, args, nextIteration);
+                checkList(ast, ast.parent(cur), cur, context.get(), opType, nodeVal, exp, lists, args, nextIteration, vector_i);
                 break;
             }
             case "pass": {
@@ -101,9 +112,12 @@ public abstract class BaseInterpreter {
                 }
 
                 // start/vector node at expressions (start > expressions > matrix)
-                else if(nodeVal.equals("vector")){
+                else if(nodeVal.equals("vector") && vector_i == null){
                     nextIteration.setOpts(1); //skip all siblings.
-                    this.curSequence = new SequencesInterpreter(ast, ast.parent(cur), ast.rightSibling(ast.parent(cur)), context.get());
+                    this.curSequence = new SequencesInterpreter(
+                            ast, ast.parent(cur), ast.rightSibling(ast.parent(cur)), context.get()
+                            ,exp, lists, indices, functions, args, this
+                    );
                 }
                 break;
             }
@@ -132,7 +146,7 @@ public abstract class BaseInterpreter {
                     params.add(new Variable(nodeVal, 1)); //category = 1 means parameter.
                     return;
                 } //end  lambda variable_parameters.
-                checkAssign(ast, cur, context.get(), opType, nodeVal, exp, lists, indices, functions, args);
+                checkAssign(ast, cur, context.get(), opType, nodeVal, exp, lists, indices, functions, args, vector_i, vnames_idxs, vector_len);
                 break;
             }
             case "params": { //move all vars from params to context.
@@ -165,7 +179,7 @@ public abstract class BaseInterpreter {
                     f.bindArguments(args_i); //throw Exception if cannot bind.
                     args_i.clear();// flush processed args.
                     args.pop();
-                    execFunction(f, ast, exp, functions, nextIteration);
+                    execFunction(f, ast, exp, functions, nextIteration, vector_i, vnames_idxs, vector_len);
                     f.setContext(f.getContext().getPrev()); //set context.
 
                     //get next arguments caller. (args + args)
@@ -237,7 +251,7 @@ public abstract class BaseInterpreter {
                 if(ast.parent(cur) == null)
                     exp.push(val);
                 else
-                    checkList(ast, ast.parent(cur), cur, context.get(), opType, val, exp, lists, args, nextIteration);
+                    checkList(ast, ast.parent(cur), cur, context.get(), opType, val, exp, lists, args, nextIteration, vector_i);
                 break;
             }
 
@@ -299,7 +313,7 @@ public abstract class BaseInterpreter {
                 if(ast.parent(cur) == null)
                     exp.push(val);
                 else
-                    checkList(ast, ast.parent(cur), cur, context.get(), opType, val, exp, lists, args, nextIteration);
+                    checkList(ast, ast.parent(cur), cur, context.get(), opType, val, exp, lists, args, nextIteration, vector_i);
                 break;
             }
 
@@ -404,9 +418,27 @@ public abstract class BaseInterpreter {
                 if(ast.parent(cur) == null)
                     exp.push(val);
                 else
-                    checkList(ast, ast.parent(cur), cur, context.get(), opType, val, exp, lists, args, nextIteration);
+                    checkList(ast, ast.parent(cur), cur, context.get(), opType, val, exp, lists, args, nextIteration, vector_i);
                 break;
             } // end operator
+
+            case "vector": { //node vector/expressions.
+                if(vector_i == null)
+                    break;
+                List<Elem<Object>> vector_items = new ArrayList<>();
+                //System.out.println("EXPRS: " + exp);
+                for(int i = 0; i < vector_len; i++){
+                    vector_items.add(new Elem<>(exp.top()));
+                    exp.pop();
+                }
+                if(vector_items.size() == 1)
+                    lists.top().add(vector_items.get(0));
+                else if(vector_items.size() > 0)
+                    lists.top().add(new Elem<>(vector_items)); //add as single list into outer list.
+                //System.out.println("clist_vector: " + vector_items);
+                //System.out.println(lists.top().toString()); //CHECK TRAVERSE THROUGH TREE PROCESSORS!
+                break;
+            }
         } //end switch of nodeType
     } //end method
 
@@ -417,7 +449,10 @@ public abstract class BaseInterpreter {
                              LinkedStack<List<Elem<Object>>> lists,
                              ArrayList<List<Elem<Object>>> indices,
                              LinkedStack<FunctionInterpreter> functions,
-                             LinkedStack<ArrayList<Object>> args) throws Exception {
+                             LinkedStack<ArrayList<Object>> args,
+                             LinkedList<Elem<?>> vector_i,
+                             Map<String, Integer> vnames_idxs,
+                             int vector_len) throws Exception {
         Variable v = null;
         //System.out.println("expr = " + exp.top() + " / " + nVal);
         //System.out.println("Parent: " + ast.parent(cur).getValue());
@@ -427,7 +462,7 @@ public abstract class BaseInterpreter {
                 v = new Variable(nVal); //ast.value (variable name)
                 context.add(v);
                 v.setItems(lists.top());
-                v.setStrVal(v.getItems().toString());
+                v.setStrVal(v.getItems().toString()); //error of null item!!!!!
                 System.out.println(nVal + " = " + v.getStrVal());
                 lists.pop();
                 return;
@@ -514,18 +549,31 @@ public abstract class BaseInterpreter {
                 return;
             }
         } //end assing type.
-        v = context.get(nVal);
-        if(v == null)
+
+        v = context.get(nVal); //get variable from context if present.
+
+        if(v == null && vector_i == null) //if not in context AND no vector.
             throw new Exception("Cannot find variable with name \'" + nVal + "\'. Define variable before use it!");
-        checkAccess(ast, cur, v, context, exp, lists, indices, functions, args);
+
+        else if(vector_i != null && vnames_idxs != null && vector_len > 0){ //try get from vector.
+            int vector_idx = vnames_idxs.getOrDefault(nVal, -1);
+            if(vector_idx == -1)
+                throw new Exception("Cannot find variable with name \'" + nVal + "\'. Define variable before use it!");
+
+            v = new Variable(nVal); //new sequence variable.
+            checkTypeAndGetValue(ast, cur, v, context, vector_i.get(vector_idx));
+        }
+        checkAccess(ast, cur, v, context, exp, lists, indices, functions, args, vector_i);
     }
 
     protected void checkAccess(PositionalTree<AstSymbol> ast, Node<AstSymbol> cur, Variable v,
                              Env context,  LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists,
                              ArrayList<List<Elem<Object>>> indices, LinkedStack<FunctionInterpreter> functions,
-                             LinkedStack<ArrayList<Object>> args) throws Exception
+                             LinkedStack<ArrayList<Object>> args, LinkedList<Elem<?>> vector_i) throws Exception
     {
         Node<AstSymbol> parent = ast.parent(cur);
+
+
         if(parent.getValue().getType().equals("access")){ //variable > access
 
             int offset = ast.getChildren(ast.leftMostChild(parent)).size(); //access/list > access/indices > count(children)
@@ -563,7 +611,8 @@ public abstract class BaseInterpreter {
                              LinkedStack<String> exp,
                              LinkedStack<List<Elem<Object>>> lists,
                              LinkedStack<ArrayList<Object>> args,
-                             VisitorsNextIteration<AstSymbol> nextItr) throws Exception {
+                             VisitorsNextIteration<AstSymbol> nextItr,
+                             LinkedList<Elem<?>> vector_i) throws Exception {
 
         if(parent.getValue().getType().equals("list"))
             lists.top().add(new Elem<>(nVal));
@@ -650,4 +699,32 @@ public abstract class BaseInterpreter {
         return prev_list;
     }
 
+
+    private void checkTypeAndGetValue(
+            PositionalTree<AstSymbol> ast,
+            Node<AstSymbol> cur,
+            Variable v,
+            Env context,
+            Elem<?> value)
+    {
+        if(value.getV1() instanceof Elem<?>)
+            value = (Elem<?>) value.getV1();
+
+        if(value.getV1() instanceof String)
+            v.setStrVal((String) value.getV1());
+        else if(value.getV1() instanceof Integer)
+            v.setStrVal(((Integer) value.getV1()).toString());
+        else if(value.getV1() instanceof Double)
+            v.setStrVal(((Double) value.getV1()).toString());
+        else if(value.getV1() instanceof List){
+            v.setItems((List<Elem<Object>>) value.getV1());
+            v.setStrVal( ((List<Elem<Object>>) value.getV1()).toString());
+        }
+        else if(value.getV1() instanceof FunctionInterpreter){
+            v.setFunction((FunctionInterpreter) value.getV1());
+        }
+        //System.out.println(value.getV1());
+        //System.out.println(value.getV1().getClass());
+        //System.out.println("checkTypeAndGetValue(): " + v.getStrVal());
+    }
 } //end class

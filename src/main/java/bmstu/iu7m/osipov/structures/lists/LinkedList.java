@@ -2,6 +2,7 @@ package bmstu.iu7m.osipov.structures.lists;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 /** Represents Simple Linear List in one direction
  * Position is in [1..count] AND NOT IN [0..count - 1]

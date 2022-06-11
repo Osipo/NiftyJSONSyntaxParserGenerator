@@ -37,8 +37,8 @@ public class AstParserTest {
         //assert test_lang_interpret("G_Ast_2.json", "ast\\ast_input2.txt", "ast21");
         //assert test_lang_interpret("G_Ast_31.json", "ast\\ast_input3.txt", "ast31");
         //assert test_lang_interpret("G_Ast_41.json", "ast\\ast_input41.txt", "ast411");
-        assert test_lang_interpret("G_Ast_5.json", "ast\\ast_input41.txt", "ast411");
-        //assert test_lang_interpret("G_Ast_6.json", "ast\\ast_input6.txt", "ast6");
+        //assert test_lang_interpret("G_Ast_5.json", "ast\\ast_input41.txt", "ast411");
+        assert test_lang_interpret("G_Ast_6.json", "ast\\ast_input6.txt", "ast6");
     }
 
 
@@ -90,14 +90,19 @@ public class AstParserTest {
         //show semantic after tail_recursion eliminating AST
         Graphviz.fromString(ast.toDot("astafter")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "semantics_after_tail_" + suffix));
 
+        //Phase 4. Interpret ast nodes.
+        BottomUpInterpreter inter = new BottomUpInterpreter();
+
+        //LocalTime t_start = LocalTime.now();
+        long start = System.currentTimeMillis();
+        inter.interpret(ast);
+        long end = System.currentTimeMillis();
+        //LocalTime t_end = LocalTime.from(t_start);
+
 
         System.out.println("AST nodes: " + ast.getCount());
         System.out.println("Parsing tree nodes: " + t.getCount());
-
-
-        //Phase 4. Interpret ast nodes.
-        BottomUpInterpreter inter = new BottomUpInterpreter();
-        inter.interpret(ast);
+        System.out.println("Finished mills: " + (end - start) / 1000.0);
     }
 
     @Test

@@ -3,6 +3,7 @@ package bmstu.iu7m.osipov.services.interpret;
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
 import bmstu.iu7m.osipov.structures.graphs.Pair;
+import bmstu.iu7m.osipov.structures.lists.LinkedList;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.lists.Triple;
 import bmstu.iu7m.osipov.structures.trees.Node;
@@ -12,6 +13,7 @@ import bmstu.iu7m.osipov.structures.trees.VisitorsNextIteration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class BottomUpInterpreter extends BaseInterpreter {
@@ -86,7 +88,7 @@ public class BottomUpInterpreter extends BaseInterpreter {
             }
         }, nextItr);
 
-        System.out.println(labels);
+        System.out.println("found labels: " + labels);
 
         /* If dublicate labels then error */
         if(nextItr.getOpts() == -1){
@@ -138,7 +140,7 @@ public class BottomUpInterpreter extends BaseInterpreter {
 
             else
                 try{
-                    applyOperation(ast, env, n, exp, lists, indices, params, functions, args, nextItr);
+                    applyOperation(ast, env, n, exp, lists, indices, params, functions, args, nextItr, null, null, 0);
                 }
                 catch (Exception e){
                     System.err.println(e); //if error -> break execution.
@@ -149,7 +151,14 @@ public class BottomUpInterpreter extends BaseInterpreter {
     }
 
     @Override
-    protected void execFunction(FunctionInterpreter f, PositionalTree<AstSymbol> ast, LinkedStack<String> exp, LinkedStack<FunctionInterpreter> functions, VisitorsNextIteration<AstSymbol> nextItr) {
+    protected void execFunction(FunctionInterpreter f,
+                                PositionalTree<AstSymbol> ast,
+                                LinkedStack<String> exp,
+                                LinkedStack<FunctionInterpreter> functions,
+                                VisitorsNextIteration<AstSymbol> nextItr,
+                                LinkedList<Elem<?>> vector_i,
+                                Map<String, Integer> vnames_idxs,
+                                int vector_len) {
         AtomicReference<Env> env2 = new AtomicReference<>();
         env2.set(f.getContext());
         Node<AstSymbol> root = f.getRoot();
@@ -204,7 +213,7 @@ public class BottomUpInterpreter extends BaseInterpreter {
 
             else
                 try{
-                    applyOperation(ast, env2, c, exp, lists, indices, params, functions, args, nextItr);
+                    applyOperation(ast, env2, c, exp, lists, indices, params, functions, args, nextItr, vector_i, vnames_idxs, vector_len);
                 }
                 catch (Exception e){
                     System.err.println(e); //if error -> break execution.

@@ -1,5 +1,10 @@
 {
     a = 12;
     l1 = [1..5, 6, 7, 8, 9, 10, 5..1];
-    lg = [1000, gen x + x, x * x for x, y in l1, z in l1 end, 1000]; // =, =, num, matrix{ exprs(=, *), seqs(seq(x,y at l1), seq(z at l1)) }
+    //num, matrix{ exprs(=, *), seqs(seq(x,y at l1), seq(z at l1)) }, num
+    lg = [1000, gen x + x, x * x for x, y in l1, z in l1 end, 1000];
+
+    //[1000, [1, 1] ... [30, 225], 1000] => len = 3375 + 2 = 3377.
+
+    lg = [1, gen x * x for x in l1 end, 1, 1]; //generate sequence as items of list.
 }

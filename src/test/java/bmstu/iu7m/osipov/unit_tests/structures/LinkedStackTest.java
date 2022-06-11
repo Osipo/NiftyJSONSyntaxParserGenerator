@@ -11,6 +11,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,6 +27,73 @@ public class LinkedStackTest {
     @After
     public void flush_subject(){
         SUBJECT.clear();
+    }
+
+    @Test
+    public void iterator_with_delete(){
+        SUBJECT.push("3");
+        SUBJECT.push("22");
+        SUBJECT.push("111");
+        Iterator<String> i = SUBJECT.iterator();
+        int s = 0;
+        while(i.hasNext()){
+            SUBJECT.pop(); //remove element.
+            s++;
+            System.out.println(i.next() + " " + SUBJECT.size());
+        }
+        assert s == 3;
+    }
+
+
+    //Iterator traverse only through current SNAPSHOT.
+    //So you can add or remove items to stack. Iterator has already saved reference of the original head.
+    //Iterator won't see new items and deletions
+    @Test
+    public void iterator_with_add(){
+        SUBJECT.push("3");
+        SUBJECT.push("22");
+        SUBJECT.push("111");
+        Iterator<String> i = SUBJECT.iterator();
+        int s = 0;
+        while(i.hasNext()){
+            System.out.println(i.next() + " " + SUBJECT.size());
+            s++;
+            SUBJECT.push("" + s * 7);
+        }
+        assert s == 3 && SUBJECT.size() == 6;
+    }
+
+    @Test
+    public void iterator_with_flush(){
+        SUBJECT.push("3");
+        SUBJECT.push("22");
+        SUBJECT.push("111");
+        Iterator<String> i = SUBJECT.iterator();
+
+        SUBJECT.clear(); //delete all items when we got iterator (snapshot)
+        int s = 0;
+        while(i.hasNext()) {
+            System.out.println(i.next() + " " + SUBJECT.size());
+            s++;
+            SUBJECT.push("" + s * 7);
+        }
+        System.out.println(SUBJECT);
+        assert s == 3 && SUBJECT.size() == 3;
+    }
+
+    @Test
+    public void iterator_with_add_before(){
+        SUBJECT.push("3");
+        SUBJECT.push("22");
+        SUBJECT.push("111");
+        Iterator<String> i = SUBJECT.iterator();
+        int s = 0;
+        while(i.hasNext()){
+            s++;
+            SUBJECT.push("" + s * 7);
+            System.out.println(i.next() + " " + SUBJECT.size());
+        }
+        assert s == 3 && SUBJECT.size() == 6;
     }
 
     @Test
