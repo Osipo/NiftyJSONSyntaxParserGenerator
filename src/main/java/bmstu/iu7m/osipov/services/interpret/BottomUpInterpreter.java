@@ -88,7 +88,7 @@ public class BottomUpInterpreter extends BaseInterpreter {
             }
         }, nextItr);
 
-        System.out.println("found labels: " + labels);
+        //System.out.println("found labels: " + labels);
 
         /* If dublicate labels then error */
         if(nextItr.getOpts() == -1){

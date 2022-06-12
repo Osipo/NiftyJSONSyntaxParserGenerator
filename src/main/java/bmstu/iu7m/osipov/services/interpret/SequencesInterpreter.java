@@ -123,7 +123,7 @@ public class SequencesInterpreter {
         int expr_len = ast.getChildren(exprRoot).size() - 1; //length of vector except start/node.
 
 
-        System.out.println("Matrix len = " + matrix.get().getDATA().size()); //15 * 15 * 15 => 3375
+        //System.out.println("Matrix len = " + matrix.get().getDATA().size());
         //System.out.println(matrix.get().getDATA());
         while(vectors.hasNext()){
             LinkedList<Elem<?>> vector_i = vectors.next();

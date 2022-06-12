@@ -190,7 +190,7 @@ public class LRAstTranslator  extends LRParser {
                             }
                             if(S.top().getValue().getName().equals("VARITEMSEQ2") && last_elem.equals(",")
                                     && last_elem.equals(tok.getName())){
-                                System.out.println("new scope" + scope_prefix_len);
+                                //System.out.println("new scope" + scope_prefix_len);
                             }
                             if (scope_prefix_len == s.getStart().size() - 1
                                     && scope_mi <= scope_prefix_len && s.isReduce()

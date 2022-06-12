@@ -7,4 +7,8 @@
     //[1000, [1, 1] ... [30, 225], 1000] => len = 3375 + 2 = 3377.
 
     lg = [1, gen x * x for x in l1 end, 1, 1]; //generate sequence as items of list.
+
+    l3 = [1..10];
+    l4 = [1..2];
+    matrix = [gen x + y, x - y, x * y for x in l3, y in l4 end];
 }

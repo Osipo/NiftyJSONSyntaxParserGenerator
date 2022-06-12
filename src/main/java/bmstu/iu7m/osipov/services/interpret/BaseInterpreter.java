@@ -426,11 +426,15 @@ public abstract class BaseInterpreter {
                 if(vector_i == null)
                     break;
                 List<Elem<Object>> vector_items = new ArrayList<>();
-                //System.out.println("EXPRS: " + exp);
+                int offsetTop = vector_len - 1;
+
                 for(int i = 0; i < vector_len; i++){
-                    vector_items.add(new Elem<>(exp.top()));
-                    exp.pop();
+                    vector_items.add(new Elem<>(exp.topFrom(offsetTop)));
+                    offsetTop--;
                 }
+                for(int i = 0; i < vector_len; i++)
+                    exp.pop();
+
                 if(vector_items.size() == 1)
                     lists.top().add(vector_items.get(0));
                 else if(vector_items.size() > 0)
