@@ -27,7 +27,7 @@ public class BottomUpInterpreter extends BaseInterpreter {
     public void interpret(PositionalTree<AstSymbol> ast) {
         AtomicReference<Env> env = new AtomicReference<>();
         env.set(new Env(null));
-        LinkedStack<String> exp = new LinkedStack<>();
+        LinkedStack<Object> exp = new LinkedStack<>();
         LinkedStack<List<Elem<Object>>> lists = new LinkedStack<>();
         ArrayList<List<Elem<Object>>> indices = new ArrayList<>();
 
@@ -153,7 +153,7 @@ public class BottomUpInterpreter extends BaseInterpreter {
     @Override
     protected void execFunction(FunctionInterpreter f,
                                 PositionalTree<AstSymbol> ast,
-                                LinkedStack<String> exp,
+                                LinkedStack<Object> exp,
                                 LinkedStack<FunctionInterpreter> functions,
                                 VisitorsNextIteration<AstSymbol> nextItr,
                                 LinkedList<Elem<?>> vector_i,

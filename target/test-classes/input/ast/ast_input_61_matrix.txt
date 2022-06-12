@@ -1,11 +1,17 @@
 {
     i =  [1..3];
-    f =  lambda(x)  { x * 2 + 1; };
+    f =  lambda(x)  { x * 2 + 1; }; //odd(x)
+    f2 = lambda(x) { x * 2; }; //even(x)
     di = lambda(x, y, z) { x == y and y == z; }; //0 or 1.
 
     dc = di(1, 2, 3);
 
     E =  [gen di(x, y, 1), di(x, y, 2), di(x, y, 3) for x, y in i end]; // 3 x (3 * 3) => 9 rows with 3 columns.
     EE = [gen di(x, x, 1), di(x, x, 2), di(x, x, 3) for x in i end]; // 3 x (1 * 3) => 3 rows with 3 columns.
-    E2 = [gen f(x) for x in i end];// 7, 5, 3.
+    E2 = [gen f(x) for x in i end];// 3, 5, 7.
+    M = [gen f(x), f2(x), f(x) + f2(x) for x in i end];
+
+    M[0][0] = 4;
+    M[1][0] = 6;
+
 }

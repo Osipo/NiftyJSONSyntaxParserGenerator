@@ -29,7 +29,7 @@ public abstract class BaseInterpreter {
 
     protected abstract void execFunction(FunctionInterpreter f,
                                          PositionalTree<AstSymbol> ast,
-                                         LinkedStack<String> exp,
+                                         LinkedStack<Object> exp,
                                          LinkedStack<FunctionInterpreter> functions,
                                          VisitorsNextIteration<AstSymbol> nextItr,
                                          LinkedList<Elem<?>> vector_i,
@@ -37,7 +37,7 @@ public abstract class BaseInterpreter {
                                          int vector_len);
 
     protected void applyOperation(PositionalTree<AstSymbol> ast, AtomicReference<Env> context, Node<AstSymbol> cur,
-                                  LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists,
+                                  LinkedStack<Object> exp, LinkedStack<List<Elem<Object>>> lists,
                                   ArrayList<List<Elem<Object>>> indices, ArrayList<Variable> params,
                                   LinkedStack<FunctionInterpreter> functions,
                                   LinkedStack<ArrayList<Object>> args,
@@ -208,110 +208,24 @@ public abstract class BaseInterpreter {
                     //System.out.println("call " + f.getFunctionName() + " = " + exp.top());
                     // args > call > args (function call is expression of argument of another function call)
                     if(ast.parent(ast.parent(cur)).getValue().getType().equals("args")){
-                        args.top().add(exp.top());
+                        args.top().add(TypeChecker.GetRawValue(exp.top()));
                         exp.pop();
                     }
                     //args > call > list
                     else if(ast.parent(ast.parent(cur)).getValue().getType().equals("list")){
-                        lists.top().add(new Elem<>(exp.top()));
+                        lists.top().add(new Elem<>(TypeChecker.GetRawValue(exp.top())));
                         exp.pop();
                     }
                 }
                 break;
             }
-            // unary operators (such as sign ('-', '+') or inc, dec ('++', '--').
-            case "unaryop":{
-                String t1 = exp.top();
-                exp.pop();
-                double d1 = ProcessNumber.parseNumber(t1);
-                switch (nodeVal){
-                    case "-":{
-                        d1 = -d1; //negate.
-                    }
-                    case "+":{
-                        break;
-                    }
-                    case "++":{
-                        d1 += 1;
-                        break;
-                    }
-                    case "--":{
-                        d1 -= 1;
-                        break;
-                    }
-                    case "not":{
-                        d1 = (d1 >= 1) ? 0 : 1; //negate 1 to 0 and vice versa.
-                        break;
-                    }
-                }
-                String val = null;
-                if(Math.floor(d1) == d1) //is integer [4.0, 5.0]
-                    val = Integer.toString((int)d1);
-                else
-                    val = Double.toString(d1); //double [4.0001]
 
-                if(ast.parent(cur) == null)
-                    exp.push(val);
-                else
-                    checkList(ast, ast.parent(cur), cur, context.get(), opType, val, exp, lists, args, nextIteration, vector_i);
-                break;
-            }
-
-            //boolean expressions -> nodes: relop, boolop
-            case "relop": case "boolop": {
-                String t1 = exp.top();
-                exp.pop();
-                String t2 = exp.top();
-                exp.pop();
-
-                double d2 = ProcessNumber.parseNumber(t1); //because of STACK exp.
-                double d1 = ProcessNumber.parseNumber(t2);
-
-                switch (nodeVal){
-                    case "<":{
-                        d1 = (d1 < d2) ? 1 : 0;
-                        break;
-                    }
-                    case "<=":{
-                        d1 = (d1 <= d2) ? 1 : 0;
-                        break;
-                    }
-                    case ">":{
-                        d1 = (d1 > d2) ? 1 : 0;
-                        break;
-                    }
-                    case ">=":{
-                        d1 = (d1 >= d2) ? 1 : 0;
-                        break;
-                    }
-                    case "==":{
-                        d1 = (d1 == d2) ? 1 : 0;
-                        break;
-                    }
-                    case "<>":{
-                        d1 = (d1 != d2) ? 1 : 0;
-                        break;
-                    }
-                    case "&&": case "and": {
-                        d1 = (d1 >= 1 && d2 >= 1) ? 1 : 0;
-                        break;
-                    }
-                    case "||": case "or": {
-                        d1 = (d1 >= 1 || d2 >= 1) ? 1 : 0;
-                        break;
-                    }
-                    case "=>":{
-                        d1 = (d1 >= 1 && d2 <= 1) ? 0 : 1; //(1, 0) -> 0, else -> 1.
-                        break;
-                    }
-                } //end inner switch relop.
-
-                String val = null;
-                if(Math.floor(d1) == d1) //is integer [4.0, 5.0]
-                    val = Integer.toString((int)d1);
-                else
-                    val = Double.toString(d1); //double [4.0001]
-
+            //operators
+            case "unaryop":
+            case "relop":
+            case "boolop":
+            case "operator": {
+                Object val = TypeChecker.CheckExpressionType(exp, opType, nodeVal);
                 if(ast.parent(cur) == null)
                     exp.push(val);
                 else
@@ -325,15 +239,15 @@ public abstract class BaseInterpreter {
                 double d1 = 0;
                 double d2 = 0;
                 if(nodeVal.equals("range")){
-                    t1 = exp.top();
+                    t1 = exp.top().toString();
                     exp.pop();
-                    t2 = exp.top();
+                    t2 = exp.top().toString();
                     exp.pop();
                     d2 = ProcessNumber.parseNumber(t1); //because of STACK exp.
                     d1 = ProcessNumber.parseNumber(t2);
                 }
                 else if (nodeVal.equals("rangeStart") || nodeVal.equals("rangeEnd")){
-                    t1 = exp.top();
+                    t1 = exp.top().toString();
                     exp.pop();
                     d1 = ProcessNumber.parseNumber(t1);
                 }
@@ -373,56 +287,7 @@ public abstract class BaseInterpreter {
                         lists.top().add(new Elem<>(i));
                 }
                 break;
-            }
-
-            //SAME CODE FOR Arithmetic operators
-            case "operator": {
-                String t1 = exp.top();
-                exp.pop();
-                String t2 = exp.top();
-                exp.pop();
-
-                double d2 = ProcessNumber.parseNumber(t1); //because of STACK exp.
-                double d1 = ProcessNumber.parseNumber(t2);
-                switch (nodeVal){
-                    case "*":{
-                        d1 = d1 * d2;
-                        break;
-                    }
-                    case "/":{
-                        d1 = d1 / d2;
-                        break;
-                    }
-                    case "+":{
-                        d1 = d1 + d2;
-                        break;
-                    }
-                    case "-":{
-                        d1 = d1 - d2;
-                        break;
-                    }
-                    case "%":{
-                        d1 = d1 % d2;
-                        break;
-                    }
-                    case "^":{
-                        d1 = Math.pow(d1, d2);
-                        break;
-                    }
-                } //end inner switch of nodeVal
-
-                String val = null;
-                if(Math.floor(d1) == d1) //is integer [4.0, 5.0]
-                    val = Integer.toString((int)d1);
-                else
-                    val = Double.toString(d1); //double [4.0001]
-
-                if(ast.parent(cur) == null)
-                    exp.push(val);
-                else
-                    checkList(ast, ast.parent(cur), cur, context.get(), opType, val, exp, lists, args, nextIteration, vector_i);
-                break;
-            } // end operator
+            }// end operator
 
             case "vector": { //node vector/expressions.
                 if(vector_i == null)
@@ -451,7 +316,7 @@ public abstract class BaseInterpreter {
     protected void checkAssign(PositionalTree<AstSymbol> ast, Node<AstSymbol> cur, Env context,
                              String nType,
                              String nVal,
-                             LinkedStack<String> exp,
+                             LinkedStack<Object> exp,
                              LinkedStack<List<Elem<Object>>> lists,
                              ArrayList<List<Elem<Object>>> indices,
                              LinkedStack<FunctionInterpreter> functions,
@@ -548,7 +413,7 @@ public abstract class BaseInterpreter {
                     functions.pop();
                 }
                 else { //expression is literal [a = expr]
-                    v.setStrVal(exp.top());
+                    v.setStrVal(TypeChecker.GetStrValue(exp.top())) ;
                     System.out.println(nVal + " = " + v.getStrVal());
                     exp.pop();
                 }
@@ -573,7 +438,7 @@ public abstract class BaseInterpreter {
     }
 
     protected void checkAccess(PositionalTree<AstSymbol> ast, Node<AstSymbol> cur, Variable v,
-                             Env context,  LinkedStack<String> exp, LinkedStack<List<Elem<Object>>> lists,
+                             Env context,  LinkedStack<Object> exp, LinkedStack<List<Elem<Object>>> lists,
                              ArrayList<List<Elem<Object>>> indices, LinkedStack<FunctionInterpreter> functions,
                              LinkedStack<ArrayList<Object>> args, LinkedList<Elem<?>> vector_i) throws Exception
     {
@@ -613,8 +478,8 @@ public abstract class BaseInterpreter {
 
     //Check what is expression part of (whole itself, part of expr, list item, arg item, as if condition, as while condition)
     protected void checkList(PositionalTree<AstSymbol> ast, Node<AstSymbol> parent, Node<AstSymbol> cur, Env context,
-                             String nType, String nVal,
-                             LinkedStack<String> exp,
+                             String nType, Object nVal,
+                             LinkedStack<Object> exp,
                              LinkedStack<List<Elem<Object>>> lists,
                              LinkedStack<ArrayList<Object>> args,
                              VisitorsNextIteration<AstSymbol> nextItr,
@@ -729,8 +594,7 @@ public abstract class BaseInterpreter {
         else if(value.getV1() instanceof FunctionInterpreter){
             v.setFunction((FunctionInterpreter) value.getV1());
         }
-        //System.out.println(value.getV1());
-        //System.out.println(value.getV1().getClass());
-        //System.out.println("checkTypeAndGetValue(): " + v.getStrVal());
     }
+
+
 } //end class

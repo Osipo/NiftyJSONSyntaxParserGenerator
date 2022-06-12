@@ -20,7 +20,7 @@ public class SequencesInterpreter {
     private Env context;
     private PositionalTree<AstSymbol> ast;
 
-    private LinkedStack<String> exp;
+    private LinkedStack<Object> exp;
     private LinkedStack<List<Elem<Object>>> lists;
     private ArrayList<List<Elem<Object>>> indices;
     private LinkedStack<FunctionInterpreter> functions;
@@ -32,7 +32,7 @@ public class SequencesInterpreter {
                                 Node<AstSymbol> exprRoot,
                                 Node<AstSymbol> seqRoot,
                                 Env context,
-                                LinkedStack<String> exp,
+                                LinkedStack<Object> exp,
                                 LinkedStack<List<Elem<Object>>> lists,
                                 ArrayList<List<Elem<Object>>> indices,
                                 LinkedStack<FunctionInterpreter> functions,
