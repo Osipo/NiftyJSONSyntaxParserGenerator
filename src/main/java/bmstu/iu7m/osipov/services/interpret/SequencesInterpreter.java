@@ -90,7 +90,7 @@ public class SequencesInterpreter {
                         vnames.removeAt(1); //delete from begining.
                         vnames_idxs.put(item_name, i.get());
 
-                        Iterator<LinkedList<Elem<?>>> snapshot = MATRIX_DATA.iterator(); //get current SNAPSHOT.
+                        Iterator<LinkedList<Elem<?>>> snapshot = MATRIX_DATA.reverseIterator(); //get current SNAPSHOT.
                         MATRIX_DATA.clear(); //remove data as we have snapshot.
                         while(snapshot.hasNext()){
                             LinkedList<Elem<?>> old_vector_i = snapshot.next();
@@ -98,7 +98,7 @@ public class SequencesInterpreter {
                                 LinkedList<Elem<?>> new_vector_i = new LinkedList<>();
                                 new_vector_i.addAll(old_vector_i);
                                 new_vector_i.add(new Elem<>(item)); //item in item.
-                                MATRIX_DATA.push(new_vector_i); //[3] [2] [1].  [3, 1], [3, 2], [3, 3]
+                                MATRIX_DATA.push(new_vector_i);
                             } //end for
                         } //end inner while
 
