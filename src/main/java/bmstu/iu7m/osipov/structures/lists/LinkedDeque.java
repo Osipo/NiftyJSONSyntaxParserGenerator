@@ -53,8 +53,10 @@ public class LinkedDeque<T> implements Iterable<T> {
         if(_count > 1){
             node.setPrevious(_tail);
             _tail.setNext(node);
-        } else
-            push(item);
+        } else {
+            _count -= 1;
+            push(item); //push increment count and add item.
+        }
         _tail = node;
     }
 

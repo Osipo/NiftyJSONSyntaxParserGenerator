@@ -5,6 +5,7 @@
 
     dc = di(1, 2, 3);
 
-    E =  [gen di(x, y, 1), di(x, y, 2), di(x, y, 3) for x, y in i end]; // 3 x 3 => 9 rows with 3 columns.
-    E2 = [gen f(x) for x in i end];// 7, 5, 3.
+    E =  [gen di(x, y, 1), di(x, y, 2), di(x, y, 3) for x, y in i end]; // 3 x (3 * 3) => 9 rows with 3 columns.
+    EE = [gen di(x, x, 1), di(x, x, 2), di(x, x, 3) for x in i end]; // 3 x (1 * 3) => 3 rows with 3 columns.
+    E2 = [gen f(x) for x in i end];// 3, 5, 7.
 }
