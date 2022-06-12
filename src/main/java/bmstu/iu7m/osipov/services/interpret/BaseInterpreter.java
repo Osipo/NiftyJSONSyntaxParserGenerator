@@ -179,6 +179,8 @@ public abstract class BaseInterpreter {
                     f.bindArguments(args_i); //throw Exception if cannot bind.
                     args_i.clear();// flush processed args.
                     args.pop();
+
+
                     execFunction(f, ast, exp, functions, nextIteration, vector_i, vnames_idxs, vector_len);
                     f.setContext(f.getContext().getPrev()); //set context.
 
@@ -559,7 +561,7 @@ public abstract class BaseInterpreter {
         if(v == null && vector_i == null) //if not in context AND no vector.
             throw new Exception("Cannot find variable with name \'" + nVal + "\'. Define variable before use it!");
 
-        else if(vector_i != null && vnames_idxs != null && vector_len > 0){ //try get from vector.
+        else if(v == null && vector_i != null && vnames_idxs != null && vector_len > 0){ //try get from vector.
             int vector_idx = vnames_idxs.getOrDefault(nVal, -1);
             if(vector_idx == -1)
                 throw new Exception("Cannot find variable with name \'" + nVal + "\'. Define variable before use it!");

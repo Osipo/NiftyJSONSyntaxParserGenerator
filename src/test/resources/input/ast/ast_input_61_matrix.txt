@@ -1,0 +1,10 @@
+{
+    i =  [1..3];
+    f =  lambda(x)  { x * 2 + 1; };
+    di = lambda(x, y, z) { x == y and y == z; }; //0 or 1.
+
+    dc = di(1, 2, 3);
+
+    E =  [gen di(x, y, 3), di(x, y, 2), di(x, y, 1) for x, y in i end]; // 3 x 3 => 9 rows with 3 columns.
+    E2 = [gen f(x) for x in i end];// 7, 5, 3.
+}

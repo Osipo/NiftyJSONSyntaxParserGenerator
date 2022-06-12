@@ -47,6 +47,8 @@ public class FunctionInterpreter {
 
             if(a instanceof String)
                 p_i.setStrVal((String) a);
+            else if(a instanceof Integer || a instanceof Double)
+                p_i.setStrVal(a.toString());
 
             else if(a instanceof Elem){ //extract list item
                 a = ((Elem<?>) a).getV1();

@@ -2,6 +2,7 @@ package bmstu.iu7m.osipov.services.interpret;
 
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
+import bmstu.iu7m.osipov.structures.lists.LinkedDeque;
 import bmstu.iu7m.osipov.structures.lists.LinkedList;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.trees.Node;
@@ -62,7 +63,7 @@ public class SequencesInterpreter {
         AtomicReference<Integer> i = new AtomicReference<>();
         i.set(1);
 
-        LinkedStack<LinkedList<Elem<?>>> MATRIX_DATA = new LinkedStack<>();
+        LinkedDeque<LinkedList<Elem<?>>> MATRIX_DATA = new LinkedDeque<>();
         MATRIX_DATA.push(new LinkedList<>()); //EMPTY LIST.
 
         AtomicReference<MatrixValues> matrix = new AtomicReference<>();
@@ -77,7 +78,6 @@ public class SequencesInterpreter {
                     break;
                 }
                 case "variable": {
-
                     Variable data = context.get(nodeVal, v -> v.getItems() != null);
                     if(data == null){
                         nextItr.setOpts(-1);
@@ -119,7 +119,7 @@ public class SequencesInterpreter {
         AtomicReference<Env> a_context = new AtomicReference<>(context);
 
         //3. now compute expressions based on matrix AND add them to list.
-        Iterator<LinkedList<Elem<?>>> vectors = matrix.get().getDATA().iterator();
+        Iterator<LinkedList<Elem<?>>> vectors = matrix.get().getDATA().reverseIterator();
         int expr_len = ast.getChildren(exprRoot).size() - 1; //length of vector except start/node.
 
 
