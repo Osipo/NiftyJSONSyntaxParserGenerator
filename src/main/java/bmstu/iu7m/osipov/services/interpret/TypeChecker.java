@@ -186,7 +186,41 @@ public class TypeChecker {
         return val;
     }
 
-    public static void ResolveAssignOperation(Env context,
+    private static void CombineAssign(Variable v, Object oldVal, Object expVal, String op) throws Exception {
+        int operationType = -1;
+        String str_v1 = null;
+        String str_v2 = null;
+        List<Elem<?>> li_v1 = null;
+        List<Elem<?>> li_v2 = null;
+        FunctionInterpreter f_v2 = null;
+
+        if(oldVal instanceof String && expVal instanceof String){ //v += expr
+            operationType = 1;
+            ExpressionsUtils.ParseNumberNumberExpr(oldVal, expVal, op, v);
+        }
+        else if(oldVal instanceof String && expVal instanceof List){//v += list.
+            operationType = 2;
+        }
+        else if(oldVal instanceof String && expVal instanceof FunctionInterpreter){//v += function_def
+            throw new Exception("You try using '" + op + "' with anonymous function definition.\n But the first operand is not a list.");
+        }
+        else if(oldVal instanceof List && expVal instanceof String){//list += expr
+            operationType = 3;
+            ExpressionsUtils.ParseListAndNumberExpr(oldVal, expVal, op, v);
+        }
+        else if(oldVal instanceof List && expVal instanceof List){//list += list
+            operationType = 4;
+            ExpressionsUtils.ParseListAndListExpr(oldVal, expVal, op, v);
+        }
+        else if(oldVal instanceof List && expVal instanceof FunctionInterpreter){//list += function_def
+            operationType = 5;
+        }
+        else if(oldVal instanceof FunctionInterpreter){
+            throw new Exception("You try using '" + op + "' with '" + v.getValue() + "' function definition.\n This is illegal.");
+        }
+    }
+
+    public static void ResolveAssignOperation( Env context,
                                                LinkedStack<Object> exp,
                                                LinkedStack<List<Elem<Object>>> lists,
                                                ArrayList<List<Elem<Object>>> indices,
@@ -196,17 +230,32 @@ public class TypeChecker {
     ) throws Exception
     {
         Variable v = null;
-        Variable ov = null;
-        int ovType = -1, vType = -1;
+        int  vType = -1;
         boolean isNewVar = false;
 
         switch (operator){
             case "+=": case "-=": case "*=": case "/=": case "%=": case "^=": {
-                ov = context.get(vName);
                 v = context.get(vName);
-                ovType = CheckVariableType(ov, vName, isNewVar);
-                vType = CheckVariableType(v, vName, isNewVar); //check that both variables are defined and compute their type.
+                vType = CheckVariableType(v, vName, false); //check that both variables are defined and compute their type.
 
+                Object oldVal = null;
+                if(vType == 3)
+                    oldVal = v.getFunction();
+                else if(vType == 2)
+                    oldVal = v.getItems();
+                else
+                    oldVal = v.getStrVal();
+
+                Object expValue = null; //attached value.
+                if(lists.top() != null){
+                    expValue = lists.top();
+                    lists.pop();
+                }
+                else{
+                    expValue = exp.top();
+                    exp.pop();
+                }
+                CombineAssign(v, oldVal, expValue, operator.substring(0, operator.length() - 1));
                 break;
             }
             case "=": {

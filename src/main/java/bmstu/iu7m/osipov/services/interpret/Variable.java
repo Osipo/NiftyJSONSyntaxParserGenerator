@@ -60,7 +60,8 @@ public class Variable implements Value<String> {
 
     public void setFunction(FunctionInterpreter function) {
         this.function = function;
-        this.function.setFunName(this.name, this);
+        if(function != null)
+            this.function.setFunName(this.name, this);
     }
 
     public void setNextNode(Node<AstSymbol> n){
