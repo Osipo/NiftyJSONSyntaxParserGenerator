@@ -19,6 +19,13 @@
     "==": "==",
     "<>": "<>",
     "=": "=",
+    "-=": "-=",
+    "+=": "+=",
+    "*=": "*=",
+    "/=": "/=",
+    "%=": "%=",
+    "^=": "@^=",
+
     "=>": "=>",
     ";": ";",
     ":": ":",
@@ -88,16 +95,18 @@
     {"OP": ["goto", "id",
       {"act": "astNode", "value": "$1", "type": "goto"}
     ]},
-    {"A": ["id", "ACLIST", "=", "EXP",
+    {"A": ["id", "ACLIST", "AOP", "EXP",
       {"act": "astNode", "value": "$0", "type": "variable"},
-      {"act": "astNode", "value": "$2", "type": "assign", "children": "$2"}
+      {"act": "astNode", "value": "$2_0", "type": "assign", "children": "$2"}
     ]
     },
-    {"A": ["id", "=", "EXP",
+    {"A": ["id", "AOP", "EXP",
       {"act": "astNode", "value": "$0", "type": "variable"},
-      {"act": "astNode", "value": "$1", "type": "assign", "children": "$1"}
+      {"act": "astNode", "value": "$1_0", "type": "assign", "children": "$1"}
     ]
     },
+    {"AOP": "="}, {"AOP": "+="}, {"AOP": "-="}, {"AOP": "*="}, {"AOP": "/="},{"AOP": "%="}, {"AOP": "^="},
+
     {"ACLIST": ["RANGES",
       {"act": "astNode", "type": "access", "value": "indices", "children": "all"}
     ]},

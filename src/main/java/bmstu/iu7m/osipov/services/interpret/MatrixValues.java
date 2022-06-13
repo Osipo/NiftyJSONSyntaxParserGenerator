@@ -21,14 +21,6 @@ public class MatrixValues {
     public MatrixValues(Map<String, Integer> vnames_idxs, LinkedDeque<LinkedList<Elem<?>>> data){
         this.vnames_idxs = vnames_idxs;
         this.DATA = data;
-        /*
-        //reverse STACK.
-        this.DATA = new LinkedStack<>();
-        while(!data.isEmpty()){
-            this.DATA.push(data.top());
-            data.pop();
-        }
-        */
     }
 
     public Map<String, Integer> getNameIndices() {

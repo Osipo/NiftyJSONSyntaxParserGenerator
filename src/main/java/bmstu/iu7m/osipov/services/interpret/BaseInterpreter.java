@@ -329,96 +329,9 @@ public abstract class BaseInterpreter {
         //System.out.println("Parent: " + ast.parent(cur).getValue());
 
         if(ast.parent(cur).getValue().getType().equals("assign") && ast.rightSibling(cur) == null){ //variable parent is assign and it is lvalue (exp = var)
-            if(lists.top() != null){ //list expression.
-                v = new Variable(nVal); //ast.value (variable name)
-                context.add(v);
-                v.setItems(lists.top());
-                v.setStrVal(v.getItems().toString()); //error of null item!!!!!
-                System.out.println(nVal + " = " + v.getStrVal());
-                lists.pop();
-                return;
-            } //end list expression.
-            else if(indices.size() != 0){ //access expression with assign operator. (a[idx] = exp)
-                v = context.get(nVal); //get root list.
-                if(v == null)
-                    throw new Exception("Cannot find variable with name \'" + nVal + "\'. Define variable before use it!");
-
-                ArrayList<Elem<Object>> content = new ArrayList<>(); //extracted content.
-                List<Elem<Object>> prev_list = new ArrayList<>(v.getItems());
-                boolean hasFunctionExpr = false;
-
-                for (int i = 0; i < indices.size(); i++) {
-
-                    //extract each ptr (number in brackets [])
-                    for(Elem<Object> ptr : indices.get(i)){
-                        Integer j = null;
-                        if(ptr.getV1() instanceof String)
-                            j = (Integer) ProcessNumber.parseNumber((String) ptr.getV1(), Integer.class);//Integer.parseInt((String) ptr.getV1());
-                        else if(ptr.getV1() instanceof Integer)
-                            j = (Integer) ptr.getV1();
-
-
-                        if(i > 0 && prev_list.size() == 1 && prev_list.get(0).getV1() instanceof List){ //prev index got list.
-
-                            List inner_li =  ((List) prev_list.get(0).getV1());
-                            Object j_item = inner_li.get( ((j < 0) ? inner_li.size() + j : j)  ); //extract j_item of list.
-
-                            if(j_item instanceof Elem)
-                                content.add((Elem) j_item);
-                        }
-                        else {
-                            j = (j < 0) ? prev_list.size() + j : j;
-                            content.add(prev_list.get(j));
-                        }
-
-                        if(!functions.isEmpty()){
-                            content.get(content.size() - 1).setV1(functions.top());
-                            hasFunctionExpr = true;
-                        }
-                        else if(!(content.get(content.size() - 1).getV1() instanceof List)) {
-                            content.get(content.size() - 1).setV1(exp.top());
-                            //System.out.println("expr = " + exp.top());
-                            //System.out.println("changed: " + nVal + v.getStrVal());
-                        }
-                    }
-                    prev_list.clear();
-                    prev_list.addAll(content); //switch to current extracted content after iteration.
-                    content.clear();
-
-                    //next iteration content will be scanned.
-
-                    indices.get(i).clear(); //remove read ptr
-                }
-
-                indices.clear(); //remove read access.
-
-                if(hasFunctionExpr)
-                    functions.pop();
-                else
-                    exp.pop(); //remove expression to be assigned for each list item.
-
-                v.setStrVal(v.getItems().toString());
-                System.out.println("access: " + nVal + " = " + v.getStrVal());
-                return;
-            } //end indices.
-            else { //simple expression. (nor access nor list [a = exp])
-                v = context.get(nVal);
-                if(v == null) {
-                    v = new Variable(nVal); //ast.value (variable name)
-                    context.add(v);
-                }
-
-                if(!functions.isEmpty()){ //expression is function [a = function]
-                    v.setFunction(functions.top());
-                    functions.pop();
-                }
-                else { //expression is literal [a = expr]
-                    v.setStrVal(TypeChecker.GetStrValue(exp.top())) ;
-                    System.out.println(nVal + " = " + v.getStrVal());
-                    exp.pop();
-                }
-                return;
-            }
+            String aop = ast.parent(cur).getValue().getValue(); //assign op: [=, +=, -= ...]
+            TypeChecker.ResolveAssignOperation(context, exp, lists, indices, functions, aop, nVal);
+            return;
         } //end assing type.
 
         v = context.get(nVal); //get variable from context if present.

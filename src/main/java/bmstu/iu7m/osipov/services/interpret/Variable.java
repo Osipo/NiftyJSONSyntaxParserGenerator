@@ -37,6 +37,10 @@ public class Variable implements Value<String> {
         this.strVal = strVal;
     }
 
+    public String getStrVal() {
+        return strVal;
+    }
+
     public void setItems(List<Elem<Object>> items){
         this.items = new ArrayList<>(items);
     }
@@ -45,9 +49,6 @@ public class Variable implements Value<String> {
         return items;
     }
 
-    public String getStrVal() {
-        return strVal;
-    }
 
     public boolean isList(){
         return items != null;
