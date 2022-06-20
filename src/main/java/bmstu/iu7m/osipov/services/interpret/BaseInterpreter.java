@@ -376,17 +376,17 @@ public abstract class BaseInterpreter {
                 functions.push((FunctionInterpreter) content.get(0).getV1());
             }
             else if(content.size() == 1) { //primitive element
-                exp.push(content.get(0).getV1().toString()); //get first elem
+                exp.push(TypeChecker.CheckValue(content.get(0).getV1(), null)); //replace str to checkValue
             }
             else if(content.size() > 1) //list expression. (list element)
                 lists.push(content);
         }
         else if (parent.getValue().getType().equals("list")) // variable > list.
-            lists.top().add(new Elem<>(v.getStrVal()));
+            lists.top().add(new Elem<>(TypeChecker.CheckValue(v, null)));
         else if(parent.getValue().getType().equals("args")) // variable > args.
-            args.top().add(v);
+            args.top().add(TypeChecker.CheckValue(v, null));
         else
-            exp.push(v.getStrVal());
+            exp.push(TypeChecker.CheckValue(v, null)); //Replace getStrValue to v
     }
 
     //Check what is expression part of (whole itself, part of expr, list item, arg item, as if condition, as while condition)

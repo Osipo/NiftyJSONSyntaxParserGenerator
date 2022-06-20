@@ -25,14 +25,26 @@ public class TypeChecker {
         if(value == null)
             throw new NullPointerException("Cannot compute value. " + info + " Value is null.");
         if(value instanceof String || value instanceof Number)
-            return value.toString();
+            return value;
         else if(value instanceof Elem<?>){
             while(value instanceof Elem<?>)
                 value = ((Elem<?>) value).getV1();
-            return value;
+            if(value instanceof String || value instanceof Number)
+                return value;
+        }
+        else if(value instanceof Variable){
+            Variable vv = (Variable) value;
+            if(vv.getFunction() != null)
+                return vv.getFunction();
+            else if(vv.isList())
+                return vv.getItems();
+            else {
+                return vv.getStrVal(); //primitive -> return str.
+            }
         }
         else
             throw new Exception("Cannot define value for type: " + value.getClass());
+        return value;
     }
 
     //Return type of the variable.
@@ -188,11 +200,6 @@ public class TypeChecker {
 
     private static void CombineAssign(Variable v, Object oldVal, Object expVal, String op) throws Exception {
         int operationType = -1;
-        String str_v1 = null;
-        String str_v2 = null;
-        List<Elem<?>> li_v1 = null;
-        List<Elem<?>> li_v2 = null;
-        FunctionInterpreter f_v2 = null;
 
         if(oldVal instanceof String && expVal instanceof String){ //v += expr
             operationType = 1;
