@@ -132,6 +132,10 @@ public class SequencesInterpreter {
                             }
                         }, ast.parent(c), nextItr);
 
+                        //do not traverse through processed nodes.
+                        if(next.getOpts() != -1){
+                            next.setOpts(3); //detach processed start node and goto parent list/items.
+                        }
                         break;
                 } //end start of the list.
 
