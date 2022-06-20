@@ -4,6 +4,7 @@ import bmstu.iu7m.osipov.structures.graphs.Elem;
 import bmstu.iu7m.osipov.utils.ProcessNumber;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ExpressionsUtils {
@@ -99,6 +100,92 @@ public class ExpressionsUtils {
         }
     }
 
+    //NUMBER AND NUMBER
+    public static Object ParseNumberNumberExpr(Object n1, Object n2, String op){
+        String t1 = "";
+        String t2 = "";
+        if(n1 instanceof String && n2 instanceof String) {
+            t1 = (String) n1;
+            t2 = (String) n2;
+        }
+
+        double d1 = ProcessNumber.parseNumber(t1);
+        double d2 = ProcessNumber.parseNumber(t2);
+
+        switch (op){
+            case "<":{
+                d1 = (d1 < d2) ? 1 : 0;
+                break;
+            }
+            case "<=":{
+                d1 = (d1 <= d2) ? 1 : 0;
+                break;
+            }
+            case ">":{
+                d1 = (d1 > d2) ? 1 : 0;
+                break;
+            }
+            case ">=":{
+                d1 = (d1 >= d2) ? 1 : 0;
+                break;
+            }
+            case "==":{
+                d1 = (d1 == d2) ? 1 : 0;
+                break;
+            }
+            case "<>":{
+                d1 = (d1 != d2) ? 1 : 0;
+                break;
+            }
+            case "&&": case "and": {
+                d1 = (d1 >= 1 && d2 >= 1) ? 1 : 0;
+                break;
+            }
+            case "||": case "or": {
+                d1 = (d1 >= 1 || d2 >= 1) ? 1 : 0;
+                break;
+            }
+            case "=>":{
+                d1 = (d1 >= 1 && d2 <= 1) ? 0 : 1; //(1, 0) -> 0, else -> 1.
+                break;
+            }
+
+
+            case "*":{
+                d1 = d1 * d2;
+                break;
+            }
+            case "/":{
+                d1 = d1 / d2;
+                break;
+            }
+            case "+":{
+                d1 = d1 + d2;
+                break;
+            }
+            case "-":{
+                d1 = d1 - d2;
+                break;
+            }
+            case "%":{
+                d1 = d1 % d2;
+                break;
+            }
+            case "^":{
+                d1 = Math.pow(d1, d2);
+                break;
+            }
+
+        } //end inner switch relop.
+
+        String val = null;
+        if(Math.floor(d1) == d1) //is integer [4.0, 5.0]
+            val = Integer.toString((int)d1);
+        else
+            val = Double.toString(d1); //double [4.0001]
+        return val;
+    }
+
 
     //LIST *= NUMBER.
     public static void ParseListAndNumberExpr(Object n1, Object n2, String op, Variable v){
@@ -119,6 +206,20 @@ public class ExpressionsUtils {
             v.setFunction(null);
             System.out.println(v.getValue() + " " + op + "= " + v.getStrVal());
         }
+    }
+
+    //LIST *= NUMBER.
+    public static Object ParseListAndNumberExpr(Object n1, Object n2, String op){
+        List<Elem<Object>> t1 = null;
+        String t2 = "";
+        if(n1 instanceof List && n2 instanceof String) {
+            t1 = (List<Elem<Object>>) n1;
+            t2 = (String) n2;
+        }
+
+        double d2 = ProcessNumber.parseNumber(t2);
+        AddToEachItem(t1, d2, op); //recursive call for inner lists.
+        return t1;
     }
 
     private static void AddToEachItem(List<Elem<Object>> items, double value, String op){
@@ -222,8 +323,38 @@ public class ExpressionsUtils {
             v.setItems(nList);
             v.setStrVal(v.getItems().toString());
             v.setFunction(null);
-            System.out.println(v.getValue() + "=" + op + " " + v.getStrVal());
+            System.out.println(v.getValue() + " " + op + "= " + v.getStrVal());
         }
+    }
+
+    //LIST AND LIST
+    public static Object ParseListAndListExpr(Object n1, Object n2, String op) throws Exception {
+        List<Elem<Object>> t1 = null;
+        List<Elem<Object>> t2 = null;
+        if(n1 instanceof List && n2 instanceof List) {
+            t1 = (List<Elem<Object>>) n1;
+            t2 = (List<Elem<Object>>) n2;
+        }
+
+        List<Elem<Object>> nList = t1;
+        switch (op){
+            case "+": {
+                nList.addAll(t2);
+                break;
+            }
+            case "-": {
+                nList.removeAll(t2);
+                break;
+            }
+            case "*": {
+                nList = MakeCartesian(nList, t2);
+                break;
+            }
+            default: {
+                throw new Exception("Operator '" + op + "' is not defined for lists.");
+            }
+        }
+        return nList;
     }
 
     private static List<Elem<Object>> MakeCartesian(List<Elem<Object>> a, List<Elem<Object>> b){
@@ -238,5 +369,56 @@ public class ExpressionsUtils {
             } //inner for
         }// for
         return result;
+    }
+
+    public static void ParseListAndFunction(Object n1, Object n2, String op, Variable v) throws Exception {
+        List<Elem<Object>> t1 = null;
+        FunctionInterpreter t2 = null;
+        if(n1 instanceof List && n2 instanceof FunctionInterpreter){
+            t1 = (List<Elem<Object>>) n1;
+            t2 = (FunctionInterpreter) n2;
+        }
+        switch (op){
+            case "+": {
+                t1.add(new Elem<>(t2)); //add f to list.
+                break;
+            }
+            case "-":{
+                t1.removeAll(Collections.singleton(new Elem<>(t2)));
+                break;
+            }
+            default: {
+                throw new Exception("Operator '" + op + "' is not defined for operands [list, function].");
+            }
+        }
+        if(v != null) {
+            v.setItems(t1);
+            v.setStrVal(v.getItems().toString());
+            v.setFunction(null);
+            System.out.println(v.getValue() + " " + op + "= " + v.getStrVal());
+        }
+    }
+
+    public static Object ParseListAndFunction(Object n1, Object n2, String op) throws Exception {
+        List<Elem<Object>> t1 = null;
+        FunctionInterpreter f = null;
+        if(n1 instanceof List && n2 instanceof FunctionInterpreter){
+            t1 = (List<Elem<Object>>) n1;
+            f = (FunctionInterpreter) n2;
+        }
+        switch (op){
+            case "+": {
+                t1.add(new Elem<>(f)); //add f to list.
+                break;
+            }
+            case "-":{
+                t1.removeAll(Collections.singleton(new Elem<>(f)));
+                break;
+            }
+            default: {
+                throw new Exception("Operator '" + op + "' is not defined for operands [list, function].");
+            }
+        }
+        return t1;
     }
 }

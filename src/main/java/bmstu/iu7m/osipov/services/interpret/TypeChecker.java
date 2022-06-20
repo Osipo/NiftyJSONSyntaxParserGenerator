@@ -221,6 +221,7 @@ public class TypeChecker {
         }
         else if(oldVal instanceof List && expVal instanceof FunctionInterpreter){//list += function_def
             operationType = 5;
+            ExpressionsUtils.ParseListAndFunction(oldVal, expVal, op, v);
         }
         else if(oldVal instanceof FunctionInterpreter){
             throw new Exception("You try using '" + op + "' with '" + v.getValue() + "' function definition.\n This is illegal.");
