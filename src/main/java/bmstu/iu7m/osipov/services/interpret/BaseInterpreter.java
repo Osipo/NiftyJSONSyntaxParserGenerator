@@ -257,6 +257,10 @@ public abstract class BaseInterpreter {
                     d1 = 0; // [0..d1]
                 }
 
+                if(Double.isNaN(d1) || Double.isNaN(d2)){
+                    throw new NumberFormatException("Range boundaries must be Numbers but returned NaN.");
+                }
+
                 //range > list > access.
                 boolean isAccess = ast.parent(cur).getValue().getType().equals("list") && ast.parent(ast.parent(cur)).getValue().getType().equals("access");
 
@@ -272,7 +276,7 @@ public abstract class BaseInterpreter {
                 }
                 else if(nodeVal.equals("rangeStart")) //[d1..]
                 {
-                    throw new Exception("the end range-index is not belongs to the access list expression!");
+                    throw new Exception("Cannot define the end of the range! This is not the access expression where items are defined!");
                 }
 
                 d1 = Math.floor(d1);

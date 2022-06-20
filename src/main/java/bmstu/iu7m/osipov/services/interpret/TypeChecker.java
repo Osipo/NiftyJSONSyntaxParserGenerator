@@ -66,7 +66,7 @@ public class TypeChecker {
             throw new Exception("Cannot define type for variable: '" + var.getValue() + "'. Variable is not initialized.");
     }
 
-    public static Object CheckExpressionType(LinkedStack<Object> expr, String etype, String op){
+    public static Object CheckExpressionType(LinkedStack<Object> expr, String etype, String op) throws Exception {
         Object val1 = expr.top();
         expr.pop();
         if(etype.equals("unaryop"))
@@ -74,7 +74,8 @@ public class TypeChecker {
         else if(etype.equals("operator") || etype.equals("relop") || etype.equals("boolop")) {
             Object val2 = expr.top();
             expr.pop();
-            return ParseBinaryOperator(val2, val1, op);
+            return CombineExpression(val2, val1, op);
+            //return ParseBinaryOperator(val2, val1, op);
         }
         else
             return val1;
@@ -82,7 +83,7 @@ public class TypeChecker {
 
     private static Object ParseUnaryOperator(Object n, String nodeVal){
         String t1 = "";
-        if(n instanceof String)
+        if(n instanceof String || n instanceof Number)
             t1 = (String) n;
         double d1 = ProcessNumber.parseNumber(t1);
         switch (nodeVal){
@@ -198,6 +199,31 @@ public class TypeChecker {
         return val;
     }
 
+    private static Object CombineExpression(Object oldVal, Object expVal, String op) throws Exception {
+        if(oldVal instanceof String && expVal instanceof String) { //v += expr
+            return ExpressionsUtils.ParseNumberNumberExpr(oldVal, expVal, op);
+        }
+        else if(oldVal instanceof String && expVal instanceof List){ //v += list.
+            return ExpressionsUtils.ParseNumberAndList(oldVal, expVal, op);
+        }
+        else if(oldVal instanceof  String && expVal instanceof FunctionInterpreter){
+            throw new Exception("You try using '" + op + "' with anonymous function definition.\n But the first operand is not a list.");
+        }
+        else if(oldVal instanceof List && expVal instanceof String){//list += expr
+            return ExpressionsUtils.ParseListAndNumberExpr(oldVal, expVal, op);
+        }
+        else if(oldVal instanceof List && expVal instanceof List){//list += list
+            return ExpressionsUtils.ParseListAndListExpr(oldVal, expVal, op);
+        }
+        else if(oldVal instanceof List && expVal instanceof FunctionInterpreter){//list += function_def
+            return ExpressionsUtils.ParseListAndFunction(oldVal, expVal, op);
+        }
+        else if(oldVal instanceof FunctionInterpreter){
+            throw new Exception("You try using '" + op + "' with function definition.\n This is illegal.");
+        }
+        return null;
+    }
+
     private static void CombineAssign(Variable v, Object oldVal, Object expVal, String op) throws Exception {
         int operationType = -1;
 
@@ -207,6 +233,7 @@ public class TypeChecker {
         }
         else if(oldVal instanceof String && expVal instanceof List){//v += list.
             operationType = 2;
+            ExpressionsUtils.ParseNumberAndList(oldVal, expVal, op, v);
         }
         else if(oldVal instanceof String && expVal instanceof FunctionInterpreter){//v += function_def
             throw new Exception("You try using '" + op + "' with anonymous function definition.\n But the first operand is not a list.");

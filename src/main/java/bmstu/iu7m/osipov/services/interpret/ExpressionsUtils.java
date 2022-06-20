@@ -13,7 +13,9 @@ public class ExpressionsUtils {
     public static void ParseNumberNumberExpr(Object n1, Object n2, String op, Variable v){
         String t1 = "";
         String t2 = "";
-        if(n1 instanceof String && n2 instanceof String) {
+        if( (n1 instanceof String || n1 instanceof Number)
+                && (n2 instanceof String || n2 instanceof Number))
+        {
             t1 = (String) n1;
             t2 = (String) n2;
         }
@@ -104,7 +106,9 @@ public class ExpressionsUtils {
     public static Object ParseNumberNumberExpr(Object n1, Object n2, String op){
         String t1 = "";
         String t2 = "";
-        if(n1 instanceof String && n2 instanceof String) {
+        if( (n1 instanceof String || n1 instanceof Number)
+                && (n2 instanceof String || n2 instanceof Number))
+        {
             t1 = (String) n1;
             t2 = (String) n2;
         }
@@ -191,7 +195,7 @@ public class ExpressionsUtils {
     public static void ParseListAndNumberExpr(Object n1, Object n2, String op, Variable v){
         List<Elem<Object>> t1 = null;
         String t2 = "";
-        if(n1 instanceof List && n2 instanceof String) {
+        if(n1 instanceof List && (n2 instanceof String || n2 instanceof Number)) {
             t1 = (List<Elem<Object>>) n1;
             t2 = (String) n2;
         }
@@ -290,6 +294,69 @@ public class ExpressionsUtils {
         } // end for.
     }
 
+    //NUMBER AND LIST
+    //NUMBER += LIST
+    public static void ParseNumberAndList(Object n1, Object n2, String op, Variable v){
+        List<Elem<Object>> t2 = null;
+        String t1 = "";
+        if( (n1 instanceof String || n1 instanceof Number) && n2 instanceof List) {
+            t2 = (List<Elem<Object>>) n2;
+            t1 = (String) n1;
+        }
+
+        double d2 = ProcessNumber.parseNumber(t1);
+        String val = null;
+        if(Math.floor(d2) == d2) //is integer [4.0, 5.0]
+            val = Integer.toString((int)d2);
+        else
+            val = Double.toString(d2); //double [4.0001]
+
+        switch (op){
+            case "+":{
+                t2.add(new Elem<>(val));
+                break;
+            }
+            case "-":{
+                t2.removeAll(Collections.singleton(new Elem(val)));
+                break;
+            }
+        }
+
+        if(v != null) {
+            v.setItems(t2);
+            v.setStrVal(v.getItems().toString());
+            v.setFunction(null);
+            System.out.println(v.getValue() + " " + op + "= " + v.getStrVal());
+        }
+    }
+
+    public static Object ParseNumberAndList(Object n1, Object n2, String op){
+        List<Elem<Object>> t2 = null;
+        String t1 = "";
+        if( (n1 instanceof String || n1 instanceof Number) && n2 instanceof List) {
+            t2 = (List<Elem<Object>>) n2;
+            t1 = (String) n1;
+        }
+
+        double d2 = ProcessNumber.parseNumber(t1);
+        String val = null;
+        if(Math.floor(d2) == d2) //is integer [4.0, 5.0]
+            val = Integer.toString((int)d2);
+        else
+            val = Double.toString(d2); //double [4.0001]
+
+        switch (op){
+            case "+":{
+                t2.add(new Elem<>(val));
+                break;
+            }
+            case "-":{
+                t2.removeAll(Collections.singleton(new Elem(val)));
+                break;
+            }
+        }
+        return t2;
+    }
 
     //LIST AND LIST
     public static void ParseListAndListExpr(Object n1, Object n2, String op, Variable v) throws Exception {

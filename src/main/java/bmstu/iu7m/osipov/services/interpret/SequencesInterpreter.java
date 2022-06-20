@@ -67,6 +67,7 @@ public class SequencesInterpreter {
         MATRIX_DATA.push(new LinkedList<>()); //EMPTY LIST.
 
         AtomicReference<MatrixValues> matrix = new AtomicReference<>();
+        AtomicReference<Env> a_context = new AtomicReference<>(this.context);
 
         //1. At first extract data from sequence and match variable names (vnames) to indices of the vectors.
         ast.visitFrom(VisitorMode.POST, (c, next) -> {
@@ -107,6 +108,59 @@ public class SequencesInterpreter {
                     break;
                 } //end variable
 
+                case "start": {
+                        ast.visitFrom(VisitorMode.POST, (sc, sni) -> {
+                            try {
+                                parentInter.applyOperation(
+                                        ast,
+                                        a_context,
+                                        sc,
+                                        this.exp,
+                                        this.lists,
+                                        this.indices,
+                                        null,
+                                        this.functions,
+                                        this.args,
+                                        sni,
+                                        null,
+                                        null,
+                                        -1
+                                );
+                            } catch (Exception e){
+                                System.err.println(e.getMessage());
+                                sni.setOpts(-1);
+                            }
+                        }, ast.parent(c), nextItr);
+
+                        break;
+                } //end start of the list.
+
+                case "list": {
+                    List<Elem<Object>> data = this.lists.top();
+                    this.lists.pop();
+
+                    while(vnames.size() > 0){
+                        String item_name = vnames.get(1);
+                        vnames.removeAt(1); //delete from begining.
+                        vnames_idxs.put(item_name, i.get());
+
+                        Iterator<LinkedList<Elem<?>>> snapshot = MATRIX_DATA.reverseIterator(); //get current SNAPSHOT.
+                        MATRIX_DATA.clear(); //remove data as we have snapshot.
+                        while(snapshot.hasNext()){
+                            LinkedList<Elem<?>> old_vector_i = snapshot.next();
+                            for(Elem<?> item : data){
+                                LinkedList<Elem<?>> new_vector_i = new LinkedList<>();
+                                new_vector_i.addAll(old_vector_i);
+                                new_vector_i.add(new Elem<>(item)); //item in item.
+                                MATRIX_DATA.push(new_vector_i);
+                            } //end for
+                        } //end inner while
+
+                        i.set(i.get() + 1);
+                    } // end while.
+                    break;
+                } //end list.
+
                 //root node reached.
                 case "sequences": {
                     matrix.set(new MatrixValues(vnames_idxs, MATRIX_DATA));
@@ -115,8 +169,6 @@ public class SequencesInterpreter {
             } //end switch
 
         }, sequencesRoot, nextItr);
-
-        AtomicReference<Env> a_context = new AtomicReference<>(context);
 
         //3. now compute expressions based on matrix AND add them to list.
         Iterator<LinkedList<Elem<?>>> vectors = matrix.get().getDATA().reverseIterator();
