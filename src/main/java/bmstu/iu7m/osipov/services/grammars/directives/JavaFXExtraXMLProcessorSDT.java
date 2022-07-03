@@ -143,7 +143,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
         this.curNode = l_parent;
 
         switch (action){
-            case "putAttr": {
+            case "putAttr": { //read attr1=val1
                 String arg1 = t.getArguments().getOrDefault("key", null);
                 String arg2 = t.getArguments().getOrDefault("val", null);
                 arg1 = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, arg1);
@@ -154,7 +154,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 break;
             }//end 'putAttr'
 
-            case "createObject": {
+            case "createObject": { //read open tag.
                 String arg1 = t.getArguments().getOrDefault("className",null);
                 arg1 = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, arg1);
                 this.curName = arg1;
@@ -164,7 +164,7 @@ public class JavaFXExtraXMLProcessorSDT implements SDTParser {
                 break;
             }//end 'createObject'
 
-            case "removePrefix":{
+            case "removePrefix":{ //read close tag.
                 String clTag = t.getArguments().getOrDefault("pref", null);
                 clTag = GrammarBuilderUtils.replaceSymRefsAtArgument(l_parent, clTag);
                 if(this.state == 220)

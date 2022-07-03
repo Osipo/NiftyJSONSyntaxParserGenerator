@@ -191,7 +191,7 @@ public class LRAstTranslator  extends LRParser {
                             if(S.top().getValue().getName().equals("VARITEMSEQ2") && last_elem.equals(",")
                                     && last_elem.equals(tok.getName())){
                                 //System.out.println("new scope" + scope_prefix_len);
-                            }
+                            } //debug if => remove.
                             if (scope_prefix_len == s.getStart().size() - 1
                                     && scope_mi <= scope_prefix_len && s.isReduce()
                                     && tok.getName().equals(last_elem)
@@ -205,6 +205,7 @@ public class LRAstTranslator  extends LRParser {
                             break;
                         //end check.
 
+                        //end property not specified.
                         if (s.getEnd() == null
                                 && S.topFrom(0) != null && S.topFrom(0).getValue() != null
                                 && S.topFrom(0).getValue().getName().equals(s.getBody())

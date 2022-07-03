@@ -6,6 +6,8 @@
 
     dc = di(1, 2, 3);
 
+
+
     E =  [gen di(x, y, 1), di(x, y, 2), di(x, y, 3) for x, y in i end]; // 3 x (3 * 3) => 9 rows with 3 columns.
     EE = [gen di(x, x, 1), di(x, x, 2), di(x, x, 3) for x in i end]; // 3 x (1 * 3) => 3 rows with 3 columns.
     E2 = [gen f(x) for x in i end];// 3, 5, 7.
@@ -14,8 +16,22 @@
     M[0][0] = 4;
     M[1][0] = 6;
 
-    EE += 10;
     E2 *= E2; //[[3, 3], [3, 5], [3, 7], [5, 3], [5, 5], [5, 7], [7, 3], [7, 5], [7, 7]]
 
     M2 = [gen f(x) for x in [3, 5, 7] end]; //7, 11, 15.
+    M2[-1] = M2[-1] + 15; //M[2] = 30.
+
+    C = 1 + 2 + [4, 5, 6];
+
+    C_len = len(C); //3
+    M2_len = len(M2); //3
+    E2_len = len(E2); //3
+    E_len = len(E); //9
+    EE_len = len(EE); //3
+    M_len = len(M); //3
+    str_len = len("hello world!"); //14
 }
+//M       EE
+//4 2 5   1 0 0
+//6 4 9   0 1 0
+//7 6 13  0 0 1

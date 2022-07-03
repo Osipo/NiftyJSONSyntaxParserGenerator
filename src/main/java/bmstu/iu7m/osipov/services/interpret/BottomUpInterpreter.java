@@ -1,8 +1,9 @@
 package bmstu.iu7m.osipov.services.interpret;
 
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
+import bmstu.iu7m.osipov.services.interpret.external.CheckLenFunction;
+import bmstu.iu7m.osipov.services.interpret.external.ExternalFunctionInterpreter;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
-import bmstu.iu7m.osipov.structures.graphs.Pair;
 import bmstu.iu7m.osipov.structures.lists.LinkedList;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.lists.Triple;
@@ -18,15 +19,40 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class BottomUpInterpreter extends BaseInterpreter {
 
+
+    private Env rootContext;
     public BottomUpInterpreter(){
         this.labels = new ArrayList<>();
         this.blocks = 0;
+        this.rootContext = new Env(null);
+    }
+
+    //add some external functions: len(list)
+    protected void addExternalFunction(){
+        Variable f_len = new Variable("len", 3);
+        ExternalFunctionInterpreter len = new ExternalFunctionInterpreter(null, null, new ArrayList<>());
+        len.setCheckArgs(new CheckLenFunction(len));
+        len.setCode((args, expr) -> {
+            Variable l = args.get(0);
+            Integer size = null;
+            if(l.isList())
+                size = l.getItems().size();
+            else
+                size = l.getStrVal().length();
+
+            expr.push(size);
+        });
+
+        f_len.setFunction(len);
+        this.rootContext.add(f_len);
     }
 
     @Override
     public void interpret(PositionalTree<AstSymbol> ast) {
+        addExternalFunction(); //add external functions at first.
+
         AtomicReference<Env> env = new AtomicReference<>();
-        env.set(new Env(null));
+        env.set(this.rootContext);
         LinkedStack<Object> exp = new LinkedStack<>();
         LinkedStack<List<Elem<Object>>> lists = new LinkedStack<>();
         ArrayList<List<Elem<Object>>> indices = new ArrayList<>();

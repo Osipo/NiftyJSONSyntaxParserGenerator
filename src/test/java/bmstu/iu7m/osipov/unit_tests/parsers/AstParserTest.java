@@ -108,6 +108,10 @@ public class AstParserTest {
     @Test
     public void testList(){
         List<String> l = new ArrayList<>();
+        List<String> l2 = new ArrayList<>(new ArrayList<>());
+
+        l2.add("item1");
+        System.out.println(l2.size());
         l.add("item1");
         l.add("item2");
         l.add("item3");
@@ -115,5 +119,6 @@ public class AstParserTest {
         l.add(2, "itempass");
         System.out.println(Math.floor(1.0) == 1.0);
         System.out.println(l);
+        System.out.println(l2);
     }
 }

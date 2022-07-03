@@ -382,7 +382,7 @@ public class TypeChecker {
 
                 //simple expression or function.
                 if (!functions.isEmpty()) { //expression is function [a = function]
-                    v.setFunction(functions.top());
+                    v.setFunction(functions.top());;
                     functions.pop();
                 } else { //expression is literal [a = expr]
                     v.setStrVal(TypeChecker.GetStrValue(exp.top()));

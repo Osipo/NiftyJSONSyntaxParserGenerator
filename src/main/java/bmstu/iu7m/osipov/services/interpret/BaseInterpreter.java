@@ -2,6 +2,7 @@ package bmstu.iu7m.osipov.services.interpret;
 
 import bmstu.iu7m.osipov.services.grammars.AstNode;
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
+import bmstu.iu7m.osipov.services.interpret.external.ExternalFunctionInterpreter;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
 import bmstu.iu7m.osipov.structures.lists.LinkedList;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
@@ -146,6 +147,19 @@ public abstract class BaseInterpreter {
                     params.add(new Variable(nodeVal, 1)); //category = 1 means parameter.
                     return;
                 } //end  lambda variable_parameters.
+                else if(ast.parent(cur).getValue().getType().equals("typeof")){ //instanceof operator.
+
+                    String typeName = ast.rightSibling(cur).getValue().getValue();
+                    Variable v = context.get().get(nodeVal);
+                    if(v == null)
+                        throw new Exception("Variable '" + nodeVal + "' is not defined!");
+
+                    if(v.isList() && typeName.equals("List"))
+                        exp.push(1.0);
+
+                    nextIteration.setOpts(2); //ignore first sibling (get second that is null).
+                    return;
+                }
                 checkAssign(ast, cur, context.get(), opType, nodeVal, exp, lists, indices, functions, args, vector_i, vnames_idxs, vector_len);
                 break;
             }
@@ -175,16 +189,28 @@ public abstract class BaseInterpreter {
             case "args": { //args > call/functionName
                 if(ast.parent(cur).getValue().getType().equals("call")){
                     ArrayList<Object> args_i = args.top();
-                    FunctionInterpreter f = context.get().get(ast.parent(cur).getValue().getValue(), v -> v.getFunction() != null).getFunction();
+
+                    Variable fvar = context.get().get(ast.parent(cur).getValue().getValue(), v -> v.getFunction() != null);
+                    if(fvar == null)
+                        fvar = context.get().get(ast.parent(cur).getValue().getValue(), v -> v.getCategory() == 3);
+                    if(fvar == null)
+                        throw new Exception("Function '" + ast.parent(cur).getValue().getValue() + "' is not defined!");
+
+                    FunctionInterpreter f = fvar.getFunction();
                     f.bindArguments(args_i); //throw Exception if cannot bind.
                     args_i.clear();// flush processed args.
                     args.pop();
 
 
-                    execFunction(f, ast, exp, functions, nextIteration, vector_i, vnames_idxs, vector_len);
-                    f.setContext(f.getContext().getPrev()); //set context.
+                    if(f instanceof ExternalFunctionInterpreter) {
+                       ((ExternalFunctionInterpreter) f).callExternal(exp);
+                    }
+                    else{
+                        execFunction(f, ast, exp, functions, nextIteration, vector_i, vnames_idxs, vector_len);
+                        f.setContext(f.getContext().getPrev()); //remove inner context
+                    }
 
-                    //get next arguments caller. (args + args)
+                    //get next arguments caller. (args + args) => exec next function
                     if(exp.top() == null && ast.rightSibling(cur) != null && ast.rightSibling(cur).getValue().getType().equals("args")){
                         //System.out.println("Function '" + f.getFunctionName() + "' returns new lambda function");
 

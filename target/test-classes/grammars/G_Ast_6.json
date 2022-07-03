@@ -50,7 +50,7 @@
   },
   "keywords": [
     "true","false", "not", "lambda", "if", "else", "while", "pass",
-    "and", "or", "until", "goto", "for", "in", "gen", "end"
+    "and", "or", "until", "goto", "for", "in", "gen", "end", "is"
   ],
   "separators": {
     "signedNum": "_",
@@ -215,6 +215,10 @@
     {"E": "AE"},
     {"AE": ["AE", "+", "T", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"AE": ["AE", "-", "T", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"AE": ["AE", "+", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"AE": ["AE", "-", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+
+
     {"AE": ["T"]},
     {"T": ["T", "*", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"T": ["T", "/", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
@@ -237,6 +241,11 @@
     {"PE": ["false", {"act": "astNode", "value": "$0", "type": "boolean"}]},
     {"PE": ["(", "B",")"]},
     {"PE": "CALL"},
+    {"PE": ["id", "is", "id",
+      {"act": "astNode", "type": "variable", "value": "$0"},
+      {"act": "astNode", "type": "variable", "value": "$2"},
+      {"act": "astNode", "type": "typeof", "value": "$1", "children": "$1"}
+    ]},
     {"PE": ["not", "(", "B", ")", {"act": "astNode", "value": "$0", "type": "unaryop", "children": "$0"}]}
   ],
 

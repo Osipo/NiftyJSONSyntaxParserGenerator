@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FunctionInterpreter {
-    private Node<AstSymbol> root;
-    private Env context;
-    private List<Variable> params;
+    protected Node<AstSymbol> root;
+    protected Env context;
+    protected List<Variable> params;
 
-    private String funName;
+    protected String funName;
 
     public FunctionInterpreter(Node<AstSymbol> root, Env context,
                                List<Variable> params)
@@ -51,13 +51,22 @@ public class FunctionInterpreter {
                 p_i.setStrVal(a.toString());
 
             else if(a instanceof Elem){ //extract list item
-                a = ((Elem<?>) a).getV1();
+                while(a instanceof Elem)
+                    a = ((Elem<?>) a).getV1();
                 if(a instanceof String)
                     p_i.setStrVal((String) a);
             }
 
             else if(a instanceof Variable){
                 p_i.setStrVal(((Variable) a).getStrVal());
+
+                if(((Variable) a).getFunction() != null) { //function name.
+                    FunctionInterpreter of = ((Variable) a).getFunction();
+                    FunctionInterpreter nf = new FunctionInterpreter(of.getRoot(), of.getContext(), of.params);
+                    p_i.setFunction(nf); //do local self reference.
+                }
+                else if(((Variable) a).getItems() != null)
+                    p_i.setItems(new ArrayList<>(((Variable) a).getItems()));
             }
             this.context.add(p_i);
         }
@@ -74,5 +83,9 @@ public class FunctionInterpreter {
 
     public String getFunctionName() {
         return funName;
+    }
+
+    public List<Variable> getParams(){
+        return this.params;
     }
 }

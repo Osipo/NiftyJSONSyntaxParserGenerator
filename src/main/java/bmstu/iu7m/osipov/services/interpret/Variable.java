@@ -16,7 +16,7 @@ public class Variable implements Value<String> {
     private FunctionInterpreter function; //function expression.
     private Node<AstSymbol> next; //label -> ptr to next instruction.
 
-    private int category = 0; // 0 = simple, 1 = parameter, 2 = label.
+    private int category = 0; // 0 = simple, 1 = parameter, 2 = label, 3 = external func.
 
     public Variable(String name, int category){
         this.name = name;
