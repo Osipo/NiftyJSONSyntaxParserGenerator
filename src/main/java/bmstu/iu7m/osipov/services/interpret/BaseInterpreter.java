@@ -129,16 +129,29 @@ public abstract class BaseInterpreter {
                 break;
             }
             case "list": {
-                if(ast.parent(cur).getValue().getType().equals("list")){
+                if(ast.parent(cur).getValue().getType().equals("list")){ //inner list
                     //inner list
                     List<Elem<Object>> inner = lists.top();
                     lists.pop(); //remove inner list from stack.
                     lists.top().add(new Elem<>(inner)); //add list as single item instead of addAll of its items.
                 }
-                else if(ast.parent(cur).getValue().getType().equals("access")){
+                else if(ast.parent(cur).getValue().getType().equals("access")){ //index.
                     ArrayList<Elem<Object>> idx_items = new ArrayList<>(lists.top()); //move list from lists to indices
                     lists.pop();
                     indices.add(idx_items); //lists > indices.
+                }
+                else if(ast.parent(cur).getValue().getType().equals("args")){ //list as argument
+                    List<Elem<Object>> list_arg = lists.top();
+                    lists.pop();
+                    args.top().add(list_arg); //add as single argument with type list.
+                }
+                else if(   ast.parent(cur).getValue().getType().equals("operator") //operator expression.
+                        || ast.parent(cur).getValue().getType().equals("boolop")
+                        || ast.parent(cur).getValue().getType().equals("relop")
+                )
+                {
+                    exp.push(lists.top()); //add operand to expression stack.
+                    lists.pop(); //remove it from list stack as it will be added to expression stack.
                 }
                 break;
             }

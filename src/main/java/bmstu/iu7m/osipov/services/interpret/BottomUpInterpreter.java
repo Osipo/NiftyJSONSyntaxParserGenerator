@@ -27,7 +27,7 @@ public class BottomUpInterpreter extends BaseInterpreter {
         this.rootContext = new Env(null);
     }
 
-    //add some external functions: len(list)
+    //add some external functions: len(list), len(str)
     protected void addExternalFunction(){
         Variable f_len = new Variable("len", 3);
         ExternalFunctionInterpreter len = new ExternalFunctionInterpreter(null, null, new ArrayList<>());

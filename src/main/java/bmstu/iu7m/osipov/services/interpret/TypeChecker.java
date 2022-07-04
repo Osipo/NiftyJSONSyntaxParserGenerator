@@ -17,6 +17,23 @@ public class TypeChecker {
         return value.toString();
     }
 
+    public static void saveExpressionInVariable(Variable v, Object expr) throws Exception {
+        if(expr == null)
+            throw new NullPointerException("Error! Expect non-nullable value to be assigned!");
+        if(expr instanceof Elem<?>)
+            while (expr instanceof Elem<?>)
+                expr = ((Elem<?>) expr).getV1();
+        if(expr instanceof String || expr instanceof Number){
+            v.setStrVal(expr.toString());
+        }
+        else if(expr instanceof List){
+            v.setItems(((List<Elem<Object>>)expr));
+            v.setStrVal(v.getItems().toString());
+        }
+        else if(expr instanceof FunctionInterpreter){
+            v.setFunction((FunctionInterpreter) expr);
+        }
+    }
 
     //Get concrete value extracted from Stack expressions.
     public static Object CheckValue(Object value, String info) throws Exception {
@@ -200,6 +217,7 @@ public class TypeChecker {
     }
 
     private static Object CombineExpression(Object oldVal, Object expVal, String op) throws Exception {
+
         if(oldVal instanceof String && expVal instanceof String) { //v += expr
             return ExpressionsUtils.ParseNumberNumberExpr(oldVal, expVal, op);
         }
@@ -380,12 +398,12 @@ public class TypeChecker {
                 }
                 vType = CheckVariableType(v, vName, isNewVar);
 
-                //simple expression or function.
+                //is function
                 if (!functions.isEmpty()) { //expression is function [a = function]
                     v.setFunction(functions.top());;
                     functions.pop();
-                } else { //expression is literal [a = expr]
-                    v.setStrVal(TypeChecker.GetStrValue(exp.top()));
+                } else { //set from expression. [a = top(expr)]; Note that in the expression stack there may be lists.
+                    saveExpressionInVariable(v, exp.top());
                     System.out.println(vName + " = " + v.getStrVal());
                     exp.pop();
                 }
