@@ -11,6 +11,7 @@ import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.automats.DFA;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
+import bmstu.iu7m.osipov.utils.ProcessNumber;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import org.junit.Test;
@@ -120,5 +121,9 @@ public class AstParserTest {
         System.out.println(Math.floor(1.0) == 1.0);
         System.out.println(l);
         System.out.println(l2);
+        //assert Double.isNaN(Double.longBitsToDouble(0x7ff0000000000001L));
+        System.out.println("ab".repeat(0));
+        Double d = ProcessNumber.parseNumber("1");
+        assert d == 1.0;
     }
 }

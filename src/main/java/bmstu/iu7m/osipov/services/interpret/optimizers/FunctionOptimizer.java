@@ -19,18 +19,18 @@ public class FunctionOptimizer {
         VisitorsNextIteration<AstSymbol> nextItr = new VisitorsNextIteration<>();
         List<FunctionEntry> funs = new ArrayList<>();
 
-        //get all function nodes.
+        //get all function nodes and its parameters.
         ast.visit(VisitorMode.PRE, (n, next) -> {
             if(n.getValue().getType().equals("lambda")) {
                 String fName =
                         ast.parent(n).getValue().getType().equals("assign") ?
-                                ast.rightSibling(n).getValue().getValue()
+                                ast.rightSibling(n).getValue().getValue() //variable_name => name of function.
                                 : null; //anonymous function
 
                 funs.add(new FunctionEntry(fName, n));
             }
 
-            //parameter def
+            //parameters of lambda.
             else if(ast.parent(n) != null && ast.parent(n).getValue().getType().equals("params")){
                 funs.get(funs.size() - 1).getParamNames().add(n.getValue().getValue());
             }

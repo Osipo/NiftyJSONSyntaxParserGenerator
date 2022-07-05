@@ -41,14 +41,14 @@ public class TypeChecker {
             info = "";
         if(value == null)
             throw new NullPointerException("Cannot compute value. " + info + " Value is null.");
-        if(value instanceof String || value instanceof Number)
-            return value;
-        else if(value instanceof Elem<?>){
+
+        //extract elem.
+        if(value instanceof Elem<?>)
             while(value instanceof Elem<?>)
                 value = ((Elem<?>) value).getV1();
-            if(value instanceof String || value instanceof Number)
-                return value;
-        }
+
+        if(value instanceof String || value instanceof Number || value instanceof List || value instanceof FunctionInterpreter)
+            return value;
         else if(value instanceof Variable){
             Variable vv = (Variable) value;
             if(vv.getFunction() != null)
@@ -61,7 +61,6 @@ public class TypeChecker {
         }
         else
             throw new Exception("Cannot define value for type: " + value.getClass());
-        return value;
     }
 
     //Return type of the variable.
@@ -216,9 +215,18 @@ public class TypeChecker {
         return val;
     }
 
+    //TODO: Expect Raw Values. (yet it is null)
     private static Object CombineExpression(Object oldVal, Object expVal, String op) throws Exception {
 
-        if(oldVal instanceof String && expVal instanceof String) { //v += expr
+        //Raw number.
+        if(oldVal instanceof Number && (expVal instanceof Number || expVal instanceof String))
+            return ExpressionsUtils.ParseNumberNumberExpr(oldVal, expVal, op);
+        else if(oldVal instanceof Number && expVal instanceof List)
+            return ExpressionsUtils.ParseNumberAndList(oldVal, expVal, op);
+        else if(oldVal instanceof Number && expVal instanceof FunctionInterpreter)
+            throw new Exception("You try using '" + op + "' with anonymous function definition.\n But the first operand is not a list.");
+
+        if(oldVal instanceof String && (expVal instanceof String || expVal instanceof Number)) { //v += expr
             return ExpressionsUtils.ParseNumberNumberExpr(oldVal, expVal, op);
         }
         else if(oldVal instanceof String && expVal instanceof List){ //v += list.
@@ -227,7 +235,7 @@ public class TypeChecker {
         else if(oldVal instanceof  String && expVal instanceof FunctionInterpreter){
             throw new Exception("You try using '" + op + "' with anonymous function definition.\n But the first operand is not a list.");
         }
-        else if(oldVal instanceof List && expVal instanceof String){//list += expr
+        else if(oldVal instanceof List && (expVal instanceof String || expVal instanceof Number)){//list += expr
             return ExpressionsUtils.ParseListAndNumberExpr(oldVal, expVal, op);
         }
         else if(oldVal instanceof List && expVal instanceof List){//list += list
@@ -245,7 +253,15 @@ public class TypeChecker {
     private static void CombineAssign(Variable v, Object oldVal, Object expVal, String op) throws Exception {
         int operationType = -1;
 
-        if(oldVal instanceof String && expVal instanceof String){ //v += expr
+        //Raw number.
+        if(oldVal instanceof Number && (expVal instanceof Number || expVal instanceof String))
+            ExpressionsUtils.ParseNumberNumberExpr(oldVal, expVal, op, v);
+        else if(oldVal instanceof Number && expVal instanceof List)
+            ExpressionsUtils.ParseNumberAndList(oldVal, expVal, op, v);
+        else if(oldVal instanceof Number && expVal instanceof FunctionInterpreter)
+            throw new Exception("You try using '" + op + "' with anonymous function definition.\n But the first operand is not a list.");
+
+        if(oldVal instanceof String && (expVal instanceof String || expVal instanceof Number)){ //v += expr
             operationType = 1;
             ExpressionsUtils.ParseNumberNumberExpr(oldVal, expVal, op, v);
         }
@@ -256,7 +272,7 @@ public class TypeChecker {
         else if(oldVal instanceof String && expVal instanceof FunctionInterpreter){//v += function_def
             throw new Exception("You try using '" + op + "' with anonymous function definition.\n But the first operand is not a list.");
         }
-        else if(oldVal instanceof List && expVal instanceof String){//list += expr
+        else if(oldVal instanceof List && (expVal instanceof String || expVal instanceof Number)){//list += expr
             operationType = 3;
             ExpressionsUtils.ParseListAndNumberExpr(oldVal, expVal, op, v);
         }

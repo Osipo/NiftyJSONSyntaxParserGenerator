@@ -175,4 +175,10 @@ public class ProcessNumber {
             }
         }// end of switch
     }// end of method
+
+    //returns null if NaN.
+    public static Double parseOnlyNumber(String str){
+        Double d = (Double) parseNumber(str, Double.class);
+        return d.isNaN() ? null : d;
+    }
 }

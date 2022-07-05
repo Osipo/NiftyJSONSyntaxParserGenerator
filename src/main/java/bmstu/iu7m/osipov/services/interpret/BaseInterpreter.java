@@ -148,6 +148,7 @@ public abstract class BaseInterpreter {
                 else if(   ast.parent(cur).getValue().getType().equals("operator") //operator expression.
                         || ast.parent(cur).getValue().getType().equals("boolop")
                         || ast.parent(cur).getValue().getType().equals("relop")
+                        || (ast.parent(cur).getValue().getType().equals("assign") && ast.parent(cur).getValue().getValue().length() > 1) //combine assign
                 )
                 {
                     exp.push(lists.top()); //add operand to expression stack.
@@ -404,7 +405,8 @@ public abstract class BaseInterpreter {
         if(parent.getValue().getType().equals("access")){ //variable > access
 
             int offset = ast.getChildren(ast.leftMostChild(parent)).size(); //access/list > access/indices > count(children)
-            List<Elem<Object>> content = scanAccess(v, indices, offset);
+            List<Elem<Object>> content = scanAccess(v, indices, offset); //v, [a], 1.
+
 
             if(ast.parent(parent).getValue().getType().equals("list")){ //variable > access > list
                 lists.top().addAll(content);
@@ -419,7 +421,7 @@ public abstract class BaseInterpreter {
                 functions.push((FunctionInterpreter) content.get(0).getV1());
             }
             else if(content.size() == 1) { //primitive element
-                exp.push(TypeChecker.CheckValue(content.get(0).getV1(), null)); //replace str to checkValue
+                exp.push(TypeChecker.CheckValue(content.get(0).getV1(), null));
             }
             else if(content.size() > 1) //list expression. (list element)
                 lists.push(content);
@@ -522,7 +524,7 @@ public abstract class BaseInterpreter {
 
             indices.get(i).clear(); //remove read ptrs at current index.
         }
-        indices.subList(delStart, indices.size()).clear(); //remove all elements at [delStart...indices.size() - 1]
+        indices.subList(delStart, indices.size()).clear(); //remove indices from indices list.
         return prev_list;
     }
 

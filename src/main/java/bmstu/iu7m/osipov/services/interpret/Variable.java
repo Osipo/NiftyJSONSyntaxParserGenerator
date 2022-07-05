@@ -42,7 +42,10 @@ public class Variable implements Value<String> {
     }
 
     public void setItems(List<Elem<Object>> items){
-        this.items = new ArrayList<>(items);
+        if(items != null)
+            this.items = new ArrayList<>(items); //throw NullPointerException if argument is null.
+        else
+            this.items = null;
     }
 
     public List<Elem<Object>> getItems() {

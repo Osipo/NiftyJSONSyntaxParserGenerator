@@ -172,7 +172,7 @@
     {"SEQUENCEIN": ["in", "EXP"]},
 
     {"EXP": ["LAMBDA"]},
-    {"LAMBDA": ["lambda", "LHEADER", "S",
+    {"LAMBDA": ["lambda", "LHEADER", "=>", "S",
       {"act": "astNode", "type": "lambda", "value": "$0", "children": "$1"}
     ]},
     {"LHEADER": ["(", "PARGS", ")",

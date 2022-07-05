@@ -33,6 +33,8 @@ public class FunctionInterpreter {
         this.context = context;
     }
 
+
+    //TODO: Parse possible arg types: (variable, elem, list, function, str/number)
     public void bindArguments(List<Object> args) throws Exception {
         //System.out.println("expected: " + this.params.size());
         //System.out.println("actual: " + args.size());
@@ -43,20 +45,29 @@ public class FunctionInterpreter {
 
         for(int i = 0; i < args.size(); i++){
             Object a = args.get(i);
-            Variable p_i = new Variable(this.params.get(i).getValue()); //this.params.get(i);
+            Variable p_i = new Variable(this.params.get(i).getValue()); //variable_name
 
-            if(a instanceof String)
-                p_i.setStrVal((String) a);
-            else if(a instanceof Integer || a instanceof Double)
-                p_i.setStrVal(a.toString());
-
-            else if(a instanceof Elem){ //extract list item
+            //if elem get elem value
+            if(a instanceof Elem) { //extract list item
                 while(a instanceof Elem)
                     a = ((Elem<?>) a).getV1();
-                if(a instanceof String)
-                    p_i.setStrVal((String) a);
             }
 
+            //Check raw types.
+            if(a instanceof String)
+                p_i.setStrVal((String) a);
+            else if(a instanceof Number)
+                p_i.setStrVal(a.toString());
+            else if(a instanceof List){
+                p_i.setItems((List<Elem<Object>>) a);
+                p_i.setStrVal(p_i.getItems().toString());
+            }
+            else if(a instanceof FunctionInterpreter){
+                p_i.setFunction((FunctionInterpreter) a);
+            }
+
+            //passed some variable name a as argument.
+            //Check variable types.
             else if(a instanceof Variable){
                 p_i.setStrVal(((Variable) a).getStrVal());
 
