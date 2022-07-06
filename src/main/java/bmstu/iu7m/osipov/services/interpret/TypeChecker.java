@@ -99,9 +99,19 @@ public class TypeChecker {
 
     private static Object ParseUnaryOperator(Object n, String nodeVal){
         String t1 = "";
-        if(n instanceof String || n instanceof Number)
+        Double r_d1 = 0d;
+        double d1 = 0;
+        if(n instanceof String) {
             t1 = (String) n;
-        double d1 = ProcessNumber.parseNumber(t1);
+            r_d1 = ProcessNumber.parseOnlyNumber(t1);
+        }
+        else if(n instanceof Number){
+            r_d1 = ((Number) n).doubleValue();
+        }
+        if(r_d1 != null) //str_num n parsed successful.
+            d1 = r_d1;
+
+
         switch (nodeVal){
             case "-":{
                 d1 = -d1; //negate.

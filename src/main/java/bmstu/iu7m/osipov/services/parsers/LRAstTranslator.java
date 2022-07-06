@@ -201,7 +201,7 @@ public class LRAstTranslator  extends LRParser {
                                 scope_s = scope_i;
                             }
                         }
-                        if(scope_s != -1) //do not close when new scope found.
+                        if(scope_s != -1) //when found new scope then break cycle else try to close scope.
                             break;
                         //end check.
 

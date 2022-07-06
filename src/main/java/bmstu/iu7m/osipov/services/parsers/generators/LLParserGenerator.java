@@ -63,77 +63,10 @@ public class LLParserGenerator {
         return table;
     }
 
-    //FIRST_1 function for each symbol X of Grammar G.
-    /*
-    public static Map<String, Set<String>> firstTable_1(Grammar G){
-        Set<String> N_e = G.getN_e(); // Non-terminals with rules N -> e.
-        G = Grammar.deleteLeftRecursion(G);
-        Set<String> T = G.getTerminals();
-        Set<String> NT = G.getNonTerminals();
-        HashMap<String, Set<String>> res = new HashMap<String, Set<String>>();
-        LinkedStack<String> S = new LinkedStack<>();
 
-        for(String t : T){
-            HashSet<String> f = new HashSet<>();
-            f.add(t);
-            res.put(t, f);
-        }
-        Set<String> nonIndexed = NT.stream()
-                .filter(x -> N_e.contains( x.substring(0, x.indexOf('_')) ) )
-                .collect(Collectors.toSet());
-
-        for(String N_i : nonIndexed){
-            HashSet<String> ef = new HashSet<>();// FIRST = { e } (e == empty)
-            ef.add(G.getEmpty());
-            res.put(N_i, ef);
-        }
-
-        List<String> N = new ArrayList<>(NT);
-        N.sort((x,y) -> {
-            String s_x = x.split("_")[1];
-            String s_y = y.split("_")[1];
-            int x_i = Integer.parseInt( s_x.substring(0, s_x.indexOf('\'') != -1 ? s_x.indexOf('\'') : s_x.length() ) );
-            int y_i = Integer.parseInt( s_y.substring(0, s_y.indexOf('\'') != -1 ? s_y.indexOf('\'') : s_y.length() ) );
-            return Integer.compare(y_i, x_i); //reverse order (descention)
-        });
-
-        System.out.println(G);
-
-        //PE_23 = { um, up, str, num, realNum, ch, true, false, (, id, not }
-        //UE_22 = PE_23
-        //F_21' = { ^ }
-        //F_21 =  UE_22
-        //T_20' = { /  * }
-        //T_20 = { F_21 }
-        //ARG_14 = { [, id, B_5 }
-
-        for(String N_i : N){
-            Set<String> N_first = res.getOrDefault(N_i, new HashSet<>());
-            System.out.println(N_i);
-            Set<GrammarString> rules = G.getProductions().get(N_i);
-            for(GrammarString rule : rules){
-                for(GrammarSymbol s : rule.getSymbols()){
-                    if(s.getType() == 't' || s.getVal().equals(G.getEmpty())){
-                        N_first.add(s.getVal());
-                        break;
-                    }
-                    else {
-                        Set<String> Y_i = res.get(s.getVal());
-                        N_first.addAll(Y_i);
-                        if(!Y_i.contains(G.getEmpty()))
-                            break;
-                    }
-                } // end symbols at rule s
-            } //end rules for header N_i
-            res.put(N_i, N_first);
-        }
-        System.out.println("end");
-
-        return res;
-    }
-    */
 
     //FIRST function for each symbol X of grammar G.
+    //TODO: Works only for Non-recursive, Canon Grammar (without Cycles, empty rules, recursion and useless symbols)
     public static Map<String, Set<String>> firstTable2(Grammar G){
         Set<String> N_e = G.getN_e(); // Non-terminals with rules N -> e.
         G = Grammar.deleteLeftRecursion(G);
@@ -142,6 +75,8 @@ public class LLParserGenerator {
         HashMap<String, Set<String>> res = new HashMap<String,Set<String>>();
         LinkedStack<String> S = new LinkedStack<>();
 
+        //System.out.println(G);
+
         /* For each terminal t add to Table FIRST(t) = { t }; */
         for(String t : T){
             HashSet<String> f = new HashSet<>();
@@ -149,8 +84,7 @@ public class LLParserGenerator {
             res.put(t, f);
         }
 
-        //N_e is  set before indexing.
-
+        //N_E
         Set<String> nonIndexed = NT.stream()
                 .filter(x -> N_e.contains( x.substring(0, x.indexOf('_')) ) )
                 .collect(Collectors.toSet());
@@ -158,40 +92,36 @@ public class LLParserGenerator {
             nonIndexed = N_e;
         }
 
-        //N from non-left recursive Grammar G which belongs to N_e of old G.
-        //N_e for non-left recursive Grammar is empty as it does not contains rules A -> e.
-        for(String n : nonIndexed){
-            HashSet<String> ef = new HashSet<>();// FIRST = { e } (e == empty)
-            ef.add(G.getEmpty());
-            res.put(n, ef);
-        }
         for(String n : NT){
-            S.push(n);
+            HashSet<String> f_i = new HashSet<>();
+            res.put(n, f_i);
         }
+
+
         S.push(G.getStart());
-
-        Map<GrammarString, String> cache = new HashMap<>(); //MAKE KEY UNIQUE.
-
+        Set<String> processed = new TreeSet<>();
+        int alts_size = 0;
+        int proc_alts = 0;
         while(!S.isEmpty()){
             String N = S.top();
-            Set<String> first_n = res.computeIfAbsent(N, k -> new HashSet<>());
-            res.put(N, first_n);
             S.pop();
+            Set<String> first_n = res.getOrDefault(N, null);
+            if(processed.contains(N) || first_n == null)
+                continue;
+
+
             Set<GrammarString> prods = G.getProductions().get(N);
-            //System.out.println(N);
-            //Scan each alternative symbol by symbol
+            alts_size = prods.size();
+            proc_alts = 0;
             M1: for(GrammarString body : prods){
-                // IF previously computed.
-                if(cache.containsKey(body) && N.equals( cache.get(body) ) ) {
-                    first_n.addAll( res.get( cache.get(body) ) );
-                }
                 // System.out.println(N + " -> "+ body);
                 for(GrammarSymbol s_i : body.getSymbols()){
                     //System.out.println(N + ":: "+s_i.getVal());
                     //IF it is first empty
+
                     if(s_i.getType() == 't'){
                         first_n.add(s_i.getVal());// empty will be added as it is terminal.
-                        cache.put(body, N);
+                        proc_alts++;
                         break;
                     }
                     Set<String> X_i = res.get(s_i.getVal());
@@ -202,17 +132,85 @@ public class LLParserGenerator {
                     }
                     else if(X_i.contains(G.getEmpty())){ //X IS ALREADY FILLED AND LEFT SIDE MUST BE SCANNED TOO.
                         first_n.addAll(X_i);
+                        first_n.remove(G.getEmpty()); //Add all except empty.
                     }
                     else {
                         first_n.addAll(X_i);
-                        cache.put(body, N);
+                        proc_alts++;
                         break;
+                    }
+                }
+                if(proc_alts == alts_size) {
+                    processed.add(N);
+                    proc_alts = 0;
+                }
+            }
+        }
+        if(processed.size() != NT.size()){
+            HashSet<String> rest_N = new HashSet<>(NT);
+            rest_N.removeAll(processed);
+            alts_size = 0;
+            proc_alts = 0;
+            for(String n : rest_N){
+                S.push(n);
+            }
+            while(!S.isEmpty()){
+                String N = S.top();
+                S.pop();
+                Set<String> first_n = res.getOrDefault(N, null);
+                if(processed.contains(N) || first_n == null)
+                    continue;
+
+                Set<GrammarString> prods = G.getProductions().get(N);
+                alts_size = prods.size();
+                proc_alts = 0;
+                M1: for(GrammarString body : prods){
+                    // System.out.println(N + " -> "+ body);
+                    for(GrammarSymbol s_i : body.getSymbols()){
+                        //System.out.println(N + ":: "+s_i.getVal());
+                        //IF it is first empty
+
+                        if(s_i.getType() == 't'){
+                            first_n.add(s_i.getVal());// empty will be added as it is terminal.
+                            proc_alts++;
+                            break;
+                        }
+                        Set<String> X_i = res.get(s_i.getVal());
+                        if(X_i == null || X_i.size() == 0){
+                            S.push(N);
+                            S.push(s_i.getVal());
+                            break M1;//found new Non-Terminal s_i at body. Compute FIRST(s_i) then return to the body.
+                        }
+                        else if(X_i.contains(G.getEmpty())){ //X IS ALREADY FILLED AND LEFT SIDE MUST BE SCANNED TOO.
+                            first_n.addAll(X_i);
+                            first_n.remove(G.getEmpty()); //Add all except empty.
+                        }
+                        else {
+                            first_n.addAll(X_i);
+                            proc_alts++;
+                            break;
+                        }
+                    }
+                    if(proc_alts == alts_size) {
+                        processed.add(N);
+                        proc_alts = 0;
                     }
                 }
             }
         }
+
+        //N from non-left recursive Grammar G which belongs to N_e of old G.
+        //N_e for non-left recursive Grammar is empty as it does not contains rules A -> e.
+        for(String n : nonIndexed){
+            Set<String> ef = res.getOrDefault(n, null);
+            if(ef != null)
+                ef.add(G.getEmpty());
+        }
+
         return res;
     }
+
+
 
     //Compute FIRST for GrammarString str. (list of GrammarSymbols)
     public static Set<String> first(GrammarString str, Map<String, Set<String>> firstTable, String eps){

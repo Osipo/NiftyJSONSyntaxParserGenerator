@@ -26,11 +26,13 @@ public class GrammarBuilderUtils {
 
         char[] syms = act_arg.toCharArray();
         StringBuilder sb = new StringBuilder();
+        LinkedNode<LanguageSymbol> cbody = body;
 
         for(int i = 0; i < syms.length; i++){
             if(syms[i] == '@' && i + 1 < syms.length) {
                 sb.append(syms[i + 1]); //'@' verbatim sign (to print '@' use '@@')
                 i += 1;
+                cbody = body;
             }
             else if(syms[i] == '$'){
 
@@ -40,19 +42,21 @@ public class GrammarBuilderUtils {
                 while(i < syms.length && syms[i] >= '0' && syms[i] <= '9') i++;
                 int num = Integer.parseInt(act_arg.substring(j, i));
                 if(i + 1 < syms.length && syms[i] == '_' ){
-                    body = body.getChildren().get(num);
+                    cbody = cbody.getChildren().get(num);
                     syms[i] = '$';
                     i -= 1;
                     continue;
                 }
 
-                String nval = body.getChildren().get(num).getValue().getLexeme();
+                String nval = cbody.getChildren().get(num).getValue().getLexeme();
                 sb.append(nval);
                 i -= 1;
             }
-            else
+            else {
                 sb.append(syms[i]);
-        }
+                cbody = body;
+            }
+        } //end for
         return sb.toString();
     }
 }

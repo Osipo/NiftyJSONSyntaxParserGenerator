@@ -248,12 +248,12 @@ public abstract class BaseInterpreter {
                     //System.out.println("call " + f.getFunctionName() + " = " + exp.top());
                     // args > call > args (function call is expression of argument of another function call)
                     if(ast.parent(ast.parent(cur)).getValue().getType().equals("args")){
-                        args.top().add(TypeChecker.GetRawValue(exp.top()));
+                        args.top().add(exp.top());
                         exp.pop();
                     }
                     //args > call > list
                     else if(ast.parent(ast.parent(cur)).getValue().getType().equals("list")){
-                        lists.top().add(new Elem<>(TypeChecker.GetRawValue(exp.top())));
+                        lists.top().add(new Elem<>(exp.top()));
                         exp.pop();
                     }
                 }
