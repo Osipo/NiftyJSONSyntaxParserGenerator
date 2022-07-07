@@ -29,6 +29,20 @@ public class PathStringUtils {
         return p1.substring(i);
     }
 
+    public static String truncatePath(String p, int limit){
+        if(p == null || p.length() == 0 || limit <= 0)
+            return p;
+        String sep = FileSystems.getDefault().getSeparator();
+        List<String> paths = splitPath(replaceSeparator(p), sep);
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < paths.size() - limit; i++) {
+            if (i > 0)
+                sb.append(sep);
+            sb.append(paths.get(i));
+        }
+        return sb.toString();
+    }
+
     public static String getUnion(String s1, String s2){
         if(s1 == null || s2 == null)
             return null;
@@ -103,6 +117,6 @@ public class PathStringUtils {
         if(path == null || path.length() == 0)
             return path;
         String sep = "\\" + FileSystems.getDefault().getSeparator(); //escaped separator
-        return path.replaceAll("[\\" + "\\" + "/]+", sep);  // replace '/' or '\' with escaped separator.
+        return path.replaceAll("[\\" + "\\" + "/]+", sep);  // replace escaped '\' or just '/' with separator.
     }
 }

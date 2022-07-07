@@ -1,0 +1,11 @@
+module Algo
+from MyModule.Math import pi
+from MyModule.Math import sum
+from MyModule.Math import fibo_sum
+{
+    a = 1; // init a.
+    p1 = pi;
+    f2 = sum([1..10]);
+    f1 = fibo_sum(20);
+    p2 = pi * 2;
+}

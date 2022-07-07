@@ -1,8 +1,0 @@
-module MyModule.Math
-from OtherModule.Sub1 import item1
-from Complex import num
-{
-    a = 1;
-}
-//relop59
-//ae40

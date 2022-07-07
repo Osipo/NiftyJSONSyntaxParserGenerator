@@ -1,9 +1,11 @@
 package bmstu.iu7m.osipov.unit_tests.parsers;
 
+import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.configurations.PathStrings;
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.interpret.BottomUpInterpreter;
+import bmstu.iu7m.osipov.services.interpret.ModuleProcessor;
 import bmstu.iu7m.osipov.services.interpret.optimizers.FunctionOptimizer;
 import bmstu.iu7m.osipov.services.lexers.*;
 import bmstu.iu7m.osipov.services.parsers.*;
@@ -11,6 +13,7 @@ import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.automats.DFA;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
+import bmstu.iu7m.osipov.utils.PathStringUtils;
 import bmstu.iu7m.osipov.utils.ProcessNumber;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
@@ -23,7 +26,12 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.Arrays.stream;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(
@@ -34,32 +42,33 @@ public class AstParserTest {
 
     @Test
     public void test_langs_interpretation() {
-        //assert test_lang_interpret("G_Ast_1.json", "ast\\ast_input1.txt", "ast11");
-        //assert test_lang_interpret("G_Ast_2.json", "ast\\ast_input2.txt", "ast21");
-        //assert test_lang_interpret("G_Ast_31.json", "ast\\ast_input3.txt", "ast31");
-        //assert test_lang_interpret("G_Ast_5.json", "ast\\ast_input41.txt", "ast411");
-        //assert test_lang_interpret("G_Ast_6.json", "ast\\ast_input6.txt", "ast6");
-        assert test_lang_interpret("G_Ast_6.json", "ast\\ast_input_61_matrix.txt", "ast61");
-        //assert test_lang_interpret("G_Ast_7.json", "ast\\ast_input_71.txt", "ast71");
+        //assert test_lang_interpret("G_Ast_1.json", "ast\\ast_input1.txt", "ast11", false);
+        //assert test_lang_interpret("G_Ast_2.json", "ast\\ast_input2.txt", "ast21", false);
+        //assert test_lang_interpret("G_Ast_31.json", "ast\\ast_input3.txt", "ast31", false);
+        //assert test_lang_interpret("G_Ast_5.json", "ast\\ast_input41.txt", "ast411", false);
+        //assert test_lang_interpret("G_Ast_6.json", "ast\\ast_input6.txt", "ast6", false);
+        //assert test_lang_interpret("G_Ast_6.json", "ast\\ast_input_61_matrix.txt", "ast61", false);
+        assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_72.txt", "ast72", true);
     }
 
 
-    private boolean test_lang_interpret(String g, String input, String suffix){
+    private boolean test_lang_interpret(String g, String input, String suffix, boolean parseModules){
         g = PathStrings.GRAMMARS + g;
         input = PathStrings.PARSER_INPUT + input;
         try {
-            test_interpreter(g, input, suffix);
+            test_interpreter(g, input, suffix, parseModules);
         } catch (IOException e){
             return false;
         }
         return true;
     }
 
-    private void test_interpreter(String g, String input, String suffix) throws IOException {
+    private void test_interpreter(String g, String input, String suffix, boolean parseModules) throws IOException {
         JsonObject G_OBJ = SimpleJsonParserTest.JSON_PARSER.parse(g);
         Grammar G = new Grammar(G_OBJ);
         System.out.println("Source G: ");
         System.out.println(G);
+        System.out.println("input File: " + input);
 
         FALexerGenerator lg = new FALexerGenerator();
         DFALexer lexer = new DFALexer(new DFA(lg.buildNFA(G))); //NFA -> DFA -> min_DFA_lexer.
@@ -74,9 +83,26 @@ public class AstParserTest {
 
         LinkedTree<LanguageSymbol> t = parser.parse(input);
         assert t != null;
-
         //show syntax parsing tree
         //Graphviz.fromString(t.toDot("astbefore")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "syntax_before_" + suffix));
+
+
+        String modDir = PathStringUtils.truncatePath(input, 1);
+        if(parseModules && modDir != null){
+            BottomUpInterpreter inter = new BottomUpInterpreter();
+            ModuleProcessor mproc = new ModuleProcessor(parser, inter, modDir, input);
+
+            LinkedTree<AstSymbol> ast = parser.translate(new File(input));
+            assert ast != null;
+
+            long start = System.currentTimeMillis();
+            inter.interpret(ast);
+            long end = System.currentTimeMillis();
+            System.out.println("AST of execModule nodes: " + ast.getCount());
+            System.out.println("Parsing tree of execModule nodes: " + t.getCount());
+            System.out.println("Finished secs: " + (end - start) / 1000.0);
+            return;
+        }
 
         LinkedTree<AstSymbol> ast = parser.translate(new File(input));
         assert ast != null;
@@ -104,9 +130,10 @@ public class AstParserTest {
 
         System.out.println("AST nodes: " + ast.getCount());
         System.out.println("Parsing tree nodes: " + t.getCount());
-        System.out.println("Finished mills: " + (end - start) / 1000.0);
+        System.out.println("Finished secs: " + (end - start) / 1000.0);
     }
 
+    /*
     @Test
     public void testList(){
         List<String> l = new ArrayList<>();
@@ -127,4 +154,16 @@ public class AstParserTest {
         Double d = ProcessNumber.parseNumber("1");
         assert d == 1.0;
     }
+
+
+    @Test
+    public void testStr(){
+        String p1 = "bety.it.up";
+        String p2 = "module";
+        System.out.println(Arrays.stream(p1.split("\\.", 0)).collect(Collectors.toList()));
+        System.out.println(Arrays.stream(p2.split("\\.", 0)).collect(Collectors.toList()));
+
+        System.out.println("cwd = " + Main.CWD);
+    }
+     */
 }

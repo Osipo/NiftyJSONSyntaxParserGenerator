@@ -12,19 +12,34 @@ import bmstu.iu7m.osipov.structures.trees.PositionalTree;
 import bmstu.iu7m.osipov.structures.trees.VisitorMode;
 import bmstu.iu7m.osipov.structures.trees.VisitorsNextIteration;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-public class BottomUpInterpreter extends BaseInterpreter {
+public class BottomUpInterpreter extends BaseInterpreter implements Interpreter {
 
 
     private Env rootContext;
+    private ModuleProcessor moduleHandler;
     public BottomUpInterpreter(){
         this.labels = new ArrayList<>();
         this.blocks = 0;
         this.rootContext = new Env(null);
+        addExternalFunction(); //init root context.
+    }
+
+    @Override
+    public Env getRootContext() {
+        return rootContext;
+    }
+
+    @Override
+    public void setRootContext(Env rootContext) {
+        this.rootContext = rootContext;
+    }
+
+    @Override
+    public void setModuleProcessor(ModuleProcessor mp) {
+        this.moduleHandler = mp;
     }
 
     //add some external functions: len(list), len(str)
@@ -47,9 +62,11 @@ public class BottomUpInterpreter extends BaseInterpreter {
         this.rootContext.add(f_len);
     }
 
+
+
     @Override
     public void interpret(PositionalTree<AstSymbol> ast) {
-        addExternalFunction(); //add external functions at first.
+        this.rootContext = new Env(this.rootContext); //add for module vars.
 
         AtomicReference<Env> env = new AtomicReference<>();
         env.set(this.rootContext);
@@ -64,8 +81,10 @@ public class BottomUpInterpreter extends BaseInterpreter {
         VisitorsNextIteration<AstSymbol> nextItr = new VisitorsNextIteration<>();
         nextItr.setOpts(0);
 
-        /* Collect all labels with context.*/
-        ast.visit(VisitorMode.POST, (n, next) ->{
+        Map<String, String> modules = new HashMap<>();
+
+        /* Collect all labels with context and module dependencies */
+        ast.visit(VisitorMode.POST, (n, next) -> {
             //skip start/prog at while/until/if/else parent nodes.
             if(n.getValue().getType().equals("start") && n.getValue().getValue().equals("prog")
                     && ast.parent(n) != null && ast.parent(ast.parent(n)) != null
@@ -112,15 +131,37 @@ public class BottomUpInterpreter extends BaseInterpreter {
                 }
                 this.labels.add(label_entry);
             }
+
+            //Add Module dependency for import nodes.
+            else if(n.getValue().getType().equals("import")){
+                int slash = n.getValue().getValue().lastIndexOf('/');
+                String mName = n.getValue().getValue().substring(0, slash);
+                String mProp = n.getValue().getValue().substring(slash + 1);
+                modules.put(mName + "." + mProp, mProp);
+            }
+
+            //All dependencies was read.
+            else if(n.getValue().getType().equals("module") && moduleHandler != null && modules.keySet().size() > 0) {
+                try {
+                    moduleHandler.resolveModules(modules, n.getValue().getValue());
+                }
+                catch (Exception e){
+                    System.err.println(e); //if error -> break execution.
+                    nextItr.setNextNode(null);
+                    nextItr.setOpts(-1);
+                }
+            }
         }, nextItr);
 
         //System.out.println("found labels: " + labels);
 
         /* If dublicate labels then error */
         if(nextItr.getOpts() == -1){
-            System.err.println("Dublicate labels at the same context!");
+            //System.err.println("Dublicate labels at the same context!");
             return;
         }
+
+        env.set(this.rootContext);
 
         //Totally POST_ORDER. (start nodes -> leaf nodes that indicate start of the new scope).
         ast.visit(VisitorMode.POST, (n, next) -> {
@@ -174,6 +215,7 @@ public class BottomUpInterpreter extends BaseInterpreter {
                     nextItr.setOpts(-1);
                 }
         }, nextItr);
+        //this.rootContext = this.rootContext.getPrev();
     }
 
     @Override
