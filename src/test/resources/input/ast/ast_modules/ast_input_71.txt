@@ -18,9 +18,9 @@ module MyModule.Math
 
     E_M = lambda(n) => {
         i = [1..n];
-        df = lambda(x, y, z) => {x == y and y == z;};
-        fi = lambda(x, y) => {x = x; y = y; [gen df(x, y, j) for j in i end];};
-        [gen fi(x, x) for x in i end];
+        df = lambda(x, y) => {x == y;};
+        fi = lambda(x) => {x = x; [gen df(x, j) for j in i end];};
+        [gen fi(x) for x in i end];
     };
 
     fibo_sum = lambda (n) => {

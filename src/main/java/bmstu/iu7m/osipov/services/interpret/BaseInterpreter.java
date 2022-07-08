@@ -353,8 +353,6 @@ public abstract class BaseInterpreter {
                 List<Elem<Object>> vector_items = new ArrayList<>();
                 int offsetTop = vector_len - 1;
 
-                System.out.println("top list size: " + lists.top().size());
-
                 for(int i = 0; i < vector_len; i++){
                     vector_items.add(new Elem<>(exp.topFrom(offsetTop)));
                     offsetTop--;
