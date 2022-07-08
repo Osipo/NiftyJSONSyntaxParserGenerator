@@ -35,7 +35,8 @@ public abstract class BaseInterpreter {
                                          VisitorsNextIteration<AstSymbol> nextItr,
                                          LinkedList<Elem<?>> vector_i,
                                          Map<String, Integer> vnames_idxs,
-                                         int vector_len);
+                                         int vector_len,
+                                         LinkedStack<SequencesInterpreter> matrices);
 
     protected void applyOperation(PositionalTree<AstSymbol> ast, AtomicReference<Env> context, Node<AstSymbol> cur,
                                   LinkedStack<Object> exp, LinkedStack<List<Elem<Object>>> lists,
@@ -45,7 +46,9 @@ public abstract class BaseInterpreter {
                                   VisitorsNextIteration<AstSymbol> nextIteration,
                                   LinkedList<Elem<?>> vector_i,
                                   Map<String, Integer> vnames_idxs,
-                                  int vector_len) throws Exception {
+                                  int vector_len,
+                                  LinkedStack<SequencesInterpreter> matrices
+                                  ) throws Exception {
         if (context == null || cur == null || cur.getValue() == null)
             return;
 
@@ -113,19 +116,27 @@ public abstract class BaseInterpreter {
                 }
 
                 // start/vector node at expressions (start > expressions > matrix)
-                else if(nodeVal.equals("vector") && vector_i == null){
-                    nextIteration.setOpts(1); //skip all siblings.
-                    this.curSequence = new SequencesInterpreter(
+                // 1.2. start/vector node may have outer most matrix node or inner matrix node
+                // 1.3. start/vector node may
+                //TODO: Parse matrix > function > matrix calls
+                else if(nodeVal.equals("vector")
+                        //&& (vector_i == null || PositionalTreeUtils.has(ast, ast.parent(ast.parent(cur)), (x) -> { return x.getType().equals("vector");}))
+                )
+                {
+                    nextIteration.setOpts(4); //skip all siblings. and do not perform action
+                    matrices.push(new SequencesInterpreter(
                             ast, ast.parent(cur), ast.rightSibling(ast.parent(cur)), context.get()
-                            ,exp, lists, indices, functions, args, this
-                    );
+                            ,exp, lists, indices, functions, args, matrices, this
+                    ));
+                    this.curSequence = matrices.top();
                 }
                 break;
             }
             case "matrix": {
                 nextIteration.setOpts(0);
                 this.curSequence.generateItems(ast.parent(cur)); //parent of matrix is always list/items.
-                this.curSequence = null;
+                matrices.pop();
+                this.curSequence = matrices.top();
                 break;
             }
             case "list": {
@@ -148,7 +159,10 @@ public abstract class BaseInterpreter {
                 else if(   ast.parent(cur).getValue().getType().equals("operator") //operator expression.
                         || ast.parent(cur).getValue().getType().equals("boolop")
                         || ast.parent(cur).getValue().getType().equals("relop")
+                        || ast.parent(cur).getValue().getType().equals("vector")
                         || (ast.parent(cur).getValue().getType().equals("assign") && ast.parent(cur).getValue().getValue().length() > 1) //combine assign
+                        ||  ast.parent(cur).getValue().getType().equals("lambda")
+                        ||  ast.parent(ast.parent(cur)).getValue().getType().equals("lambda") //last function expression
                 )
                 {
                     exp.push(lists.top()); //add operand to expression stack.
@@ -219,8 +233,8 @@ public abstract class BaseInterpreter {
                     if(f instanceof ExternalFunctionInterpreter) {
                        ((ExternalFunctionInterpreter) f).callExternal(exp);
                     }
-                    else{
-                        execFunction(f, ast, exp, functions, nextIteration, vector_i, vnames_idxs, vector_len);
+                    else {
+                        execFunction(f, ast, exp, functions, nextIteration, vector_i, vnames_idxs, vector_len, matrices);
                         f.setContext(f.getContext().getPrev()); //remove inner context
                     }
 
@@ -339,6 +353,8 @@ public abstract class BaseInterpreter {
                 List<Elem<Object>> vector_items = new ArrayList<>();
                 int offsetTop = vector_len - 1;
 
+                System.out.println("top list size: " + lists.top().size());
+
                 for(int i = 0; i < vector_len; i++){
                     vector_items.add(new Elem<>(exp.topFrom(offsetTop)));
                     offsetTop--;
@@ -384,9 +400,10 @@ public abstract class BaseInterpreter {
             throw new Exception("Cannot find variable with name \'" + nVal + "\'. Define variable before use it!");
 
         else if(v == null && vector_i != null && vnames_idxs != null && vector_len > 0){ //try get from vector.
+            //System.out.println(vnames_idxs);
             int vector_idx = vnames_idxs.getOrDefault(nVal, -1);
             if(vector_idx == -1)
-                throw new Exception("Cannot find variable with name \'" + nVal + "\'. Define variable before use it!");
+                throw new Exception("Cannot find variable with name \'" + nVal + "\' at vector. Define variable before use it!");
 
             v = new Variable(nVal); //new sequence variable.
             checkTypeAndGetValue(ast, cur, v, context, vector_i.get(vector_idx));
@@ -536,8 +553,11 @@ public abstract class BaseInterpreter {
             Env context,
             Elem<?> value)
     {
-        if(value.getV1() instanceof Elem<?>)
+        while(value.getV1() instanceof Elem<?>)
             value = (Elem<?>) value.getV1();
+
+        //if(value.getV1() instanceof Elem<?>)
+        //    value = (Elem<?>) value.getV1();
 
         if(value.getV1() instanceof String)
             v.setStrVal((String) value.getV1());
@@ -547,7 +567,7 @@ public abstract class BaseInterpreter {
             v.setStrVal(((Double) value.getV1()).toString());
         else if(value.getV1() instanceof List){
             v.setItems((List<Elem<Object>>) value.getV1());
-            v.setStrVal( ((List<Elem<Object>>) value.getV1()).toString());
+            v.setStrVal(v.getItems().toString());
         }
         else if(value.getV1() instanceof FunctionInterpreter){
             v.setFunction((FunctionInterpreter) value.getV1());

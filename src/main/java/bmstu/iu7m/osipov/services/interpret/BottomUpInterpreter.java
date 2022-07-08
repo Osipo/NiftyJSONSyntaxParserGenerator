@@ -77,6 +77,7 @@ public class BottomUpInterpreter extends BaseInterpreter implements Interpreter 
         ArrayList<Variable> params = new ArrayList<>();
         LinkedStack<FunctionInterpreter> functions = new LinkedStack<>();
         LinkedStack<ArrayList<Object>> args = new LinkedStack<ArrayList<Object>>();
+        LinkedStack<SequencesInterpreter> matrices = new LinkedStack<>();
 
         VisitorsNextIteration<AstSymbol> nextItr = new VisitorsNextIteration<>();
         nextItr.setOpts(0);
@@ -207,7 +208,7 @@ public class BottomUpInterpreter extends BaseInterpreter implements Interpreter 
 
             else
                 try{
-                    applyOperation(ast, env, n, exp, lists, indices, params, functions, args, nextItr, null, null, 0);
+                    applyOperation(ast, env, n, exp, lists, indices, params, functions, args, nextItr, null, null, 0, matrices);
                 }
                 catch (Exception e){
                     System.err.println(e); //if error -> break execution.
@@ -226,7 +227,8 @@ public class BottomUpInterpreter extends BaseInterpreter implements Interpreter 
                                 VisitorsNextIteration<AstSymbol> nextItr,
                                 LinkedList<Elem<?>> vector_i,
                                 Map<String, Integer> vnames_idxs,
-                                int vector_len) {
+                                int vector_len,
+                                LinkedStack<SequencesInterpreter> matrices) {
         AtomicReference<Env> env2 = new AtomicReference<>();
         env2.set(f.getContext());
         Node<AstSymbol> root = f.getRoot();
@@ -281,7 +283,7 @@ public class BottomUpInterpreter extends BaseInterpreter implements Interpreter 
 
             else
                 try{
-                    applyOperation(ast, env2, c, exp, lists, indices, params, functions, args, nextItr, vector_i, vnames_idxs, vector_len);
+                    applyOperation(ast, env2, c, exp, lists, indices, params, functions, args, nextItr, vector_i, vnames_idxs, vector_len, matrices);
                 }
                 catch (Exception e){
                     System.err.println(e); //if error -> break execution.

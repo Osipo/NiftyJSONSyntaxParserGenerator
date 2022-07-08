@@ -199,6 +199,13 @@ public class NRSubVisitor<T> extends NRVisitor<T> implements SubVisitor<T> {
                         System.out.println("Visited: "+c);
                     return;
                 }
+                if(nextItr.getOpts() == 4){ //skip all siblings and do not perform action.
+                    STACK.pop();
+                    nextItr.setOpts(0);
+                    if(STACK.top().getIdx() == subRoot.getIdx())
+                        return;
+                }
+
                 act.perform(STACK.top(), nextItr);
                 if(!noCount)
                     c++;

@@ -27,7 +27,23 @@ public class TypeChecker {
             v.setStrVal(expr.toString());
         }
         else if(expr instanceof List){
-            v.setItems(((List<Elem<Object>>)expr));
+            //System.out.println("to " + v.getValue() + " assign list ");
+
+            List<Elem<Object>> el = (List<Elem<Object>>) expr;
+
+            /*
+            for(int ii = 0; ii < el.size(); ii++) {
+                if (el.get(ii).getV1() instanceof List) {
+                    List<Elem<Object>> el_el1 = (List<Elem<Object>>) el.get(ii).getV1();
+                    for (int i = 1; i < el_el1.size(); i++)
+                        System.out.print(el_el1.get(i).getV1().toString() + " ");
+                }
+                System.out.print("\n");
+            }
+            System.out.println("---");
+            */
+
+            v.setItems(el);
             v.setStrVal(v.getItems().toString());
         }
         else if(expr instanceof FunctionInterpreter){

@@ -1,6 +1,9 @@
 module MyModule.Math
 {
     pi = 3.14;
+
+    odd = lambda(n) => { 2 * n + 1; };
+    even = lambda(n) => { 2 * n; };
     sum = lambda(l) => {
             l = l;
             s = 0;
@@ -11,6 +14,13 @@ module MyModule.Math
                 a += 1;
             }
             s;
+    };
+
+    E_M = lambda(n) => {
+        i = [1..n];
+        df = lambda(x, y, z) => {x == y and y == z;};
+        fi = lambda(x, y) => {x = x; y = y; [gen df(x, y, j) for j in i end];};
+        [gen fi(x, x) for x in i end];
     };
 
     fibo_sum = lambda (n) => {
@@ -30,4 +40,5 @@ module MyModule.Math
                     c11;
                 }
     };
+    E_4 = E_M(4);
 }

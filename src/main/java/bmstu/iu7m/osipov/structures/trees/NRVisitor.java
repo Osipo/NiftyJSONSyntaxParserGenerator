@@ -119,6 +119,8 @@ public class NRVisitor<T> implements Visitor<T> {
                         System.out.println("Visited: "+c);
                     return;
                 }
+
+
                 act.perform(STACK.top());
                 if(!noCount)
                     c++;
@@ -183,6 +185,7 @@ public class NRVisitor<T> implements Visitor<T> {
     // 1 => skip all siblings til user command,
     // 2 => skip next sibling,
     // 3 => skip all siblings at this iteration and detach node.
+    // 4 => skip all siblings and do not perform action.
     // 10 => set next node and flush flag to 0
     // -1 => exit
     // node => set next node. (flag is still active)
@@ -207,6 +210,13 @@ public class NRVisitor<T> implements Visitor<T> {
                         System.out.println("Visited: "+c);
                     return;
                 }
+                if(nextItrStrategy.getOpts() == 4){ //skip all siblings and do not perform action.
+                    STACK.pop();
+                    nextItrStrategy.setOpts(0);
+                    if(STACK.top().getIdx() == tree.root().getIdx())
+                        return;
+                }
+
                 act.perform(STACK.top(), nextItrStrategy);
 
                 if(!noCount)

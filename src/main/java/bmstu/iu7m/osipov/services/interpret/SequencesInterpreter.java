@@ -25,6 +25,7 @@ public class SequencesInterpreter {
     private ArrayList<List<Elem<Object>>> indices;
     private LinkedStack<FunctionInterpreter> functions;
     private LinkedStack<ArrayList<Object>> args;
+    private LinkedStack<SequencesInterpreter> matrices;
 
     private BaseInterpreter parentInter;
 
@@ -37,6 +38,7 @@ public class SequencesInterpreter {
                                 ArrayList<List<Elem<Object>>> indices,
                                 LinkedStack<FunctionInterpreter> functions,
                                 LinkedStack<ArrayList<Object>> args,
+                                LinkedStack<SequencesInterpreter> matrices,
                                 BaseInterpreter parentInterpreter
     )
     {
@@ -51,6 +53,7 @@ public class SequencesInterpreter {
         this.functions = functions;
         this.args = args;
         this.parentInter = parentInterpreter;
+        this.matrices = matrices;
     }
 
     public void generateItems(Node<AstSymbol> parentList) throws Exception {
@@ -124,7 +127,8 @@ public class SequencesInterpreter {
                                         sni,
                                         null,
                                         null,
-                                        -1
+                                        -1,
+                                        matrices
                                 );
                             } catch (Exception e){
                                 System.err.println(e.getMessage());
@@ -174,10 +178,16 @@ public class SequencesInterpreter {
 
         }, sequencesRoot, nextItr);
 
+        //System.out.println("I = " + i.get());
+        //System.err.println("data = " + MATRIX_DATA);
+
         //3. now compute expressions based on matrix AND add them to list.
         Iterator<LinkedList<Elem<?>>> vectors = matrix.get().getDATA().reverseIterator();
         int expr_len = ast.getChildren(exprRoot).size() - 1; //length of vector except start/node.
 
+
+        Node<AstSymbol> se = ast.leftMostChild(exprRoot); //skip start/vector node while processing vectors
+        ast.detachNode(se);
 
         //System.out.println("Matrix len = " + matrix.get().getDATA().size());
         //System.out.println(matrix.get().getDATA());
@@ -185,6 +195,8 @@ public class SequencesInterpreter {
             LinkedList<Elem<?>> vector_i = vectors.next();
             if(vector_i.size() == 0)
                 continue;
+
+            //System.out.println("apply: " + vector_i);
 
             //parse expression.
             //for each row computes vector expression
@@ -203,13 +215,16 @@ public class SequencesInterpreter {
                             nextItr,
                             vector_i,
                             matrix.get().getNameIndices(),
-                            expr_len
+                            expr_len,
+                            matrices
                     );
                 } catch (Exception e){
                     System.err.println(e.getMessage());
                     nextItr.setOpts(-1);
                 }
             }, exprRoot, nextItr);
-        }
+        } //end vectors
+
+        ast.attachTo(se, exprRoot);
     }
 }

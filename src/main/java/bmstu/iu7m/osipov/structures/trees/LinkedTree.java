@@ -104,6 +104,7 @@ public class LinkedTree<T> implements Tree<T>, PositionalTree<T> {
         LinkedNode<T> ln = (LinkedNode<T>) n;
         LinkedNode<T> lp = (LinkedNode<T>) parent;
         ln.setParent(lp);
+        lp.getChildren().add(0, ln);
     }
 
     @Override

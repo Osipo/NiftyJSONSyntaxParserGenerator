@@ -2,10 +2,16 @@ module Algo
 from MyModule.Math import pi
 from MyModule.Math import sum
 from MyModule.Math import fibo_sum
+from MyModule.Math import odd
+from MyModule.Math import even
 {
     a = 1; // init a.
     p1 = pi;
     f2 = sum([1..10]);
     f1 = fibo_sum(20);
     p2 = pi * 2;
+
+    o10 = odd(10);
+    e10 = even(10);
+    E = E_M(4);
 }

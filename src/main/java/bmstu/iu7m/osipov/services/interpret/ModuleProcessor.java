@@ -4,6 +4,8 @@ import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.services.parsers.LRAstTranslator;
 import bmstu.iu7m.osipov.structures.trees.PositionalTree;
+import guru.nidi.graphviz.engine.Format;
+import guru.nidi.graphviz.engine.Graphviz;
 
 import java.io.File;
 import java.io.IOException;

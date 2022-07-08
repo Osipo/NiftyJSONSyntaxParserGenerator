@@ -48,4 +48,16 @@ public class PositionalTreeUtils {
         }
         return false;
     }
+
+    public static <T> boolean has(PositionalTree<T> tree, Node<T> n, Predicate<T> cond){
+        if(tree == null || n == null || cond == null)
+            return false;
+        Node<T> cparent = tree.parent(n); //ancestor is not self n.
+        while(cparent != null){
+            if(cond.test(cparent.getValue()))
+                return true;
+            cparent = tree.parent(cparent);
+        }
+        return false;
+    }
 }
