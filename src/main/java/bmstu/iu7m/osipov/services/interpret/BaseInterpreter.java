@@ -126,7 +126,7 @@ public abstract class BaseInterpreter {
                     nextIteration.setOpts(4); //skip all siblings. and do not perform action
                     matrices.push(new SequencesInterpreter(
                             ast, ast.parent(cur), ast.rightSibling(ast.parent(cur)), context.get()
-                            ,exp, lists, indices, functions, args, matrices, this
+                            ,exp, lists, indices, functions, args, matrices, this, vector_i, vnames_idxs
                     ));
                     this.curSequence = matrices.top();
                 }

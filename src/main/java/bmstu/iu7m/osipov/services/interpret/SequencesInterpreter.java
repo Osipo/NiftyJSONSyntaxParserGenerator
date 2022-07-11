@@ -26,6 +26,8 @@ public class SequencesInterpreter {
     private LinkedStack<FunctionInterpreter> functions;
     private LinkedStack<ArrayList<Object>> args;
     private LinkedStack<SequencesInterpreter> matrices;
+    private LinkedList<Elem<?>> outer_vector;
+    private Map<String, Integer> vector_idx;
 
     private BaseInterpreter parentInter;
 
@@ -39,7 +41,9 @@ public class SequencesInterpreter {
                                 LinkedStack<FunctionInterpreter> functions,
                                 LinkedStack<ArrayList<Object>> args,
                                 LinkedStack<SequencesInterpreter> matrices,
-                                BaseInterpreter parentInterpreter
+                                BaseInterpreter parentInterpreter,
+                                LinkedList<Elem<?>> outer_vector,
+                                Map<String, Integer> vector_idx
     )
     {
         this.exprRoot = exprRoot;
@@ -54,6 +58,8 @@ public class SequencesInterpreter {
         this.args = args;
         this.parentInter = parentInterpreter;
         this.matrices = matrices;
+        this.outer_vector = outer_vector;
+        this.vector_idx = vector_idx;
     }
 
     public void generateItems(Node<AstSymbol> parentList) throws Exception {
@@ -62,9 +68,18 @@ public class SequencesInterpreter {
         VisitorsNextIteration<AstSymbol>  nextItr = new VisitorsNextIteration<>();
 
         LinkedList<String> vnames = new LinkedList<String>();
+
         Map<String, Integer> vnames_idxs = new HashMap<>();
         AtomicReference<Integer> i = new AtomicReference<>();
+        AtomicReference<Integer> j = new AtomicReference<>();
         i.set(1);
+        j.set(0);
+
+        if(this.vector_idx != null){
+            vnames_idxs.putAll(this.vector_idx);
+            i.set(1 + this.vector_idx.size());
+            j.set(this.vector_idx.size());
+        }
 
         LinkedDeque<LinkedList<Elem<?>>> MATRIX_DATA = new LinkedDeque<>();
         MATRIX_DATA.push(new LinkedList<>()); //EMPTY LIST.
@@ -195,7 +210,13 @@ public class SequencesInterpreter {
             LinkedList<Elem<?>> vector_i = vectors.next();
             if(vector_i.size() == 0)
                 continue;
-
+            if(j.get() != 0){ //inner vector expression generator  like [gen [gen [gen... for k in iii end] for j in ii end] for x in i end]
+                int offset = j.get();
+                while(offset > 0){
+                    vector_i.add(1, outer_vector.get(offset)); //add from outer vector. Note: get from vector only it can not be found in current context.
+                    offset--;
+                }
+            }
             //System.out.println("apply: " + vector_i);
 
             //parse expression.

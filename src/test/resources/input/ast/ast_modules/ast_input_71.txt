@@ -4,6 +4,11 @@ module MyModule.Math
 
     odd = lambda(n) => { 2 * n + 1; };
     even = lambda(n) => { 2 * n; };
+    odds = lambda(n) => { i = [1..n]; [gen odd(x) for x in i end]; };
+    evens = lambda(n) => { i = [1..n]; [gen even(x) for x in i end]; };
+
+
+    eq = lambda(x, y) => { x == y; };
     sum = lambda(l) => {
             l = l;
             s = 0;
@@ -19,8 +24,13 @@ module MyModule.Math
     E_M = lambda(n) => {
         i = [1..n];
         df = lambda(x, y) => {x == y;};
-        fi = lambda(x) => {x = x; [gen df(x, j) for j in i end];};
+        fi = lambda(x) => {[gen df(x, j) for j in i end];};
         [gen fi(x) for x in i end];
+    };
+
+    E_ML = lambda(n) => {
+        i = [1..n];
+        [gen [gen eq(x, y) for y in i end] for x in i end];
     };
 
     fibo_sum = lambda (n) => {
@@ -41,4 +51,7 @@ module MyModule.Math
                 }
     };
     E_4 = E_M(4);
+    EE_4 = E_ML(4);
+    o_10 = odds(10);
+    e_10 = evens(10);
 }
