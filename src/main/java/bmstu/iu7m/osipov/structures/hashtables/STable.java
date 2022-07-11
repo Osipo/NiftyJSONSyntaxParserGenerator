@@ -7,12 +7,16 @@ import bmstu.iu7m.osipov.structures.trees.VisitorMode;
 import bmstu.iu7m.osipov.utils.StringContainerComparator;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-public class STable {
+public class STable implements Iterable<Variable> {
     private ArrayList<BinarySearchTree<Variable>> table;
 
     private final int HASH_MIN;
     private final int HASH_MAX;
+
+    private List<Variable> added;
 
     public STable(){
         this(0,65535 * 2);
@@ -21,17 +25,19 @@ public class STable {
     public STable(int hmin, int hmax){
         this.HASH_MIN = hmin;
         this.HASH_MAX = hmax;
+        this.added = new ArrayList<>(64);
         init();
     }
 
     public void clear(){
         int l = HASH_MAX - HASH_MIN + 1;
         for(int i = 0; i < l; i++){
-            this.table.set(i,null);
+            this.table.set(i, null);
         }
         this.table = null;
         //System.out.println("Table was clear.");
     }
+
     public void init(){
         int l = HASH_MAX - HASH_MIN + 1;
         this.table = new ArrayList<>(l);
@@ -52,6 +58,7 @@ public class STable {
         else{
             rec.add(entry);
         }
+        this.added.add(entry);
     }
 
     public void add(String s){
@@ -59,11 +66,15 @@ public class STable {
         BinarySearchTree<Variable> rec = table.get(h);
         if(rec == null){
             rec = new BinarySearchTree<Variable>(new StringContainerComparator<Variable>());
-            rec.add(new Variable(s));
-            this.table.set(h,rec);
+            Variable v_i = new Variable(s);
+            rec.add(v_i);
+            this.table.set(h, rec);
+            this.added.add(v_i);
         }
         else{
-            rec.add(new Variable(s));
+            Variable v_i = new Variable(s);
+            rec.add(v_i);
+            this.added.add(v_i);
         }
     }
 
@@ -90,5 +101,10 @@ public class STable {
         if(result < HASH_MIN)
             result = HASH_MIN;
         return result;
+    }
+
+    @Override
+    public Iterator<Variable> iterator() {
+        return this.added.iterator();
     }
 }

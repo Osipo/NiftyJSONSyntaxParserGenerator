@@ -76,6 +76,10 @@
        "from", "MODULENAME", "import", "MODULENAME",
       {"act": "astNode", "type": "import", "value": "$1_0/$3_0"}
     ]},
+    {"IMPORT": [
+        "from", "MODULENAME", "import", "*",
+      {"act": "astNode", "type": "import", "value": "$1_0/$3"}
+    ]},
     {"P": ["{", "SL", "}",
       {"act": "astNode", "value": "prog", "type": "program", "children": "all"},
       {"act": "astNode", "value": "prog", "type": "start", "child": "$0"}

@@ -2,6 +2,7 @@ package bmstu.iu7m.osipov.services.interpret;
 
 import bmstu.iu7m.osipov.structures.hashtables.STable;
 
+import java.util.Iterator;
 import java.util.function.Predicate;
 
 public class Env {
@@ -72,5 +73,9 @@ public class Env {
     public Variable getAtCurrent(String s, Predicate<Variable> condition){
         Variable v = this.table.get(s);
         return (v != null && condition.test(v)) ? v : null;
+    }
+
+    public Iterator<Variable> iterator(){
+       return (next != null) ? this.next.table.iterator() : null;
     }
 }

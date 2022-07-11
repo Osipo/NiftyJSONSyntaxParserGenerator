@@ -4,6 +4,7 @@ import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.services.parsers.LRAstTranslator;
 import bmstu.iu7m.osipov.structures.trees.PositionalTree;
+import com.kitfox.svg.A;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 
@@ -15,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 //Process
@@ -91,7 +93,15 @@ public class ModuleProcessor {
 
                     //extract module vars.
                     if (moduleVars.get(fName) != null){
-                        Variable v = moduleVars.get(fName).getOn(prop);
+                        Env mod_ctx = moduleVars.get(fName);
+
+                        //'*' star import means import all vars.
+                        if(prop.equals("*")){
+                            addAllVarsFromModule(execMod, mod_ctx);
+                            return null; //callback to outer resolveModules method.
+                        }
+
+                        Variable v = mod_ctx.getOn(prop);
                         if(v != null)
                             return v;
                     }
@@ -102,5 +112,23 @@ public class ModuleProcessor {
             throw new Exception("Cannot find module '" + mod + "' at " + cwd);
         }
         return null;
+    }
+
+    public void addAllVarsFromModule(String execModule, Env mod){
+        inter.setRootContext(this.moduleVars.get(execModule)); //restore context as we save mod.
+        Env exec_ctx = inter.getRootContext();
+        Iterator<Variable> vars = mod.iterator();
+        if(vars == null)
+            return;
+
+        while(vars.hasNext()) {
+            Variable ov = vars.next();
+            Variable nv = new Variable(ov.getValue());
+            nv.setStrVal(ov.getStrVal());
+            if(ov.isList())
+                nv.setItems(new ArrayList<>(ov.getItems()));
+            nv.setFunction(ov.getFunction());
+            exec_ctx.add(nv);
+        }
     }
 }

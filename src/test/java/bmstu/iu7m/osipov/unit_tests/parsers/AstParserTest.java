@@ -48,7 +48,7 @@ public class AstParserTest {
         //assert test_lang_interpret("G_Ast_5.json", "ast\\ast_input41.txt", "ast411", false);
         //assert test_lang_interpret("G_Ast_6.json", "ast\\ast_input6.txt", "ast6", false);
         //assert test_lang_interpret("G_Ast_6.json", "ast\\ast_input_61_matrix.txt", "ast61", false);
-        assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_71.txt", "ast72", false);
+        assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_72.txt", "ast72", true);
     }
 
 
@@ -88,7 +88,7 @@ public class AstParserTest {
 
 
         String modDir = PathStringUtils.truncatePath(input, 1);
-        if(parseModules && modDir != null){
+        if(parseModules && modDir != null) {
             BottomUpInterpreter inter = new BottomUpInterpreter();
             ModuleProcessor mproc = new ModuleProcessor(parser, inter, modDir, input);
 

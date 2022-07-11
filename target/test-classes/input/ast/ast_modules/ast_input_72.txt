@@ -1,9 +1,5 @@
 module Algo
-from MyModule.Math import pi
-from MyModule.Math import sum
-from MyModule.Math import fibo_sum
-from MyModule.Math import odd
-from MyModule.Math import even
+from MyModule.Math import *
 {
     a = 1; // init a.
     p1 = pi;
