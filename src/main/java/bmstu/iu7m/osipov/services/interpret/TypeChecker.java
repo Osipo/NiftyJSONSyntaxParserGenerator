@@ -31,7 +31,7 @@ public class TypeChecker {
 
             List<Elem<Object>> el = (List<Elem<Object>>) expr;
 
-            /*
+            /* LOG
             for(int ii = 0; ii < el.size(); ii++) {
                 if (el.get(ii).getV1() instanceof List) {
                     List<Elem<Object>> el_el1 = (List<Elem<Object>>) el.get(ii).getV1();
@@ -113,7 +113,7 @@ public class TypeChecker {
             return val1;
     }
 
-    private static Object ParseUnaryOperator(Object n, String nodeVal){
+    private static Object ParseUnaryOperator(Object n, String nodeVal) throws Exception {
         String t1 = "";
         Double r_d1 = 0d;
         double d1 = 0;
@@ -127,6 +127,8 @@ public class TypeChecker {
         if(r_d1 != null) //str_num n parsed successful.
             d1 = r_d1;
 
+        else
+            throw new Exception("Unary operators defined only for numeric type (numbers)!");
 
         switch (nodeVal){
             case "-":{
@@ -332,13 +334,60 @@ public class TypeChecker {
             case "+=": case "-=": case "*=": case "/=": case "%=": case "^=": {
                 v = context.get(vName);
                 vType = CheckVariableType(v, vName, false); //check that both variables are defined and compute their type.
-
                 Object oldVal = null;
+                List<Elem<Object>> prev_list = null;
+
+                //Added index check.
+                if(indices.size() != 0){ //when access expression lvalue[index_1][index_2]... = expr.
+                    if(v == null) //lvalue must be defined!
+                        throw new Exception("Cannot find variable with name \'" + vName + "\'. Define variable before use it!");
+
+                    ArrayList<Elem<Object>> content = new ArrayList<>(); //extracted content.
+                    prev_list = new ArrayList<>(v.getItems());
+                    boolean hasFunctionExpr = false;
+
+                    for (int i = 0; i < indices.size(); i++) {
+
+                        //extract each ptr (number in brackets [])
+                        for(Elem<Object> ptr : indices.get(i)){
+                            Integer j = null;
+                            if(ptr.getV1() instanceof String)
+                                j = (Integer) ProcessNumber.parseNumber((String) ptr.getV1(), Integer.class);//Integer.parseInt((String) ptr.getV1());
+                            else if(ptr.getV1() instanceof Integer)
+                                j = (Integer) ptr.getV1();
+
+                            if(i > 0 && prev_list.size() == 1 && prev_list.get(0).getV1() instanceof List){ //prev index got list.
+
+                                List inner_li =  ((List) prev_list.get(0).getV1());
+                                Object j_item = inner_li.get( ((j < 0) ? inner_li.size() + j : j)  ); //extract j_item of list.
+
+                                if(j_item instanceof Elem)
+                                    content.add((Elem) j_item);
+                            }
+                            else {
+                                j = (j < 0) ? prev_list.size() + j : j;
+                                content.add(prev_list.get(j));
+                            }
+                        }
+                        prev_list.clear();
+                        prev_list.addAll(content); //switch to current extracted content after iteration.
+                        content.clear();
+
+                        //next iteration content will be scanned.
+
+                        indices.get(i).clear(); //remove read ptr
+                    }
+
+                    indices.clear(); //remove read access.
+                    oldVal = prev_list;
+                    vType = 20;
+                }
+
                 if(vType == 3)
                     oldVal = v.getFunction();
                 else if(vType == 2)
                     oldVal = v.getItems();
-                else
+                else if(vType != 20)
                     oldVal = v.getStrVal();
 
                 Object expValue = null; //attached value.
@@ -350,7 +399,16 @@ public class TypeChecker {
                     expValue = exp.top();
                     exp.pop();
                 }
-                CombineAssign(v, oldVal, expValue, operator.substring(0, operator.length() - 1));
+
+                if(prev_list != null){
+                    for(int i = 0; i < prev_list.size(); i++){
+                        Elem<Object> nitem = prev_list.get(i);
+                        Object nval = CombineExpression(nitem.getV1(), expValue, operator.substring(0, operator.length() - 1));
+                        nitem.setV1(nval);
+                    }
+                }
+                else
+                    CombineAssign(v, oldVal, expValue, operator.substring(0, operator.length() - 1));
                 break;
             }
             case "=": {

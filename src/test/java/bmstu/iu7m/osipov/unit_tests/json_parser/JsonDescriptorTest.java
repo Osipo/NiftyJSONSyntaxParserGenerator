@@ -1,10 +1,8 @@
 package bmstu.iu7m.osipov.unit_tests.json_parser;
 
-import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.configurations.PathStrings;
 import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.services.parsers.json.meta.JsonDocumentDescriptor;
-import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;

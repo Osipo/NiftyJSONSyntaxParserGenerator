@@ -153,7 +153,7 @@ public class SequencesInterpreter {
 
                         //do not traverse through processed nodes.
                         if(next.getOpts() != -1){
-                            next.setOpts(3); //detach processed start node and goto parent list/items.
+                           next.setOpts(5); //detach start node
                         }
                         break;
                 } //end start of the list.

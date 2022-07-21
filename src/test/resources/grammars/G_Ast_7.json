@@ -127,6 +127,17 @@
       {"act": "astNode", "value": "$1_0", "type": "assign", "children": "$1"}
     ]
     },
+    {"A": ["id", "ACLIST", "AOP", "P",
+      {"act": "astNode", "value": "$0", "type": "variable"},
+      {"act": "astNode", "value": "$2_0", "type": "assign", "children": "$2"}
+    ]
+    },
+    {"A": ["id", "AOP", "P",
+      {"act": "astNode", "value": "$0", "type": "variable"},
+      {"act": "astNode", "value": "$1_0", "type": "assign", "children": "$1"}
+    ]
+    },
+
     {"AOP": "="}, {"AOP": "+="}, {"AOP": "-="}, {"AOP": "*="}, {"AOP": "/="},{"AOP": "%="}, {"AOP": "^="},
 
     {"ACLIST": ["RANGES",

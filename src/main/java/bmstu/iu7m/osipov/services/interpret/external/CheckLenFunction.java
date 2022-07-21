@@ -23,6 +23,9 @@ public class CheckLenFunction implements Predicate<List<Object>> {
             return result;
 
         Object l = arg.get(0); //first item.
+        while(l instanceof Elem<?>)
+            l = ((Elem<?>) l).getV1();
+
         if(l instanceof List){ //raw list
             result = true;
             Variable v = new Variable("");

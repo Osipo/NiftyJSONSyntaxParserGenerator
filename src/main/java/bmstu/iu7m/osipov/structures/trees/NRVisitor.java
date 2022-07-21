@@ -182,13 +182,13 @@ public class NRVisitor<T> implements Visitor<T> {
 
     //NextItrs:
     // 0 => default,
-    // 1 => skip all siblings til user command,
+    // 1 => skip all siblings til flush flag manually,
     // 2 => skip next sibling,
     // 3 => skip all siblings at this iteration and detach node.
     // 4 => skip all siblings and do not perform action.
-    // 10 => set next node and flush flag to 0
+    // 10 => set next node and flush flag to 0 and do not save current node (INSTEAD OF)
     // -1 => exit
-    // node => set next node. (flag is still active)
+    // node => set next node. (flag is still active) and save current node.
     @Override
     public  void postOrder(Tree<T> tree, Action2<Node<T>, VisitorsNextIteration<T>> act, VisitorsNextIteration<T> nextItrStrategy) {
         Node<T> m = tree.root();//ROOT(T)
@@ -245,6 +245,9 @@ public class NRVisitor<T> implements Visitor<T> {
                     nextItrStrategy.setOpts(0);
                     STACK.top().setValue(null);
                     tree.detachNode(STACK.top());
+                }
+                else if(nextItrStrategy.getOpts() == 5){
+                    nextItrStrategy.setOpts(0);
                 }
                 else if(nextItrStrategy.getOpts() == -1)
                     return;

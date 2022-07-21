@@ -182,8 +182,16 @@ public abstract class BaseInterpreter {
                     if(v == null)
                         throw new Exception("Variable '" + nodeVal + "' is not defined!");
 
-                    if(v.isList() && typeName.equals("List"))
-                        exp.push(1.0);
+                    if(v.isList() && typeName.equals("list"))
+                        exp.push(1);
+                    else if(v.getFunction() != null && typeName.equals("function"))
+                        exp.push(1);
+                    else if(v.getStrVal().charAt(0) == '"' && (typeName.equals("string") || typeName.equals("str")))
+                        exp.push(1);
+                    else if(ProcessNumber.parseOnlyNumber(v.getStrVal()) != null && typeName.equals("number"))
+                        exp.push(1);
+                    else
+                        exp.push(0);
 
                     nextIteration.setOpts(2); //ignore first sibling (get second that is null).
                     return;

@@ -59,27 +59,6 @@
   },
 
   "productions": [
-    {"MODULE": ["MODULEHEADER", "MODULEBODY",
-      {"act": "astNode", "type": "module", "value": "$0_1_0", "children": "$1"}
-    ]},
-    {"MODULEHEADER": ["module", "MODULENAME"]},
-    {"MODULENAME": "id"}, {"MODULENAME": "mid"},
-    {"MODULEBODY": ["IMPORTSR", "P"]},
-    {"IMPORTSR": ["IMPORTS",
-      {"act": "astNode", "type": "imps", "value": "items", "children": "all"}
-    ]},
-    {"IMPORTS": "IMPORTLIST"},
-    {"IMPORTLIST": ["IMPORTLIST", "IMPORT"]},
-    {"IMPORTLIST": "IMPORT"},
-    {"IMPORTLIST": "empty"},
-    {"IMPORT": [
-       "from", "MODULENAME", "import", "MODULENAME",
-      {"act": "astNode", "type": "import", "value": "$1_0/$3_0"}
-    ]},
-    {"IMPORT": [
-        "from", "MODULENAME", "import", "*",
-      {"act": "astNode", "type": "import", "value": "$1_0/$3"}
-    ]},
     {"P": ["{", "SL", "}",
       {"act": "astNode", "value": "prog", "type": "program", "children": "all"},
       {"act": "astNode", "value": "prog", "type": "start", "child": "$0"}
@@ -282,7 +261,7 @@
     {"PE": ["not", "(", "B", ")", {"act": "astNode", "value": "$0", "type": "unaryop", "children": "$0"}]}
   ],
 
-  "start": "MODULE",
+  "start": "P",
 
   "meta": {
     "commentLine": "//",

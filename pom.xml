@@ -22,6 +22,8 @@
         <rsyntax-textarea.version>3.1.2</rsyntax-textarea.version>
         <graphviz-java.version>0.18.1</graphviz-java.version>
         <commom-ios.version>2.10.0</commom-ios.version>
+        <app-mainClass>bmstu.iu7m.osipov.Main</app-mainClass>
+        <app-mainClass2>bmstu.iu7m.osipov.services.interpret.CmdLineInterpreter</app-mainClass2>
     </properties>
 
     <dependencies>
@@ -173,7 +175,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>bmstu.iu7m.osipov.Main</mainClass>
+                            <mainClass>${app-mainClass2}</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -190,7 +192,7 @@
                         </goals>
                         <configuration>
                             <mainClass>
-                                bmstu.iu7m.osipov.Main
+                                ${app-mainClass2}
                             </mainClass>
                             <attach>false</attach>
                         </configuration>

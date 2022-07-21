@@ -19,7 +19,6 @@ import bmstu.iu7m.osipov.structures.trees.translators.TranslationsAttacher;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
-import javafx.scene.layout.BackgroundFill;
 import javafx.stage.Stage;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -29,7 +28,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import javax.swing.*;
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
@@ -43,7 +41,7 @@ import java.util.concurrent.CountDownLatch;
 )
 public class SLRParserTranslationTest {
 
-    @BeforeClass
+    //@BeforeClass
     public static void initAWT() throws InterruptedException {
         System.setProperty("java.awt.headless", "false");
         System.out.println("Headless of AWT set to false");
@@ -59,7 +57,7 @@ public class SLRParserTranslationTest {
         System.out.println("SwingGUI > Toolkit initialized.");
     }
 
-    @Test
+    //@Test
     public void test_translations() throws Exception{
 
         /* execute at JavaFX-Thread */
@@ -231,7 +229,7 @@ public class SLRParserTranslationTest {
     }
 
 
-    @Test
+    //@Test
     public void getGenericClass(){
 
         Class<?> cls = null;

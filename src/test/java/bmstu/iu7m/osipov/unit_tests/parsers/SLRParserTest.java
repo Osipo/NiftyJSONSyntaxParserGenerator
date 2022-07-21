@@ -13,8 +13,6 @@ import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.automats.CNFA;
 import bmstu.iu7m.osipov.structures.automats.DFA;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
-import bmstu.iu7m.osipov.structures.trees.ReverseChildren;
-import bmstu.iu7m.osipov.structures.trees.RightToLeftNRVisitor;
 import bmstu.iu7m.osipov.structures.trees.VisitorMode;
 import bmstu.iu7m.osipov.structures.trees.reducers.BreakChainNode;
 import bmstu.iu7m.osipov.structures.trees.reducers.DeleteUselessSyntaxNode;

@@ -10,7 +10,6 @@ module MyModule.Math
 
     eq = lambda(x, y) => { x == y; };
     sum = lambda(l) => {
-            l = l;
             s = 0;
             a = 0;
             b = len(l);
@@ -31,6 +30,12 @@ module MyModule.Math
     E_ML = lambda(n) => {
         i = [1..n];
         [gen [gen eq(x, y) for y in i end] for x in i end];
+    };
+
+    cols = lambda(M) => {
+        r = [0..len(M) - 1];
+        c = [0..len(M[0]) - 1];
+        [gen [gen M[y][x] for y in r end] for x in c end];
     };
 
     fibo_sum = lambda (n) => {

@@ -1,6 +1,5 @@
 package bmstu.iu7m.osipov.unit_tests.parsers;
 
-import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.configurations.PathStrings;
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
@@ -14,7 +13,6 @@ import bmstu.iu7m.osipov.structures.automats.DFA;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
 import bmstu.iu7m.osipov.utils.PathStringUtils;
-import bmstu.iu7m.osipov.utils.ProcessNumber;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import org.junit.Test;
@@ -25,11 +23,6 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static java.util.Arrays.stream;
 
@@ -48,7 +41,7 @@ public class AstParserTest {
         //assert test_lang_interpret("G_Ast_5.json", "ast\\ast_input41.txt", "ast411", false);
         //assert test_lang_interpret("G_Ast_6.json", "ast\\ast_input6.txt", "ast6", false);
         //assert test_lang_interpret("G_Ast_6.json", "ast\\ast_input_61_matrix.txt", "ast61", false);
-        assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_72.txt", "ast72", true);
+        assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_73.txt", "ast73", true);
     }
 
 

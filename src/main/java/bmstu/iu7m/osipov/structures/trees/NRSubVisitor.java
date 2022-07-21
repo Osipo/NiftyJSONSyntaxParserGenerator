@@ -240,6 +240,9 @@ public class NRSubVisitor<T> extends NRVisitor<T> implements SubVisitor<T> {
                     STACK.top().setValue(null);
                     tree.detachNode(STACK.top());
                 }
+                else if(nextItr.getOpts() == 5){
+                    nextItr.setOpts(0);
+                }
                 else if(nextItr.getOpts() == -1)
                     return;
                 STACK.pop();//POP(S)

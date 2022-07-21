@@ -1,0 +1,8 @@
+module Algo2 {
+     eq = lambda(x, y) => { x == y; };
+     ff = lambda(n) => {
+            [gen [gen eq(x, y) for y in [1..n] end] for x in [1..n] end];
+     };
+
+     E2 = ff(4);
+}
