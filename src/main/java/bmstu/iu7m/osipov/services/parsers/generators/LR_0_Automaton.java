@@ -50,8 +50,8 @@ public class LR_0_Automaton implements AutomatonImage {
         this.follow = LLParserGenerator.followTable(G, firstTable); //firstTable is already Transformed at CLRParserGenerator.
         this.hasErr = false;
         this.empty = G.getEmpty();
-        System.out.println("FIRST");
-        System.out.println(firstTable);
+        //System.out.println("FIRST");
+        //System.out.println(firstTable);
     }
 
     //For LR_0_Automaton. C is Canonical Set of items for LR(0) Grammar G.
@@ -62,8 +62,8 @@ public class LR_0_Automaton implements AutomatonImage {
         this.follow = new HashMap<>();
         this.S0 = oldS;
         this.S = ns;
-        System.out.println("HERE");
-        System.out.println(firstTable);
+        //System.out.println("HERE");
+        //System.out.println(firstTable);
 
         //Transform FIRST (from non-recursive indexed Grammar to non-indexed G)
         Map<String, Set<String>> oF = new HashMap<>();
@@ -79,8 +79,8 @@ public class LR_0_Automaton implements AutomatonImage {
 
         }
         this.follow = LLParserGenerator.followTable(G, oF); //G may be left-recursive
-        System.out.println("FIRST");
-        System.out.println(oF);
+        //System.out.println("FIRST");
+        //System.out.println(oF);
         //System.out.println(follow);
         this.hasErr = false;
 

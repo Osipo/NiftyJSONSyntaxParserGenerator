@@ -4,6 +4,7 @@ import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.utils.PathStringUtils;
 
 public interface InterPathsConfiguration {
+    public static final String PROJECT_NAME = "NiftyJSONSyntaxParserGenerator";
     public static final String TEST_JSON_DOCS_DIR = PathStringUtils.replaceSeparator(Main.PROJECT_DIR + "src\\test\\\\resources\\\\json\\"); //PathStringUtils.replaceSeparator("C:\\Users\\Oleg\\IdeaProjects\\NiftyJSONCompilerGenerator\\src\\test\\resources\\json\\");
     public static final String GRAMMARS = PathStringUtils.replaceSeparator(Main.PROJECT_DIR + "src\\test\\resources\\grammars\\");
     public static final String LEXERS = PathStringUtils.replaceSeparator(Main.PROJECT_DIR + "src\\test\\resources\\grammars\\lexers\\");

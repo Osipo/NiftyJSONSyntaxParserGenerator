@@ -25,7 +25,6 @@
     "/=": "/=",
     "%=": "%=",
     "^=": "@^=",
-
     "=>": "=>",
     ";": ";",
     ":": ":",
@@ -47,6 +46,8 @@
     "realNum": ["signedNum", ".", "[0-9]", "nums", "*", "(((E|e)", "signedNum", ")|empty)"],
     "ch": "\'_\'",
     "str": "\"_*\"",
+	
+	"bound": "@@",
     "empty": null
   },
   "keywords": [
@@ -59,6 +60,10 @@
   },
 
   "productions": [
+	{"START": ["bound", "SL", "bound",
+      {"act": "astNode", "value": "prog", "type": "end", "children": "all"},
+      {"act": "astNode", "value": "prog", "type": "begin", "child": "$0"}
+    ]},
     {"P": ["{", "SL", "}",
       {"act": "astNode", "value": "prog", "type": "program", "children": "all"},
       {"act": "astNode", "value": "prog", "type": "start", "child": "$0"}
@@ -261,7 +266,7 @@
     {"PE": ["not", "(", "B", ")", {"act": "astNode", "value": "$0", "type": "unaryop", "children": "$0"}]}
   ],
 
-  "start": "P",
+  "start": "START",
 
   "meta": {
     "commentLine": "//",
@@ -283,8 +288,7 @@
       {"start": ["id", "("], "body": "CALLEE"},
       {"start": ["id", "("], "end": ")", "body": "ARGS"},
       {"start": ["CALLERS", "("], "end": ")", "body": "ARGS"},
-      {"start": ["lambda", "("], "end": ")", "body": "PARGS"},
-      {"start": "module", "body": "IMPORTS"}
+      {"start": ["lambda", "("], "end": ")", "body": "PARGS"}
     ],
     "operands": ["id", "signedNum", "realNum", "ch", "str", "true", "false"],
     "operators": [

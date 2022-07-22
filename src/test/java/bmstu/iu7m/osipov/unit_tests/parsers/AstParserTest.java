@@ -33,6 +33,8 @@ import static java.util.Arrays.stream;
 )
 public class AstParserTest {
 
+
+
     @Test
     public void test_langs_interpretation() {
         //assert test_lang_interpret("G_Ast_1.json", "ast\\ast_input1.txt", "ast11", false);
@@ -159,4 +161,8 @@ public class AstParserTest {
         System.out.println("cwd = " + Main.CWD);
     }
      */
+    @Test
+    public void stub_test(){
+
+    }
 }

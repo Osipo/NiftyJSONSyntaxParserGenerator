@@ -16,4 +16,6 @@ from MyModule.Math import *
     };
 
     E2 = ff(4);
+
+    nf4 = n_fact(7); //5040.
 }

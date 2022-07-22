@@ -405,14 +405,17 @@ public abstract class BaseInterpreter {
         if(v == null && vector_i == null) //if not in context AND no vector.
             throw new Exception("Cannot find variable with name \'" + nVal + "\'. Define variable before use it!");
 
-        else if(v == null && vector_i != null && vnames_idxs != null && vector_len > 0){ //try get from vector.
+        //if vector => then get it from vector.
+        else if(vector_i != null && vnames_idxs != null && vector_len > 0){ //try get from vector.
             //System.out.println(vnames_idxs);
             int vector_idx = vnames_idxs.getOrDefault(nVal, -1);
-            if(vector_idx == -1)
+            if(vector_idx == -1 && v == null)
                 throw new Exception("Cannot find variable with name \'" + nVal + "\' at vector. Define variable before use it!");
 
-            v = new Variable(nVal); //new sequence variable.
-            checkTypeAndGetValue(ast, cur, v, context, vector_i.get(vector_idx));
+            if(v == null) {
+                v = new Variable(nVal); //new sequence variable.
+                checkTypeAndGetValue(ast, cur, v, context, vector_i.get(vector_idx));
+            }
         }
         checkAccess(ast, cur, v, context, exp, lists, indices, functions, args, vector_i);
     }

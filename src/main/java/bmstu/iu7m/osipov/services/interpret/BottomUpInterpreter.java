@@ -64,9 +64,14 @@ public class BottomUpInterpreter extends BaseInterpreter implements Interpreter 
 
 
 
+
     @Override
-    public void interpret(PositionalTree<AstSymbol> ast) {
+    public void interpret(PositionalTree<AstSymbol> ast){
         this.rootContext = new Env(this.rootContext); //add for module vars.
+        interpret_new(ast);
+    }
+
+    protected void interpret_new(PositionalTree<AstSymbol> ast) {
 
         AtomicReference<Env> env = new AtomicReference<>();
         env.set(this.rootContext);

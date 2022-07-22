@@ -229,7 +229,7 @@ public class SLRParserTranslationTest {
     }
 
 
-    //@Test
+    @Test
     public void getGenericClass(){
 
         Class<?> cls = null;
@@ -258,6 +258,11 @@ public class SLRParserTranslationTest {
         catch (ClassNotFoundException e){}
         catch (NoSuchMethodException e) { assert 1 == 0;}
         assert cls != null;
+    }
+
+    @Test
+    public void stub_test(){
+
     }
 
 }

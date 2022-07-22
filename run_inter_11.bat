@@ -1,3 +1,3 @@
 @echo off
 cd target
-%JAVA_HOME%/bin/java
+%JAVA_HOME%/bin/java -XX:+UseG1GC -XX:G1ConcRefinementThreads=4 -XX:GCDrainStackTargetSize=64 -jar NiftyJSONCompilerGenerator.jar

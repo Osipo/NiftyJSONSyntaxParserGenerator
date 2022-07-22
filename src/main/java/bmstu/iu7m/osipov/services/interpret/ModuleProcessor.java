@@ -2,6 +2,7 @@ package bmstu.iu7m.osipov.services.interpret;
 
 import bmstu.iu7m.osipov.Main;
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
+import bmstu.iu7m.osipov.services.interpret.optimizers.FunctionOptimizer;
 import bmstu.iu7m.osipov.services.parsers.LRAstTranslator;
 import bmstu.iu7m.osipov.structures.trees.PositionalTree;
 import com.kitfox.svg.A;
@@ -26,13 +27,19 @@ public class ModuleProcessor {
     protected String cwd;
     protected Map<String, Env> moduleVars;
     protected String rootFile;
-    public ModuleProcessor(LRAstTranslator parser, Interpreter inter, String cwd, String rootFile){
+    protected FunctionOptimizer f_optimizer;
+    public ModuleProcessor(LRAstTranslator parser, Interpreter inter, String cwd, String rootFile, FunctionOptimizer f_optimizer){
         this.inter = inter;
         this.parser = parser;
         inter.setModuleProcessor(this);
         this.cwd = cwd;
         this.moduleVars = new HashMap<>();
         this.rootFile = rootFile;
+        this.f_optimizer = f_optimizer;
+    }
+
+    public ModuleProcessor(LRAstTranslator parser, Interpreter inter, String cwd, String rootFile){
+        this(parser, inter, cwd, rootFile, new FunctionOptimizer());
     }
 
     public ModuleProcessor(LRAstTranslator parser, Interpreter inter){
@@ -86,6 +93,7 @@ public class ModuleProcessor {
                     if(!moduleVars.containsKey(fName)) {
                         PositionalTree<AstSymbol> sub = parser.translate(new File(fName));
                         if(sub != null && sub.root().getValue().getType().equals("module") && sub.root().getValue().getValue().equals(mod)) {
+                            f_optimizer.optimize(sub);
                             inter.interpret(sub);
                             this.moduleVars.put(fName, inter.getRootContext());
                         }

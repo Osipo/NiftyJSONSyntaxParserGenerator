@@ -20,6 +20,17 @@ module MyModule.Math
             s;
     };
 
+    n_fact_tail = lambda (n, a) => {
+       if(n == 1)
+          a;
+       else
+          n_fact_tail(n - 1, n * a);
+    };
+
+    n_fact = lambda(n) => {
+        n_fact_tail(n, 1);
+    };
+
     E_M = lambda(n) => {
         i = [1..n];
         df = lambda(x, y) => {x == y;};
