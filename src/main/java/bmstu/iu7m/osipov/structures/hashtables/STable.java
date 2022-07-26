@@ -48,17 +48,20 @@ public class STable implements Iterable<Variable> {
     }
 
     public void add(Variable entry){
+        boolean isAdded = false;
         int h = hash(entry.getValue());
         BinarySearchTree<Variable> rec = table.get(h);
         if(rec == null){
             rec = new BinarySearchTree<Variable>(new StringContainerComparator<Variable>());
             rec.add(entry);
             this.table.set(h, rec);
+            isAdded = true;
         }
         else{
-            rec.add(entry);
+            isAdded = rec.add(entry);
         }
-        this.added.add(entry);
+        if(isAdded)
+            this.added.add(entry);
     }
 
     public void add(String s){
@@ -73,8 +76,9 @@ public class STable implements Iterable<Variable> {
         }
         else{
             Variable v_i = new Variable(s);
-            rec.add(v_i);
-            this.added.add(v_i);
+            boolean isAdded = rec.add(v_i);
+            if(isAdded)
+                this.added.add(v_i);
         }
     }
 

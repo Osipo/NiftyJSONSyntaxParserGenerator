@@ -120,7 +120,7 @@ public abstract class BaseInterpreter {
                 // 1.3. start/vector node may
                 //TODO: Parse matrix > function > matrix calls
                 else if(nodeVal.equals("vector")
-                        //&& (vector_i == null || PositionalTreeUtils.has(ast, ast.parent(ast.parent(cur)), (x) -> { return x.getType().equals("vector");}))
+                        //&& (vector_i == null || PositionalTreeUtils.hasParentThat(ast, ast.parent(ast.parent(cur)), (x) -> { return x.getType().equals("vector");}))
                 )
                 {
                     nextIteration.setOpts(4); //skip all siblings. and do not perform action
@@ -394,9 +394,9 @@ public abstract class BaseInterpreter {
         //System.out.println("expr = " + exp.top() + " / " + nVal);
         //System.out.println("Parent: " + ast.parent(cur).getValue());
 
-        if(ast.parent(cur).getValue().getType().equals("assign") && ast.rightSibling(cur) == null){ //variable parent is assign and it is lvalue (exp = var)
+        if(ast.parent(cur).getValue().getType().equals("assign") && ast.rightSibling(cur) == null){ //variable parent is assign and it is lvalue (var = exp)
             String aop = ast.parent(cur).getValue().getValue(); //assign op: [=, +=, -= ...]
-            TypeChecker.ResolveAssignOperation(context, exp, lists, indices, functions, aop, nVal);
+            TypeChecker.ResolveAssignOperation(ast, cur, context, exp, lists, indices, functions, aop, nVal);
             return;
         } //end assing type.
 

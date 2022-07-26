@@ -15,17 +15,20 @@ public class Variable implements Value<String> {
     private List<Elem<Object>> items; //list expression (non-primitive -> list)
     private FunctionInterpreter function; //function expression.
     private Node<AstSymbol> next; //label -> ptr to next instruction.
+    private Env subModule;
 
     private int category = 0; // 0 = simple, 1 = parameter, 2 = label, 3 = external func.
 
     public Variable(String name, int category){
         this.name = name;
         this.category = category;
+        this.subModule = null;
     }
 
     public Variable(String name){
         this.name = name;
         this.category = 0;
+        this.subModule = null;
     }
 
     @Override
@@ -81,6 +84,14 @@ public class Variable implements Value<String> {
 
     public FunctionInterpreter getFunction() {
         return function;
+    }
+
+    public void setSubModule(Env subModule) {
+        this.subModule = subModule;
+    }
+
+    public Env getSubModule() {
+        return subModule;
     }
 
     @Override

@@ -100,15 +100,15 @@ public class BinarySearchTree<T> implements Tree<T> {
     }
 
     //MEMBER
-    private boolean __Member(T item,LinkedBinaryNode<T> node){
+    private boolean __Member(T item, LinkedBinaryNode<T> node){
         if(_count == 0){
             return false;
         }
         while(node != null){
-            if(_comp.compare(item,node.getValue()) == 0 || node.getValue().equals(item)){
+            if(_comp.compare(item, node.getValue()) == 0 || node.getValue().equals(item)){
                 return true;
             }
-            else if(_comp.compare(item,node.getValue()) < 0){
+            else if(_comp.compare(item, node.getValue()) < 0){
                 node = node.getLeft();
             }
             else {
@@ -142,7 +142,7 @@ public class BinarySearchTree<T> implements Tree<T> {
     }
 
     public boolean contains(T item){
-        return __Member(item,_r);//BEGIN WITH ROOT
+        return __Member(item, _r);//BEGIN WITH ROOT
     }
 
 
@@ -150,7 +150,7 @@ public class BinarySearchTree<T> implements Tree<T> {
         if(contains(item)){
             return false;
         }
-        __Add(item,_r);
+        __Add(item, _r);
         return true;
     }
 

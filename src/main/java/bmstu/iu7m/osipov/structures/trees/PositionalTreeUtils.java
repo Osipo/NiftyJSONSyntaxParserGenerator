@@ -49,7 +49,8 @@ public class PositionalTreeUtils {
         return false;
     }
 
-    public static <T> boolean has(PositionalTree<T> tree, Node<T> n, Predicate<T> cond){
+    //has node n Parent that satisfy cond
+    public static <T> boolean hasParentThat(PositionalTree<T> tree, Node<T> n, Predicate<T> cond){
         if(tree == null || n == null || cond == null)
             return false;
         Node<T> cparent = tree.parent(n); //ancestor is not self n.
@@ -57,6 +58,22 @@ public class PositionalTreeUtils {
             if(cond.test(cparent.getValue()))
                 return true;
             cparent = tree.parent(cparent);
+        }
+        return false;
+    }
+
+    //has node n sibling that satisfy cond
+    public static <T> boolean hasSiblingThat(PositionalTree<T> tree, Node<T> n, Predicate<T> cond){
+        if(tree == null || n == null || cond == null)
+            return false;
+        Node<T> parent = tree.parent(n); //ancestor is not self n.
+        if(parent != null){
+            List<Node<T>> children = tree.getChildren(parent);
+            children.remove(n); //sibling is not self n.
+            for(int i = 0; i < children.size(); i++){
+                if(cond.test(children.get(i).getValue()))
+                    return true;
+            }
         }
         return false;
     }

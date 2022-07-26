@@ -1,10 +1,15 @@
 package bmstu.iu7m.osipov.services.interpret;
 
+import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
+import bmstu.iu7m.osipov.structures.trees.Node;
+import bmstu.iu7m.osipov.structures.trees.PositionalTree;
+import bmstu.iu7m.osipov.structures.trees.PositionalTreeUtils;
 import bmstu.iu7m.osipov.utils.ProcessNumber;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class TypeChecker {
@@ -67,7 +72,9 @@ public class TypeChecker {
             return value;
         else if(value instanceof Variable){
             Variable vv = (Variable) value;
-            if(vv.getFunction() != null)
+            if(vv.getSubModule() != null)
+                return vv.getSubModule();
+            else if(vv.getFunction() != null)
                 return vv.getFunction();
             else if(vv.isList())
                 return vv.getItems();
@@ -86,6 +93,8 @@ public class TypeChecker {
 
         if(var == null)
             throw new NullPointerException("Cannot define type of variable '" + info + "'. Variable is not defined.");
+        if(var.getSubModule() != null)
+            return 4; //4 => dictionary or subModule.
         if(var.getFunction() != null)
             return 3; //3 => function.
         else if(var.isList())
@@ -158,92 +167,7 @@ public class TypeChecker {
         return n;
     }
 
-    private static Object ParseBinaryOperator(Object n1, Object n2, String nodeVal){
-        String t1 = "";
-        String t2 = "";
-        if(n1 instanceof String && n2 instanceof String) {
-            t1 = (String) n1;
-            t2 = (String) n2;
-        }
-
-        double d1 = ProcessNumber.parseNumber(t1);
-        double d2 = ProcessNumber.parseNumber(t2);
-
-        switch (nodeVal){
-            case "<":{
-                d1 = (d1 < d2) ? 1 : 0;
-                break;
-            }
-            case "<=":{
-                d1 = (d1 <= d2) ? 1 : 0;
-                break;
-            }
-            case ">":{
-                d1 = (d1 > d2) ? 1 : 0;
-                break;
-            }
-            case ">=":{
-                d1 = (d1 >= d2) ? 1 : 0;
-                break;
-            }
-            case "==":{
-                d1 = (d1 == d2) ? 1 : 0;
-                break;
-            }
-            case "<>":{
-                d1 = (d1 != d2) ? 1 : 0;
-                break;
-            }
-            case "&&": case "and": {
-                d1 = (d1 >= 1 && d2 >= 1) ? 1 : 0;
-                break;
-            }
-            case "||": case "or": {
-                d1 = (d1 >= 1 || d2 >= 1) ? 1 : 0;
-                break;
-            }
-            case "=>":{
-                d1 = (d1 >= 1 && d2 <= 1) ? 0 : 1; //(1, 0) -> 0, else -> 1.
-                break;
-            }
-
-
-            case "*":{
-                d1 = d1 * d2;
-                break;
-            }
-            case "/":{
-                d1 = d1 / d2;
-                break;
-            }
-            case "+":{
-                d1 = d1 + d2;
-                break;
-            }
-            case "-":{
-                d1 = d1 - d2;
-                break;
-            }
-            case "%":{
-                d1 = d1 % d2;
-                break;
-            }
-            case "^":{
-                d1 = Math.pow(d1, d2);
-                break;
-            }
-
-        } //end inner switch relop.
-
-        String val = null;
-        if(Math.floor(d1) == d1) //is integer [4.0, 5.0]
-            val = Integer.toString((int)d1);
-        else
-            val = Double.toString(d1); //double [4.0001]
-        return val;
-    }
-
-    //TODO: Expect Raw Values. (yet it is null)
+    //TODO: Expect Raw Values got from CheckValue()
     private static Object CombineExpression(Object oldVal, Object expVal, String op) throws Exception {
 
         //Raw number.
@@ -274,6 +198,9 @@ public class TypeChecker {
         }
         else if(oldVal instanceof FunctionInterpreter){
             throw new Exception("You try using '" + op + "' with function definition.\n This is illegal.");
+        }
+        else if(oldVal instanceof Env && expVal instanceof Env){
+            return ExpressionsUtils.parseModules((Env) oldVal, (Env) expVal, op);
         }
         return null;
     }
@@ -317,13 +244,15 @@ public class TypeChecker {
         }
     }
 
-    public static void ResolveAssignOperation( Env context,
-                                               LinkedStack<Object> exp,
-                                               LinkedStack<List<Elem<Object>>> lists,
-                                               ArrayList<List<Elem<Object>>> indices,
-                                               LinkedStack<FunctionInterpreter> functions,
-                                               String operator,
-                                               String vName
+    public static void ResolveAssignOperation(  PositionalTree<AstSymbol> ast,
+                                                Node<AstSymbol> curNode,
+                                                Env context,
+                                                LinkedStack<Object> exp,
+                                                LinkedStack<List<Elem<Object>>> lists,
+                                                ArrayList<List<Elem<Object>>> indices,
+                                                LinkedStack<FunctionInterpreter> functions,
+                                                String operator,
+                                                String vName
     ) throws Exception
     {
         Variable v = null;
@@ -332,7 +261,11 @@ public class TypeChecker {
 
         switch (operator){
             case "+=": case "-=": case "*=": case "/=": case "%=": case "^=": {
+
                 v = context.get(vName);
+
+
+
                 vType = CheckVariableType(v, vName, false); //check that both variables are defined and compute their type.
                 Object oldVal = null;
                 List<Elem<Object>> prev_list = null;
@@ -412,7 +345,10 @@ public class TypeChecker {
                 break;
             }
             case "=": {
-                v = context.get(vName);
+
+                //TODO: Make independent vars for dict
+                //v = context.get(vName); //if inner context presented it extracted the nearest outer block variable.
+                v = context.getAtCurrent(vName); //get only from current context.
 
                 if(lists.top() != null) {
                     if(v == null) {
@@ -429,6 +365,7 @@ public class TypeChecker {
                     return;
                 }
                 else if(indices.size() != 0){ //when access expression lvalue[index_1][index_2]... = expr.
+                    v = context.get(vName);
                     if(v == null) //lvalue must be defined!
                         throw new Exception("Cannot find variable with name \'" + vName + "\'. Define variable before use it!");
 
@@ -502,7 +439,30 @@ public class TypeChecker {
                 if (!functions.isEmpty()) { //expression is function [a = function]
                     v.setFunction(functions.top());;
                     functions.pop();
-                } else { //set from expression. [a = top(expr)]; Note that in the expression stack there may be lists.
+                }
+                else if(exp.top() instanceof Env)
+                {
+                    //Variable is dictionary or subModule.
+                    Env subModule = (Env) exp.top();
+                    exp.pop();
+                    v.setSubModule(subModule);
+
+                    //PRINT Dictionary.
+                    Iterator<Variable> sitr = subModule.currentIterator();
+                    System.out.println(vName + " = dictionary{{");
+                    while(sitr.hasNext()){
+                        Variable sitem = sitr.next();
+                        System.out.print("\t" + sitem.getValue() + " = ");
+                        if(sitem.getFunction() != null)
+                            System.out.print(" <<function>>\n");
+                        else if(sitem.getSubModule() != null)
+                            System.out.print(" <<dictionary>>\n");
+                        else
+                            System.out.print(sitem.getStrVal() + "\n");
+                    }
+                    System.out.println("}}");
+                }
+                else { //set from expression. [a = top(expr)]; Note that in the expression stack there may be lists.
                     saveExpressionInVariable(v, exp.top());
                     System.out.println(vName + " = " + v.getStrVal());
                     exp.pop();

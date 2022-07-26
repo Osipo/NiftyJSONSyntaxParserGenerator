@@ -5,6 +5,7 @@ import bmstu.iu7m.osipov.utils.ProcessNumber;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class ExpressionsUtils {
@@ -689,5 +690,41 @@ public class ExpressionsUtils {
             }
         }
         return t1;
+    }
+
+
+    public static Object parseModules(Env A, Env B, String op) throws Exception {
+
+        Iterator<Variable> childs = A.currentIterator(); //content of the new module.
+        Variable item_i = null;
+        Env sub = new Env(A.getPrev());
+        boolean toogle = false;
+        while(childs.hasNext()) {
+            item_i = childs.next();
+
+            //after last element of A goto B.
+            if(!childs.hasNext() && !toogle){
+                toogle = true;
+                childs = B.currentIterator();
+            }
+
+            switch (op) {
+                case "+": {
+                    if(sub.get(item_i.getValue()) != null)
+                        throw new Exception("Cannot redefine. Variable with key '" + item_i.getValue() + "' was already added. Keys must be unique!");
+                    Variable nv = new Variable(item_i.getValue());
+                    nv.setStrVal(item_i.getStrVal());
+                    nv.setItems(item_i.getItems());
+                    nv.setFunction(item_i.getFunction());
+                    nv.setSubModule(item_i.getSubModule());
+                    sub.add(item_i);
+                    break;
+                }
+                default:
+                    throw new Exception("Operator '" + op + "' is not defined for operands [module, module]");
+            }
+        }
+
+        return sub;
     }
 }

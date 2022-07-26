@@ -31,10 +31,12 @@ public class Env {
 
     //Bottom_up context
     public Variable get(String s){
+        int si = 0;
         for(Env e = this; e != null; e = e.prev){
             Variable found = e.table.get(s);
-            if(found != null)
+            if(found != null) {
                 return found;
+            }
         }
         return null;
     }
@@ -77,5 +79,9 @@ public class Env {
 
     public Iterator<Variable> iterator(){
        return (next != null) ? this.next.table.iterator() : null;
+    }
+
+    public Iterator<Variable> currentIterator(){
+        return this.table.iterator();
     }
 }

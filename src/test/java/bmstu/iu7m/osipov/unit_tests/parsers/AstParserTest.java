@@ -5,14 +5,17 @@ import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.interpret.BottomUpInterpreter;
 import bmstu.iu7m.osipov.services.interpret.ModuleProcessor;
+import bmstu.iu7m.osipov.services.interpret.Variable;
 import bmstu.iu7m.osipov.services.interpret.optimizers.FunctionOptimizer;
 import bmstu.iu7m.osipov.services.lexers.*;
 import bmstu.iu7m.osipov.services.parsers.*;
 import bmstu.iu7m.osipov.services.parsers.json.elements.JsonObject;
 import bmstu.iu7m.osipov.structures.automats.DFA;
+import bmstu.iu7m.osipov.structures.trees.BinarySearchTree;
 import bmstu.iu7m.osipov.structures.trees.LinkedTree;
 import bmstu.iu7m.osipov.unit_tests.json_parser.SimpleJsonParserTest;
 import bmstu.iu7m.osipov.utils.PathStringUtils;
+import bmstu.iu7m.osipov.utils.StringContainerComparator;
 import guru.nidi.graphviz.engine.Format;
 import guru.nidi.graphviz.engine.Graphviz;
 import org.junit.Test;
@@ -35,7 +38,7 @@ public class AstParserTest {
 
 
 
-    //@Test
+    @Test
     public void test_langs_interpretation() {
         //assert test_lang_interpret("G_Ast_1.json", "ast\\ast_input1.txt", "ast11", false);
         //assert test_lang_interpret("G_Ast_2.json", "ast\\ast_input2.txt", "ast21", false);
@@ -43,7 +46,8 @@ public class AstParserTest {
         //assert test_lang_interpret("G_Ast_5.json", "ast\\ast_input41.txt", "ast411", false);
         //assert test_lang_interpret("G_Ast_6.json", "ast\\ast_input6.txt", "ast6", false);
         //assert test_lang_interpret("G_Ast_6.json", "ast\\ast_input_61_matrix.txt", "ast61", false);
-        assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_73.txt", "ast73", true);
+        //assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_73.txt", "ast73", true);
+        assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_75.txt", "ast75", false);
     }
 
 
@@ -163,5 +167,15 @@ public class AstParserTest {
      */
     @Test
     public void stub_test(){
+        BinarySearchTree<Variable> t = new BinarySearchTree<>(new StringContainerComparator<>());
+        Variable v1 = new Variable("i");
+        Variable v2 = new Variable("i");
+        v1.setStrVal("1000");
+        v2.setStrVal("2000");
+        t.add(v1);
+        System.out.println(t.contains(v1));
+        t.add(v2);
+
+        assert t.getCount() == 1;
     }
 }
