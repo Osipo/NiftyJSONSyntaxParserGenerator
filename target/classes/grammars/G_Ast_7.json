@@ -44,7 +44,22 @@
     "nums": "([@_]*[0-9]+)",
     "num": ["(", "nonZeroNum", "nums", "*", ")", "|", "zero"],
     "signedNum": ["(", "(-|empty)", "num", ")"],
-    "realNum": ["signedNum", ".", "[0-9]", "nums", "*", "(((E|e)", "signedNum", ")|empty)"],
+
+    "binNums": "([@_]*[01]+)",
+    "octNums": "([@_]*[0-7]+)",
+    "hexNums": "([@_]*[0-9A-Fa-f]+)",
+
+    "realPart": ["((", ".", "[0-9]", "nums", "*", ")|empty)"],
+    "binRealPart": ["((", ".", "[01]", "binNums", "*", ")|empty)"],
+    "octRealPart": ["((", ".", "[0-7]", "octNums", "*", ")|empty)"],
+    "hexRealPart": ["((", ".", "[0-9A-Fa-f]", "hexNums", "*", ")|empty)"],
+    "expPart": ["(((E|e|P|p)", "signedNum", ")|empty)"],
+    "hexExpPart": ["(((H|h|P|p)", "signedNum", ")|empty)"],
+
+    "decimalNum": ["signedNum", "realPart", "expPart"],
+    "binNum": ["(", "(-|empty)", "0(B|b)", "[01]", "binNums", "*", ")", "binRealPart", "expPart"],
+    "octNum": ["(", "(-|empty)", "0(C|c)", "[0-7]", "octNums", "*", ")",  "octRealPart", "expPart"],
+    "hexNum": ["(", "(-|empty)", "0(X|x)", "[0-9A-Fa-f]", "hexNums", "*", ")",  "hexRealPart", "hexExpPart"],
     "ch": "\'_\'",
     "str": "\"_*\"",
     "empty": null
@@ -54,8 +69,10 @@
     "and", "or", "until", "goto", "for", "in", "gen", "end", "is", "module", "from", "import"
   ],
   "separators": {
-    "signedNum": "_",
-    "realNum": "_"
+      "decimalNum": "_",
+      "binNum": "_",
+      "octNum": "_",
+      "hexNum": "_"
   },
 
   "productions": [
@@ -268,8 +285,10 @@
     {"PE": ["id", {"act": "astNode", "value": "$0", "type": "variable"}]},
     {"PE": ["ch", {"act": "astNode", "value": "$0", "type": "char"}]},
     {"PE": ["str", {"act": "astNode", "value": "$0", "type": "string"}]},
-    {"PE": ["signedNum", {"act": "astNode", "value": "$0", "type": "number"}]},
-    {"PE": ["realNum", {"act": "astNode", "value": "$0", "type": "number"}]},
+    {"PE": ["decimalNum", {"act": "astNode", "value": "$0", "type": "number"}]},
+    {"PE": ["binNum", {"act": "astNode", "value": "$0", "type": "number"}]},
+    {"PE": ["octNum", {"act": "astNode", "value": "$0", "type": "number"}]},
+    {"PE": ["hexNum", {"act": "astNode", "value": "$0", "type": "number"}]},
     {"PE": ["true", {"act": "astNode", "value": "$0", "type": "boolean"}]},
     {"PE": ["false", {"act": "astNode", "value": "$0", "type": "boolean"}]},
     {"PE": ["(", "B",")"]},
@@ -307,7 +326,7 @@
       {"start": ["lambda", "("], "end": ")", "body": "PARGS"},
       {"start": "module", "body": "IMPORTS"}
     ],
-    "operands": ["id", "signedNum", "realNum", "ch", "str", "true", "false"],
+    "operands": ["id", "decimalNum", "binNum", "octNum", "hexNum", "ch", "str", "true", "false"],
     "operators": [
       "=",
       "+",

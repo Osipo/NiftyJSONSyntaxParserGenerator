@@ -65,9 +65,12 @@ public class ProcessNumber {
     //This method returns NaN if str throws NumberFormatException
     //For example, str like '-0x' or '0b01P' are illegal (because the former does not contain digits, the latter has no digits after exponent symbol)
     //Exponent symbol requires digits (E1 or E10 or P-1).
+    //Number after exponent letter is only at 10 base.
     public static double parseNumber(String str){
         if(str == null || str.length() == 0)
             return Double.NaN;
+
+        str = str.toLowerCase();
         int sign = 1;
         int esign = 1;//exponent sign
         int base = 10;

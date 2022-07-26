@@ -1,6 +1,12 @@
 module MatrixDet
 from MyModule.Math import *
 {
+    dec = 1_00____0E3; //1E6 or 1M
+    bi = -0b110P1; //-6 * 2 = -12.
+    bi2 = 0b0000_0000__0000___010101; //21.
+    oct = 0c011; //9.
+    hex = 0xFFH-1; //255 / 10 = 25.5.
+
     M = [[4, 2, 5], [6, 4, 9], [7, 6, 13]];
     E = E_ML(len(M));
     ME = M + E;
