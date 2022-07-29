@@ -5,10 +5,7 @@ import bmstu.iu7m.osipov.structures.graphs.Elem;
 import bmstu.iu7m.osipov.structures.lists.LinkedDeque;
 import bmstu.iu7m.osipov.structures.lists.LinkedList;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
-import bmstu.iu7m.osipov.structures.trees.Node;
-import bmstu.iu7m.osipov.structures.trees.PositionalTree;
-import bmstu.iu7m.osipov.structures.trees.VisitorMode;
-import bmstu.iu7m.osipov.structures.trees.VisitorsNextIteration;
+import bmstu.iu7m.osipov.structures.trees.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -127,6 +124,10 @@ public class SequencesInterpreter {
                 } //end variable
 
                 case "start": {
+                        Node<AstSymbol> subTree =
+                                (PositionalTreeUtils.hasParentThat(ast, c, (cv) -> cv.getType().equals("call")) ?
+                                PositionalTreeUtils.getParentThat(ast, c, (cv) -> cv.getType().equals("call")) :
+                                ast.parent(c));
                         ast.visitFrom(VisitorMode.POST, (sc, sni) -> {
                             try {
                                 parentInter.applyOperation(
@@ -149,18 +150,34 @@ public class SequencesInterpreter {
                                 System.err.println(e.getMessage());
                                 sni.setOpts(-1);
                             }
-                        }, ast.parent(c), nextItr);
+                        }, subTree, nextItr); //til parent of start
 
                         //do not traverse through processed nodes.
                         if(next.getOpts() != -1){
-                           next.setOpts(5); //move to list/items node (see next case "list")
+                            nextItr.setNextNode(subTree);
+                            nextItr.setOpts(15); //move to list/items node (see next case "list") and process it as it leaf.
                         }
                         break;
                 } //end start of the list.
 
-                case "list": {
-                    List<Elem<Object>> data = this.lists.top();
-                    this.lists.pop();
+                case "list": case "call": {
+                    List<Elem<Object>> data = null;
+                    if(c.getValue().getType().equals("call")){ //function call.
+                        if(this.exp.top() instanceof List) {
+                            data = (List<Elem<Object>>) this.exp.top();
+                            this.exp.pop();
+                        }
+                    }
+                    else {
+                        data = this.lists.top();
+                        this.lists.pop();
+                    }
+
+                    if(data == null){
+                        nextItr.setOpts(-1);
+                        System.err.println("Expression at sequence generator is not a list!");
+                        return;
+                    }
 
                     while(vnames.size() > 0){
                         String item_name = vnames.get(1);

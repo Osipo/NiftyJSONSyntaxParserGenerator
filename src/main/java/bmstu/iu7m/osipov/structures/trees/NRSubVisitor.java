@@ -223,6 +223,13 @@ public class NRSubVisitor<T> extends NRVisitor<T> implements SubVisitor<T> {
                     STACK.pop();
                     continue;
                 }
+                else if(nextItr.getNextNode() != null && nextItr.getOpts() == 15){
+                    while(!STACK.top().equals(nextItr.getNextNode()))
+                        STACK.pop();
+                    nextItr.setOpts(0);
+                    nextItr.setNextNode(null);
+                    continue;
+                }
                 else if(nextItr.getNextNode() != null){
                     m = nextItr.getNextNode();
                     nextItr.setNextNode(null);

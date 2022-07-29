@@ -36,8 +36,8 @@ public class FunctionInterpreter {
 
     //TODO: Parse possible arg types: (variable, elem, list, function, str/number)
     public void bindArguments(List<Object> args) throws Exception {
-        //System.out.println("expected: " + this.params.size());
-        //System.out.println("actual: " + args.size());
+       // System.out.println("expected: " + this.params.size());
+       // System.out.println("actual: " + args.size());
         if(args.size() != this.params.size())
             throw new Exception("Arguments length mismatches with count of parameters of function '" + funName + "'");
 

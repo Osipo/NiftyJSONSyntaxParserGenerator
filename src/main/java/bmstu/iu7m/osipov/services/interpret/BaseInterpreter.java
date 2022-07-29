@@ -156,6 +156,8 @@ public abstract class BaseInterpreter {
                     lists.pop();
                     args.top().add(list_arg); //add as single argument with type list.
                 }
+
+                //if list is a PART of expression.
                 else if(   ast.parent(cur).getValue().getType().equals("operator") //operator expression.
                         || ast.parent(cur).getValue().getType().equals("boolop")
                         || ast.parent(cur).getValue().getType().equals("relop")
@@ -163,6 +165,7 @@ public abstract class BaseInterpreter {
                         || (ast.parent(cur).getValue().getType().equals("assign") && ast.parent(cur).getValue().getValue().length() > 1) //combine assign
                         ||  ast.parent(cur).getValue().getType().equals("lambda")
                         ||  ast.parent(ast.parent(cur)).getValue().getType().equals("lambda") //last function expression
+                        || !ast.parent(cur).getValue().getType().equals("assign")
                 )
                 {
                     exp.push(lists.top()); //add operand to expression stack.
@@ -251,9 +254,9 @@ public abstract class BaseInterpreter {
                         //System.out.println("Function '" + f.getFunctionName() + "' returns new lambda function");
 
                         Variable f_2 = new Variable("0$_" + f.getFunctionName());
+                        context.get().add(f_2); //add generated variable (name is illegal for input) of N + 1 function
                         f_2.setFunction(functions.top());
                         functions.pop();
-                        context.get().add(f_2); //add generated variable (name is illegal for input) of N + 1 function
 
                         //System.out.println("Call anonymous returned function: " + f_2.getValue());
 
@@ -269,6 +272,7 @@ public abstract class BaseInterpreter {
 
                     //System.out.println("call " + f.getFunctionName() + " = " + exp.top());
                     // args > call > args (function call is expression of argument of another function call)
+                    //i.e. f(f(x))
                     if(ast.parent(ast.parent(cur)).getValue().getType().equals("args")){
                         args.top().add(exp.top());
                         exp.pop();
