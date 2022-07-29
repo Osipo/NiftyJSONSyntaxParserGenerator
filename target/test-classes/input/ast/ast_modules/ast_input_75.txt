@@ -10,6 +10,17 @@ module Dict {
 
     lfi = lambda(n) => if(n < 10) n + 1; else [1..n];;
 
+    eq = lambda(x, y) => x == y;;
+
     l2 = [gen [1] for _ in lf(10)() end];
-    l3 = [gen [1] for _ in lfi(lfi(lfi(lfi(7)))) end];
+    l3 = [gen [1] for _ in lfi(lfi(lfi(lfi(7)))) end]; //4 times calls.
+
+    E = [gen [gen x == y for y in [1..4] end] for x in [1..4] end];
+
+    b1 = E is list;
+    b2 = 0 < 1;
+    if(lf is function){
+        cc = 123;
+        b2 = lf(4)();
+    }
 }

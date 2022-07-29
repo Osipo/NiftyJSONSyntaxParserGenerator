@@ -327,12 +327,13 @@ public class ExpressionsUtils {
 
         } //end inner switch relop.
 
-        String val = null;
+        //String val = null;
         if(Math.floor(d1) == d1) //is integer [4.0, 5.0]
-            val = Integer.toString((int)d1);
+            //val = Integer.toString((int)d1);
+            return (int)d1;
         else
-            val = Double.toString(d1); //double [4.0001]
-        return val;
+            //val = Double.toString(d1); //double [4.0001]
+            return d1;
     }
 
 
@@ -726,5 +727,29 @@ public class ExpressionsUtils {
         }
 
         return sub;
+    }
+
+    public static boolean IsTrue(Object v) throws Exception {
+        if(v == null)
+            throw new Exception("NULL IS NOR TRUE OR FALSE");
+        if(v instanceof List){
+            return ((List) v).size() > 0;
+        }
+        if(v instanceof Env) {
+            return ((Env) v).table.size() > 0;
+        }
+        if(v instanceof FunctionInterpreter)
+            return true;
+        if(v instanceof Number)
+            return ((Number) v).intValue() >= 1;
+        if(v instanceof String){ //DISTINGUISH NUM because nums contained as strings.
+           return ((String) v).length() > 0;
+        }
+        else if(v instanceof Elem<?>){
+            while(v instanceof Elem<?>)
+                v =  ((Elem<?>) v).getV1();
+            return IsTrue(v);
+        }
+        return false;
     }
 }

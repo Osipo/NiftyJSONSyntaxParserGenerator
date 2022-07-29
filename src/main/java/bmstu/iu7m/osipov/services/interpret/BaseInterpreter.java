@@ -116,11 +116,7 @@ public abstract class BaseInterpreter {
                 }
 
                 // start/vector node at expressions (start > expressions > matrix)
-                // 1.2. start/vector node may have outer most matrix node or inner matrix node
-                // 1.3. start/vector node may
-                //TODO: Parse matrix > function > matrix calls
                 else if(nodeVal.equals("vector")
-                        //&& (vector_i == null || PositionalTreeUtils.hasParentThat(ast, ast.parent(ast.parent(cur)), (x) -> { return x.getType().equals("vector");}))
                 )
                 {
                     nextIteration.setOpts(4); //skip all siblings. and do not perform action
@@ -157,7 +153,7 @@ public abstract class BaseInterpreter {
                     args.top().add(list_arg); //add as single argument with type list.
                 }
 
-                //if list is a PART of expression.
+                //if list is a PART of expression (not a part of sequence generator!)
                 else if(   ast.parent(cur).getValue().getType().equals("operator") //operator expression.
                         || ast.parent(cur).getValue().getType().equals("boolop")
                         || ast.parent(cur).getValue().getType().equals("relop")
@@ -165,7 +161,7 @@ public abstract class BaseInterpreter {
                         || (ast.parent(cur).getValue().getType().equals("assign") && ast.parent(cur).getValue().getValue().length() > 1) //combine assign
                         ||  ast.parent(cur).getValue().getType().equals("lambda")
                         ||  ast.parent(ast.parent(cur)).getValue().getType().equals("lambda") //last function expression
-                        || !ast.parent(cur).getValue().getType().equals("assign")
+                        ||  ast.parent(cur).getValue().getType().equals("else")
                 )
                 {
                     exp.push(lists.top()); //add operand to expression stack.
@@ -185,9 +181,13 @@ public abstract class BaseInterpreter {
                     if(v == null)
                         throw new Exception("Variable '" + nodeVal + "' is not defined!");
 
+
+
                     if(v.isList() && typeName.equals("list"))
                         exp.push(1);
                     else if(v.getFunction() != null && typeName.equals("function"))
+                        exp.push(1);
+                    else if(v.getSubModule() != null && typeName.equals("dict"))
                         exp.push(1);
                     else if(v.getStrVal().charAt(0) == '"' && (typeName.equals("string") || typeName.equals("str")))
                         exp.push(1);
@@ -200,6 +200,12 @@ public abstract class BaseInterpreter {
                     return;
                 }
                 checkAssign(ast, cur, context.get(), opType, nodeVal, exp, lists, indices, functions, args, vector_i, vnames_idxs, vector_len);
+                break;
+            }
+
+            //After parsing typeof expression check parent node.
+            case "typeof": {
+                checkList(ast, ast.parent(cur), cur, context.get(), opType, exp.top(), exp, lists, args, nextIteration, vector_i);
                 break;
             }
             case "params": { //move all vars from params to context.
@@ -229,6 +235,7 @@ public abstract class BaseInterpreter {
                 if(ast.parent(cur).getValue().getType().equals("call")){
                     ArrayList<Object> args_i = args.top();
 
+
                     Variable fvar = context.get().get(ast.parent(cur).getValue().getValue(), v -> v.getFunction() != null);
                     if(fvar == null)
                         fvar = context.get().get(ast.parent(cur).getValue().getValue(), v -> v.getCategory() == 3);
@@ -250,7 +257,7 @@ public abstract class BaseInterpreter {
                     }
 
                     //get next arguments caller. (args + args) => exec next function
-                    if(exp.top() == null && ast.rightSibling(cur) != null && ast.rightSibling(cur).getValue().getType().equals("args")){
+                    if(ast.rightSibling(cur) != null && ast.rightSibling(cur).getValue().getType().equals("args")){
                         //System.out.println("Function '" + f.getFunctionName() + "' returns new lambda function");
 
                         Variable f_2 = new Variable("0$_" + f.getFunctionName());
@@ -479,7 +486,7 @@ public abstract class BaseInterpreter {
         else if(parent.getValue().getType().equals("args"))
             args.top().add(nVal);
 
-        else if(parent.getValue().getType().equals("if") && ast.leftMostChild(parent).equals(cur) && nVal.equals("1")){
+        else if(parent.getValue().getType().equals("if") && ast.leftMostChild(parent).equals(cur) && ExpressionsUtils.IsTrue(nVal)){
             //if true -> goto if.
             LinkedNode<AstSymbol> node_pass = new LinkedNode<>();
             node_pass.setValue(new AstNode("pass", "pass")); //add pass before else_node.
@@ -487,15 +494,15 @@ public abstract class BaseInterpreter {
             node_pass.setParent((LinkedNode<AstSymbol>) parent); //ERROR: SubType is fixed! Make it flexible!!!
             ast.getRealChildren(parent).add(2, node_pass); //add before else.
         }
-        else if(parent.getValue().getType().equals("if") && ast.leftMostChild(parent).equals(cur) && nVal.equals("0")){
+        else if(parent.getValue().getType().equals("if") && ast.leftMostChild(parent).equals(cur) && !ExpressionsUtils.IsTrue(nVal)){
             //if false -> goto else.
             nextItr.setOpts(2); //0 => default, 1 => skip all siblings, 2 => skip one sibling.
             // => got else node (second right sibling of cond) :: ( ->condition, if, else)
         }
         else if(parent.getValue().getType().equals("loop") && ast.leftMostChild(parent).equals(cur)
                 && (
-                        (nVal.equals("1") && parent.getValue().getValue().equals("while"))
-                    ||  (nVal.equals("0") && parent.getValue().getValue().equals("until"))
+                        (ExpressionsUtils.IsTrue(nVal) && parent.getValue().getValue().equals("while"))
+                    ||  (!ExpressionsUtils.IsTrue(nVal) && parent.getValue().getValue().equals("until"))
                 )
         )
         {
@@ -506,8 +513,8 @@ public abstract class BaseInterpreter {
         else if(parent.getValue().getType().equals("loop") && ast.leftMostChild(parent).equals(cur)
                 &&
                 (
-                        (nVal.equals("0") && parent.getValue().getValue().equals("while"))
-                    ||  (nVal.equals("1") && parent.getValue().getValue().equals("until"))
+                        (!ExpressionsUtils.IsTrue(nVal) && parent.getValue().getValue().equals("while"))
+                    ||  (ExpressionsUtils.IsTrue(nVal) && parent.getValue().getValue().equals("until"))
                 )
         )
         {

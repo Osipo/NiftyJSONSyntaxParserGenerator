@@ -128,6 +128,7 @@ public class SequencesInterpreter {
                                 (PositionalTreeUtils.hasParentThat(ast, c, (cv) -> cv.getType().equals("call")) ?
                                 PositionalTreeUtils.getParentThat(ast, c, (cv) -> cv.getType().equals("call")) :
                                 ast.parent(c));
+                        //System.out.println(subTree.getValue());
                         ast.visitFrom(VisitorMode.POST, (sc, sni) -> {
                             try {
                                 parentInter.applyOperation(

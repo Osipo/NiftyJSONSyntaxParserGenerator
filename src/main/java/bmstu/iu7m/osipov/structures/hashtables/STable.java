@@ -64,6 +64,10 @@ public class STable implements Iterable<Variable> {
             this.added.add(entry);
     }
 
+    public int size(){
+        return this.added.size();
+    }
+
     public void add(String s){
         int h = hash(s);
         BinarySearchTree<Variable> rec = table.get(h);

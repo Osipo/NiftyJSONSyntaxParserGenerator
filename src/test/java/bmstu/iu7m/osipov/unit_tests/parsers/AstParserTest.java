@@ -4,6 +4,7 @@ import bmstu.iu7m.osipov.configurations.PathStrings;
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
 import bmstu.iu7m.osipov.services.grammars.Grammar;
 import bmstu.iu7m.osipov.services.interpret.BottomUpInterpreter;
+import bmstu.iu7m.osipov.services.interpret.ExpressionsUtils;
 import bmstu.iu7m.osipov.services.interpret.ModuleProcessor;
 import bmstu.iu7m.osipov.services.interpret.Variable;
 import bmstu.iu7m.osipov.services.interpret.optimizers.FunctionOptimizer;
@@ -166,16 +167,7 @@ public class AstParserTest {
     }
      */
     @Test
-    public void stub_test(){
-        BinarySearchTree<Variable> t = new BinarySearchTree<>(new StringContainerComparator<>());
-        Variable v1 = new Variable("i");
-        Variable v2 = new Variable("i");
-        v1.setStrVal("1000");
-        v2.setStrVal("2000");
-        t.add(v1);
-        System.out.println(t.contains(v1));
-        t.add(v2);
-
-        assert t.getCount() == 1;
+    public void stub_test() throws Exception {
+        assert ExpressionsUtils.IsTrue(1);
     }
 }
