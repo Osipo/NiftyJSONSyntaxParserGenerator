@@ -1,6 +1,7 @@
 package bmstu.iu7m.osipov.services.interpret;
 
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
+import bmstu.iu7m.osipov.services.interpret.external.CheckCopyFunction;
 import bmstu.iu7m.osipov.services.interpret.external.CheckLenFunction;
 import bmstu.iu7m.osipov.services.interpret.external.ExternalFunctionInterpreter;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
@@ -42,8 +43,10 @@ public class BottomUpInterpreter extends BaseInterpreter implements Interpreter 
         this.moduleHandler = mp;
     }
 
-    //add some external functions: len(list), len(str)
+    //add some external functions: len(list), len(str), copy(list)
     protected void addExternalFunction(){
+
+        //Function: len(list), len(str)
         Variable f_len = new Variable("len", 3);
         ExternalFunctionInterpreter len = new ExternalFunctionInterpreter(null, null, new ArrayList<>());
         len.setCheckArgs(new CheckLenFunction(len));
@@ -57,9 +60,33 @@ public class BottomUpInterpreter extends BaseInterpreter implements Interpreter 
 
             expr.push(size);
         });
-
         f_len.setFunction(len);
+
+        //Function: copy(list)
+        Variable f_copy = new Variable("copy", 3);
+        ExternalFunctionInterpreter copy = new ExternalFunctionInterpreter(null, null, new ArrayList<>());
+        copy.setCheckArgs(new CheckCopyFunction(copy));
+        copy.setCode((args, expr) -> {
+            Variable l = args.get(0);
+            if(l.isList()){
+                List<Elem<Object>> result = new ArrayList<>();
+                Object val_i = null;
+                for(Elem<Object> item : l.getItems()){
+                    val_i = item.getV1();
+                    while(val_i instanceof Elem)
+                        val_i = ((Elem<?>) val_i).getV1();
+
+                    result.add(new Elem<>(val_i));
+                }
+
+                expr.push(result); //attach to copy
+            }
+        });
+        f_copy.setFunction(copy);
+
+        //attach to context.
         this.rootContext.add(f_len);
+        this.rootContext.add(f_copy);
     }
 
 
@@ -166,6 +193,8 @@ public class BottomUpInterpreter extends BaseInterpreter implements Interpreter 
             //System.err.println("Dublicate labels at the same context!");
             return;
         }
+
+
 
         env.set(this.rootContext);
 

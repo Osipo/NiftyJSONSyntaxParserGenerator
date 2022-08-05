@@ -49,6 +49,31 @@ module MyModule.Math
         [gen [gen M[y][x] for y in r end] for x in c end];
     };
 
+    col = lambda(M, i) => {
+        [gen M[x][i] for x in [..len(M) - 1] end];
+    };
+
+    pcol = lambda(C) => {
+        i = len(C);
+        ii = 0;
+        p = [];
+        while(ii < i){
+            C_i = C[ii];
+            j = len(C_i);
+            jj = 0;
+            while(jj < j){
+                if(C_i[jj] > 0){
+                    p = C_i;
+                    goto M1;
+                }
+                jj += 1;
+            }
+            ii += 1;
+        }
+        M1:
+        p;
+    };
+
     fibo_sum = lambda (n) => {
             if(n == 1 or n == 2)
                 1;

@@ -7,13 +7,12 @@ import bmstu.iu7m.osipov.structures.trees.Action;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class CheckLenFunction implements Predicate<List<Object>> {
-    private ExternalFunctionInterpreter me;
+public class CheckLenFunction extends AbstractCheckFunction implements Predicate<List<Object>> {
 
-    public  CheckLenFunction(ExternalFunctionInterpreter self){
-        this.me = self;
+
+    public CheckLenFunction(ExternalFunctionInterpreter self) {
+        super(self);
     }
-
 
     @Override
     public boolean test(List<Object> arg)  {

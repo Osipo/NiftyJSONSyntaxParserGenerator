@@ -186,7 +186,7 @@ public class NRVisitor<T> implements Visitor<T> {
     // 2 => skip next sibling,
     // 3 => skip all siblings at this iteration and detach node.
     // 4 => skip next sibling or parent and do not perform action.
-    // 5 => skip all siblings only once.
+    // 5 => skip all siblings only once
     // 10 => set next node and flush flag to 0 and do not save current node (INSTEAD OF)
     // 15 => set next node and flush flag  and process next node as leaf (i.e. flush stack to it)
     // -1 => exit
@@ -232,8 +232,15 @@ public class NRVisitor<T> implements Visitor<T> {
                     continue;
                 }
                 if(nextItrStrategy.getNextNode() != null && nextItrStrategy.getOpts() == 15){
-                    while(!STACK.top().equals(nextItrStrategy.getNextNode()))
+
+                    //flush stack til common ancestor or node itself.
+                    Node<T> pr = tree.parent(nextItrStrategy.getNextNode());
+                    while(!STACK.top().equals(nextItrStrategy.getNextNode()) && !STACK.top().equals(pr))
                         STACK.pop();
+
+                    if(!STACK.top().equals(nextItrStrategy.getNextNode()))
+                        STACK.push(nextItrStrategy.getNextNode());
+
                     nextItrStrategy.setNextNode(null);
                     nextItrStrategy.setOpts(0);
                     continue;

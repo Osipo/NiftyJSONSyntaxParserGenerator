@@ -19,7 +19,7 @@ module Dict {
 
     b1 = E is list;
     b2 = 0 < 1;
-    if(lf is function){
+    if(lf is function){ //preserve exp value
         cc = 123;
         b2 = lf(4)();
     }

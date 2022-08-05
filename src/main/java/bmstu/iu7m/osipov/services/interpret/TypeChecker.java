@@ -350,7 +350,7 @@ public class TypeChecker {
                 //v = context.get(vName); //if inner context presented it extracted the nearest outer block variable.
                 v = context.getAtCurrent(vName); //get only from current context.
 
-                if(lists.top() != null) {
+                if(lists.top() != null && indices.size() == 0) {
                     if(v == null) {
                         v = new Variable(vName); //ast.value (variable name)
                         context.add(v);
@@ -400,8 +400,12 @@ public class TypeChecker {
                                 content.get(content.size() - 1).setV1(functions.top());
                                 hasFunctionExpr = true;
                             }
-                            else if(!(content.get(content.size() - 1).getV1() instanceof List)) {
-                                content.get(content.size() - 1).setV1(exp.top());
+                            //else if(!(content.get(content.size() - 1).getV1() instanceof List)) { //last item is not list.
+                            else {
+                                if(exp.top() != null)
+                                    content.get(content.size() - 1).setV1(exp.top());
+                                else if(lists.top() != null)
+                                    content.get(content.size() - 1).setV1(new Elem<>(lists.top()));
                                 //System.out.println("expr = " + exp.top());
                                 //System.out.println("changed: " + nVal + v.getStrVal());
                             }
@@ -419,8 +423,10 @@ public class TypeChecker {
 
                     if(hasFunctionExpr)
                         functions.pop();
-                    else
+                    else if(exp.top() != null)
                         exp.pop(); //remove expression to be assigned for each list item.
+                    else if(lists.top() != null)
+                        lists.pop();
 
                     v.setStrVal(v.getItems().toString());
                     System.out.println("access: " + vName + " = " + v.getStrVal());

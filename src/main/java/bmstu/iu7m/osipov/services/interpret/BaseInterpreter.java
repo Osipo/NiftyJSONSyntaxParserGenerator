@@ -79,6 +79,7 @@ public abstract class BaseInterpreter {
             }
             case "goto": {
                 String finalNodeVal = nodeVal;
+                //System.out.println("goto " + nodeVal);
                 int block_i = blocks;
                 Triple<Node<AstSymbol>, Node<AstSymbol>, Integer>  lentry = null;
                 List<Triple<Node<AstSymbol>, Node<AstSymbol>, Integer>> lentries = this.labels
@@ -97,12 +98,13 @@ public abstract class BaseInterpreter {
                     }
                     block_i--;
                 }
+                //System.out.println("found " + lentry);
 
                 if(lentry == null)
                     throw new Exception("Cannot find label '" + nodeVal + "' The label must be declared within current context and only once.");
 
                 nextIteration.setNextNode(lentry.getV2());
-                nextIteration.setOpts(10);
+                nextIteration.setOpts(15); // 10 -> 15 (do not return back treat next node as leaf.)
                 break;
             }
             case "start": {

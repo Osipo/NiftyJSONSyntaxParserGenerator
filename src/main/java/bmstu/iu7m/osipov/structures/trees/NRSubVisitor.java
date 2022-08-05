@@ -224,8 +224,16 @@ public class NRSubVisitor<T> extends NRVisitor<T> implements SubVisitor<T> {
                     continue;
                 }
                 else if(nextItr.getNextNode() != null && nextItr.getOpts() == 15){
-                    while(!STACK.top().equals(nextItr.getNextNode()))
+                    //flush stack til common ancestor or node itself.
+                    Node<T> pr = tree.parent(nextItr.getNextNode());
+
+                    while(!STACK.top().equals(nextItr.getNextNode()) && !STACK.top().equals(pr)) {
                         STACK.pop();
+                    }
+
+                    if(!STACK.top().equals(nextItr.getNextNode()))
+                        STACK.push(nextItr.getNextNode());
+
                     nextItr.setOpts(0);
                     nextItr.setNextNode(null);
                     continue;
