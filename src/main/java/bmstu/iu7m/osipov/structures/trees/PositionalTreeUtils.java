@@ -74,6 +74,20 @@ public class PositionalTreeUtils {
         return null;
     }
 
+    public static <T> int indexOfChildAt(PositionalTree<T> tree, Node<T> n, Predicate<T> cond){
+        int i = -1;
+        if(tree == null || n == null || cond == null)
+            return i;
+        Node<T> cparent = tree.parent(n); //parent is not self n.
+        while(cparent != null){
+            if(cond.test(cparent.getValue()))
+                break;
+            n = cparent;
+            cparent = tree.parent(cparent);
+        }
+        return indexOfChild(tree, cparent, n);
+    }
+
     //has node n sibling that satisfy cond
     public static <T> boolean hasSiblingThat(PositionalTree<T> tree, Node<T> n, Predicate<T> cond){
         if(tree == null || n == null || cond == null)

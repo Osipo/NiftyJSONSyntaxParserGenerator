@@ -23,4 +23,33 @@ module Dict {
         cc = 123;
         b2 = lf(4)();
     }
+
+    b3 = not(E is function);
+
+    X = [1, 2, 3];
+    Z = [666, 999];
+
+    T = [gen x, y, z for x, y in X, z in Z end];
+
+    acc1 = 0;
+    rsum = lambda(acc1, x) => {
+        if(acc1 == 0)
+            acc1 = x;
+        else
+            acc1 += x;
+        acc1;
+    };
+
+    ll4 = [gen rsum(acc1, x) for x in [1..10] end]; //1..10
+
+
+    acc2 = [];
+    rsum2 = lambda(acc1, x) => {
+        if(len(acc2) == 0)
+            acc2 = x + acc2;
+        else
+            acc2[-1] += x;
+        acc2;
+    };
+    ll5 = [gen rsum2(acc2, x) for x in [1..10] end]; //[55] 10 times.
 }

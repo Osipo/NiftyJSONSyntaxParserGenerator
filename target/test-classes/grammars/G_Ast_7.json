@@ -66,7 +66,8 @@
   },
   "keywords": [
     "true","false", "not", "lambda", "if", "else", "while", "pass",
-    "and", "or", "until", "goto", "for", "in", "gen", "reduce", "end", "is", "module", "from", "import"
+    "and", "or", "until", "goto", "for", "in", "gen", "reduce", "end", "is", "module", "from", "import",
+    "to"
   ],
   "separators": {
       "decimalNum": "_",
@@ -185,11 +186,17 @@
     ]},
 
     {"LITEM": "VECTOR"},
+    {"LITEM": "REDUCE"},
     {"VECTOR": [ "gen", "EXPRS", "for", "VARS", "end",
       {"act": "astNode", "type": "matrix", "value": "$1", "children": "$1"}
     ]},
-    {"REDUCE": ["reduce", "EXPRS", "for", "VARS", "end",
+    {"REDUCE": ["reduce", "STARTEXPRS", "to", "EXPRS", "for", "VARS", "end",
       {"act": "astNode", "type": "reduce", "value": "$1", "children": "$1"}
+    ]},
+
+    {"STARTEXPRS": ["EXPRSIN",
+      {"act": "astNode", "type": "initacc", "value": "accumulators", "children": "all"},
+      {"act": "astNode", "type": "start", "value": "accumulators", "child": "$0"}
     ]},
 
     {"EXPRS":["EXPRSIN",
@@ -319,6 +326,8 @@
       {"start": "{", "end": "}", "body": "SL"},
       {"start": "[", "end": "]", "body": "LITEMS"},
       {"start": "gen", "end": "for", "body": "EXPRSIN"},
+      {"start": "reduce", "body": "EXPRSIN"},
+      {"start": "to", "end": "for", "body": "EXPRSIN"},
       {"start": "for", "end": "end", "body": "VARSIN"},
       {"start": ["for", "id"], "body": "SEQUENCEIN"},
       {"start": ["VARITEMSEQ2", ","], "body": "SEQUENCEIN", "reduce": "1"},

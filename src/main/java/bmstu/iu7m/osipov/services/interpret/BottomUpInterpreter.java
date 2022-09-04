@@ -23,6 +23,8 @@ public class BottomUpInterpreter extends BaseInterpreter implements Interpreter 
     private ModuleProcessor moduleHandler;
     public BottomUpInterpreter(){
         this.labels = new ArrayList<>();
+        this.accumulators = new LinkedStack<ArrayList<Variable>>();
+        this.rstate = ReduceState.FIRST;
         this.blocks = 0;
         this.rootContext = new Env(null);
         addExternalFunction(); //init root context.
@@ -244,7 +246,7 @@ public class BottomUpInterpreter extends BaseInterpreter implements Interpreter 
 
             else
                 try{
-                    applyOperation(ast, env, n, exp, lists, indices, params, functions, args, nextItr, null, null, 0, matrices);
+                    applyOperation(ast, env, n, exp, lists, indices, params, functions, args, nextItr, null, null, 0, matrices, false);
                 }
                 catch (Exception e){
                     System.err.println(e); //if error -> break execution.
@@ -264,7 +266,8 @@ public class BottomUpInterpreter extends BaseInterpreter implements Interpreter 
                                 LinkedList<Elem<?>> vector_i,
                                 Map<String, Integer> vnames_idxs,
                                 int vector_len,
-                                LinkedStack<SequencesInterpreter> matrices) {
+                                LinkedStack<SequencesInterpreter> matrices,
+                                boolean isReduce) {
         AtomicReference<Env> env2 = new AtomicReference<>();
         env2.set(f.getContext());
         Node<AstSymbol> root = f.getRoot();
@@ -321,7 +324,7 @@ public class BottomUpInterpreter extends BaseInterpreter implements Interpreter 
 
             else
                 try{
-                    applyOperation(ast, env2, c, exp, lists, indices, params, functions, args, nextItr, vector_i, vnames_idxs, vector_len, matrices);
+                    applyOperation(ast, env2, c, exp, lists, indices, params, functions, args, nextItr, vector_i, vnames_idxs, vector_len, matrices, isReduce);
                 }
                 catch (Exception e){
                     System.err.println(e); //if error -> break execution.

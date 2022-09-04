@@ -59,7 +59,7 @@ public class SequencesInterpreter {
         this.vector_idx = vector_idx;
     }
 
-    public void generateItems(Node<AstSymbol> parentList) throws Exception {
+    public void generateItems(List<Elem<Object>> parentList, LinkedStack<ArrayList<Variable>> accs) throws Exception {
 
         //Collect all sequence items.
         VisitorsNextIteration<AstSymbol>  nextItr = new VisitorsNextIteration<>();
@@ -75,7 +75,7 @@ public class SequencesInterpreter {
         if(this.vector_idx != null){
             vnames_idxs.putAll(this.vector_idx);
             i.set(1 + this.vector_idx.size());
-            j.set(this.vector_idx.size());
+            j.set(this.vector_idx.size()); //from outer vector.
         }
 
         LinkedDeque<LinkedList<Elem<?>>> MATRIX_DATA = new LinkedDeque<>();
@@ -145,7 +145,8 @@ public class SequencesInterpreter {
                                         null,
                                         null,
                                         -1,
-                                        matrices
+                                        matrices,
+                                        false
                                 );
                             } catch (Exception e){
                                 System.err.println(e.getMessage());
@@ -218,6 +219,9 @@ public class SequencesInterpreter {
         Iterator<LinkedList<Elem<?>>> vectors = matrix.get().getDATA().reverseIterator();
         int expr_len = ast.getChildren(exprRoot).size() - 1; //length of vector except start/node.
 
+        String matrixType = ast.parent(exprRoot).getValue().getType(); //matrix or reduce node.
+
+        boolean isReduce = matrixType.equals("reduce");
 
         Node<AstSymbol> se = ast.leftMostChild(exprRoot); //skip start/vector node while processing vectors
         ast.detachNode(se);
@@ -255,7 +259,8 @@ public class SequencesInterpreter {
                             vector_i,
                             matrix.get().getNameIndices(),
                             expr_len,
-                            matrices
+                            matrices,
+                            isReduce
                     );
                 } catch (Exception e){
                     System.err.println(e.getMessage());
@@ -263,6 +268,17 @@ public class SequencesInterpreter {
                 }
             }, exprRoot, nextItr);
         } //end vectors
+
+        //if reduce operation with accumulators.
+        //attach them to the list
+        List<Variable> accs_in = (accs == null) ? null : accs.top();
+
+        if(accs_in != null && accs_in.size() > 0 && isReduce){
+            for(int ii = 0; ii < accs_in.size(); ii++)
+                parentList.add(new Elem<>(TypeChecker.CheckValue(accs_in.get(ii), null)));
+            accs_in.clear(); //flush list of accumulators.
+            accs.pop(); //remove inner reduce operator.
+        }
 
         ast.attachTo(se, exprRoot);
     }

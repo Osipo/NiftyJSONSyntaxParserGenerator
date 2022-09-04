@@ -19,12 +19,16 @@ import java.util.stream.Collectors;
 public abstract class BaseInterpreter {
 
     private boolean loop = false;
+    private boolean accumulatorItems = false;
 
     protected int blocks = 0;
 
     protected SequencesInterpreter curSequence = null;
 
     protected List<Triple<Node<AstSymbol>, Node<AstSymbol>, Integer>> labels;
+
+    protected LinkedStack<ArrayList<Variable>> accumulators; //for reduces.
+    protected ReduceState rstate; //step of reduce.
 
     public abstract void interpret(PositionalTree<AstSymbol> ast);
 
@@ -36,7 +40,9 @@ public abstract class BaseInterpreter {
                                          LinkedList<Elem<?>> vector_i,
                                          Map<String, Integer> vnames_idxs,
                                          int vector_len,
-                                         LinkedStack<SequencesInterpreter> matrices);
+                                         LinkedStack<SequencesInterpreter> matrices,
+                                         boolean isReduce
+                                         );
 
     protected void applyOperation(PositionalTree<AstSymbol> ast, AtomicReference<Env> context, Node<AstSymbol> cur,
                                   LinkedStack<Object> exp, LinkedStack<List<Elem<Object>>> lists,
@@ -47,7 +53,8 @@ public abstract class BaseInterpreter {
                                   LinkedList<Elem<?>> vector_i,
                                   Map<String, Integer> vnames_idxs,
                                   int vector_len,
-                                  LinkedStack<SequencesInterpreter> matrices
+                                  LinkedStack<SequencesInterpreter> matrices,
+                                  boolean isReduce
                                   ) throws Exception {
         if (context == null || cur == null || cur.getValue() == null)
             return;
@@ -128,11 +135,21 @@ public abstract class BaseInterpreter {
                     ));
                     this.curSequence = matrices.top();
                 }
+
+                // start/accumulators node of reduce operator.
+                else if(nodeVal.equals("accumulators")){
+                    this.accumulators.push(new ArrayList<>());
+                    this.accumulatorItems = true; //start init of accumulators
+                }
                 break;
             }
-            case "matrix": {
+            case "initacc": { //finish init of accumulators
+                this.accumulatorItems = false;
+                break;
+            }
+            case "matrix": case "reduce": {
                 nextIteration.setOpts(0);
-                this.curSequence.generateItems(ast.parent(cur)); //parent of matrix is always list/items.
+                this.curSequence.generateItems(lists.top(), this.accumulators); //parent of matrix is always list/items.
                 matrices.pop();
                 this.curSequence = matrices.top();
                 break;
@@ -201,7 +218,7 @@ public abstract class BaseInterpreter {
                     nextIteration.setOpts(2); //ignore first sibling (get second that is null).
                     return;
                 }
-                checkAssign(ast, cur, context.get(), opType, nodeVal, exp, lists, indices, functions, args, vector_i, vnames_idxs, vector_len);
+                checkAssign(ast, cur, context.get(), opType, nodeVal, exp, lists, indices, functions, args, vector_i, vnames_idxs, vector_len, isReduce);
                 break;
             }
 
@@ -254,7 +271,7 @@ public abstract class BaseInterpreter {
                        ((ExternalFunctionInterpreter) f).callExternal(exp);
                     }
                     else {
-                        execFunction(f, ast, exp, functions, nextIteration, vector_i, vnames_idxs, vector_len, matrices);
+                        execFunction(f, ast, exp, functions, nextIteration, vector_i, vnames_idxs, vector_len, matrices, isReduce);
                         f.setContext(f.getContext().getPrev()); //remove inner context
                     }
 
@@ -301,7 +318,7 @@ public abstract class BaseInterpreter {
             case "boolop":
             case "operator": {
                 Object val = TypeChecker.CheckExpressionType(exp, opType, nodeVal);
-                if(ast.parent(cur) == null)
+                if(ast.parent(cur) == null) //TODO: check USAGE
                     exp.push(val);
                 else
                     checkList(ast, ast.parent(cur), cur, context.get(), opType, val, exp, lists, args, nextIteration, vector_i);
@@ -372,14 +389,25 @@ public abstract class BaseInterpreter {
                 if(vector_i == null)
                     break;
                 List<Elem<Object>> vector_items = new ArrayList<>();
-                int offsetTop = vector_len - 1;
+                int offsetTop = vector_len - 1; //extract from stack. len = 2 => [1, 0]; len = 1 => [0].
 
                 for(int i = 0; i < vector_len; i++){
                     vector_items.add(new Elem<>(exp.topFrom(offsetTop)));
                     offsetTop--;
                 }
-                for(int i = 0; i < vector_len; i++)
+                for(int i = 0; i < vector_len; i++) //items moved from exp into vector_items.
                     exp.pop();
+
+                //computed expressions are in vector_items.
+                //If operator is reduce => update accumulators and add them if vector is last item.
+                if(isReduce){
+                    //update accumulators.
+                    for(int i = 0; i < vector_items.size(); i++){
+                        //variable and value are meaningful
+                        checkTypeAndGetValue(ast, cur, accumulators.top().get(i), context.get(), vector_items.get(i));
+                    }
+                    break;
+                }
 
                 if(vector_items.size() == 1)
                     lists.top().add(vector_items.get(0));
@@ -402,7 +430,7 @@ public abstract class BaseInterpreter {
                              LinkedStack<ArrayList<Object>> args,
                              LinkedList<Elem<?>> vector_i,
                              Map<String, Integer> vnames_idxs,
-                             int vector_len) throws Exception {
+                             int vector_len, boolean isReduce) throws Exception {
         Variable v = null;
         //System.out.println("expr = " + exp.top() + " / " + nVal);
         //System.out.println("Parent: " + ast.parent(cur).getValue());
@@ -422,9 +450,16 @@ public abstract class BaseInterpreter {
         else if(vector_i != null && vnames_idxs != null && vector_len > 0){ //try get from vector.
             //System.out.println(vnames_idxs);
             int vector_idx = vnames_idxs.getOrDefault(nVal, -1);
-            if(vector_idx == -1 && v == null)
+            if(vector_idx == -1 && v == null && !isReduce)
                 throw new Exception("Cannot find variable with name \'" + nVal + "\' at vector. Define variable before use it!");
 
+            else if(nVal.equals("acc") && isReduce) { //context name acc: ignore sequence item or outer variable name
+                //1. compute position of expression.
+                int acc_i = PositionalTreeUtils.indexOfChildAt(ast, cur, (x) -> x.getType().equals("vector"));
+                v = accumulators.top().get(acc_i); //extract accumulator variable and add it to expr.
+            }
+
+            //if variable is not exists but found at vector => extract it from vector.
             if(v == null) {
                 v = new Variable(nVal); //new sequence variable.
                 checkTypeAndGetValue(ast, cur, v, context, vector_i.get(vector_idx));
@@ -457,21 +492,23 @@ public abstract class BaseInterpreter {
                     args.top().add(content);
             }
             else if(content.size() == 1 && content.get(0).getV1() instanceof FunctionInterpreter){ //function element
-                functions.push((FunctionInterpreter) content.get(0).getV1());
+                functions.push((FunctionInterpreter) content.get(0).getV1()); //TODO: check init reduce accumulators
             }
             else if(content.size() == 1) { //primitive element
-                exp.push(TypeChecker.CheckValue(content.get(0).getV1(), null));
+                checkReduce(TypeChecker.CheckValue(content.get(0).getV1(), null), exp, lists, 0); //exp.push
             }
-            else if(content.size() > 1) //list expression. (list element)
-                lists.push(content);
+            else if(content.size() > 1) { //list expression. (list element)
+                checkReduce(content, exp, lists, -1); //lists.push
+            }
         }
         else if (parent.getValue().getType().equals("list")) // variable > list.
             lists.top().add(new Elem<>(TypeChecker.CheckValue(v, null)));
         else if(parent.getValue().getType().equals("args")) // variable > args.
             args.top().add(TypeChecker.CheckValue(v, null));
         else
-            exp.push(TypeChecker.CheckValue(v, null)); //Replace getStrValue to v
+            checkReduce(TypeChecker.CheckValue(v, null), exp, lists, 0); //exp.push
     }
+
 
     //Check what is expression part of (whole itself, part of expr, list item, arg item, as if condition, as while condition)
     protected void checkList(PositionalTree<AstSymbol> ast, Node<AstSymbol> parent, Node<AstSymbol> cur, Env context,
@@ -525,7 +562,35 @@ public abstract class BaseInterpreter {
             this.loop = false;
         }
         else
-            exp.push(nVal); //part of expr or expr itself -> add to expression stack.
+            checkReduce(nVal, exp, lists, 0); //part of expr or expr itself -> add to expression stack.
+    }
+
+    //check if value is in init accumulators.
+    protected void checkReduce(Object value, LinkedStack<Object> exp, LinkedStack<List<Elem<Object>>> lists, int addToExp){
+        while(value instanceof Elem<?>)
+            value = ((Elem<?>) value).getV1();
+
+        if(accumulatorItems){
+            Variable v = new Variable("$_accs");
+            if(value instanceof String)
+                v.setStrVal((String) value);
+            else if(value instanceof Integer)
+                v.setStrVal(((Integer) value).toString());
+            else if(value instanceof Double)
+                v.setStrVal(((Double) value).toString());
+            else if(value instanceof List){
+                v.setItems((List<Elem<Object>>) value);
+                v.setStrVal(v.getItems().toString());
+            }
+            else if(value instanceof FunctionInterpreter){
+                v.setFunction((FunctionInterpreter) value);
+            }
+            accumulators.top().add(v);
+        }
+        else if(value instanceof List && addToExp == -1)
+            lists.push((List<Elem<Object>>) value);
+        else if(addToExp == 0)
+            exp.push(value);
     }
 
     protected List<Elem<Object>> scanAccess(Variable v, ArrayList<List<Elem<Object>>> indices, int offset){

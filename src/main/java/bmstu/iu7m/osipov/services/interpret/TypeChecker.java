@@ -160,11 +160,11 @@ public class TypeChecker {
             }
         }
         if(Math.floor(d1) == d1) //is integer [4.0, 5.0]
-            n = Integer.toString((int) d1);
+            return ((Double) d1).intValue();
+            //n = Integer.toString((int) d1);
         else
-            n = Double.toString(d1); //double [4.0001]
-
-        return n;
+            return (Double) d1;
+            //n = Double.toString(d1); //double [4.0001]
     }
 
     //TODO: Expect Raw Values got from CheckValue()

@@ -1,0 +1,8 @@
+module Preview {
+    l = [gen 2 * x + 1 for x in [1..10] end, -1];
+    l2 = [1000, l[2..5], 1000];
+    r = [reduce 0, 1 to  acc + x, x * acc for x in [1..10] end]; //[sum(0, 1..10), product(1, 1..10)]
+
+    //inner is not supported yet. Expected [sum([55], 1..10)] => [[110]]
+    //r2 = [reduce [reduce 0 to acc + y for y in [1..10] end] to acc + x for x in [1..10] end];
+}

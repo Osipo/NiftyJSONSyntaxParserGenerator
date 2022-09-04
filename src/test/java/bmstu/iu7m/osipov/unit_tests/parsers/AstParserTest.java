@@ -27,6 +27,7 @@ import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.Arrays.stream;
 
@@ -39,7 +40,7 @@ public class AstParserTest {
 
 
 
-    //@Test
+    @Test
     public void test_langs_interpretation() {
         //assert test_lang_interpret("G_Ast_1.json", "ast\\ast_input1.txt", "ast11", false);
         //assert test_lang_interpret("G_Ast_2.json", "ast\\ast_input2.txt", "ast21", false);
@@ -49,8 +50,9 @@ public class AstParserTest {
         //assert test_lang_interpret("G_Ast_6.json", "ast\\ast_input_61_matrix.txt", "ast61", false);
         //assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_73.txt", "ast73", true);
         //assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_71.txt", "ast71", false);
-        assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\matrix_det.txt", "mdet", true);
+        //assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\matrix_det.txt", "mdet", true);
         //assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_75.txt", "ast75", false);
+        assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_76.txt", "ast76", false);
     }
 
 
@@ -125,14 +127,18 @@ public class AstParserTest {
 
         //LocalTime t_start = LocalTime.now();
         long start = System.currentTimeMillis();
+        long start2 = System.nanoTime();
         inter.interpret(ast);
         long end = System.currentTimeMillis();
+        long end2 = System.nanoTime();
+
         //LocalTime t_end = LocalTime.from(t_start);
 
 
         System.out.println("AST nodes: " + ast.getCount());
         System.out.println("Parsing tree nodes: " + t.getCount());
         System.out.println("Finished secs: " + (end - start) / 1000.0);
+        System.out.println("Finished mills: " + TimeUnit.NANOSECONDS.toMillis(end2 - start2));
     }
 
     /*
