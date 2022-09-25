@@ -68,6 +68,7 @@ public class FALexerGenerator {
                         p_i = p_i.replaceAll(G.getEmpty(),(char)1+"");// special symbol for empty-character.
                     p_i = p_i.replaceAll("(?<!@)_",(char)0+"");// another special symbol for any character.
                     p_i = p_i.replaceAll("@_","_"); //escaped '_'
+
                     parser.setTerminals(p_i.toCharArray());
 
                     //convert [A-Z] classes to (A|B|..|Z) expressions

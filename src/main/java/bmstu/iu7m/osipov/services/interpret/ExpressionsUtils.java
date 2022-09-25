@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ExpressionsUtils {
 
-    //NUMBER AND NUMBER
+    //NUMBER binop NUMBER
     public static void ParseNumberNumberExpr(Object n1, Object n2, String op, Variable v) throws Exception {
         String t1 = null;
         String t2 = null;
@@ -36,6 +36,7 @@ public class ExpressionsUtils {
 
 
         //cannot parse. NaN is illegal for str_numbers
+        //that is we have num op str or str op str.
         if(r_d1 == null || r_d2 == null){
             if(t1 == null)
                 t1 = ((Double) d1).toString();//num to str
@@ -108,10 +109,50 @@ public class ExpressionsUtils {
                 d1 = d1 % d2;
                 break;
             }
-            case "^":{
+            case "**":{
                 d1 = Math.pow(d1, d2);
                 break;
             }
+
+            //bit ops supported only for integers.
+            case "&":{
+                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
+                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
+                d1 = ((int)d1) & ((int) d2);
+                break;
+            }
+            case "|":{
+                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
+                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
+                d1 = ((int)d1) | ((int) d2);
+                break;
+            }
+            case "^":{
+                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
+                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
+                d1 = ((int)d1) ^ ((int) d2);
+                break;
+            }
+
+            case ">>": {
+                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
+                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
+                d1 = ((int) d1) >> ((int) d2);
+                break;
+            }
+            case "<<": {
+                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
+                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
+                d1 = ((int) d1) << ((int) d2);
+                break;
+            }
+            case ">>>": {
+                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
+                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
+                d1 = ((int) d1) >>> ((int) d2);
+                break;
+            }
+
 
         } //end inner switch relop.
 
@@ -200,7 +241,7 @@ public class ExpressionsUtils {
                 str = s1.replace(s2, "");
             }
             default: {
-                throw new Exception("Operator '" + op + "' is not supported.");
+                throw new Exception("Operator '" + op + "' is not supported for String type.");
             }
 
         } //end inner switch relop.
@@ -317,12 +358,54 @@ public class ExpressionsUtils {
                 d1 = d1 % d2;
                 break;
             }
-            case "^":{
+            case "**":{
                 d1 = Math.pow(d1, d2);
                 break;
             }
+
+            //bit ops supported only for integers.
+            case "&":{
+                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
+                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
+                d1 = ((int)d1) & ((int) d2);
+                break;
+            }
+            case "|":{
+                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
+                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
+                d1 = ((int)d1) | ((int) d2);
+                break;
+            }
+            case "^":{
+                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
+                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
+                d1 = ((int)d1) ^ ((int) d2);
+                break;
+            }
+
+            //shift ops
+            case ">>": {
+                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
+                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
+                d1 = ((int) d1) >> ((int) d2);
+                break;
+            }
+            case "<<": {
+                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
+                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
+                d1 = ((int) d1) << ((int) d2);
+                break;
+            }
+            case ">>>": {
+                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
+                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
+                d1 = ((int) d1) >>> ((int) d2);
+                break;
+            }
+
+
             default: {
-                throw new Exception("Operator '" + op + "' is not supported.");
+                throw new Exception("Operator '" + op + "' is not supported");
             }
 
         } //end inner switch relop.
@@ -399,8 +482,10 @@ public class ExpressionsUtils {
         return t1;
     }
 
-    private static void AddToEachItem(List<Elem<Object>> items, double value, String op){
+    private static void AddToEachItem(List<Elem<Object>> items, double value, String op) throws Exception {
         ArithmeticOperation method = null;
+
+        /*
         switch (op){
             case "*":{
                 method = (i, v) -> {
@@ -415,7 +500,7 @@ public class ExpressionsUtils {
                 method = (i, v) -> {
                     String s = i.getV1().toString();
                     double d1 = ProcessNumber.parseNumber(s);
-                    d1 = d1 / v;
+                    d1 = v / d1;
                     i.setV1(d1);
                 };
                 break;
@@ -433,7 +518,7 @@ public class ExpressionsUtils {
                 method = (i, v) -> {
                     String s = i.getV1().toString();
                     double d1 = ProcessNumber.parseNumber(s);
-                    d1 = d1 - v;
+                    d1 = v - d1;
                     i.setV1(d1);
                 };
                 break;
@@ -447,7 +532,7 @@ public class ExpressionsUtils {
                 };
                 break;
             }
-            case "^":{
+            case "**":{
                 method = (i, v) -> {
                     String s = i.getV1().toString();
                     double d1 = ProcessNumber.parseNumber(s);
@@ -456,7 +541,36 @@ public class ExpressionsUtils {
                 };
                 break;
             }
+
+            //shift ops.
+            case ">>": {
+                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
+                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
+                d1 = ((int) d1) >> ((int) d2);
+                break;
+            }
+            case "<<": {
+                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
+                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
+                d1 = ((int) d1) << ((int) d2);
+                break;
+            }
+            case ">>>": {
+                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
+                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
+                d1 = ((int) d1) >>> ((int) d2);
+                break;
+            }
+
+
         } //end inner switch
+         */
+
+        //just apply primitive operation resolver and set result into item.
+        method = (i, v) -> {
+            Object result = ExpressionsUtils.ParseNumberNumberExpr(i.getV1().toString(), v, op);
+            i.setV1(result);
+        };
 
         for(Elem<Object> item : items){
             if(item.getV1() instanceof List)
@@ -537,7 +651,7 @@ public class ExpressionsUtils {
         }
         //cannot parse str_num n1
         if(r_d2 == null){
-            val = t1;
+            val = t1; //
         }
         else
             d2 = r_d2;
@@ -585,6 +699,10 @@ public class ExpressionsUtils {
                 nList = MakeCartesian(nList, t2);
                 break;
             }
+            case "^^":{
+                nList = MakeIntersect(nList, t2);
+                break;
+            }
             default: {
                 throw new Exception("Operator '" + op + "' is not defined for lists.");
             }
@@ -621,6 +739,10 @@ public class ExpressionsUtils {
                 nList = MakeCartesian(nList, t2);
                 break;
             }
+            case "^^":{
+                nList = MakeIntersect(nList, t2);
+                break;
+            }
             default: {
                 throw new Exception("Operator '" + op + "' is not defined for lists.");
             }
@@ -639,6 +761,25 @@ public class ExpressionsUtils {
                 result.add(new Elem<>(v_i)); //add result vector.
             } //inner for
         }// for
+        return result;
+    }
+
+    private static List<Elem<Object>> MakeIntersect(List<Elem<Object>> a, List<Elem<Object>> b){
+        List<Elem<Object>> result = new ArrayList<>();
+        for(Elem<?> item : a) {
+            for (Elem<?> item2 : b) {
+                //System.out.println(item.getV1() + " " + item2.getV1() + " (" + item.getV1().getClass().getName() + ", " + item2.getV1().getClass().getName());
+                if(item.getV1().getClass().isAssignableFrom(Double.class)  && item2.getV1().getClass().isAssignableFrom(Number.class)){
+                    double i_1 = ((Number) item.getV1()).doubleValue();
+                    double i_2 = ((Number) item2.getV1()).doubleValue();
+                    if(i_1 == i_2)
+                        result.add(new Elem<>(item.getV1()));
+                }
+                else if(item.getV1().equals(item2.getV1())) {
+                    result.add(new Elem<>(item.getV1()));
+                }
+            }
+        }
         return result;
     }
 
@@ -700,8 +841,12 @@ public class ExpressionsUtils {
         Variable item_i = null;
         Env sub = new Env(A.getPrev());
         boolean toogle = false;
+        boolean passedA = false;
         while(childs.hasNext()) {
             item_i = childs.next();
+
+            if(toogle) //at B
+                passedA = true;
 
             //after last element of A goto B.
             if(!childs.hasNext() && !toogle){
@@ -711,14 +856,46 @@ public class ExpressionsUtils {
 
             switch (op) {
                 case "+": {
-                    if(sub.get(item_i.getValue()) != null)
-                        throw new Exception("Cannot redefine. Variable with key '" + item_i.getValue() + "' was already added. Keys must be unique!");
+                    //Overriding allowed. Exceptions disabled.
+                    //if(sub.getAtCurrent(item_i.getValue()) != null)
+                        //throw new Exception("Cannot redefine. Variable with key '" + item_i.getValue() + "' was already added. Keys must be unique!");
+
                     Variable nv = new Variable(item_i.getValue());
                     nv.setStrVal(item_i.getStrVal());
                     nv.setItems(item_i.getItems());
                     nv.setFunction(item_i.getFunction());
                     nv.setSubModule(item_i.getSubModule());
-                    sub.add(item_i);
+
+                    if(!sub.add(item_i)) //cannot add => then override it.
+                        sub.override(item_i);
+                    break;
+                }
+                case "-": {
+                    //System.out.println(passedA + " " + item_i.toString());
+                    //System.out.println(B.get(item_i.getValue()));
+                    if(!passedA && B.getAtCurrent(item_i.getValue()) == null){ //only at A. (B subtracted).
+                        Variable nv = new Variable(item_i.getValue());
+                        nv.setStrVal(item_i.getStrVal());
+                        nv.setItems(item_i.getItems());
+                        nv.setFunction(item_i.getFunction());
+                        nv.setSubModule(item_i.getSubModule());
+
+                        if(!sub.add(item_i)) //cannot add => then override it.
+                            sub.override(item_i);
+                    }
+                    break;
+                }
+                case "^^": {
+                    if(!passedA && B.getAtCurrent(item_i.getValue()) != null){ //only at A. (B subtracted).
+                        Variable nv = new Variable(item_i.getValue());
+                        nv.setStrVal(item_i.getStrVal());
+                        nv.setItems(item_i.getItems());
+                        nv.setFunction(item_i.getFunction());
+                        nv.setSubModule(item_i.getSubModule());
+
+                        if(!sub.add(item_i)) //cannot add => then override it.
+                            sub.override(item_i);
+                    }
                     break;
                 }
                 default:

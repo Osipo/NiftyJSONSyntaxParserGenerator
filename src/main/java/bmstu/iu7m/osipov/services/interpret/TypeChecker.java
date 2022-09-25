@@ -144,6 +144,7 @@ public class TypeChecker {
                 d1 = -d1; //negate.
             }
             case "+":{
+                d1 = +d1;
                 break;
             }
             case "++":{
@@ -156,6 +157,13 @@ public class TypeChecker {
             }
             case "not":{
                 d1 = (d1 >= 1) ? 0 : 1; //negate 1 to 0 and vice versa.
+                break;
+            }
+            case "~": {
+                if(Math.floor(d1) == d1)
+                    d1 = ~((int)d1);
+                else
+                    throw new Exception("Operator '~' expects integer number as operand!");
                 break;
             }
         }
@@ -260,11 +268,12 @@ public class TypeChecker {
         boolean isNewVar = false;
 
         switch (operator){
-            case "+=": case "-=": case "*=": case "/=": case "%=": case "^=": {
+            case "+=": case "-=": case "*=": case "/=": case "%=":
+            case "^=": case "&=": case "|=": case ">>=": case "<<=": case ">>>=":
+            case "^^=":
+                {
 
                 v = context.get(vName);
-
-
 
                 vType = CheckVariableType(v, vName, false); //check that both variables are defined and compute their type.
                 Object oldVal = null;
@@ -348,7 +357,7 @@ public class TypeChecker {
 
                 //TODO: Make independent vars for dict
                 //v = context.get(vName); //if inner context presented it extracted the nearest outer block variable.
-                v = context.getAtCurrent(vName); //get only from current context.
+                v = context.getAtCurrent(vName); //get only from current context. (defines new variable at inner block).
 
                 if(lists.top() != null && indices.size() == 0) {
                     if(v == null) {

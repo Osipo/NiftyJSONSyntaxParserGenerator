@@ -53,6 +53,7 @@ public class AstParserTest {
         //assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\matrix_det.txt", "mdet", true);
         //assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_75.txt", "ast75", false);
         assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_76.txt", "ast76", false);
+        //assert test_lang_interpret("G_Ast_7_cmd.json", "ast\\ast_modules\\ast_input_76c.txt", "ast76_c", false);
     }
 
 
@@ -78,7 +79,7 @@ public class AstParserTest {
         DFALexer lexer = new DFALexer(new DFA(lg.buildNFA(G))); //NFA -> DFA -> min_DFA_lexer.
 
         //show lexer
-        //lexer.getImagefromStr(PathStrings.LEXERS, suffix + "_right_lexer");
+       // lexer.getImagefromStr(PathStrings.LEXERS, suffix + "_right_lexer");
 
         LRAstTranslator parser = new LRAstTranslator(G, lexer, LRAlgorithm.SLR);
         parser.setParserMode(ParserMode.HIDE);
@@ -177,5 +178,7 @@ public class AstParserTest {
     @Test
     public void stub_test() throws Exception {
         assert ExpressionsUtils.IsTrue(1);
+        assert Math.floor(1.0) == 1.0;
+        assert 1.0 % 1 == 0;
     }
 }

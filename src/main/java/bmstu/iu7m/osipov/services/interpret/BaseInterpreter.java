@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 public abstract class BaseInterpreter {
 
     private boolean loop = false;
-    private boolean accumulatorItems = false;
 
     protected int blocks = 0;
 
@@ -28,7 +27,7 @@ public abstract class BaseInterpreter {
     protected List<Triple<Node<AstSymbol>, Node<AstSymbol>, Integer>> labels;
 
     protected LinkedStack<ArrayList<Variable>> accumulators; //for reduces.
-    protected ReduceState rstate; //step of reduce.
+    protected LinkedStack<Boolean> isAccumulatorItems;
 
     public abstract void interpret(PositionalTree<AstSymbol> ast);
 
@@ -68,8 +67,10 @@ public abstract class BaseInterpreter {
                 break;
             }
             case "number": {
-                nodeVal = ProcessNumber.parseNumber(nodeVal) + ""; //get parsed double as str.
-                checkList(ast, ast.parent(cur), cur, context.get(), opType, nodeVal, exp, lists, args, nextIteration, vector_i);
+                Object num_val = ProcessNumber.parseOnlyNumber(nodeVal); //push raw numeric value (not string)!
+                if(num_val != null && ((Double) num_val) % 1 == 0)
+                    num_val = ((Double) num_val).intValue();
+                checkList(ast, ast.parent(cur), cur, context.get(), opType, num_val, exp, lists, args, nextIteration, vector_i);
                 break;
             }
             case "pass": {
@@ -139,17 +140,18 @@ public abstract class BaseInterpreter {
                 // start/accumulators node of reduce operator.
                 else if(nodeVal.equals("accumulators")){
                     this.accumulators.push(new ArrayList<>());
-                    this.accumulatorItems = true; //start init of accumulators
+                    this.isAccumulatorItems.push(true);
                 }
                 break;
             }
             case "initacc": { //finish init of accumulators
-                this.accumulatorItems = false;
+                this.isAccumulatorItems.pop();
+                this.isAccumulatorItems.push(false);
                 break;
             }
             case "matrix": case "reduce": {
                 nextIteration.setOpts(0);
-                this.curSequence.generateItems(lists.top(), this.accumulators); //parent of matrix is always list/items.
+                this.curSequence.generateItems(lists.top(), this.accumulators, this.isAccumulatorItems); //parent of matrix is always list/items.
                 matrices.pop();
                 this.curSequence = matrices.top();
                 break;
@@ -170,6 +172,9 @@ public abstract class BaseInterpreter {
                     List<Elem<Object>> list_arg = lists.top();
                     lists.pop();
                     args.top().add(list_arg); //add as single argument with type list.
+                }
+                else if(ast.parent(cur).getValue().getType().equals("initacc")){ //as start value of acc
+                    checkReduce(lists.top(), exp, lists, -1); //if inner then lists will be added to accumulators.
                 }
 
                 //if list is a PART of expression (not a part of sequence generator!)
@@ -460,7 +465,8 @@ public abstract class BaseInterpreter {
             }
 
             //if variable is not exists but found at vector => extract it from vector.
-            if(v == null) {
+            //else if it exists and matches the vector sequence_item => use from vector.
+            if(v == null || vector_idx != -1) {
                 v = new Variable(nVal); //new sequence variable.
                 checkTypeAndGetValue(ast, cur, v, context, vector_i.get(vector_idx));
             }
@@ -570,7 +576,7 @@ public abstract class BaseInterpreter {
         while(value instanceof Elem<?>)
             value = ((Elem<?>) value).getV1();
 
-        if(accumulatorItems){
+        if(!isAccumulatorItems.isEmpty() && isAccumulatorItems.top()){
             Variable v = new Variable("$_accs");
             if(value instanceof String)
                 v.setStrVal((String) value);

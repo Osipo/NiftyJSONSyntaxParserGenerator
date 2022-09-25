@@ -11,4 +11,6 @@ from MyModule.Math import *
     nf10 = n_fact(9); //= 40320 * 9 = 362880
 
     pcol = pcol(MC);
+
+
 }

@@ -24,7 +24,7 @@ public class BottomUpInterpreter extends BaseInterpreter implements Interpreter 
     public BottomUpInterpreter(){
         this.labels = new ArrayList<>();
         this.accumulators = new LinkedStack<ArrayList<Variable>>();
-        this.rstate = ReduceState.FIRST;
+        this.isAccumulatorItems = new LinkedStack<>();
         this.blocks = 0;
         this.rootContext = new Env(null);
         addExternalFunction(); //init root context.

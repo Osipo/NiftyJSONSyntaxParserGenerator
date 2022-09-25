@@ -59,7 +59,7 @@ public class SequencesInterpreter {
         this.vector_idx = vector_idx;
     }
 
-    public void generateItems(List<Elem<Object>> parentList, LinkedStack<ArrayList<Variable>> accs) throws Exception {
+    public void generateItems(List<Elem<Object>> parentList, LinkedStack<ArrayList<Variable>> accs, LinkedStack<Boolean> is_acc_items) throws Exception {
 
         //Collect all sequence items.
         VisitorsNextIteration<AstSymbol>  nextItr = new VisitorsNextIteration<>();
@@ -278,6 +278,7 @@ public class SequencesInterpreter {
                 parentList.add(new Elem<>(TypeChecker.CheckValue(accs_in.get(ii), null)));
             accs_in.clear(); //flush list of accumulators.
             accs.pop(); //remove inner reduce operator.
+            is_acc_items.pop(); //pop false item.
         }
 
         ast.attachTo(se, exprRoot);

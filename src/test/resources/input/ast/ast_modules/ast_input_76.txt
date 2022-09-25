@@ -1,8 +1,35 @@
 module Preview {
-    l = [gen 2 * x + 1 for x in [1..10] end, -1];
+    l = [gen 2 * x + 1 for x in [1..10] end, -1.1];
     l2 = [1000, l[2..5], 1000];
     r = [reduce 0, 1 to  acc + x, x * acc for x in [1..10] end]; //[sum(0, 1..10), product(1, 1..10)]
 
     //inner is not supported yet. Expected [sum([55], 1..10)] => [[110]]
     //r2 = [reduce [reduce 0 to acc + y for y in [1..10] end] to acc + x for x in [1..10] end];
+    x = 0b1__0P2; //8
+
+    l3 = [gen x + r[0] for x in [1..10] end]; //although the name x is defined above, the current scope x is bound to the sequence_item
+    x = l3[9] * x; //65 * 8 = 520
+    y = 2 ** 10; // bin = 100 0000 0000
+
+    y = y - 15 ^ 10 & 8; //1024 - 15 ^ (10 & 8). = 1009 ^ 8
+
+    a = 1000000;
+    m1 = {
+        a = x + 123; //x defined above.
+    };
+    m2 = {
+        x = 1;
+        a = 999;
+    };
+    a = a + 1;
+    m3 = m1 + m2; //m2 {x = 1, a = 999}
+    m4 = m3 - m1; //m2 {x = 1} delete 'a' by key.
+
+    // '^^' => intersection operator. Applied between dictionaries and lists. Performed from left-to-right.
+    m5 = m3 ^^ m1; //m5 {a = 999} {x, a} intersect {a} => {a}. as it performed from left-to-right only A keys that are also in B preserved.
+
+    //l3 = [56..65]
+    l4 = l3 ^^ [50, 51, 52, 60, 65, 62, 33]; //=> [60, 62, 65].
+    l5 = [0..1] + [2..3];
+    l5 ^^= [4, 6, 1, 2]; // {0, 1, 2, 3} intersect { 4, 6, 1, 2 } = { 1, 2 }
 }

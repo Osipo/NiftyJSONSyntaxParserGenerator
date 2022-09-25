@@ -12,6 +12,7 @@ public class Variable implements Value<String> {
     private final String name;
 
     private String strVal; //expression (primitive)
+    private Object val; // actual value.
     private List<Elem<Object>> items; //list expression (non-primitive -> list)
     private FunctionInterpreter function; //function expression.
     private Node<AstSymbol> next; //label -> ptr to next instruction.
@@ -42,6 +43,13 @@ public class Variable implements Value<String> {
 
     public String getStrVal() {
         return strVal;
+    }
+
+    public void setActualValue(Object v){
+        this.val = v;
+    }
+    public Object getActualValue(){
+        return this.val;
     }
 
     public void setItems(List<Elem<Object>> items){

@@ -3,6 +3,8 @@
     "+": "+",
     "-": "-",
     "*": "*",
+    "**": "@*@*",
+    "^^": "@^@^",
     "/": "/",
     "%": "%",
     "^": "^",
@@ -24,13 +26,26 @@
     "*=": "@*=",
     "/=": "/=",
     "%=": "%=",
+
     "^=": "@^=",
+    "&=": "&=",
+    "|=": "@|=",
+    ">>=": ">>=",
+    "<<=": "<<=",
+    ">>>=": ">>>=",
+    "^^=": "@^@^=",
+
+    ">>": ">>",
+    "<<": "<<",
+    ">>>": ">>>",
 
     "=>": "=>",
     ";": ";",
     ":": ":",
     "&&" : "&&",
     "||" : "@|@|",
+    "&": "&",
+    "|": "|",
     "->": "->",
     "rankdel": "..",
     "#": "#",
@@ -156,7 +171,9 @@
     ]
     },
 
-    {"AOP": "="}, {"AOP": "+="}, {"AOP": "-="}, {"AOP": "*="}, {"AOP": "/="},{"AOP": "%="}, {"AOP": "^="},
+    {"AOP": "="}, {"AOP": "+="}, {"AOP": "-="}, {"AOP": "*="}, {"AOP": "/="},{"AOP": "%="},
+    {"AOP": "^="}, {"AOP": "&="}, {"AOP": "|="}, {"AOP": ">>="}, {"AOP": "<<="}, {"AOP": ">>>="},
+    {"AOP": "^^="},
 
     {"ACLIST": ["RANGES",
       {"act": "astNode", "type": "access", "value": "indices", "children": "all"}
@@ -262,28 +279,50 @@
     ]},
 
     {"EXP": "B"},
-    {"B": ["B","=>","DISJ", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
+
+    {"B": ["B","->","DISJ", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
     {"B": "DISJ"},
     {"DISJ": ["DISJ","or","CONJ",  {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
     {"DISJ": "CONJ"},
-    {"CONJ": ["CONJ","and","E", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
-    {"CONJ": "E"},
+    {"CONJ": ["CONJ","and","BOR", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
+    {"CONJ": "BOR"},
 
-    {"E": ["AE","RELOP","AE", {"act": "astNode", "value": "$1_0", "type": "relop", "children": "$1"}]},
+
+    {"BOR": ["BOR", "|", "BXOR", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"BOR": ["BXOR"]},
+    {"BXOR": ["BXOR", "^", "BE", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"BXOR": ["BE"]},
+    {"BE": ["BE", "&", "E", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"BE": "E"},
+
+    {"E": ["SAE","RELOP","SAE", {"act": "astNode", "value": "$1_0", "type": "relop", "children": "$1"}]},
     {"RELOP": "<"},{"RELOP": "<="},{"RELOP": ">"},{"RELOP": ">="},{"RELOP": "=="},{"RELOP": "<>"},
+    {"E": "SAE"},
 
-    {"E": "AE"},
+
+    {"SAE": ["SAE", ">>", "AE", {"act": "astNode", "type": "operator", "value": "$1", "children": "$1"}]},
+    {"SAE": ["SAE", ">>>", "AE", {"act": "astNode", "type": "operator", "value": "$1", "children": "$1"}]},
+    {"SAE": ["SAE", "<<", "AE", {"act": "astNode", "type": "operator", "value": "$1", "children": "$1"}]},
+    {"SAE": ["AE"]},
+
     {"AE": ["AE", "+", "T", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"AE": ["AE", "-", "T", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"AE": ["AE", "+", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"AE": ["AE", "-", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"AE": ["LIST", "+", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"AE": ["LIST", "-", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
 
 
     {"AE": ["T"]},
     {"T": ["T", "*", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"T": ["T", "/", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"T": ["T", "^^", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"T": ["T", "^^", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"T": ["LIST", "^^", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"T": ["T", "*", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"T": ["LIST", "*", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"T": ["F"]},
-    {"F": ["UE", "^", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"F": ["UE", "**", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"F": ["UE"]},
     {"UE": ["um", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "unaryop"}]},
     {"UE": ["up", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "unaryop"}]},

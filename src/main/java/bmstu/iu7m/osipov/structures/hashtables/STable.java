@@ -47,7 +47,7 @@ public class STable implements Iterable<Variable> {
         //System.out.println("Table was initiated with "+table.size()+" null elements.");
     }
 
-    public void add(Variable entry){
+    public boolean add(Variable entry){
         boolean isAdded = false;
         int h = hash(entry.getValue());
         BinarySearchTree<Variable> rec = table.get(h);
@@ -62,14 +62,28 @@ public class STable implements Iterable<Variable> {
         }
         if(isAdded)
             this.added.add(entry);
+        return isAdded;
+    }
+
+    public void override(Variable entry){
+        int h = hash(entry.getValue());
+        BinarySearchTree<Variable> rec = table.get(h);
+        if(rec == null) //not found => add new variable
+            add(entry);
+        else {
+            this.added.remove(get(entry.getValue())); //remove old variable from iterator.
+            rec.override(entry); //put new variable to tree and erase old variable.
+            this.added.add(entry); //and add new variable to iterator.
+        }
     }
 
     public int size(){
         return this.added.size();
     }
 
-    public void add(String s){
+    public boolean add(String s){
         int h = hash(s);
+        boolean isAdded = false;
         BinarySearchTree<Variable> rec = table.get(h);
         if(rec == null){
             rec = new BinarySearchTree<Variable>(new StringContainerComparator<Variable>());
@@ -77,13 +91,15 @@ public class STable implements Iterable<Variable> {
             rec.add(v_i);
             this.table.set(h, rec);
             this.added.add(v_i);
+            isAdded = true;
         }
         else{
             Variable v_i = new Variable(s);
-            boolean isAdded = rec.add(v_i);
+            isAdded = rec.add(v_i);
             if(isAdded)
                 this.added.add(v_i);
         }
+        return isAdded;
     }
 
     public void printTable(){

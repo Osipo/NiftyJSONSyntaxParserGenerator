@@ -30,7 +30,7 @@ public class BinarySearchTree<T> implements Tree<T> {
             return;
         }
         while(node != null){
-            if(_comp.compare(item,node.getValue()) < 0){
+            if(_comp.compare(item, node.getValue()) < 0){
                 if(node.isLeftLeaf()){
                     node.setLeft(new LinkedBinaryNode<T>());
                     node.getLeft().setValue(item);
@@ -118,13 +118,32 @@ public class BinarySearchTree<T> implements Tree<T> {
         return false;
     }
 
-    private T __GetElem(T item,LinkedBinaryNode<T> node){
+    private T __GetElem(T item, LinkedBinaryNode<T> node){
         if(_count == 0){
             return null;
         }
         while(node != null){
             if(_comp.compare(item,node.getValue()) == 0 || node.getValue().equals(item)){
                 return node.getValue();
+            }
+            else if(_comp.compare(item,node.getValue()) < 0){
+                node = node.getLeft();
+            }
+            else {
+                node = node.getRight();
+            }
+        }
+        return null;
+    }
+
+    private LinkedBinaryNode<T> __NodeOf(T item){
+        LinkedBinaryNode<T> node = _r;
+        if(_count == 0){
+            return null;
+        }
+        while(node != null){
+            if(_comp.compare(item,node.getValue()) == 0 || node.getValue().equals(item)){
+                return node;
             }
             else if(_comp.compare(item,node.getValue()) < 0){
                 node = node.getLeft();
@@ -154,12 +173,20 @@ public class BinarySearchTree<T> implements Tree<T> {
         return true;
     }
 
+    public void override(T item){
+        LinkedBinaryNode<T> nitem = __NodeOf(item);
+        if(nitem == null)
+            add(item);
+        else
+            nitem.setValue(item);
+    }
+
     public T deleteMin(){
         return __DeleteMin(_r);
     }
 
     public void delete(T item){
-        if(__Member(item,_r)){
+        if(__Member(item, _r)){
             __Delete(item,_r);
         }
     }

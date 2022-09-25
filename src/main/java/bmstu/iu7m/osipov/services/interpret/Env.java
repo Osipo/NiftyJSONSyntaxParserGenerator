@@ -25,8 +25,8 @@ public class Env {
         return next;
     }
 
-    public void add(Variable v){
-        this.table.add(v);
+    public boolean add(Variable v){
+        return this.table.add(v);
     }
 
     //Bottom_up context
@@ -41,6 +41,7 @@ public class Env {
         return null;
     }
 
+    //Bottom_up (from inner block to outer)
     public Variable get(String s, Predicate<Variable> condition){
         for(Env e = this; e != null; e = e.prev){
             Variable found = e.table.get(s);
@@ -83,5 +84,9 @@ public class Env {
 
     public Iterator<Variable> currentIterator(){
         return this.table.iterator();
+    }
+
+    public void override(Variable v){
+        this.table.override(v);
     }
 }
