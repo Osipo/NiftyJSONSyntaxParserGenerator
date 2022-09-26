@@ -42,6 +42,8 @@
     "=>": "=>",
     ";": ";",
     ":": ":",
+    "::": "::",
+    "?": "?",
     "&&" : "&&",
     "||" : "@|@|",
     "&": "&",
@@ -127,7 +129,7 @@
       {"act": "astNode", "type": "label", "value": "$0"}
     ]},
 
-    {"S": ["if","(","B",")","S", "ELS",
+    {"S": ["if","(","BI",")","S", "ELS",
       {"act": "astNode", "value": "$0", "type": "if", "children": "$2"}
     ]},
 
@@ -138,10 +140,10 @@
     {"ELS": ["empty",
       {"act": "astNode", "type": "else", "value": "pass"}
     ]},
-    {"S": ["while", "(","B",")","S",
+    {"S": ["while", "(","BI",")","S",
       {"act": "astNode", "value": "$0", "type": "loop", "children": "$1"}
     ]},
-    {"S": ["until", "(", "B", ")", "S",
+    {"S": ["until", "(", "BI", ")", "S",
       {"act": "astNode", "value": "$0", "type": "loop", "children": "$1"}
     ]},
 
@@ -278,10 +280,13 @@
       {"act": "astNode", "type": "start", "value": "item", "child": "$0"}
     ]},
 
-    {"EXP": "B"},
-
-    {"B": ["B","->","DISJ", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
-    {"B": "DISJ"},
+    {"EXP": "BTER"},
+    {"BTER": ["BI", "?", "BTER", "::", "BTER",
+      {"act": "astNode", "value": "$1", "type": "ternaryop", "children": "$2"}
+    ]},
+    {"BTER": "BI"},
+    {"BI": ["BI","->","DISJ", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
+    {"BI": "DISJ"},
     {"DISJ": ["DISJ","or","CONJ",  {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
     {"DISJ": "CONJ"},
     {"CONJ": ["CONJ","and","BOR", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
@@ -340,14 +345,14 @@
     {"PE": ["hexNum", {"act": "astNode", "value": "$0", "type": "number"}]},
     {"PE": ["true", {"act": "astNode", "value": "$0", "type": "boolean"}]},
     {"PE": ["false", {"act": "astNode", "value": "$0", "type": "boolean"}]},
-    {"PE": ["(", "B",")"]},
+    {"PE": ["(", "BI",")"]},
     {"PE": "CALL"},
     {"PE": ["id", "is", "id",
       {"act": "astNode", "type": "variable", "value": "$0"},
       {"act": "astNode", "type": "variable", "value": "$2"},
       {"act": "astNode", "type": "typeof", "value": "$1", "children": "$1"}
     ]},
-    {"PE": ["not", "(", "B", ")", {"act": "astNode", "value": "$0", "type": "unaryop", "children": "$0"}]}
+    {"PE": ["not", "(", "BI", ")", {"act": "astNode", "value": "$0", "type": "unaryop", "children": "$0"}]}
   ],
 
   "start": "MODULE",

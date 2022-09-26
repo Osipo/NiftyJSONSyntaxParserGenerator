@@ -181,6 +181,7 @@ public abstract class BaseInterpreter {
                 else if(   ast.parent(cur).getValue().getType().equals("operator") //operator expression.
                         || ast.parent(cur).getValue().getType().equals("boolop")
                         || ast.parent(cur).getValue().getType().equals("relop")
+                        || ast.parent(cur).getValue().getType().equals("ternaryop")
                         || ast.parent(cur).getValue().getType().equals("vector")
                         || (ast.parent(cur).getValue().getType().equals("assign") && ast.parent(cur).getValue().getValue().length() > 1) //combine assign
                         ||  ast.parent(cur).getValue().getType().equals("lambda")
@@ -321,7 +322,8 @@ public abstract class BaseInterpreter {
             case "unaryop":
             case "relop":
             case "boolop":
-            case "operator": {
+            case "operator":
+            case "ternaryop": {
                 Object val = TypeChecker.CheckExpressionType(exp, opType, nodeVal);
                 if(ast.parent(cur) == null) //TODO: check USAGE
                     exp.push(val);

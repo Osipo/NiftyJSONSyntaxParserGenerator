@@ -237,7 +237,7 @@ public class BottomUpInterpreter extends BaseInterpreter implements Interpreter 
             else if(n.getValue().getType().equals("program") && ast.parent(n) != null && ast.parent(n).getValue().getType().equals("else"))
                 return;
             //end of program (remove current scope and get previous)
-            else if(n.getValue().getType().equals("program")) {
+            else if(n.getValue().getType().equals("program") && ast.parent(n) != null) {
                 if(ast.parent(n).getValue().getType().equals("assign")) //dictionary
                     exp.push(env.get());
                 env.set(env.get().getPrev());

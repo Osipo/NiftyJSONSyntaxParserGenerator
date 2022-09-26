@@ -1,6 +1,7 @@
 package bmstu.iu7m.osipov.services.interpret;
 
 import bmstu.iu7m.osipov.services.grammars.AstSymbol;
+import bmstu.iu7m.osipov.services.interpret.external.ExternalFunctionInterpreter;
 import bmstu.iu7m.osipov.structures.graphs.Elem;
 import bmstu.iu7m.osipov.structures.lists.LinkedStack;
 import bmstu.iu7m.osipov.structures.trees.Node;
@@ -109,14 +110,24 @@ public class TypeChecker {
 
     public static Object CheckExpressionType(LinkedStack<Object> expr, String etype, String op) throws Exception {
         Object val1 = expr.top();
+        Object val2 = null;
         expr.pop();
         if(etype.equals("unaryop"))
            return ParseUnaryOperator(val1, op);
         else if(etype.equals("operator") || etype.equals("relop") || etype.equals("boolop")) {
-            Object val2 = expr.top();
+            val2 = expr.top();
             expr.pop();
             return CombineExpression(val2, val1, op);
             //return ParseBinaryOperator(val2, val1, op);
+        }
+        else if (etype.equals("ternaryop")){
+            val2 = expr.top();
+            expr.pop();
+            Object cond = expr.top();
+            expr.pop();
+
+            //now val2 is true and val1 is false and cond is condition that makes right choice.
+            return ExpressionsUtils.IsTrue(cond) ? val2 : val1;
         }
         else
             return val1;
@@ -358,6 +369,9 @@ public class TypeChecker {
                 //TODO: Make independent vars for dict
                 //v = context.get(vName); //if inner context presented it extracted the nearest outer block variable.
                 v = context.getAtCurrent(vName); //get only from current context. (defines new variable at inner block).
+                if(v == null && context.get(vName, vi -> vi.getFunction() instanceof ExternalFunctionInterpreter) != null)
+                    throw new Exception("Attempting to override external function '" + vName + "' is forbidden!");
+
 
                 if(lists.top() != null && indices.size() == 0) {
                     if(v == null) {
