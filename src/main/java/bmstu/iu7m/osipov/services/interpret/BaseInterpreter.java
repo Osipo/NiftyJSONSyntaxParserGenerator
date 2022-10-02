@@ -78,10 +78,9 @@ public abstract class BaseInterpreter {
                 break;
             }
             case "loop": { //loop while
-                if(loop){ //passed one iteration -> check condition again.
+                if(cur.getValue().getCond()){ //passed one iteration -> check condition again.
                     Node<AstSymbol> cond_node = ast.leftMostChild(cur);
                     nextIteration.setNextNode(cond_node);
-                    this.loop = false;
                 }
                 break;
             }
@@ -554,7 +553,8 @@ public abstract class BaseInterpreter {
         )
         {
             //while true
-            this.loop = true;
+            //this.loop = true
+            parent.getValue().setCond(true); //loop is true
             return;
         }
         else if(parent.getValue().getType().equals("loop") && ast.leftMostChild(parent).equals(cur)
@@ -567,7 +567,9 @@ public abstract class BaseInterpreter {
         {
             //while false
             nextItr.setOpts(2);  //0 => default, 1 => skip all siblings, 2 => skip one sibling.
-            this.loop = false;
+
+            //this.loop = false;
+            parent.getValue().setCond(false); //loop is false
         }
         else
             checkReduce(nVal, exp, lists, 0); //part of expr or expr itself -> add to expression stack.

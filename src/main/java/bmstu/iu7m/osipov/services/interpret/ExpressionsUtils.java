@@ -485,87 +485,6 @@ public class ExpressionsUtils {
     private static void AddToEachItem(List<Elem<Object>> items, double value, String op) throws Exception {
         ArithmeticOperation method = null;
 
-        /*
-        switch (op){
-            case "*":{
-                method = (i, v) -> {
-                    String s = i.getV1().toString();
-                    double d1 = ProcessNumber.parseNumber(s);
-                    d1 = d1 * v;
-                    i.setV1(d1);
-                };
-                break;
-            } //end case.
-            case "/":{
-                method = (i, v) -> {
-                    String s = i.getV1().toString();
-                    double d1 = ProcessNumber.parseNumber(s);
-                    d1 = v / d1;
-                    i.setV1(d1);
-                };
-                break;
-            }
-            case "+":{
-                method = (i, v) -> {
-                    String s = i.getV1().toString();
-                    double d1 = ProcessNumber.parseNumber(s);
-                    d1 = d1 + v;
-                    i.setV1(d1);
-                };
-                break;
-            }
-            case "-":{
-                method = (i, v) -> {
-                    String s = i.getV1().toString();
-                    double d1 = ProcessNumber.parseNumber(s);
-                    d1 = v - d1;
-                    i.setV1(d1);
-                };
-                break;
-            }
-            case "%":{
-                method = (i, v) -> {
-                    String s = i.getV1().toString();
-                    double d1 = ProcessNumber.parseNumber(s);
-                    d1 = d1 % v;
-                    i.setV1(d1);
-                };
-                break;
-            }
-            case "**":{
-                method = (i, v) -> {
-                    String s = i.getV1().toString();
-                    double d1 = ProcessNumber.parseNumber(s);
-                    d1 = Math.pow(d1, v);
-                    i.setV1(d1);
-                };
-                break;
-            }
-
-            //shift ops.
-            case ">>": {
-                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
-                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
-                d1 = ((int) d1) >> ((int) d2);
-                break;
-            }
-            case "<<": {
-                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
-                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
-                d1 = ((int) d1) << ((int) d2);
-                break;
-            }
-            case ">>>": {
-                if(Math.floor(d1) != d1 || Math.floor(d2) != d2)
-                    throw new Exception("Operator '" + op + "' requires only integer numbers.");
-                d1 = ((int) d1) >>> ((int) d2);
-                break;
-            }
-
-
-        } //end inner switch
-         */
-
         //just apply primitive operation resolver and set result into item.
         method = (i, v) -> {
             Object result = ExpressionsUtils.ParseNumberNumberExpr(i.getV1().toString(), v, op);
@@ -607,17 +526,17 @@ public class ExpressionsUtils {
         else
             d2 = r_d2;
         if(Math.floor(d2) == d2 && val == null) //is integer [4.0, 5.0]
-            val = Integer.toString((int)d2);
+            n1 = r_d2.intValue(); //val = Integer.toString((int)d2);
         else if(val == null)
-            val = Double.toString(d2); //double [4.0001]
+            n1 = r_d2; //val = Double.toString(d2); //double [4.0001]
 
         switch (op){
             case "+":{
-                t2.add(new Elem<>(val));
+                t2.add(new Elem<>(n1));
                 break;
             }
             case "-":{
-                t2.removeAll(Collections.singleton(new Elem(val)));
+                t2.removeAll(Collections.singleton(new Elem(n1)));
                 break;
             }
             default:{
@@ -639,6 +558,7 @@ public class ExpressionsUtils {
         Double r_d2 = 0D;
         double d2 = 0d;
         String val = null;
+        boolean success = false;
         if(n2 instanceof List) {
             t2 = (List<Elem<Object>>) n2;
         }
@@ -656,17 +576,18 @@ public class ExpressionsUtils {
         else
             d2 = r_d2;
         if(Math.floor(d2) == d2 && val == null) //is integer [4.0, 5.0]
-            val = Integer.toString((int)d2);
+            n1 = r_d2.intValue(); //val = Integer.toString((int)d2);
         else if(val == null)
-            val = Double.toString(d2); //double [4.0001]
+            n1 = r_d2; //val = Double.toString(d2); //double [4.0001]
 
         switch (op){
             case "+":{
-                t2.add(new Elem<>(val));
+                t2.add(new Elem<>(n1));
                 break;
             }
             case "-":{
-                t2.removeAll(Collections.singleton(new Elem(val)));
+                success = t2.removeAll(Collections.singleton(new Elem(n1)));
+                //System.out.println("remove item " + n1 + " was " + success);
                 break;
             }
             default:{

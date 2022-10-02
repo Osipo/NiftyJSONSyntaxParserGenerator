@@ -74,6 +74,41 @@ module MyModule.Math
         p;
     };
 
+    inverse_m = lambda(M) => {
+        i = len(M) - 1;
+        j = len(M[0]) - 1;
+        jj = j - 1;
+        k = 0;
+        kk = 0;
+        el = M[0][0]; //first element
+
+        pos_j = lambda(jj) => (jj > j) ? j - jj :: jj;; //resolve position j.
+        pos_i = lambda(ii) => (ii > i) ? i - ii :: ii;; //resolve position i.
+
+        while(kk <= i){
+            ROW_I = [[[gen M[kk][k] / M[kk][kk] for k in [0..j] end], kk]]; //list of tuples: (list, num)
+
+            c_j = [kk - [0..jj]];
+            c_j = c_j[0];
+            ROW_J = [gen [0, gen
+                (M[kk][kk] * M[pos_i(_ + 1)][pos_j(x + 1)]
+                 - M[pos_i(_ + 1)][kk] * M[kk][pos_j(x + 1)]
+                ) / M[kk][kk]
+               for x in [0..jj] end], pos_i(_ + 1)
+               for _ in [0..i - 1] end];
+
+            ROW_J = ROW_J + ROW_I;
+            x = 0;
+            while(x <= i){
+                M[ROW_J[x][1]] = ROW_J[ROW_J[x][1]][0];
+                x += 1;
+            }
+
+            kk += 1;
+        }
+        M;
+    };
+
     fibo_sum = lambda (n) => {
             if(n == 1 or n == 2)
                 1;

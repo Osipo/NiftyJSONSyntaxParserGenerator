@@ -7,10 +7,12 @@ from MyModule.Math import *
 
     M = [gen M[i] + E[i] for i in [..n - 1] end];
     MC = cols(M);
+    MC = [gen MC[i][0] + 1000 for i in [0..len(MC) - 1] end];
 
-    nf10 = n_fact(9); //= 40320 * 9 = 362880
+    L = [1, 2, 3, 4, 5];
+    L = [5 - L];
+    L = L[0];
 
-    pcol = pcol(MC);
-
-
+    M_R = inverse_m(M);
+    //det = 1 / M_R[0][0];
 }

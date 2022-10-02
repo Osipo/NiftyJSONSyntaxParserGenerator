@@ -5,4 +5,8 @@ public interface AstSymbol {
     String getValue();
 
     void setValue(String val);
+
+    boolean getCond();
+
+    void setCond(boolean c);
 }

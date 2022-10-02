@@ -50,11 +50,11 @@ public class AstParserTest {
         //assert test_lang_interpret("G_Ast_6.json", "ast\\ast_input_61_matrix.txt", "ast61", false);
         //assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_73.txt", "ast73", true);
         //assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_71.txt", "ast71", false);
-        //assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\matrix_det.txt", "mdet", true);
+        assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\matrix_det.txt", "mdet", true);
         //assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_75.txt", "ast75", false);
 
         //final test.
-        assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_76.txt", "ast76", false);
+        //assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_76.txt", "ast76", false);
 
         //assert test_lang_interpret("G_Ast_7_cmd.json", "ast\\ast_modules\\ast_input_76c.txt", "ast76_c", false);
     }
@@ -102,6 +102,9 @@ public class AstParserTest {
 
             LinkedTree<AstSymbol> ast = parser.translate(new File(input));
             assert ast != null;
+
+            //show semantic AST
+            Graphviz.fromString(ast.toDot("astafter")).render(Format.PNG).toFile(new File(PathStrings.PARSERS + "semantics_after_" + suffix));
 
             long start = System.currentTimeMillis();
             inter.interpret(ast);

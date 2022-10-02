@@ -6,9 +6,22 @@ public class AstNode implements AstSymbol {
     protected String value;
     protected String type;
 
+    protected boolean cond;
+
     public AstNode(String type, String value){
         this.type = type;
         this.value = value;
+        this.cond = false;
+    }
+
+    @Override
+    public boolean getCond() {
+        return cond;
+    }
+
+    @Override
+    public void setCond(boolean cond) {
+        this.cond = cond;
     }
 
     @Override
