@@ -336,6 +336,14 @@
       {"act": "astNode", "value": "$0", "type": "variable"},
       {"act": "astNode", "type": "access", "value": "list", "children": "$1"}
     ]},
+    {"PE": ["str", "ACLIST",
+      {"act": "astNode", "value": "$0", "type": "string"},
+      {"act": "astNode", "value": "listexp", "type": "listexp", "children": "$1"}
+    ]},
+    {"PE": ["LIST", "ACLIST",
+      {"act": "astNode", "value": "listexp", "type": "listexp", "children": "$1"},
+      {"act": "moveToEnd", "childToMove": "0"}
+    ]},
     {"PE": ["id", {"act": "astNode", "value": "$0", "type": "variable"}]},
     {"PE": ["ch", {"act": "astNode", "value": "$0", "type": "char"}]},
     {"PE": ["str", {"act": "astNode", "value": "$0", "type": "string"}]},
@@ -376,6 +384,8 @@
       {"start": ["for", "id"], "body": "SEQUENCEIN"},
       {"start": ["VARITEMSEQ2", ","], "body": "SEQUENCEIN", "reduce": "1"},
       {"start": ["id", "["], "body": "RANGES"},
+      {"start": ["str", "["], "body": "RANGES"},
+      {"start": ["LIST", "["], "body": "RANGES"},
       {"start": ["id", "("], "body": "CALLEE"},
       {"start": ["id", "("], "end": ")", "body": "ARGS"},
       {"start": ["CALLERS", "("], "end": ")", "body": "ARGS"},

@@ -283,9 +283,14 @@ public class LRAstTranslator  extends LRParser {
                             String arg3 = astdef.getArguments().getOrDefault("children", null);
                             String arg4 = astdef.getArguments().getOrDefault("child", null);
                             int astAllPos = scopes.top() != null ? scopes.top() : 0;
-                            //System.out.println("scopes: "+scopes);
                             showMessage("scopes: " + scopes);
                             createAstNode(arg1, arg2, arg3, arg4, parent, AST, aidx, astAllPos);
+                        }
+
+                        //special action to move EXISTING nodes to the end of the children list.
+                        else if(astdef != null && astdef.getActName().equals("moveToEnd")) {
+                            String arg1 = astdef.getArguments().getOrDefault("childToMove", null);
+                            moveAstNodeToEnd(arg1, AST);
                         }
                     }
                 }
@@ -337,6 +342,14 @@ public class LRAstTranslator  extends LRParser {
             return (SyntaxDirectedTranslation) ap.getActions().get(ap.getActions().size() - 1);
         else
             return null;
+    }
+
+    private void moveAstNodeToEnd(String child, LinkedList<LinkedNode<AstSymbol>> AST){
+        int child_num = Integer.parseInt(child.substring(0));
+        LinkedNode<AstSymbol> p = AST.get(AST.size());
+        LinkedNode<AstSymbol> c = p.getChildren().get(child_num);
+        p.getChildren().remove(c);
+        p.getChildren().add(c);
     }
 
     /* Choose right structure for collection of astNodes (Deck)*/

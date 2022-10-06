@@ -1,6 +1,7 @@
 module MatrixDet
 from MyModule.Math import *
 {
+    /*
     M = [[4, 2, 5], [6, 4, 9], [7, 6, 13]];
     n = len(M);
     E = E_ML(n); //[gen [gen eq(x, y) for y in [1..n] end] for x in [1..n] end]
@@ -14,5 +15,13 @@ from MyModule.Math import *
     L = L[0];
 
     M_R = inverse_m(M);
+    */
+
+    L = [ [1], 2, 3];
+    a = L[0][0];
+
+    b = "abcd"[1];
+    c = [1, 2, 3][2, 0][0]; // [1, 2, 3] => [3, 1] => [1].
+
     //det = 1 / M_R[0][0];
 }

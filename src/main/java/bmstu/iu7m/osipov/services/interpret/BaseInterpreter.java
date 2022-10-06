@@ -63,7 +63,18 @@ public abstract class BaseInterpreter {
         //System.out.println(opType + "/" + nodeVal);
         switch (opType){
             case "char": case "string": {
-                checkList(ast, ast.parent(cur), cur, context.get(), opType, nodeVal, exp, lists, args, nextIteration, vector_i);
+                if(ast.parent(cur).getValue().getType().equals("listexp")){ //listexp or access/list node.
+                    Variable tvar = new Variable("$$$_seqtemp");
+                    ArrayList<Elem<Object>> chars = new ArrayList<>();
+                    for(int i = 1; i < nodeVal.length() - 1; i++)
+                        chars.add(new Elem<>(nodeVal.charAt(i)));
+                    tvar.setItems(chars);
+                    tvar.setStrVal(chars.toString());
+
+                    checkAccess(ast, cur, tvar, context.get(), exp, lists, indices, functions, args);
+                }
+                else
+                    checkList(ast, ast.parent(cur), cur, context.get(), opType, nodeVal, exp, lists, args, nextIteration, vector_i);
                 break;
             }
             case "number": {
@@ -166,6 +177,14 @@ public abstract class BaseInterpreter {
                     ArrayList<Elem<Object>> idx_items = new ArrayList<>(lists.top()); //move list from lists to indices
                     lists.pop();
                     indices.add(idx_items); //lists > indices.
+                }
+                else if(ast.parent(cur).getValue().getType().equals("listexp")){ //listexp node
+                    ArrayList<Elem<Object>> items = new ArrayList<>(lists.top());
+                    lists.pop();
+                    Variable tvar = new Variable("$$$_seqtemp");
+                    tvar.setItems(items);
+                    tvar.setStrVal(items.toString());
+                    checkAccess(ast, cur, tvar, context.get(), exp, lists, indices, functions, args);
                 }
                 else if(ast.parent(cur).getValue().getType().equals("args")){ //list as argument
                     List<Elem<Object>> list_arg = lists.top();
@@ -472,18 +491,18 @@ public abstract class BaseInterpreter {
                 checkTypeAndGetValue(ast, cur, v, context, vector_i.get(vector_idx));
             }
         }
-        checkAccess(ast, cur, v, context, exp, lists, indices, functions, args, vector_i);
+        checkAccess(ast, cur, v, context, exp, lists, indices, functions, args);
     }
 
     protected void checkAccess(PositionalTree<AstSymbol> ast, Node<AstSymbol> cur, Variable v,
                              Env context,  LinkedStack<Object> exp, LinkedStack<List<Elem<Object>>> lists,
                              ArrayList<List<Elem<Object>>> indices, LinkedStack<FunctionInterpreter> functions,
-                             LinkedStack<ArrayList<Object>> args, LinkedList<Elem<?>> vector_i) throws Exception
+                             LinkedStack<ArrayList<Object>> args) throws Exception
     {
         Node<AstSymbol> parent = ast.parent(cur);
 
-
-        if(parent.getValue().getType().equals("access")){ //variable > access
+        //variable > access OR tempVar (string or list) > listexp
+        if(parent.getValue().getType().equals("access") || parent.getValue().getType().equals("listexp")){
 
             int offset = ast.getChildren(ast.leftMostChild(parent)).size(); //access/list > access/indices > count(children)
             List<Elem<Object>> content = scanAccess(v, indices, offset); //v, [a], 1.

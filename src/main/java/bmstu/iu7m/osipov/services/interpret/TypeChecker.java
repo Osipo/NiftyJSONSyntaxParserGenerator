@@ -29,26 +29,11 @@ public class TypeChecker {
         if(expr instanceof Elem<?>)
             while (expr instanceof Elem<?>)
                 expr = ((Elem<?>) expr).getV1();
-        if(expr instanceof String || expr instanceof Number){
+        if(expr instanceof String || expr instanceof Number || expr instanceof Character){
             v.setStrVal(expr.toString());
         }
         else if(expr instanceof List){
-            //System.out.println("to " + v.getValue() + " assign list ");
-
             List<Elem<Object>> el = (List<Elem<Object>>) expr;
-
-            /* LOG
-            for(int ii = 0; ii < el.size(); ii++) {
-                if (el.get(ii).getV1() instanceof List) {
-                    List<Elem<Object>> el_el1 = (List<Elem<Object>>) el.get(ii).getV1();
-                    for (int i = 1; i < el_el1.size(); i++)
-                        System.out.print(el_el1.get(i).getV1().toString() + " ");
-                }
-                System.out.print("\n");
-            }
-            System.out.println("---");
-            */
-
             v.setItems(el);
             v.setStrVal(v.getItems().toString());
         }
@@ -69,8 +54,9 @@ public class TypeChecker {
             while(value instanceof Elem<?>)
                 value = ((Elem<?>) value).getV1();
 
-        if(value instanceof String || value instanceof Number || value instanceof List || value instanceof FunctionInterpreter)
+        if(value instanceof String || value instanceof Character || value instanceof Number || value instanceof List || value instanceof FunctionInterpreter)
             return value;
+
         else if(value instanceof Variable){
             Variable vv = (Variable) value;
             if(vv.getSubModule() != null)
@@ -84,7 +70,7 @@ public class TypeChecker {
             }
         }
         else
-            throw new Exception("Cannot define value for type: " + value.getClass());
+            throw new Exception("CheckValue(): Cannot define value for type: " + value.getClass());
     }
 
     //Return type of the variable.
@@ -390,7 +376,7 @@ public class TypeChecker {
                 else if(indices.size() != 0){ //when access expression lvalue[index_1][index_2]... = expr.
                     v = context.get(vName);
                     if(v == null) //lvalue must be defined!
-                        throw new Exception("Cannot find variable with name \'" + vName + "\'. Define variable before use it!");
+                        throw new Exception("Cannot find variable with name \'" + vName + "\' that holds list. Define variable before use it!");
 
                     ArrayList<Elem<Object>> content = new ArrayList<>(); //extracted content.
                     List<Elem<Object>> prev_list = new ArrayList<>(v.getItems());
