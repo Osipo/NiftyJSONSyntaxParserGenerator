@@ -55,7 +55,9 @@ public class AstParserTest {
 
         //final test.
         //assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_76.txt", "ast76", false);
+        //assert test_lang_interpret("G_Ast_7.json", "ast\\ast_modules\\ast_input_77.txt", "ast77", false);
 
+        //cmd tests
         //assert test_lang_interpret("G_Ast_7_cmd.json", "ast\\ast_modules\\ast_input_76c.txt", "ast76_c", false);
     }
 

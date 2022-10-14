@@ -4,15 +4,10 @@
     "-": "-",
     "*": "*",
     "**": "@*@*",
+    "^^": "@^@^",
     "/": "/",
     "%": "%",
     "^": "^",
-    "&": "&",
-    "|": "|",
-    ">>": ">>",
-    "<<": "<<",
-    ">>>": ">>>",
-    "^^": "@^@^",
     "(": "(",
     ")": ")",
     "{": "{",
@@ -31,19 +26,28 @@
     "*=": "@*=",
     "/=": "/=",
     "%=": "%=",
+
     "^=": "@^=",
     "&=": "&=",
-    "|=": "|=",
+    "|=": "@|=",
     ">>=": ">>=",
     "<<=": "<<=",
     ">>>=": ">>>=",
     "^^=": "@^@^=",
 
+    ">>": ">>",
+    "<<": "<<",
+    ">>>": ">>>",
+
     "=>": "=>",
     ";": ";",
     ":": ":",
+    "::": "::",
+    "?": "?",
     "&&" : "&&",
     "||" : "@|@|",
+    "&": "&",
+    "|": "|",
     "->": "->",
     "rankdel": "..",
     "#": "#",
@@ -51,7 +55,6 @@
     "/*": "/@*",
     "//": "//",
     "id": "[A-Za-z@_]([A-Za-z@_0-9]+|empty)",
-    "mid": ["id", "(", ".", "id", ")", "+"],
     "nonZeroNum": "[1-9]",
     "zero": "0",
     "nums": "([@_]*[0-9]+)",
@@ -75,26 +78,26 @@
     "hexNum": ["(", "(-|empty)", "0(X|x)", "[0-9A-Fa-f]", "hexNums", "*", ")",  "hexRealPart", "hexExpPart"],
     "ch": "\'_\'",
     "str": "\"_*\"",
-	"bound": "@@",
-    "empty": null
+    "empty": null,
+    "bound": "@@"
   },
   "keywords": [
     "true","false", "not", "lambda", "if", "else", "while", "pass",
     "and", "or", "until", "goto", "for", "in", "gen", "reduce", "end", "is", "module", "from", "import",
-    "to"
+    "to", "then"
   ],
   "separators": {
-      "decimalNum": "_",
-      "binNum": "_",
-      "octNum": "_",
-      "hexNum": "_"
+    "decimalNum": "_",
+    "binNum": "_",
+    "octNum": "_",
+    "hexNum": "_"
   },
 
   "productions": [
     {"START": ["bound", "SL", "bound",
-	  {"act": "astNode", "value": "prog", "type": "end", "children": "all"},
+      {"act": "astNode", "value": "prog", "type": "end", "children": "all"},
       {"act": "astNode", "value": "prog", "type": "begin", "child": "$0"}
-	]},
+    ]},
     {"P": ["{", "SL", "}",
       {"act": "astNode", "value": "prog", "type": "program", "children": "all"},
       {"act": "astNode", "value": "prog", "type": "start", "child": "$0"}
@@ -109,7 +112,7 @@
       {"act": "astNode", "type": "label", "value": "$0"}
     ]},
 
-    {"S": ["if","(","B",")","S", "ELS",
+    {"S": ["if","(","BI",")","S", "ELS",
       {"act": "astNode", "value": "$0", "type": "if", "children": "$2"}
     ]},
 
@@ -120,10 +123,10 @@
     {"ELS": ["empty",
       {"act": "astNode", "type": "else", "value": "pass"}
     ]},
-    {"S": ["while", "(","B",")","S",
+    {"S": ["while", "(","BI",")","S",
       {"act": "astNode", "value": "$0", "type": "loop", "children": "$1"}
     ]},
-    {"S": ["until", "(", "B", ")", "S",
+    {"S": ["until", "(", "BI", ")", "S",
       {"act": "astNode", "value": "$0", "type": "loop", "children": "$1"}
     ]},
 
@@ -164,7 +167,6 @@
     {"LINDICES": ["LINDICES", "LINDEX"]},
     {"LINDICES": "LINDEX"},
     {"LINDEX": ["LIST"]},
-    {"EXP": ["LIST"]},
     {"LIST": ["[", "LITEMS", "]",
       {"act": "astNode", "type": "list", "value": "items", "children": "all"},
       {"act": "astNode", "type": "start", "value": "item", "child": "$0"}
@@ -173,6 +175,7 @@
     {"LITEMS": "LITEM"},
     {"LITEMS": "empty"},
     {"LITEM": "EXP"},
+    {"EXP": "LIST"},
     {"LITEM": ["RANGE"]},
     {"RANGE": ["AE", "rankdel", "AE",
       {"act": "astNode", "type": "range", "value": "range", "children": "$1"}
@@ -260,12 +263,15 @@
       {"act": "astNode", "type": "start", "value": "item", "child": "$0"}
     ]},
 
-    {"EXP": "B"},
-    {"B": ["B","->","DISJ", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
-    {"B": "DISJ"},
+    {"EXP": "BTER"},
+    {"BTER": ["BI", "then", "BTER", "else", "BTER",
+      {"act": "astNode", "value": "$1", "type": "ternaryop", "children": "$2"}
+    ]},
+    {"BTER": "BI"},
+    {"BI": ["BI", "->", "DISJ", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
+    {"BI": "DISJ"},
     {"DISJ": ["DISJ","or","CONJ",  {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
     {"DISJ": "CONJ"},
-
     {"CONJ": ["CONJ","and","BOR", {"act": "astNode", "value": "$1", "type": "boolop", "children": "$1"}]},
     {"CONJ": "BOR"},
 
@@ -287,32 +293,45 @@
     {"SAE": ["SAE", "<<", "AE", {"act": "astNode", "type": "operator", "value": "$1", "children": "$1"}]},
     {"SAE": ["AE"]},
 
-
     {"AE": ["AE", "+", "T", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"AE": ["AE", "-", "T", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"AE": ["AE", "+", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
-    {"AE": ["AE", "-", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"AE": ["LIST", "+", "T", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"AE": ["LIST", "+", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"AE": ["AE", "-", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"AE": ["LIST", "-", "T", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"AE": ["LIST", "-", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
-
     {"AE": ["T"]},
+
+
     {"T": ["T", "*", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"T": ["T", "/", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"T": ["T", "^^", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"T": ["T", "^^", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"T": ["LIST", "^^", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"T": ["LIST", "^^", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"T": ["T", "*", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
+    {"T": ["LIST", "*", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"T": ["LIST", "*", "LIST", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
-
     {"T": ["F"]},
+
     {"F": ["UE", "**", "F", {"act": "astNode", "value": "$1", "type": "operator", "children": "$1"}]},
     {"F": ["UE"]},
+
     {"UE": ["um", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "unaryop"}]},
     {"UE": ["up", "UE", {"act": "astNode", "value": "$0", "children": "$0", "type": "unaryop"}]},
     {"UE": ["PE"]},
     {"PE": ["id", "ACLIST",
       {"act": "astNode", "value": "$0", "type": "variable"},
       {"act": "astNode", "type": "access", "value": "list", "children": "$1"}
+    ]},
+    {"PE": ["str", "ACLIST",
+      {"act": "astNode", "value": "$0", "type": "string"},
+      {"act": "astNode", "value": "listexp", "type": "listexp", "children": "$1"}
+    ]},
+    {"PE": ["LIST", "ACLIST",
+      {"act": "astNode", "value": "listexp", "type": "listexp", "children": "$1"},
+      {"act": "moveToEnd", "childToMove": "0"}
     ]},
     {"PE": ["id", {"act": "astNode", "value": "$0", "type": "variable"}]},
     {"PE": ["ch", {"act": "astNode", "value": "$0", "type": "char"}]},
@@ -323,14 +342,14 @@
     {"PE": ["hexNum", {"act": "astNode", "value": "$0", "type": "number"}]},
     {"PE": ["true", {"act": "astNode", "value": "$0", "type": "boolean"}]},
     {"PE": ["false", {"act": "astNode", "value": "$0", "type": "boolean"}]},
-    {"PE": ["(", "B",")"]},
+    {"PE": ["(", "BI",")"]},
     {"PE": "CALL"},
     {"PE": ["id", "is", "id",
       {"act": "astNode", "type": "variable", "value": "$0"},
       {"act": "astNode", "type": "variable", "value": "$2"},
       {"act": "astNode", "type": "typeof", "value": "$1", "children": "$1"}
     ]},
-    {"PE": ["not", "(", "B", ")", {"act": "astNode", "value": "$0", "type": "unaryop", "children": "$0"}]}
+    {"PE": ["not", "(", "BI", ")", {"act": "astNode", "value": "$0", "type": "unaryop", "children": "$0"}]}
   ],
 
   "start": "START",
@@ -354,6 +373,8 @@
       {"start": ["for", "id"], "body": "SEQUENCEIN"},
       {"start": ["VARITEMSEQ2", ","], "body": "SEQUENCEIN", "reduce": "1"},
       {"start": ["id", "["], "body": "RANGES"},
+      {"start": ["str", "["], "body": "RANGES"},
+      {"start": ["LIST", "["], "body": "RANGES"},
       {"start": ["id", "("], "body": "CALLEE"},
       {"start": ["id", "("], "end": ")", "body": "ARGS"},
       {"start": ["CALLERS", "("], "end": ")", "body": "ARGS"},

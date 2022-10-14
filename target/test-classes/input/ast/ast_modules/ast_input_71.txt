@@ -77,34 +77,39 @@ module MyModule.Math
     inverse_m = lambda(M) => {
         i = len(M) - 1;
         j = len(M[0]) - 1;
-        jj = j - 1;
-        k = 0;
         kk = 0;
-        el = M[0][0]; //first element
+        ofs = j - kk; //depends on kk (start position). ofs = j - kk.
 
-        pos_j = lambda(jj) => (jj > j) ? j - jj :: jj;; //resolve position j.
-        pos_i = lambda(ii) => (ii > i) ? i - ii :: ii;; //resolve position i.
+        pos_j = lambda(jj) => (jj > j) then jj - j - 1 else jj;; //resolve position j.
+        pos_i = lambda(ii) => (ii > i) then ii - i - 1 else ii;; //resolve position i.
 
         while(kk <= i){
             ROW_I = [[[gen M[kk][k] / M[kk][kk] for k in [0..j] end], kk]]; //list of tuples: (list, num)
 
-            c_j = [kk - [0..jj]];
-            c_j = c_j[0];
-            ROW_J = [gen [0, gen
-                (M[kk][kk] * M[pos_i(_ + 1)][pos_j(x + 1)]
-                 - M[pos_i(_ + 1)][kk] * M[kk][pos_j(x + 1)]
+
+
+            //pivot (kk) moves from right to left.
+            ROW_J = [gen [gen (x == kk) then 0 else
+                (M[kk][kk] * M[pos_i(_)][pos_j(x)]
+                 - M[pos_i(_)][kk] * M[kk][pos_j(x)]
                 ) / M[kk][kk]
-               for x in [0..jj] end], pos_i(_ + 1)
-               for _ in [0..i - 1] end];
+               for x in [gen kk + q + 1 for q in [0..j] end] end], pos_i(_)
+               for _ in [gen kk + q + 1 for q in [0..i - 1] end] end];
 
             ROW_J = ROW_J + ROW_I;
+
             x = 0;
             while(x <= i){
-                M[ROW_J[x][1]] = ROW_J[ROW_J[x][1]][0];
+                if(ROW_J[x][1] <> kk){
+                    M[ROW_J[x][1]] = [] + ROW_J[x][0][ofs..] + ROW_J[x][0][..ofs - 1];
+                }
+                else
+                    M[ROW_J[x][1]] = ROW_J[x][0];
                 x += 1;
             }
 
             kk += 1;
+            ofs -= 1;
         }
         M;
     };

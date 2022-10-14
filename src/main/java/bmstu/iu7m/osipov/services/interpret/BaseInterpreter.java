@@ -384,12 +384,20 @@ public abstract class BaseInterpreter {
                 if(nodeVal.equals("rangeStart") && isAccess)
                 {
                     List<Node<AstSymbol>> chl = ast.getChildren(ast.parent(ast.parent(ast.parent(cur)))); // range > list > access > parent (assing/aclist)
-                    String listName = chl.get(chl.size() - 1).getValue().getValue();
+                    String listName = chl.get(chl.size() - 1).getValue().getValue(); //variable name.
                     Variable v = context.get().get(listName);
                     if(v == null || v.getItems() == null)
                         throw new Exception("Variable '" + listName + "' is not defined as list!");
 
-                    d2 = v.getItems().size() - 1; //[d1..size - 1]
+                    //TODO: RANGESS Extract list size of last elem l[][][]....
+
+
+                    //index of range > list at range > list > indices.
+                    int offset = PositionalTreeUtils.indexOfChild(ast, ast.parent(ast.parent(cur)), ast.parent(cur));
+                    List<Elem<Object>> content = scanAccess(v, indices, offset, false); //v, [a], 1.
+                    if(content.get(0).getV1() instanceof List)
+                        content = ((List<Elem<Object>>)content.get(0).getV1());
+                    d2 = content.size() - 1; //[d1..size - 1]
                 }
                 else if(nodeVal.equals("rangeStart")) //[d1..]
                 {
@@ -505,7 +513,7 @@ public abstract class BaseInterpreter {
         if(parent.getValue().getType().equals("access") || parent.getValue().getType().equals("listexp")){
 
             int offset = ast.getChildren(ast.leftMostChild(parent)).size(); //access/list > access/indices > count(children)
-            List<Elem<Object>> content = scanAccess(v, indices, offset); //v, [a], 1.
+            List<Elem<Object>> content = scanAccess(v, indices, offset, true); //v, [a], 1.
 
 
             if(ast.parent(parent).getValue().getType().equals("list")){ //variable > access > list
@@ -524,7 +532,7 @@ public abstract class BaseInterpreter {
                 checkReduce(TypeChecker.CheckValue(content.get(0).getV1(), null), exp, lists, 0); //exp.push
             }
             else if(content.size() > 1) { //list expression. (list element)
-                checkReduce(content, exp, lists, -1); //lists.push
+                checkReduce(content, exp, lists, 0); //exp.push
             }
         }
         else if (parent.getValue().getType().equals("list")) // variable > list.
@@ -556,7 +564,7 @@ public abstract class BaseInterpreter {
             LinkedNode<AstSymbol> node_pass = new LinkedNode<>();
             node_pass.setValue(new AstNode("pass", "pass")); //add pass before else_node.
             node_pass.setIdx(ast.getCount() + 3);
-            node_pass.setParent((LinkedNode<AstSymbol>) parent); //ERROR: SubType is fixed! Make it flexible!!!
+            node_pass.setParent((LinkedNode<AstSymbol>) parent); //TODO: SubType is fixed! Make it flexible!!!
             ast.getRealChildren(parent).add(2, node_pass); //add before else.
         }
         else if(parent.getValue().getType().equals("if") && ast.leftMostChild(parent).equals(cur) && !ExpressionsUtils.IsTrue(nVal)){
@@ -622,9 +630,9 @@ public abstract class BaseInterpreter {
             exp.push(value);
     }
 
-    protected List<Elem<Object>> scanAccess(Variable v, ArrayList<List<Elem<Object>>> indices, int offset){
+    protected List<Elem<Object>> scanAccess(Variable v, ArrayList<List<Elem<Object>>> indices, int offset, boolean isDelete){
         ArrayList<Elem<Object>> content = new ArrayList<>(); //extracted content.
-        List<Elem<Object>> prev_list = new ArrayList<>(v.getItems());
+        List<Elem<Object>> prev_list = new ArrayList<>(v.getItems()); //copy.
 
         int i = indices.size() - offset;
         int delStart = i;
@@ -638,6 +646,7 @@ public abstract class BaseInterpreter {
                 else if(ptr.getV1() instanceof Integer)
                     j = (Integer) ptr.getV1();
 
+                //if elem is list.
                 if(i > 0 && prev_list.size() == 1 && prev_list.get(0).getV1() instanceof List){
                     List inner_list = ((List) prev_list.get(0).getV1());        //extract j_item of list.
                     Object j_item = inner_list.get( ((j < 0) ? inner_list.size() + j : j) );
@@ -655,9 +664,12 @@ public abstract class BaseInterpreter {
 
             //next iteration content will be scanned.
 
-            indices.get(i).clear(); //remove read ptrs at current index.
+            if(isDelete)
+                indices.get(i).clear(); //remove read ptrs at current index.
         }
-        indices.subList(delStart, indices.size()).clear(); //remove indices from indices list.
+
+        if(isDelete)
+            indices.subList(delStart, indices.size()).clear(); //remove indices from indices list.
         return prev_list;
     }
 

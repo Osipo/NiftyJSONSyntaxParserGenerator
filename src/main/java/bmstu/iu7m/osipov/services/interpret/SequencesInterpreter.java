@@ -91,8 +91,43 @@ public class SequencesInterpreter {
             switch (nodeType){
                 case "seqitem": {
                     vnames.add(nodeVal); //name of seqitem.
+                    //CHECK Source brother.
+                    if(ast.rightSibling(c).getValue().getType().equals("operator")){
+                        Node<AstSymbol> subTree = ast.rightSibling(c);
+                        ast.visitFrom(VisitorMode.POST, (sc, sni) -> {
+                            try {
+                                parentInter.applyOperation(
+                                        ast,
+                                        a_context,
+                                        sc,
+                                        this.exp,
+                                        this.lists,
+                                        this.indices,
+                                        null,
+                                        this.functions,
+                                        this.args,
+                                        sni,
+                                        null,
+                                        null,
+                                        -1,
+                                        matrices,
+                                        false
+                                );
+                            } catch (Exception e){
+                                System.err.println(e.getMessage());
+                                sni.setOpts(-1);
+                            }
+                        }, subTree, nextItr); //til parent of start
+
+                        //do not traverse through processed nodes.
+                        if(next.getOpts() != -1){
+                            nextItr.setNextNode(subTree);
+                            nextItr.setOpts(15); //move to list/items node (see next case "list") and process it as it leaf.
+                        }
+                    } //END CHECK BROTHER.
                     break;
-                }
+                } //end seqitem.
+
                 case "variable": {
                     Variable data = context.get(nodeVal, v -> v.getItems() != null);
                     if(data == null){
@@ -162,9 +197,9 @@ public class SequencesInterpreter {
                         break;
                 } //end start of the list.
 
-                case "list": case "call": {
+                case "list": case "call": case "operator": {
                     List<Elem<Object>> data = null;
-                    if(c.getValue().getType().equals("call")){ //function call.
+                    if(c.getValue().getType().equals("call") || c.getValue().getType().equals("operator")){ //function call.
                         if(this.exp.top() instanceof List) {
                             data = (List<Elem<Object>>) this.exp.top();
                             this.exp.pop();

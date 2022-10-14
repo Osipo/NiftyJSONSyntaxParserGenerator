@@ -179,7 +179,7 @@ public class TypeChecker {
         if(oldVal instanceof Number && (expVal instanceof Number || expVal instanceof String))
             return ExpressionsUtils.ParseNumberNumberExpr(oldVal, expVal, op);
         else if(oldVal instanceof Number && expVal instanceof List)
-            return ExpressionsUtils.ParseNumberAndList(oldVal, expVal, op);
+            return ExpressionsUtils.ParseListAndNumberExpr(expVal, oldVal, op); //ExpressionsUtils.ParseNumberAndList(oldVal, expVal, op);
         else if(oldVal instanceof Number && expVal instanceof FunctionInterpreter)
             throw new Exception("You try using '" + op + "' with anonymous function definition.\n But the first operand is not a list.");
 
@@ -187,13 +187,13 @@ public class TypeChecker {
             return ExpressionsUtils.ParseNumberNumberExpr(oldVal, expVal, op);
         }
         else if(oldVal instanceof String && expVal instanceof List){ //v += list.
-            return ExpressionsUtils.ParseNumberAndList(oldVal, expVal, op);
+            return ExpressionsUtils.ParseListAndNumberExpr(expVal, oldVal, op); //ExpressionsUtils.ParseNumberAndList(oldVal, expVal, op);
         }
         else if(oldVal instanceof  String && expVal instanceof FunctionInterpreter){
             throw new Exception("You try using '" + op + "' with anonymous function definition.\n But the first operand is not a list.");
         }
         else if(oldVal instanceof List && (expVal instanceof String || expVal instanceof Number)){//list += expr
-            return ExpressionsUtils.ParseListAndNumberExpr(oldVal, expVal, op);
+            return ExpressionsUtils.ParseNumberAndList(expVal, oldVal, op);//ExpressionsUtils.ParseListAndNumberExpr(oldVal, expVal, op);
         }
         else if(oldVal instanceof List && expVal instanceof List){//list += list
             return ExpressionsUtils.ParseListAndListExpr(oldVal, expVal, op);
@@ -217,7 +217,7 @@ public class TypeChecker {
         if(oldVal instanceof Number && (expVal instanceof Number || expVal instanceof String))
             ExpressionsUtils.ParseNumberNumberExpr(oldVal, expVal, op, v);
         else if(oldVal instanceof Number && expVal instanceof List)
-            ExpressionsUtils.ParseNumberAndList(oldVal, expVal, op, v);
+            ExpressionsUtils.ParseListAndNumberExpr(expVal, oldVal, op, v);//ExpressionsUtils.ParseNumberAndList(oldVal, expVal, op, v);
         else if(oldVal instanceof Number && expVal instanceof FunctionInterpreter)
             throw new Exception("You try using '" + op + "' with anonymous function definition.\n But the first operand is not a list.");
 
@@ -227,14 +227,14 @@ public class TypeChecker {
         }
         else if(oldVal instanceof String && expVal instanceof List){//v += list.
             operationType = 2;
-            ExpressionsUtils.ParseNumberAndList(oldVal, expVal, op, v);
+            ExpressionsUtils.ParseListAndNumberExpr(expVal, oldVal, op, v);//ExpressionsUtils.ParseNumberAndList(oldVal, expVal, op, v);
         }
         else if(oldVal instanceof String && expVal instanceof FunctionInterpreter){//v += function_def
             throw new Exception("You try using '" + op + "' with anonymous function definition.\n But the first operand is not a list.");
         }
         else if(oldVal instanceof List && (expVal instanceof String || expVal instanceof Number)){//list += expr
             operationType = 3;
-            ExpressionsUtils.ParseListAndNumberExpr(oldVal, expVal, op, v);
+            ExpressionsUtils.ParseNumberAndList(expVal, oldVal, op, v);//ExpressionsUtils.ParseListAndNumberExpr(oldVal, expVal, op, v);
         }
         else if(oldVal instanceof List && expVal instanceof List){//list += list
             operationType = 4;
@@ -409,8 +409,8 @@ public class TypeChecker {
                                 content.get(content.size() - 1).setV1(functions.top());
                                 hasFunctionExpr = true;
                             }
-                            //else if(!(content.get(content.size() - 1).getV1() instanceof List)) { //last item is not list.
-                            else {
+
+                            else if(i == indices.size() - 1){ //last iteration.
                                 if(exp.top() != null)
                                     content.get(content.size() - 1).setV1(exp.top());
                                 else if(lists.top() != null)
